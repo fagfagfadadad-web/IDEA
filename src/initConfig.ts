@@ -9,7 +9,8 @@ if (typeof globalThis !== 'undefined') {
   globalThis.clearInterval = globalThis.clearInterval.bind(globalThis);
 }
 
-import { walletConnectV2ProjectId, environment } from './config'; // Should work if config.ts is in src
+import { environment } from './config.mainnet';
+import { walletConnectV2ProjectId } from './sharedConfig';
 import { InitAppType } from './lib';
 
 export const config: InitAppType = {
