@@ -34,18 +34,16 @@ if (!rootElement) {
     initApp(config)
       .then(() => {
         log('initApp succeeded, rendering App');
-        ReactDOM.createRoot(rootElement).render(
-          <React.StrictMode>
-            <App />
-          </React.StrictMode>
-        );
+        ReactDOM.createRoot(rootElement).render(<App />);
       })
-      .catch((error) => {
-        log(`initApp failed: ${error.message}`);
-        rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
+      .catch((error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        log(`initApp failed: ${errorMessage}`);
+        rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${errorMessage}</div>`;
       });
-  } catch (error) {
-    log(`initApp threw synchronous error: ${error.message}`);
-    rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`initApp threw synchronous error: ${errorMessage}`);
+    rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${errorMessage}</div>`;
   }
 }
