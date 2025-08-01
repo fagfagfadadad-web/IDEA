@@ -19,8 +19,11 @@ export const Background = () => {
       return;
     }
 
-    cvs.width = window.innerWidth;
-    cvs.height = window.innerHeight;
+    const canvas = cvs as HTMLCanvasElement;
+    const context = ctx as CanvasRenderingContext2D;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     let particlesArray: Particle[] = [];
     let mouse: { x: number | null; y: number | null; radius: number } = { x: null, y: null, radius: 170 };
@@ -43,17 +46,17 @@ export const Background = () => {
       }
 
       draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-        ctx.fillStyle = this.color;
-        ctx.fill();
+        context.beginPath();
+        context.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+        context.fillStyle = this.color;
+        context.fill();
       }
 
       update() {
-        if (this.x > cvs.width || this.x < 0) {
+        if (this.x > canvas.width || this.x < 0) {
           this.directionX = -this.directionX;
         }
-        if (this.y > cvs.height || this.y < 0) {
+        if (this.y > canvas.height || this.y < 0) {
           this.directionY = -this.directionY;
         }
 
@@ -61,19 +64,20 @@ export const Background = () => {
         let dy = mouse.y !== null ? mouse.y - this.y : 0;
         let distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < mouse.radius + this.size) {
-          if (mouse.x !== null && mouse.x < this.x && this.x < cvs.width - this.size * 10) {
+          if (mouse.x !== null && mouse.x < this.x && this.x < canvas.width - this.size * 10) {
             this.x += 10;
           }
           if (mouse.x !== null && mouse.x > this.x && this.x > this.size * 10) {
             this.x -= 10;
           }
-          if (mouse.y !== null && mouse.y < this.y && this.y < cvs.height - this.size * 10) {
+          if (mouse.y !== null && mouse.y < this.y && this.y < canvas.height - this.size * 10) {
             this.y += 10;
           }
           if (mouse.y !== null && mouse.y > this.y && this.y > this.size * 10) {
             this.y -= 10;
           }
         }
+
         this.x += this.directionX;
         this.y += this.directionY;
         this.draw();
@@ -82,7 +86,7 @@ export const Background = () => {
 
     function init() {
       particlesArray = [];
-      let numberOfParticles = (cvs.height * cvs.width) / 9000;
+      let numberOfParticles = (canvas.height * canvas.width) / 9000;
       for (let i = 0; i < numberOfParticles * 0.25; i++) {
         let size = Math.random() * 35 + 1;
         let x = Math.random() * (innerWidth - size * 2 - size * 2) + size * 2;
@@ -99,19 +103,20 @@ export const Background = () => {
       for (let i = 0; i < particlesArray.length; i++) {
         for (let j = i; j < particlesArray.length; j++) {
           let distance =
-            (particlesArray[i].x - particlesArray[j].x) * (particlesArray[i].x - particlesArray[j].x) +
-            (particlesArray[i].y - particlesArray[j].y) * (particlesArray[i].y - particlesArray[j].y);
-          if (distance < (cvs.width / 7) * (cvs.height / 7)) {
+            (particlesArray[i].x - particlesArray[j].x) ** 2 +
+            (particlesArray[i].y - particlesArray[j].y) ** 2;
+
+          if (distance < (canvas.width / 7) * (canvas.height / 7)) {
             opacityValue = 1 - distance / 20000;
-            ctx.strokeStyle = `rgba(${parseInt(particlesArray[i].color.slice(1, 3), 16)}, ${parseInt(
+            context.strokeStyle = `rgba(${parseInt(particlesArray[i].color.slice(1, 3), 16)}, ${parseInt(
               particlesArray[i].color.slice(3, 5),
               16
             )}, ${parseInt(particlesArray[i].color.slice(5, 7), 16)}, ${opacityValue})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
-            ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
-            ctx.stroke();
+            context.lineWidth = 1;
+            context.beginPath();
+            context.moveTo(particlesArray[i].x, particlesArray[i].y);
+            context.lineTo(particlesArray[j].x, particlesArray[j].y);
+            context.stroke();
           }
         }
       }
@@ -120,7 +125,7 @@ export const Background = () => {
     let animationFrameId: number;
     function animate() {
       animationFrameId = requestAnimationFrame(animate);
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      context.clearRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < particlesArray.length; i++) {
         particlesArray[i].update();
       }
@@ -224,8 +229,8 @@ export const Background = () => {
     document.onmousemove = handleMouseMoveWithStop;
 
     window.addEventListener('resize', () => {
-      cvs.width = window.innerWidth;
-      cvs.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       mouse.radius = 170;
       init();
       hexagonGrid();
