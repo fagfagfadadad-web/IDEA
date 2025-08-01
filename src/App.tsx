@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import { Route, HashRouter as Router, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
@@ -10,10 +10,27 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 const AppContent = () => {
   const location = useLocation();
-  
+
+  // Logovanie na obrazovku
+  const logContainer = document.createElement('div');
+  logContainer.style.position = 'fixed';
+  logContainer.style.top = '50%';
+  logContainer.style.left = '0';
+  logContainer.style.background = 'white';
+  logContainer.style.padding = '10px';
+  logContainer.style.maxHeight = '50%';
+  logContainer.style.overflow = 'auto';
+  logContainer.style.zIndex = '9999';
+  logContainer.style.fontSize = '14px';
+  document.body.appendChild(logContainer);
+
+  const log = (message: string) => {
+    logContainer.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+  };
+
   useEffect(() => {
-    console.log('🔄 App: Route changed to:', location.pathname);
-    console.log('🔄 App: Available routes:', routes.map(r => r.path));
+    log(`App: Route changed to: ${location.pathname}`);
+    log(`App: Available routes: ${JSON.stringify(routes.map(r => r.path))}`);
   }, [location]);
 
   return (
@@ -35,7 +52,8 @@ const AppContent = () => {
               ))}
             </Route>
           ))}
-          <Route path='*' element={<PageNotFound />} />
+          <Route path="/test" element={<div style={{ padding: 20, background: 'white' }}>Test Page Works!</div>} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Layout>
       <MobileBottomNav />
@@ -44,6 +62,20 @@ const AppContent = () => {
 };
 
 export const App = () => {
+  // Logovanie mountovania App
+  const logContainer = document.createElement('div');
+  logContainer.style.position = 'fixed';
+  logContainer.style.top = '25%';
+  logContainer.style.left = '0';
+  logContainer.style.background = 'white';
+  logContainer.style.padding = '10px';
+  logContainer.style.maxHeight = '25%';
+  logContainer.style.overflow = 'auto';
+  logContainer.style.zIndex = '9999';
+  logContainer.style.fontSize = '14px';
+  document.body.appendChild(logContainer);
+
+  logContainer.innerHTML += `<p>${new Date().toLocaleTimeString()}: App component mounted</p>`;
 
   return (
     <Router>
