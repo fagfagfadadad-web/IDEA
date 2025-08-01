@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { contractAddress } from '../../config'; // Adjusted for src/hooks/transactions/
+import { contractAddress } from '../../config/config.mainnet';
 import { signAndSendTransactions } from 'helpers';
 import {
   AbiRegistry,
