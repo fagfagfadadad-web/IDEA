@@ -1,7 +1,5 @@
-// src/components/Background.tsx
 import { useEffect, useRef } from 'react';
 
-// Barevná paleta
 const colorPalette = ['#7B61FF', '#38BDF8', '#FF6B6B', '#FFD93D', '#6BCB77'];
 
 export const Background = () => {
@@ -11,8 +9,15 @@ export const Background = () => {
 
   useEffect(() => {
     const cvs = canvasRef.current;
-    const ctx = cvs?.getContext('2d');
-    if (!cvs || !ctx) return;
+    if (!cvs) {
+      console.error('Canvas element not found');
+      return;
+    }
+    const ctx = cvs.getContext('2d');
+    if (!ctx) {
+      console.error('Canvas context not found');
+      return;
+    }
 
     cvs.width = window.innerWidth;
     cvs.height = window.innerHeight;
@@ -20,7 +25,6 @@ export const Background = () => {
     let particlesArray: Particle[] = [];
     let mouse: { x: number | null; y: number | null; radius: number } = { x: null, y: null, radius: 170 };
 
-    // Třída pro částice
     class Particle {
       x: number;
       y: number;
@@ -76,7 +80,6 @@ export const Background = () => {
       }
     }
 
-    // Inicializace částic
     function init() {
       particlesArray = [];
       let numberOfParticles = (cvs.height * cvs.width) / 9000;
@@ -84,14 +87,13 @@ export const Background = () => {
         let size = Math.random() * 35 + 1;
         let x = Math.random() * (innerWidth - size * 2 - size * 2) + size * 2;
         let y = Math.random() * (innerWidth - size * 2 - size * 2) + size * 2;
-        let directionX = Math.random() * 2 - 1; // Zpomalené částice
-        let directionY = Math.random() * 2 - 1; // Zpomalené částice
+        let directionX = Math.random() * 2 - 1;
+        let directionY = Math.random() * 2 - 1;
         let color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
         particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
       }
     }
 
-    // Spojovací čáry mezi částicemi
     function connect() {
       let opacityValue = 1;
       for (let i = 0; i < particlesArray.length; i++) {
@@ -115,17 +117,16 @@ export const Background = () => {
       }
     }
 
-    // Animace částic
+    let animationFrameId: number;
     function animate() {
-      requestAnimationFrame(animate);
-      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      animationFrameId = requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
       for (let i = 0; i < particlesArray.length; i++) {
         particlesArray[i].update();
       }
       connect();
     }
 
-    // Inicializace hexagonové mřížky
     function hexagonGrid() {
       const HEXAGON_GRID = hexagonGridRef.current;
       if (!HEXAGON_GRID) return;
@@ -148,7 +149,6 @@ export const Background = () => {
       }
 
       let rows = HEXAGON_GRID.querySelectorAll('.row');
-
       for (let i = 0; i < rows.length; i++) {
         for (let j = 0; j < columnsNumber; j++) {
           let hexagon = document.createElement('div');
@@ -160,9 +160,8 @@ export const Background = () => {
       }
     }
 
-    // Aktualizace hexagonů pro "hadovitý" efekt
     function updateHexagons() {
-      const hexagons = document.querySelectorAll('.hexagon');
+      const hexagons = document.querySelectorAll('.hexagon') as NodeListOf<HTMLElement>;
       hexagons.forEach((hex) => {
         const hexX = parseFloat(hex.dataset.x!) + 50;
         const hexY = parseFloat(hex.dataset.y!) + 55;
@@ -172,17 +171,16 @@ export const Background = () => {
           const delay = (distance / mouse.radius) * 300;
           setTimeout(() => {
             const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-            (hex as HTMLElement).style.setProperty('--hover-color', randomColor);
+            hex.style.setProperty('--hover-color', randomColor);
           }, delay);
         } else {
           setTimeout(() => {
-            (hex as HTMLElement).style.setProperty('--hover-color', '#FFFFFF');
+            hex.style.setProperty('--hover-color', '#FFFFFF');
           }, 500);
         }
       });
     }
 
-    // FPS Meter
     function initFPSMeter() {
       const fpsMeter = fpsMeterRef.current;
       if (!fpsMeter) return;
@@ -204,7 +202,6 @@ export const Background = () => {
       });
     }
 
-    // Event listenery
     const handleMouseMove = (event: MouseEvent) => {
       mouse.x = event.x;
       mouse.y = event.y;
@@ -227,10 +224,8 @@ export const Background = () => {
     document.onmousemove = handleMouseMoveWithStop;
 
     window.addEventListener('resize', () => {
-      if (cvs) {
-        cvs.width = window.innerWidth;
-        cvs.height = window.innerHeight;
-      }
+      cvs.width = window.innerWidth;
+      cvs.height = window.innerHeight;
       mouse.radius = 170;
       init();
       hexagonGrid();
@@ -242,14 +237,13 @@ export const Background = () => {
       updateHexagons();
     });
 
-    // Inicializace
     hexagonGrid();
     init();
     animate();
     initFPSMeter();
 
-    // Cleanup při unmount
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', () => {});
       window.removeEventListener('mouseout', () => {});
