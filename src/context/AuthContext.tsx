@@ -1,0 +1,449 @@
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { useGetIsLoggedIn, useGetAccount, getAccountProvider } from 'lib';
+import { supabase } from '../lib/supabase';
+
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: any | null;
+  loading: boolean;
+  isProfileReady: boolean;
+  authMessage: string;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  user: null,
+  loading: true,
+  isProfileReady: false,
+  authMessage: '',
+  logout: async () => {},
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const isLoggedIn = useGetIsLoggedIn();
+  const { address } = useGetAccount();
+  const [user, setUser] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isProfileReady, setIsProfileReady] = useState(false);
+  const [authMessage, setAuthMessage] = useState('');
+  const [lastAddress, setLastAddress] = useState<string | null>(null);
+  
+  // CRITICAL: Add refs to prevent multiple auth attempts
+  const isAuthenticating = useRef(false);
+
+  // Generate a valid email from MultiversX address using first 6 characters
+  const generateValidEmail = (address: string) => {
+    // Take first 6 characters after 'erd1' prefix
+    const addressPart = address.startsWith('erd1') ? address.substring(4, 10) : address.substring(0, 6);
+    return `${addressPart}@multiversx.com`;
+  };
+
+  const handleSupabaseSignOut = async () => {
+    try {
+      // Check if there's an active session before attempting to sign out
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.log('Session check error, performing local cleanup:', sessionError.message);
+        await supabase.auth.signOut({ scope: 'local' });
+        return;
+      }
+
+      // Only attempt server logout if there's an active session with a valid user
+      if (session && session.user && session.access_token) {
+        try {
+          const { error } = await supabase.auth.signOut();
+          
+          if (error) {
+            // Handle specific session errors gracefully
+            if (error.message?.includes('Session from session_id claim in JWT does not exist') || 
+                error.message?.includes('session_not_found') ||
+                error.message?.includes('Auth session missing')) {
+              console.log('Session already expired, performing local cleanup');
+              await supabase.auth.signOut({ scope: 'local' });
+              return;
+            }
+            // Re-throw other errors
+            throw new Error(error.message);
+          }
+        } catch (signOutError: any) {
+          console.log('Server sign out failed, performing local cleanup:', signOutError.message);
+          await supabase.auth.signOut({ scope: 'local' });
+        }
+      } else {
+        // Perform local-only sign out without making server request
+        await supabase.auth.signOut({ scope: 'local' });
+      }
+    } catch (error: any) {
+      // Handle any other unexpected errors gracefully
+      console.log('Error during sign out, proceeding with local cleanup:', error.message);
+      // Ensure local cleanup happens even if server request fails
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (localError: any) {
+        console.log('Local cleanup also failed, continuing anyway:', localError.message);
+      }
+    }
+  };
+
+  const syncAuth = async () => {
+    // CRITICAL: Prevent multiple simultaneous auth attempts
+    if (isAuthenticating.current) {
+      console.log('🔒 Auth already in progress, skipping...');
+      return;
+    }
+
+    isAuthenticating.current = true;
+    let isMounted = true;
+    let currentSession = null;
+
+    try {
+      setLoading(true);
+      console.log('🔄 AuthContext: Starting auth sync...');
+      console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
+      console.log('📍 AuthContext: address:', address);
+
+      // Check existing session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error('❌ AuthContext: Session error:', sessionError);
+        // Reset authentication state when session retrieval fails
+        setUser(null);
+        setIsProfileReady(false);
+        setAuthMessage('Session expired. Please log in again.');
+        currentSession = null;
+        // Clear any stale session data
+        await handleSupabaseSignOut();
+        return;
+      } else {
+        currentSession = session;
+        console.log('✅ AuthContext: Current session:', !!currentSession);
+      }
+
+      // Handle stale sessions - if session exists but user is null, clear it
+      if (currentSession && !currentSession.user) {
+        console.log('🧹 AuthContext: Clearing stale session');
+        await handleSupabaseSignOut();
+        currentSession = null;
+      }
+
+      if (!isLoggedIn || !address) {
+        console.log('❌ AuthContext: Not logged in or no address');
+        setUser(null);
+        setIsProfileReady(false);
+        setAuthMessage('Please log in using your MultiversX wallet.');
+        if (currentSession && currentSession.user) {
+          await handleSupabaseSignOut();
+        }
+        return;
+      }
+
+      // Check for address change
+      if (lastAddress && lastAddress !== address) {
+        console.log('🔄 AuthContext: Address changed, clearing session');
+        await handleSupabaseSignOut();
+        currentSession = null;
+      }
+      setLastAddress(address);
+
+      // Use existing session if it's valid
+      if (currentSession && currentSession.user) {
+        console.log('🔍 AuthContext: Checking existing session user profile...');
+        const { data: profile, error: profileError } = await supabase
+          .from('users')
+          .select('id, wallet_address, is_admin')
+          .eq('id', currentSession.user.id)
+          .maybeSingle();
+
+        if (!profileError && profile && profile.wallet_address === address) {
+          console.log('✅ AuthContext: Existing session valid, setting user');
+          console.log('👤 AuthContext: User profile:', profile);
+          
+          // Enhance user object with profile data
+          const enhancedUser = {
+            ...currentSession.user,
+            is_admin: profile.is_admin
+          };
+          
+          setUser(enhancedUser);
+          await setupProfile(enhancedUser, address);
+          return;
+        }
+      }
+
+      // CRITICAL: Only proceed with new auth if we don't have a valid session
+      if (!currentSession || !currentSession.user) {
+        setAuthMessage('Connecting wallet...');
+        const generatedEmail = generateValidEmail(address);
+
+        console.log('🔐 AuthContext: Using email:', generatedEmail);
+
+        // Attempt sign in
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: generatedEmail,
+          password: address,
+        });
+
+        let authUser = signInData?.user;
+
+        if (signInError && signInError.message.includes('Invalid login credentials')) {
+          console.log('🆕 AuthContext: Creating new user account...');
+          setAuthMessage('Setting up account...');
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: generatedEmail,
+            password: address,
+            options: {
+              data: {
+                multiversx_address: address,
+              },
+            },
+          });
+
+          if (signUpError) {
+            console.error('❌ AuthContext: Sign up error:', signUpError);
+            throw new Error(`Failed to sign up: ${signUpError.message}`);
+          }
+          authUser = signUpData?.user;
+        } else if (signInError) {
+          console.error('❌ AuthContext: Sign in error:', signInError);
+          throw new Error(`Failed to sign in: ${signInError.message}`);
+        }
+
+        if (authUser) {
+          console.log('✅ AuthContext: Auth user obtained, setting up profile...');
+          await setupProfile(authUser, address);
+        } else {
+          setUser(null);
+          setIsProfileReady(false);
+          setAuthMessage('Authentication completed but no user data received. Please try reconnecting your wallet.');
+        }
+      }
+    } catch (error: any) {
+      console.error('❌ AuthContext: Auth sync error:', error);
+      if (isMounted) {
+        setUser(null);
+        setIsProfileReady(false);
+        setAuthMessage('Failed to authenticate. Please try reconnecting your wallet.');
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+      isAuthenticating.current = false;
+    }
+  };
+
+  const setupProfile = async (authUser: any, walletAddress: string) => {
+    setAuthMessage('Setting up profile...');
+    console.log('🔧 AuthContext: Setting up profile for user:', authUser.id);
+    
+    try {
+      const { data: existingUserByWallet, error: fetchWalletError } = await supabase
+        .from('users')
+        .select('id, username, wallet_address, email, is_admin')
+        .eq('wallet_address', walletAddress)
+        .maybeSingle();
+
+      if (fetchWalletError && fetchWalletError.code !== 'PGRST116') {
+        throw new Error(`Failed to check user by wallet: ${fetchWalletError.message}`);
+      }
+
+      if (existingUserByWallet) {
+        console.log('✅ AuthContext: Existing user found by wallet:', existingUserByWallet);
+        
+        // Enhance auth user with profile data
+        const enhancedUser = {
+          ...authUser,
+          is_admin: existingUserByWallet.is_admin
+        };
+        
+        setUser(enhancedUser);
+        setIsProfileReady(true);
+        setAuthMessage('');
+        return;
+      }
+
+      const { data: existingUserById, error: fetchIdError } = await supabase
+        .from('users')
+        .select('id, wallet_address, is_admin')
+        .eq('id', authUser.id)
+        .maybeSingle();
+
+      if (fetchIdError && fetchIdError.code !== 'PGRST116') {
+        throw new Error(`Failed to check user by ID: ${fetchIdError.message}`);
+      }
+
+      if (existingUserById) {
+        console.log('🔄 AuthContext: Updating existing user wallet address');
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ wallet_address: walletAddress })
+          .eq('id', authUser.id);
+
+        if (updateError) {
+          throw new Error(`Failed to update wallet address: ${updateError.message}`);
+        }
+        
+        // Enhance auth user with profile data
+        const enhancedUser = {
+          ...authUser,
+          is_admin: existingUserById.is_admin
+        };
+        
+        setUser(enhancedUser);
+        setIsProfileReady(true);
+        setAuthMessage('');
+        return;
+      }
+
+      console.log('🆕 AuthContext: Creating new user profile...');
+      let username = walletAddress.slice(0, 8);
+      let isUnique = false;
+      let counter = 1;
+      const maxAttempts = 10;
+
+      while (!isUnique && counter <= maxAttempts) {
+        const { data: duplicateCheck, error: duplicateError } = await supabase
+          .from('users')
+          .select('id')
+          .eq('username', username)
+          .maybeSingle();
+
+        if (duplicateError && duplicateError.code !== 'PGRST116') {
+          throw new Error(`Failed to check username: ${duplicateError.message}`);
+        }
+
+        if (!duplicateCheck) {
+          isUnique = true;
+        } else {
+          username = `${walletAddress.slice(0, 6)}${counter}`;
+          counter++;
+        }
+      }
+
+      if (!isUnique) {
+        throw new Error('Unable to generate a unique username');
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: authUser.id,
+          username,
+          wallet_address: walletAddress,
+          email_notifications_enabled: false,
+          email: null,
+          is_admin: false, // Default to false for new users
+        })
+        .select()
+        .single();
+
+      if (profileError) {
+        throw new Error(`Failed to set up profile: ${profileError.message}`);
+      }
+
+      console.log('✅ AuthContext: New profile created:', profile);
+      
+      // Enhance auth user with profile data
+      const enhancedUser = {
+        ...authUser,
+        is_admin: profile.is_admin
+      };
+      
+      setUser(enhancedUser);
+      setIsProfileReady(true);
+      setAuthMessage('');
+    } catch (error: any) {
+      console.error('❌ AuthContext: Profile setup error:', error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // CRITICAL: Always run syncAuth when login state or address changes
+    syncAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 AuthContext: Auth state change:', event);
+      
+      // CRITICAL: Only handle specific auth events to prevent loops
+      if (event === 'SIGNED_IN' && session?.user && address && isMounted && !isAuthenticating.current) {
+        console.log('✅ AuthContext: User signed in, setting up profile...');
+        setUser(session.user);
+        setupProfile(session.user, address);
+      } else if (event === 'SIGNED_OUT' && isMounted) {
+        console.log('👋 AuthContext: User signed out');
+        setUser(null);
+        setIsProfileReady(false);
+        setLastAddress(null); // Force full re-authentication on next login
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, [isLoggedIn, address]); // CRITICAL: Only depend on essential values
+
+  const logout = async () => {
+    try {
+      console.log('👋 AuthContext: Logging out...');
+      isAuthenticating.current = true; // Prevent new auth attempts during logout
+      
+      await handleSupabaseSignOut();
+      const provider = getAccountProvider();
+      await provider.logout();
+      setUser(null);
+      setIsProfileReady(false);
+      setLastAddress(null);
+      setAuthMessage('Successfully logged out');
+    } catch (error: any) {
+      console.error('❌ AuthContext: Logout error:', error);
+      // Even if logout fails, clear local state
+      setUser(null);
+      setIsProfileReady(false);
+      setLastAddress(null);
+      setAuthMessage('Logged out (with some cleanup issues)');
+    } finally {
+      isAuthenticating.current = false;
+    }
+  };
+
+  const value = {
+    isAuthenticated: isLoggedIn && !!user && isProfileReady,
+    user,
+    loading,
+    isProfileReady,
+    authMessage,
+    logout,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const updateUserEmail = async (userId: string, email: string) => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ email })
+      .eq('id', userId);
+
+    if (error) {
+      throw new Error(`Failed to update email: ${error.message}`);
+    }
+  } catch (error: any) {
+    console.error('Error updating email:', error);
+    throw error;
+  }
+};

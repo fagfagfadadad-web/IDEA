@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Gradient button styles */
+  .gradient-button {
+    @apply relative inline-flex items-center justify-center gap-2;
+  }
+  
+  .gradient-button::before {
+    content: '';
+    @apply absolute inset-0 duration-1000 opacity-60 transition-all rounded-xl blur-lg filter;
+    background-image: linear-gradient(to right, #6366f1, #ec4899, #facc15);
+  }
+  
+  .gradient-button-inner {
+    @apply relative inline-flex items-center justify-center text-sm md:text-base rounded-xl bg-gray-900 px-4 py-2 md:px-8 md:py-3 font-semibold text-white transition-all duration-200 hover:bg-gray-800 hover:shadow-lg hover:-translate-y-0.5 hover:shadow-gray-600/30;
+  }
+  
+  .gradient-button-arrow {
+    @apply mt-0.5 ml-2 -mr-1 stroke-white stroke-2 w-3 h-3 md:w-4 md:h-4;
+  }
+  
+  .gradient-button-arrow-line {
+    @apply transition opacity-0 group-hover:opacity-100;
+  }
+  
+  .gradient-button-arrow-path {
+    @apply transition group-hover:translate-x-[3px];
+  }
+
+  /* Gradient card styles */
+  .gradient-card {
+    @apply relative bg-white rounded-xl border border-gray-200 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden;
+  }
+  
+  .gradient-card::before {
+    content: '';
+    @apply absolute inset-0 opacity-0 transition-opacity duration-300;
+    background-image: linear-gradient(to bottom right, #eef2ff, #fdf2f8, #fefce8);
+  }
+  
+  .gradient-card:hover::before {
+    @apply opacity-100;
+  }
+  
+  .gradient-card > * {
+    @apply relative z-10;
+  }
+
+  /* Gradient border cards */
+  .gradient-border-card {
+    @apply relative bg-white rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+  
+  .gradient-border-card::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl;
+    background-image: linear-gradient(to right, #6366f1, #ec4899, #facc15);
+  }
+  
+  .gradient-border-card::after {
+    content: '';
+    @apply absolute inset-[2px] bg-white rounded-[10px];
+  }
+  
+  .gradient-border-card > * {
+    @apply relative z-10;
+  }
+
+  /* Mobile optimized inputs */
+  .mobile-input {
+    @apply w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200;
+  }
+  
+  .mobile-select {
+    @apply w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 appearance-none;
+  }
+
+  /* Mobile optimized buttons */
+  .mobile-button {
+    @apply w-full md:w-auto px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 touch-manipulation;
+  }
+  
+  .mobile-button-primary {
+    @apply mobile-button text-white hover:shadow-lg hover:-translate-y-0.5;
+    background-image: linear-gradient(to right, #4f46e5, #db2777);
+  }
+  
+  .mobile-button-primary:hover {
+    background-image: linear-gradient(to right, #4338ca, #be185d);
+  }
+  
+  .mobile-button-secondary {
+    @apply mobile-button bg-white text-gray-900 border border-gray-300 hover:bg-gray-50 hover:shadow-md;
+  }
+
+  /* Carousel optimizations */
+  .mobile-carousel {
+    @apply flex gap-4 overflow-x-auto pb-4 scrollbar-hide;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+  }
+  
+  .mobile-carousel-item {
+    @apply flex-shrink-0;
+    scroll-snap-align: start;
+  }
+
+  /* Particles and Hexagon Grid */
+  #particles {
+    background: #FFFFFF; /* Bílá */
+  }
+
+  #hexagonGrid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #hexagonGrid .row {
+    display: inline-flex;
+    margin-top: -32px;
+    margin-left: -50px;
+  }
+
+  #hexagonGrid .row:nth-child(even) {
+    margin-left: 2px;
+  }
+
+  #hexagonGrid .hexagon {
+    position: relative;
+    width: 100px;
+    height: 110px;
+    margin: 4px 2px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  #hexagonGrid .hexagon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--hover-color, #FFFFFF);
+    opacity: 0.2; /* Ještě nižší opacita hexagonů */
+    transition: background 0.5s ease, opacity 0.5s ease;
+  }
+
+  #hexagonGrid .hexagon::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    bottom: 4px;
+    left: 4px;
+    background: #E0E0E0;
+    opacity: 0.2; /* Ještě nižší opacita pro konzistenci */
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+}
+
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Ensure smooth scrolling on mobile */
+@media (max-width: 768px) {
+  .mobile-carousel {
+    scroll-snap-type: x mandatory;
+  }
+
+  .mobile-carousel-item {
+    scroll-snap-align: start;
+  }
+  
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Gradient text */
+.gradient-text {
+  background-image: linear-gradient(to right, #4f46e5, #db2777, #eab308);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Animated gradient background */
+.animated-gradient {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Mobile-first responsive utilities */
+@media (max-width: 640px) {
+  .mobile-container {
+    @apply px-4;
+  }
+  
+  .mobile-grid {
+    @apply grid-cols-1;
+  }
+  
+  .mobile-text {
+    @apply text-sm;
+  }
+  
+  .mobile-heading {
+    @apply text-lg;
+  }
+}
