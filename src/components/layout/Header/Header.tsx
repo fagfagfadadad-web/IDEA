@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, MxLink } from 'components';
-import { environment } from '../../../config'; // Adjusted for src/components/layout/Header/
+import { environment } from '../../../config/config.mainnet';
 import { getAccountProvider, useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import MultiversXLogo from '../../../assets/img/multiversx-logo.svg?react';
