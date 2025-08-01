@@ -4,7 +4,7 @@ import { initApp } from 'lib';
 import { App } from './App';
 import { config } from './initConfig';
 
-// Vytvor dočasný kontajner pre zobrazenie logov/chýb
+// Vytvor dočasný kontajner pre logy
 const logContainer = document.createElement('div');
 logContainer.style.position = 'fixed';
 logContainer.style.top = '0';
@@ -22,6 +22,7 @@ const log = (message: string) => {
 };
 
 log('Starting app initialization');
+log(`UserAgent: ${navigator.userAgent}`);
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -29,17 +30,22 @@ if (!rootElement) {
   document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found</div>';
 } else {
   log('Root element found, initializing app...');
-  initApp(config)
-    .then(() => {
-      log('initApp succeeded, rendering App');
-      ReactDOM.createRoot(rootElement).render(
-        <React.StrictMode>
-          <App />
-        </React.StrictMode>
-      );
-    })
-    .catch((error) => {
-      log(`initApp failed: ${error.message}`);
-      rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
-    });
+  try {
+    initApp(config)
+      .then(() => {
+        log('initApp succeeded, rendering App');
+        ReactDOM.createRoot(rootElement).render(
+          <React.StrictMode>
+            <App />
+          </React.StrictMode>
+        );
+      })
+      .catch((error) => {
+        log(`initApp failed: ${error.message}`);
+        rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
+      });
+  } catch (error) {
+    log(`initApp threw synchronous error: ${error.message}`);
+    rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
+  }
 }
