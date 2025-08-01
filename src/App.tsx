@@ -3,15 +3,12 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
-import { BatchTransactionsContextProvider } from 'wrappers';
-import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 const AppContent = () => {
   const location = useLocation();
 
-  // Logovanie na obrazovku
   const logContainer = document.createElement('div');
   logContainer.style.position = 'fixed';
   logContainer.style.top = '50%';
@@ -29,8 +26,8 @@ const AppContent = () => {
   };
 
   useEffect(() => {
-    log(`App: Route changed to: ${location.pathname}`);
-    log(`App: Available routes: ${JSON.stringify(routes.map(r => r.path))}`);
+    log(`AppContent: Route changed to: ${location.pathname}`);
+    log(`AppContent: Available routes: ${JSON.stringify(routes.map(r => r.path))}`);
   }, [location]);
 
   return (
@@ -62,7 +59,6 @@ const AppContent = () => {
 };
 
 export const App = () => {
-  // Logovanie mountovania App
   const logContainer = document.createElement('div');
   logContainer.style.position = 'fixed';
   logContainer.style.top = '25%';
@@ -79,11 +75,7 @@ export const App = () => {
 
   return (
     <Router>
-      <AuthProvider>
-        <BatchTransactionsContextProvider>
-          <AppContent />
-        </BatchTransactionsContextProvider>
-      </AuthProvider>
+      <AppContent />
     </Router>
   );
 };
