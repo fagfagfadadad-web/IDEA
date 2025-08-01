@@ -89,7 +89,14 @@ export const Home = () => {
 
   // Auto-scroll effect for mobile carousel
   useEffect(() => {
-    if (!isMobile || isUserInteracting || !carouselRef.current) return;
+    if (!isMobile || isUserInteracting || !carouselRef.current) {
+      console.log('Carousel auto-scroll skipped:', {
+        isMobile,
+        isUserInteracting,
+        hasCarouselRef: !!carouselRef.current,
+      });
+      return;
+    }
 
     const element = carouselRef.current;
     const scrollAmount = 2;
@@ -98,16 +105,32 @@ export const Home = () => {
     const totalWidth = serviceCategories.length * (itemWidth + gap);
 
     const scroll = () => {
-      if (!carouselRef.current) return;
-      let scrollPosition = element.scrollLeft + scrollAmount;
-      if (scrollPosition >= totalWidth) {
+      if (!carouselRef.current) {
+        console.warn('Carousel ref is null in scroll function');
+        return;
+      }
+
+      let scrollPosition = carouselRef.current.scrollLeft + scrollAmount;
+      if (scrollPosition >= totalWidth - carouselRef.current.clientWidth) {
         scrollPosition = 0;
       }
-      element.scrollLeft = scrollPosition;
+      carouselRef.current.scrollLeft = scrollPosition;
     };
 
-    const intervalId = setInterval(scroll, 50);
-    return () => clearInterval(intervalId);
+    // Delay the start of scrolling to ensure DOM is fully mounted
+    const timeoutId = setTimeout(() => {
+      console.log('Starting carousel auto-scroll');
+      const intervalId = setInterval(scroll, 50);
+      return () => {
+        console.log('Cleaning up carousel auto-scroll');
+        clearInterval(intervalId);
+      };
+    }, 300); // 300ms delay to ensure mount
+
+    return () => {
+      console.log('Cleaning up carousel timeout');
+      clearTimeout(timeoutId);
+    };
   }, [isMobile, isUserInteracting]);
 
   const handleUserInteraction = () => {
