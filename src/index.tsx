@@ -4,26 +4,19 @@ import { initApp } from 'lib';
 import { App } from './App';
 import { config } from './initConfig';
 
-console.log('Starting app initialization', { userAgent: navigator.userAgent });
-
-initApp(config)
-  .then(() => {
-    console.log('initApp succeeded, rendering App');
-    const rootElement = document.getElementById('root');
-    if (!rootElement) {
-      console.error('Root element not found');
-      return;
-    }
-    ReactDOM.createRoot(rootElement).render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
-  })
-  .catch((error) => {
-    console.error('initApp failed:', error);
-    const rootElement = document.getElementById('root');
-    if (rootElement) {
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found</div>';
+} else {
+  initApp(config)
+    .then(() => {
+      ReactDOM.createRoot(rootElement).render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+    })
+    .catch((error) => {
       rootElement.innerHTML = `<div style="color: red; padding: 20px;">Error initializing app: ${error.message}</div>`;
-    }
-  });
+    });
+}
