@@ -5,7 +5,6 @@ const colorPalette = ['#7B61FF', '#38BDF8', '#FF6B6B', '#FFD93D', '#6BCB77'];
 export const Background = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hexagonGridRef = useRef<HTMLDivElement>(null);
-  const fpsMeterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -48,7 +47,10 @@ export const Background = () => {
       draw() {
         context.beginPath();
         context.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-        context.fillStyle = this.color;
+        const r = parseInt(this.color.slice(1, 3), 16);
+        const g = parseInt(this.color.slice(3, 5), 16);
+        const b = parseInt(this.color.slice(5, 7), 16);
+        context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`; // Opacita 0.4
         context.fill();
       }
 
@@ -186,27 +188,6 @@ export const Background = () => {
       });
     }
 
-    function initFPSMeter() {
-      const fpsMeter = fpsMeterRef.current;
-      if (!fpsMeter) return;
-
-      let previousTime = Date.now();
-      let frames = 0;
-      let refreshRate = 1000;
-
-      requestAnimationFrame(function loop() {
-        const TIME = Date.now();
-        frames++;
-        if (TIME > previousTime + refreshRate) {
-          let fps = Math.round((frames * refreshRate) / (TIME - previousTime));
-          previousTime = TIME;
-          frames = 0;
-          fpsMeter.innerHTML = 'FPS: ' + fps * (1000 / refreshRate);
-        }
-        requestAnimationFrame(loop);
-      });
-    }
-
     const handleMouseMove = (event: MouseEvent) => {
       mouse.x = event.x;
       mouse.y = event.y;
@@ -245,7 +226,6 @@ export const Background = () => {
     hexagonGrid();
     init();
     animate();
-    initFPSMeter();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
@@ -260,7 +240,6 @@ export const Background = () => {
     <section className="absolute top-0 left-0 w-full h-full">
       <canvas id="particles" ref={canvasRef}></canvas>
       <div id="hexagonGrid" ref={hexagonGridRef}></div>
-      <div id="fpsMeter" ref={fpsMeterRef}></div>
     </section>
   );
 };
