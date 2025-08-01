@@ -1,7 +1,6 @@
 import './styles/globals.css';
 
 // Fix for TypeError: t._onTimeout is not a function
-// Explicitly bind setTimeout and setInterval to globalThis
 if (typeof globalThis !== 'undefined') {
   globalThis.setTimeout = globalThis.setTimeout.bind(globalThis);
   globalThis.setInterval = globalThis.setInterval.bind(globalThis);
@@ -9,8 +8,8 @@ if (typeof globalThis !== 'undefined') {
   globalThis.clearInterval = globalThis.clearInterval.bind(globalThis);
 }
 
-import { environment } from './config.mainnet';
-import { walletConnectV2ProjectId } from './sharedConfig';
+import { environment } from './config/config.mainnet'; // Opravená cesta
+import { walletConnectV2ProjectId } from './config/sharedConfig';
 import { InitAppType } from './lib';
 
 export const config: InitAppType = {
