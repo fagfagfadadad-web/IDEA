@@ -1,5 +1,5 @@
 import { Label } from 'components';
-import { contractAddress } from '../../config'; // Adjusted for src/components/ContractAddress/
+import { contractAddress } from '../../config/config.mainnet';
 import {
   ACCOUNTS_ENDPOINT,
   getExplorerLink,
