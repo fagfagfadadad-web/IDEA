@@ -30,8 +30,19 @@ if (!rootElement) {
   document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found</div>';
 } else {
   log('Root element found, initializing app...');
+  
+  // Funkcia na pridanie timeoutu
+  const timeoutPromise = (promise: Promise<void>, timeoutMs: number) => {
+    return Promise.race([
+      promise,
+      new Promise<void>((_, reject) => {
+        setTimeout(() => reject(new Error('initApp timed out after ' + timeoutMs + 'ms')), timeoutMs);
+      }),
+    ]);
+  };
+
   try {
-    initApp(config)
+    timeoutPromise(initApp(config), 10000) // 10 sekúnd timeout
       .then(() => {
         log('initApp succeeded, rendering App');
         ReactDOM.createRoot(rootElement).render(<App />);
