@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
+import { BatchTransactionsContextProvider } from 'wrappers';
+import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
@@ -75,7 +77,11 @@ export const App = () => {
 
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <BatchTransactionsContextProvider>
+          <AppContent />
+        </BatchTransactionsContextProvider>
+      </AuthProvider>
     </Router>
   );
 };
