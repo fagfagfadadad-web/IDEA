@@ -33,8 +33,33 @@ export const OrderDetails = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
 
   const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+
+  // Funkcia na načítanie provider_address z databázy
+  const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('gigs')
+        .select('provider(wallet_address)')
+        .eq('id', gigId)
+        .single();
+      if (error) {
+        console.error('Chyba pri načítaní provider_address z databázy:', error);
+        return null;
+      }
+      const walletAddress = data?.provider?.wallet_address;
+      if (!isValidAddress(walletAddress)) {
+        console.error('Neplatná adresa poskytovateľa z databázy:', walletAddress);
+        return null;
+      }
+      return walletAddress;
+    } catch (error) {
+      console.error('Chyba pri načítaní provider_address:', error);
+      return null;
+    }
+  };
 
   const isValidAddress = (addr: string | undefined): boolean => {
     if (!addr) return false;
@@ -203,13 +228,20 @@ export const OrderDetails = () => {
       return;
     }
 
-    const paymentToken = order.payment_token || 'EGLD'; // Definovanie paymentToken na začiatku
+    const paymentToken = order.payment_token || 'EGLD';
     try {
       setIsPaymentLoading(true);
-      console.log('Creating transaction...');
+      console.log('Creating transaction...', { orderData: JSON.stringify(order, null, 2) });
 
-      // Validácia providerAddress
-      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      // Validácia a načítanie providerAddress
+      let providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      if (!isValidAddress(providerAddress) && order.gig_id) {
+        console.log('Provider address not found in order, fetching from database...', { gigId: order.gig_id });
+        providerAddress = await fetchProviderAddress(order.gig_id);
+        if (!providerAddress) {
+          throw new Error('Nepodarilo sa načítať adresu poskytovateľa z databázy. Skontrolujte údaje gig-u.');
+        }
+      }
       if (!isValidAddress(providerAddress)) {
         throw new Error('Neplatná alebo chýbajúca adresa poskytovateľa. Skontrolujte údaje objednávky.');
       }
@@ -225,11 +257,11 @@ export const OrderDetails = () => {
       const hexOrderId = uuidToHex(order.id);
       const providerAddressHex = addressToHex(providerAddress);
       const deadline = getDeadlineTimestamp();
-      const deadlineHex = deadline.toString(16).padStart(16, '0'); // Zabezpečenie 8 bajtov pre u64
+      const deadlineHex = deadline.toString(16).padStart(16, '0');
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111)); // Zahrnutie 10% poplatku
+        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111));
         const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: amount,
@@ -284,6 +316,7 @@ export const OrderDetails = () => {
           payment_status: 'escrowed',
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
+          provider_address: providerAddress // Uloženie provider_address do objednávky
         })
         .eq('id', order.id);
 
@@ -305,6 +338,7 @@ export const OrderDetails = () => {
         : `${paymentToken} platba zlyhala: ${error.message}`
         : `${paymentToken} platba zlyhala: Neznáma chyba`;
       toast.error(errorMessage);
+      setProviderAddressError(errorMessage); // Uloženie chyby pre zobrazenie
     } finally {
       setIsPaymentLoading(false);
     }
@@ -555,12 +589,29 @@ export const OrderDetails = () => {
   const isClient = user?.id === order?.client?.id;
   const isProvider = user?.id === order?.gig?.provider?.id;
 
-  const canPay = isClient && (order?.status === 'pending_approval' || order?.status === 'in_progress') && order?.payment_status === 'pending';
+  const canPay = isClient && 
+                 (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
+                 order?.payment_status === 'pending' && 
+                 !providerAddressError; // Zakázanie platby, ak je chyba s adresou
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
   const canSubmitWork = isProvider && order?.status === 'in_progress' && order?.payment_status === 'escrowed' && order?.work_status !== 'submitted';
   const canDispute = (isClient || isProvider) && order?.payment_status === 'escrowed' && order?.status !== 'completed' && order?.status !== 'cancelled' && order?.payment_status !== 'disputed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
+
+  // Kontrola provider_address pri načítaní objednávky
+  useEffect(() => {
+    if (order && !isLoading) {
+      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      if (!isValidAddress(providerAddress) && order.gig_id) {
+        fetchProviderAddress(order.gig_id).then((address) => {
+          if (!address) {
+            setProviderAddressError('Neplatná alebo chýbajúca adresa poskytovateľa. Skontrolujte údaje gig-u.');
+          }
+        });
+      }
+    }
+  }, [order, isLoading]);
 
   if (isLoading) {
     return (
@@ -646,6 +697,15 @@ export const OrderDetails = () => {
               </div>
             )}
 
+            {providerAddressError && (
+              <div className="bg-red-100 border border-red-500 rounded-xl p-4">
+                <div className="flex items-center">
+                  <AlertTriangle size={20} className="text-red-800 mr-2" />
+                  <p className="text-red-800">{providerAddressError}</p>
+                </div>
+              </div>
+            )}
+
             {canPay && (
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
@@ -658,6 +718,7 @@ export const OrderDetails = () => {
                   <Button
                     onClick={() => setShowPaymentModal(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    disabled={!!providerAddressError}
                   >
                     <DollarSign size={16} />
                     Zaplatiť teraz
@@ -826,7 +887,7 @@ export const OrderDetails = () => {
               <Button
                 onClick={handlePayment}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
-                disabled={isPaymentLoading}
+                disabled={isPaymentLoading || !!providerAddressError}
               >
                 <DollarSign size={16} />
                 {isPaymentLoading ? 'Spracováva sa...' : 'Zaplatiť teraz'}
