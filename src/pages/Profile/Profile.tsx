@@ -20,9 +20,9 @@ import {
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle } from 'components';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
-import { useProfile, useUpdateProfile } from '../hooks/useProfile';
-import { useOrders } from '../hooks/useOrders';
-import { useGigs } from '../hooks/useGigs';
+import { useProfile, useUpdateProfile } from 'hooks/useProfile';
+import { useOrders } from 'hooks/useOrders';
+import { useGigs } from 'hooks/useGigs';
 import { useNotifications, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
 import { useAuth } from '../context/AuthContext';
 
