@@ -16,6 +16,9 @@ export const usePayments = () => {
   // Pomocná funkcia na konverziu UUID na hex
   const uuidToHex = (uuid: string): string => {
     const cleanUuid = uuid.replace(/-/g, '');
+    if (cleanUuid.length !== 32) {
+      throw new Error('Neplatný formát UUID, musí mať 32 hex znakov bez pomlčiek');
+    }
     console.log('UUID konverzia:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
     return cleanUuid;
   };
@@ -24,6 +27,9 @@ export const usePayments = () => {
   const addressToHex = (bech32Address: string): string => {
     try {
       const addressObj = new Address(bech32Address);
+      if (addressObj.isZero()) {
+        throw new Error('Adresa nemôže byť nulová');
+      }
       return addressObj.hex();
     } catch (error) {
       console.error('Chyba pri konverzii adresy na hex:', error);
@@ -33,7 +39,12 @@ export const usePayments = () => {
 
   // Generovanie deadline (7 dní od teraz)
   const getDeadlineTimestamp = (): number => {
-    return Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7 dní
+    const currentTime = Math.floor(Date.now() / 1000);
+    const deadline = currentTime + 7 * 24 * 60 * 60; // 7 dní
+    if (deadline <= currentTime + 86_400) {
+      throw new Error('Deadline musí byť aspoň 1 deň v budúcnosti');
+    }
+    return deadline;
   };
 
   // Kontrola zostatku peňaženky (EGLD alebo ESDT, napr. IDA-f9bc1d)
@@ -82,18 +93,20 @@ export const usePayments = () => {
         }
       }
 
+      // Úprava pre 10% poplatok pri EGLD
+      const effectiveAmount = tokenId === 'EGLD' ? requiredAmount * 1.1111 : requiredAmount; // 10% poplatok
       console.log('🏁 Výsledok kontroly zostatku:', {
         address: walletAddress,
         tokenId,
         balance,
-        requiredAmount,
-        hasEnoughFunds: balance >= requiredAmount
+        requiredAmount: effectiveAmount,
+        hasEnoughFunds: balance >= effectiveAmount
       });
 
       return {
-        hasEnoughFunds: balance >= requiredAmount,
+        hasEnoughFunds: balance >= effectiveAmount,
         balance,
-        required: requiredAmount,
+        required: effectiveAmount,
         error: null
       };
     } catch (error) {
@@ -122,10 +135,10 @@ export const usePayments = () => {
         throw new Error('Prosím, pripojte svoju peňaženku');
       }
 
-      // Kontrola zostatku
+      // Kontrola zostatku s ohľadom na 10% poplatok
       const balanceCheck = await checkWalletBalance(address, amount, paymentToken);
       if (!balanceCheck.hasEnoughFunds) {
-        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${amount} ${paymentToken}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`;
+        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${paymentToken} (vrátane 10% poplatku pre EGLD), ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`;
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -152,8 +165,9 @@ export const usePayments = () => {
       });
 
       console.log('Vytváranie EGLD transakcie:', { hexOrderId, providerAddressHex, deadlineHex, value: value.toString(), data, escrowAddress });
-
+      toast.info('10% poplatok bude odpočítaný z EGLD platby.');
       toast.info('Spracováva sa platba, potvrďte v peňaženke...');
+
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -164,7 +178,7 @@ export const usePayments = () => {
       });
 
       console.log('Platba úspešná, session ID:', sessionId);
-      toast.success('Platba úspešná!');
+      toast.success('Platba úspešná! Čistá suma po 10% poplatku bola uložená.');
       return sessionId;
     } catch (error) {
       console.error('Platba zlyhala:', error);
@@ -192,7 +206,7 @@ export const usePayments = () => {
       // Kontrola zostatku
       const balanceCheck = await checkWalletBalance(address, amount, tokenId);
       if (!balanceCheck.hasEnoughFunds) {
-        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${amount} ${tokenId}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${tokenId}.`;
+        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${tokenId}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${tokenId}.`;
         toast.error(errorMsg);
         throw new Error(errorMsg);
       }
@@ -419,7 +433,7 @@ export const usePayments = () => {
       console.log('Kontrola stavu platby pre objednávku:', orderId);
       const hexOrderId = uuidToHex(orderId);
       const response = await axios.get(
-        `https://api.multiversx.com/accounts/${address}/transactions?size=10&status=success`,
+        `https://api.multiversx.com/accounts/${address}/transactions?size=20&status=success`,
         { timeout: 15000 }
       );
       const tx = response.data.find((t: any) => t.data && Buffer.from(t.data, 'base64').toString('utf8').includes(hexOrderId));
