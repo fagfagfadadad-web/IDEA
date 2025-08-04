@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { MoreVertical, Plus, Star, X, Edit2, Clock, DollarSign } from 'lucide-react';
+import { MoreVertical, Plus, Star, X, Edit2, Clock, DollarSign, Coins } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../context/AuthContext';
@@ -10,6 +10,7 @@ import { useDeleteGig } from '../../hooks/useGigs';
 import { usePayments } from '../../hooks/usePayments';
 import { supabase } from '../../lib/supabase';
 import { useCustomToast } from '../../hooks/useCustomToast';
+import { useOrders } from '../../hooks/useOrders';
 
 export const Profile = () => {
   const { id } = useParams();
@@ -26,7 +27,6 @@ export const Profile = () => {
   const [deletedGigIds, setDeletedGigIds] = useState<string[]>([]);
   const [timeLeftMap, setTimeLeftMap] = useState<Record<string, string>>({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-import { useOrders } from '../../hooks/useOrders';
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -209,6 +209,19 @@ import { useOrders } from '../../hooks/useOrders';
     }
   };
 
+  const getOrderStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'green';
+      case 'in_progress':
+        return 'blue';
+      case 'cancelled':
+        return 'red';
+      default:
+        return 'yellow';
+    }
+  };
+
   const getProgressValue = (status: string) => {
     switch (status) {
       case 'completed':
@@ -273,6 +286,10 @@ import { useOrders } from '../../hooks/useOrders';
 
   // Filter out deleted gigs client-side
   const filteredGigs = profile?.gigs?.filter((gig: any) => !deletedGigIds.includes(gig.id)) || [];
+
+  // Separate orders by role
+  const clientOrders = profile?.orders?.filter((order: any) => order.client_id === user?.id) || [];
+  const providerOrders = profile?.orders?.filter((order: any) => order.provider_id === user?.id) || [];
 
   if (!profile) {
     return (
@@ -412,7 +429,7 @@ import { useOrders } from '../../hooks/useOrders';
                   <div className="space-y-4">
                     <div>
                       <label className="block text-white text-sm font-medium mb-2">
-                    {(clientOrders.length === 0 && providerOrders.length === 0) ? (
+                        Username
                       </label>
                       <input
                         type="text"
@@ -603,6 +620,208 @@ import { useOrders } from '../../hooks/useOrders';
                                       {profile?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </div>
                                   )}
+                                </div>
+                                <span className="text-xs text-gray-800 truncate max-w-[60px]">
+                                  {(profile?.username || "Unknown").substring(0, 6)}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                {isOwnProfile && (
+                                  <button
+                                    onClick={(e) => handleEditClick(e, gig.id)}
+                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs"
+                                  >
+                                    <Edit2 size={8} />
+                                  </button>
+                                )}
+                                <span className="text-xs font-bold" style={{ color: statusColor }}>
+                                  {gig.price} {tokenSymbol}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Desktop Grid */}
+                  <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+                    {filteredGigs.map((gig: any, index: number) => {
+                      const statusColor = getStatusColor(gig.category?.toLowerCase() || '');
+                      const paymentToken = gig.payment_token || 'EGLD';
+                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                      const hasNoFees = paymentToken !== 'EGLD';
+
+                      return (
+                        <div
+                          key={`${gig.id}-${index}`}
+                          className="max-w-80 w-full rounded-lg bg-white border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer relative"
+                          onClick={() => navigate(`/gigs/${gig.id}`)}
+                        >
+                          {/* Delete Button */}
+                          {isOwnProfile && (
+                            <button
+                              onClick={(e) => handleDeleteClick(e, gig.id)}
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center z-10"
+                            >
+                              <X size={14} className="text-white" />
+                            </button>
+                          )}
+
+                          <div className="flex justify-between items-center p-3 border-b border-gray-100">
+                            <span className="text-xs text-gray-500">
+                              {new Date(gig.created_at).toLocaleDateString()}
+                            </span>
+                            <div className="flex gap-2">
+                              <span
+                                className="px-2 py-1 rounded-full text-xs font-medium"
+                                style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
+                              >
+                                {gig.category}
+                              </span>
+                              {hasNoFees && (
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  No Fees
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="relative h-32">
+                            <img
+                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
+                              alt={gig.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          <div className="p-3 space-y-3">
+                            <h3 className="text-sm font-bold text-gray-800 line-clamp-2 h-10">
+                              {gig.title}
+                            </h3>
+                            <p className="text-xs text-gray-600 line-clamp-2 h-8">
+                              {gig.description}
+                            </p>
+                            <p className="text-xs text-gray-800">
+                              Duration: {gig.duration} days
+                            </p>
+                          </div>
+
+                          <div className="flex justify-between items-center p-3 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full overflow-hidden relative">
+                                {profile?.avatar_url ? (
+                                  <>
+                                    <img
+                                      src={profile.avatar_url}
+                                      alt={profile.username || "Profile"}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div 
+                                      className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
+                                      style={{ display: 'none' }}
+                                    >
+                                      {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-xs text-gray-800">
+                                {profile?.username || "Unknown"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isOwnProfile && (
+                                <button
+                                  onClick={(e) => handleEditClick(e, gig.id)}
+                                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs"
+                                >
+                                  <Edit2 size={12} />
+                                  Edit
+                                </button>
+                              )}
+                              <span className="text-sm font-bold" style={{ color: statusColor }}>
+                                {gig.price} {tokenSymbol}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <p className="text-gray-400">No active gigs yet</p>
+              )}
+            </div>
+          )}
+
+          {isOwnProfile && activeTab === 1 && (
+            <div>
+              {profile?.orders?.length ? (
+                <>
+                  {/* Mobile Carousel */}
+                  <div className="md:hidden px-2">
+                    {(clientOrders.length === 0 && providerOrders.length === 0) ? (
+                      <p className="text-gray-400">No orders yet</p>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Client Orders */}
+                        {clientOrders.length > 0 && (
+                          <div className="space-y-4">
+                            <h4 className="text-md font-semibold text-gray-700">As Client ({clientOrders.length})</h4>
+                            <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                              {clientOrders.map((order) => {
+                                const paymentToken = order.payment_token || 'EGLD';
+                                const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                                const tokenIcon = paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+                                const statusColor = getOrderStatusColor(order.status);
+                                
+                                return (
+                                  <div
+                                    key={order.id}
+                                    className="min-w-[260px] w-[260px] gradient-card cursor-pointer p-3 flex-shrink-0"
+                                    onClick={() => navigate(`/orders/${order.id}`)}
+                                  >
+                                    <div className="space-y-2">
+                                      <div className="flex justify-between items-center">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                          statusColor === 'green' ? 'bg-green-100 text-green-800' :
+                                          statusColor === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                          statusColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                          statusColor === 'red' ? 'bg-red-100 text-red-800' :
+                                          'bg-gray-100 text-gray-800'
+                                        }`}>
+                                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                          {tokenIcon}
+                                          <span className="text-sm font-bold text-gray-800">
+                                            {order.amount} {tokenSymbol}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      
+                                      <h4 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                                        {order.gig?.title || 'Custom Project'}
+                                      </h4>
+                                      
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-full overflow-hidden relative">
                                           <img
                                             src={order.gig?.provider?.avatar_url || "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"}
                                             alt={order.gig?.provider?.username || "Provider"}
@@ -789,237 +1008,28 @@ import { useOrders } from '../../hooks/useOrders';
                                             >
                                               {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
                                             </div>
-                      const paymentToken = gig.payment_token || 'EGLD';
-                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
-                      const hasNoFees = paymentToken !== 'EGLD';
-
-                      return (
-                        <div
-                          key={`${gig.id}-${index}`}
-                          className="max-w-80 w-full rounded-lg bg-white border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer relative"
-                          onClick={() => navigate(`/gigs/${gig.id}`)}
-                        >
-                          {/* Delete Button */}
-                          {isOwnProfile && (
-                            <button
-                              onClick={(e) => handleDeleteClick(e, gig.id)}
-                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center z-10"
-                            >
-                              <X size={14} className="text-white" />
-                            </button>
-                          )}
-
-                          <div className="flex justify-between items-center p-3 border-b border-gray-100">
-                            <span className="text-xs text-gray-500">
-                              {new Date(gig.created_at).toLocaleDateString()}
-                            </span>
-                            <div className="flex gap-2">
-                              <span
-                                className="px-2 py-1 rounded-full text-xs font-medium"
-                                style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
-                              >
-                                {gig.category}
-                              </span>
-                              {hasNoFees && (
-                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                  No Fees
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="relative h-32">
-                            <img
-                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                              alt={gig.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-
-                          <div className="p-3 space-y-3">
-                            <h3 className="text-sm font-bold text-gray-800 line-clamp-2 h-10">
-                              {gig.title}
-                            </h3>
-                            <p className="text-xs text-gray-600 line-clamp-2 h-8">
-                              {gig.description}
-                            </p>
-                            <p className="text-xs text-gray-800">
-                              Duration: {gig.duration} days
-                            </p>
-                          </div>
-
-                          <div className="flex justify-between items-center p-3 border-t border-gray-100">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden relative">
-                                {profile?.avatar_url ? (
-                                  <>
-                                    <img
-                                      src={profile.avatar_url}
-                                      alt={profile.username || "Profile"}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.display = 'none';
-                                        const parent = target.parentElement;
-                                        if (parent) {
-                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                          if (fallback) fallback.style.display = 'flex';
-                                        }
-                                      }}
-                                    />
-                                    <div 
-                                      className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
-                                      style={{ display: 'none' }}
-                                    >
-                                      {profile?.username?.charAt(0)?.toUpperCase() || "?"}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="text-xs text-gray-800">
-                                {profile?.username || "Unknown"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {isOwnProfile && (
-                                <button
-                                  onClick={(e) => handleEditClick(e, gig.id)}
-                                  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs"
-                                >
-                                  <Edit2 size={12} />
-                                  Edit
-                                </button>
-                              )}
-                              <span className="text-sm font-bold" style={{ color: statusColor }}>
-                                {gig.price} {tokenSymbol}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <p className="text-gray-400">No active gigs yet</p>
-              )}
-            </div>
-          )}
-
-          {isOwnProfile && activeTab === 1 && (
-            <div>
-              {profile?.orders?.length ? (
-                <>
-                  {/* Mobile Carousel */}
-                  <div className="md:hidden px-2">
-                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      {profile.orders.map((order: any, index: number) => {
-                        const statusColor = getStatusColor(order.status);
-                        const paymentToken = order.payment_token || 'EGLD';
-                        const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
-                        const hasNoFees = paymentToken !== 'EGLD';
-
-                        return (
-                          <div
-                            key={`${order.id}-${index}`}
-                            className="min-w-[260px] w-[260px] rounded-lg bg-white border border-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer relative flex-shrink-0"
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                          >
-                            {/* Payment Status Badge */}
-                            {getPaymentStatusBadge(order)}
-
-                            <div className="flex justify-between items-center p-2 border-b border-gray-100">
-                              <span className="text-xs text-gray-500 truncate">
-                                {new Date(order.created_at).toLocaleDateString()}
-                              </span>
-                              <div className="flex gap-1 flex-wrap">
-                                <span
-                                  className="px-1.5 py-0.5 rounded-full text-xs font-medium"
-                                  style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
-                                >
-                                  {order.status.charAt(0).toUpperCase() + order.status.slice(1).substring(0, 6)}...
-                                </span>
-                                {hasNoFees && (
-                                  <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    No Fees
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="relative h-28">
-                              <img
-                                src={order.gig?.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                                alt={order.gig?.title || "Order Image"}
-                                            <img
-                                              src={order.client?.avatar_url || "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"}
-                                              alt={order.client?.username || "Client"}
-                                              className="w-full h-full object-cover"
-                                              onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.style.display = 'none';
-                                                const parent = target.parentElement;
-                                                if (parent) {
-                                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                                  if (fallback) fallback.style.display = 'flex';
-                                                }
-                                              }}
-                                            />
-                                            <div 
-                                              className="fallback-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
-                                              style={{ display: 'none' }}
-                                            >
-                                              {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                            </div>
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                            if (fallback) fallback.style.display = 'flex';
-                                          }
-                                        }}
-                                      />
-                                      <div 
-                                        className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
-                                        style={{ display: 'none' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                          </div>
+                                          <span className="text-xs text-gray-800 truncate max-w-[60px]">
+                                            Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-1">
+                                          <Clock size={12} className="text-gray-400" />
+                                          <span className="text-xs text-gray-500">
+                                            {new Date(order.created_at).toLocaleDateString()}
+                                          </span>
+                                        </div>
                                       </div>
-                                    </>
-                                  ) : (
-                                    <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                      {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </div>
-                                  )}
-                                </div>
-                                <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                  {(order.client?.username || "Unknown").substring(0, 6)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {order.payment_status === 'pending_release' && timeLeftMap[order.id] === 'Ready to claim' && (
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleClaimPayment(order.id);
-                                    }}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-1"
-                                  >
-                                    <DollarSign size={8} />
-                                  </Button>
-                                )}
-                                <span className="text-xs md:text-sm font-bold" style={{ color: statusColor }}>
-                                  {order.amount} {tokenSymbol}
-                                </span>
+                                  );
+                                })}
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Desktop Grid */}
