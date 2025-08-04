@@ -37,26 +37,31 @@ export const OrderDetails = () => {
 
   const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
-  // Funkcia na načítanie provider_address z databázy
   const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
     try {
+      console.log('Fetching provider address for gig:', { gigId });
       const { data, error } = await supabase
         .from('gigs')
-        .select('provider(wallet_address)')
+        .select('provider_id, users!provider_id(wallet_address)')
         .eq('id', gigId)
         .single();
+      
       if (error) {
-        console.error('Chyba pri načítaní provider_address z databázy:', error);
+        console.error('Supabase error fetching provider address:', error);
         return null;
       }
-      const walletAddress = data?.provider?.wallet_address;
+      
+      const walletAddress = data?.users?.wallet_address;
+      console.log('Fetched provider data:', { data, walletAddress });
+      
       if (!isValidAddress(walletAddress)) {
-        console.error('Neplatná adresa poskytovateľa z databázy:', walletAddress);
+        console.error('Invalid provider address from database:', walletAddress);
         return null;
       }
+      
       return walletAddress;
     } catch (error) {
-      console.error('Chyba pri načítaní provider_address:', error);
+      console.error('Error fetching provider address:', error);
       return null;
     }
   };
@@ -234,12 +239,21 @@ export const OrderDetails = () => {
       console.log('Creating transaction...', { orderData: JSON.stringify(order, null, 2) });
 
       // Validácia a načítanie providerAddress
-      let providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      let providerAddress = order.provider_address || order.gig?.users?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
         console.log('Provider address not found in order, fetching from database...', { gigId: order.gig_id });
         providerAddress = await fetchProviderAddress(order.gig_id);
         if (!providerAddress) {
           throw new Error('Nepodarilo sa načítať adresu poskytovateľa z databázy. Skontrolujte údaje gig-u.');
+        }
+        // Aktualizácia provider_address v databáze
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update({ provider_address: providerAddress })
+          .eq('id', order.id);
+        if (updateError) {
+          console.error('Error updating provider_address:', updateError);
+          throw new Error(`Failed to update provider_address: ${updateError.message}`);
         }
       }
       if (!isValidAddress(providerAddress)) {
@@ -316,7 +330,7 @@ export const OrderDetails = () => {
           payment_status: 'escrowed',
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
-          provider_address: providerAddress // Uloženie provider_address do objednávky
+          provider_address: providerAddress
         })
         .eq('id', order.id);
 
@@ -338,7 +352,7 @@ export const OrderDetails = () => {
         : `${paymentToken} platba zlyhala: ${error.message}`
         : `${paymentToken} platba zlyhala: Neznáma chyba`;
       toast.error(errorMessage);
-      setProviderAddressError(errorMessage); // Uloženie chyby pre zobrazenie
+      setProviderAddressError(errorMessage);
     } finally {
       setIsPaymentLoading(false);
     }
@@ -592,17 +606,16 @@ export const OrderDetails = () => {
   const canPay = isClient && 
                  (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
                  order?.payment_status === 'pending' && 
-                 !providerAddressError; // Zakázanie platby, ak je chyba s adresou
+                 !providerAddressError;
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
   const canSubmitWork = isProvider && order?.status === 'in_progress' && order?.payment_status === 'escrowed' && order?.work_status !== 'submitted';
   const canDispute = (isClient || isProvider) && order?.payment_status === 'escrowed' && order?.status !== 'completed' && order?.status !== 'cancelled' && order?.payment_status !== 'disputed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
-  // Kontrola provider_address pri načítaní objednávky
   useEffect(() => {
     if (order && !isLoading) {
-      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      const providerAddress = order.provider_address || order.gig?.users?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
         fetchProviderAddress(order.gig_id).then((address) => {
           if (!address) {
