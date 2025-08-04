@@ -573,11 +573,38 @@ export const Profile = () => {
 
                             <div className="flex justify-between items-center p-2 border-t border-gray-100">
                               <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                  {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                                <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                  {profile?.avatar_url ? (
+                                    <>
+                                      <img
+                                        src={profile.avatar_url}
+                                        alt={profile.username || "Profile"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                            if (fallback) fallback.style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                      <div 
+                                        className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
+                                        style={{ display: 'none' }}
+                                      >
+                                        {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                      {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  )}
                                 </div>
                                 <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                  {(gig.provider?.username || "Unknown").substring(0, 6)}
+                                  {(profile?.username || "Unknown").substring(0, 6)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2">
@@ -665,11 +692,38 @@ export const Profile = () => {
 
                           <div className="flex justify-between items-center p-3 border-t border-gray-100">
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                              <div className="w-6 h-6 rounded-full overflow-hidden relative">
+                                {profile?.avatar_url ? (
+                                  <>
+                                    <img
+                                      src={profile.avatar_url}
+                                      alt={profile.username || "Profile"}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div 
+                                      className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
+                                      style={{ display: 'none' }}
+                                    >
+                                      {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                                  </div>
+                                )}
                               </div>
                               <span className="text-xs text-gray-800">
-                                {gig.provider?.username || "Unknown"}
+                                {profile?.username || "Unknown"}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -761,8 +815,35 @@ export const Profile = () => {
 
                             <div className="flex justify-between items-center p-2 border-t border-gray-100">
                               <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                  {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                  {order.client?.avatar_url ? (
+                                    <>
+                                      <img
+                                        src={order.client.avatar_url}
+                                        alt={order.client.username || "Client"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                            if (fallback) fallback.style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                      <div 
+                                        className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
+                                        style={{ display: 'none' }}
+                                      >
+                                        {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                      {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  )}
                                 </div>
                                 <span className="text-xs text-gray-800 truncate max-w-[60px]">
                                   {(order.client?.username || "Unknown").substring(0, 6)}
@@ -850,8 +931,35 @@ export const Profile = () => {
 
                           <div className="flex justify-between items-center p-3 border-t border-gray-100">
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                                {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                              <div className="w-6 h-6 rounded-full overflow-hidden relative">
+                                {order.client?.avatar_url ? (
+                                  <>
+                                    <img
+                                      src={order.client.avatar_url}
+                                      alt={order.client.username || "Client"}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div 
+                                      className="fallback-avatar w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs absolute inset-0"
+                                      style={{ display: 'none' }}
+                                    >
+                                      {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                                    {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                  </div>
+                                )}
                               </div>
                               <span className="text-xs text-gray-800">
                                 {order.client?.username || "Unknown"}
