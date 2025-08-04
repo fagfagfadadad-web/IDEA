@@ -1,230 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card } from 'components';
-import { 
-  useGetIsLoggedIn, 
-  useGetAccount, 
-  useGetNetworkConfig, 
-  Transaction, 
-  Address
-} from 'lib';
-import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
-import { useOrderById } from '../../hooks/useOrders';
-import { useAuth } from '../../context/AuthContext';
-import { OrderChat } from '../../components/OrderChat';
-import { supabase } from '../../lib/supabase';
-import axios from 'axios';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
+import { Transaction, TransactionManager } from 'lib';
+import { supabase } from 'lib/supabase'; // Predpokladám, že máte Supabase klienta
+import {
+  isValidAddress,
+  addressToHex,
+  uuidToHex,
+  getDeadlineTimestamp
+} from 'utils'; // Predpokladané pomocné funkcie
 
-export const OrderDetails = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const isLoggedIn = useGetIsLoggedIn();
-  const { address } = useGetAccount();
-  const { network } = useGetNetworkConfig();
-  const { user } = useAuth();
-  
-  const { data: order, isLoading, error } = useOrderById(id || '');
+// Konštanty
+const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+const network = { chainId: '1' }; // Mainnet: '1', Devnet: 'D'
 
+interface Order {
+  id: string;
+  gig_id: string;
+  client_id: string;
+  status: string;
+  amount: number;
+  created_at: string;
+  requirements: { timestamp: string; description: string };
+  deadline: string | null;
+  status_updated_at: string;
+  transaction_hash: string | null;
+  payment_status: string;
+  release_at: string | null;
+  work_status: string;
+  client_address: string;
+  provider_address: string | null;
+  payment_token: string;
+  gig?: {
+    id: string;
+    title: string;
+    users?: { wallet_address: string };
+  };
+  client?: { email: string | null; username: string };
+}
+
+interface OrderDetailsProps {
+  order: Order;
+  address: string; // Adresa prihláseného používateľa
+}
+
+const OrderDetails: React.FC<OrderDetailsProps> = ({ order, address }) => {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
-  const [isReleaseLoading, setIsReleaseLoading] = useState(false);
-  const [isSubmitWorkLoading, setIsSubmitWorkLoading] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showDisputeModal, setShowDisputeModal] = useState(false);
-  const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-
-  const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
-    try {
-      console.log('Fetching provider address for gig:', { gigId });
-      const { data, error } = await supabase
-        .from('gigs')
-        .select('provider_id, users!provider_id(wallet_address)')
-        .eq('id', gigId)
-        .single();
-      
-      if (error) {
-        console.error('Supabase error fetching provider address:', error);
-        return null;
-      }
-      
-      const walletAddress = data?.users?.wallet_address;
-      console.log('Fetched provider data:', { data, walletAddress });
-      
-      if (!isValidAddress(walletAddress)) {
-        console.error('Invalid provider address from database:', walletAddress);
-        return null;
-      }
-      
-      return walletAddress;
-    } catch (error) {
+  // Funkcia na načítanie adresy poskytovateľa z databázy
+  const fetchProviderAddress = async (gigId: string): Promise<string> => {
+    const { data, error } = await supabase
+      .from('gigs')
+      .select('users(wallet_address)')
+      .eq('id', gigId)
+      .single();
+    if (error) {
       console.error('Error fetching provider address:', error);
-      return null;
+      throw new Error(`Nepodarilo sa načítať adresu poskytovateľa: ${error.message}`);
     }
+    return data?.users?.wallet_address;
   };
 
-  const isValidAddress = (addr: string | undefined): boolean => {
-    if (!addr) return false;
-    try {
-      new Address(addr);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
-  const addressToHex = (bech32Address: string): string => {
-    try {
-      if (!isValidAddress(bech32Address)) {
-        throw new Error('Neplatná adresa: adresa nie je v správnom Bech32 formáte');
-      }
-
-      const address = new Address(bech32Address);
-      const hex = address.hex();
-      const zeroAddress = '0000000000000000000000000000000000000000000000000000000000000000';
-
-      if (hex === zeroAddress) {
-        throw new Error('Adresa nemôže byť nulová');
-      }
-
-      return hex;
-    } catch (error) {
-      console.error('Failed to convert address to hex:', error);
-      throw new Error(`Neplatný formát adresy: ${bech32Address}`);
-    }
-  };
-
-  const uuidToHex = (uuid: string): string => {
-    const cleanUuid = uuid.replace(/-/g, '');
-    if (cleanUuid.length !== 32) {
-      throw new Error('Neplatný formát UUID, musí mať 32 hex znakov bez pomlčiek');
-    }
-    console.log('UUID conversion:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
-    return cleanUuid;
-  };
-
-  const getDeadlineTimestamp = (): number => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const deadline = currentTime + 7 * 24 * 60 * 60;
-    if (deadline <= currentTime + 86_400) {
-      throw new Error('Deadline musí byť aspoň 1 deň v budúcnosti');
-    }
-    console.log('Vygenerovaný deadline:', { currentTime, deadline });
-    return deadline;
-  };
-
-  const checkWalletBalance = async (walletAddress: string, requiredAmount: number, tokenId: string = 'EGLD') => {
+  // Funkcia na kontrolu zostatku peňaženky
+  const checkWalletBalance = async (walletAddress: string, requiredAmount: number, tokenId: string) => {
     try {
       console.log('🔍 Kontrola zostatku peňaženky:', { walletAddress, requiredAmount, tokenId });
-      if (!isValidAddress(walletAddress)) {
-        throw new Error('Neplatná adresa peňaženky');
-      }
-
-      let balance = 0;
-      if (tokenId === 'EGLD') {
-        const response = await axios.get(
-          `https://api.multiversx.com/accounts/${walletAddress}`,
-          { timeout: 15000 }
-        );
-        balance = response.data.balance
-          ? parseFloat(response.data.balance) / Math.pow(10, 18)
-          : 0;
-        console.log('💰 Výsledok EGLD zostatku:', { raw: response.data.balance, formatted: balance });
-      } else {
-        console.log(`🪙 Kontrola ESDT zostatku pre: ${tokenId}`);
-        try {
-          const response = await axios.get(
-            `https://api.multiversx.com/accounts/${walletAddress}/tokens/${tokenId}`,
-            { timeout: 15000 }
-          );
-          if (response.data && response.data.balance) {
-            const tokenDecimals = 18;
-            balance = parseFloat(response.data.balance) / Math.pow(10, tokenDecimals);
-            console.log(`✅ Nájdený zostatok pre ${tokenId}:`, {
-              raw: response.data.balance,
-              decimals: tokenDecimals,
-              formatted: balance
-            });
-          } else {
-            console.log(`❌ Žiadny zostatok pre ${tokenId}`);
-            balance = 0;
-          }
-        } catch (error) {
-          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
-          balance = 0;
-        }
-      }
-
-      const effectiveAmount = tokenId === 'EGLD' ? requiredAmount * 1.1111 : requiredAmount;
-      console.log('🏁 Výsledok kontroly zostatku:', {
+      const response = await axios.get(
+        `https://api.multiversx.com/accounts/${walletAddress}/tokens/${tokenId}`,
+        { timeout: 10000 }
+      );
+      const balance = parseFloat(response.data.balance) / 1e18;
+      const required = requiredAmount * 1.1111; // Zahŕňa 10% poplatok
+      console.log('💰 Výsledok EGLD zostatku:', { raw: response.data.balance, formatted: balance });
+      return {
         address: walletAddress,
         tokenId,
         balance,
-        requiredAmount: effectiveAmount,
-        hasEnoughFunds: balance >= effectiveAmount
-      });
-
-      return {
-        hasEnoughFunds: balance >= effectiveAmount,
-        balance,
-        required: effectiveAmount,
-        error: null
+        required,
+        hasEnoughFunds: balance >= required
       };
     } catch (error) {
-      console.error('💥 Chyba pri kontrole zostatku:', error.message);
-      toast.error(`Chyba pri kontrole zostatku: ${error.message}`);
-      return {
-        hasEnoughFunds: false,
-        balance: 0,
-        required: requiredAmount,
-        error: error instanceof Error ? error.message : 'Neznáma chyba'
-      };
+      console.error('Error checking wallet balance:', error);
+      throw new Error('Nepodarilo sa skontrolovať zostatok peňaženky');
     }
   };
 
-  const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
-    console.log('Starting transaction monitoring for hash:', txHash);
+  // Funkcia na monitorovanie stavu transakcie pomocou sessionId
+  const monitorTransactionStatus = async (sessionId: string, maxAttempts = 20) => {
+    console.log('Starting transaction monitoring for sessionId:', sessionId);
+    const txManager = TransactionManager.getInstance();
+
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for transaction:`, txHash);
-        const response = await axios.get(
-          `https://api.multiversx.com/transactions/${txHash}`,
-          { timeout: 15000 }
-        );
-        const txData = response.data;
-        console.log('Transaction status response:', {
-          hash: txHash,
-          status: txData.status,
-          nonce: txData.nonce,
-          round: txData.round,
-          timestamp: txData.timestamp,
-        });
+        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for sessionId:`, sessionId);
+        // Predpokladáme, že TransactionManager má metódu getTransactionStatus
+        const txStatus = await txManager.getTransactionStatus(sessionId);
+        console.log('Transaction status response:', JSON.stringify(txStatus, null, 2));
 
-        if (['success', 'executed'].includes(txData.status)) {
-          console.log('Transaction confirmed as successful:', txHash);
-          return { success: true, data: txData };
-        } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
-          console.error('Transaction failed:', txHash, txData.status);
-          return { success: false, error: `Transakcia zlyhala so stavom: ${txData.status}` };
+        if (txStatus.status === 'success' || txStatus.status === 'executed') {
+          console.log('Transaction confirmed as successful:', sessionId);
+          return {
+            success: true,
+            data: txStatus,
+            transactionHash: txStatus.hash || txStatus.transactionHash || null // Ak je hash dostupný
+          };
+        } else if (['fail', 'invalid', 'not_executed'].includes(txStatus.status)) {
+          console.error('Transaction failed:', sessionId, txStatus.status);
+          return { success: false, error: `Transakcia zlyhala so stavom: ${txStatus.status}` };
         } else {
-          console.log(`Transakcia stále ${txData.status}, čaká sa...`);
+          console.log(`Transakcia stále ${txStatus.status}, čaká sa...`);
           await new Promise((resolve) => setTimeout(resolve, 6000));
           continue;
         }
       } catch (error) {
         console.log(`Pokus ${attempt} zlyhal:`, error instanceof Error ? error.message : error);
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 404) {
-            console.log('Transakcia ešte nebola nájdená, čaká sa...');
-          } else if (error.response?.status === 429) {
-            const delay = Math.pow(2, attempt) * 1000;
-            console.log(`Limit prekročený, čaká sa ${delay}ms...`);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
-        }
         if (attempt === maxAttempts) {
           throw new Error(`Monitorovanie transakcie zlyhalo po ${maxAttempts} pokusoch`);
         }
@@ -234,6 +125,7 @@ export const OrderDetails = () => {
     throw new Error('Časový limit monitorovania transakcie');
   };
 
+  // Funkcia na spracovanie platby
   const handlePayment = async () => {
     console.log('Payment button clicked!', { address, order });
     if (!address || !order) {
@@ -267,6 +159,7 @@ export const OrderDetails = () => {
       }
 
       const balanceCheck = await checkWalletBalance(address, order.amount, paymentToken);
+      console.log('🏁 Výsledok kontroly zostatku:', balanceCheck);
       if (!balanceCheck.hasEnoughFunds) {
         throw new Error(
           `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${paymentToken} (vrátane 10% poplatku pre EGLD), ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`
@@ -274,13 +167,15 @@ export const OrderDetails = () => {
       }
 
       const hexOrderId = uuidToHex(order.id);
+      console.log('UUID conversion:', { original: order.id, clean: hexOrderId, hex: hexOrderId });
       const providerAddressHex = addressToHex(providerAddress);
       const deadline = getDeadlineTimestamp();
       const deadlineHex = deadline.toString(16).padStart(16, '0');
+      console.log('Vygenerovaný deadline:', { currentTime: Math.floor(Date.now() / 1000), deadline });
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111));
+        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111)); // Zahŕňa 10% poplatok
         const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: amount,
@@ -290,7 +185,17 @@ export const OrderDetails = () => {
           sender: new Address(address),
           chainID: network.chainId
         });
-        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie EGLD transakcie:', {
+          orderId: order.id,
+          hexOrderId,
+          providerAddress,
+          providerAddressHex,
+          deadline,
+          deadlineHex,
+          amount: amount.toString(),
+          data,
+          escrowAddress: ESCROW_ADDRESS
+        });
         toast.info('10% poplatok bude odpočítaný z EGLD platby.');
       } else {
         const value = BigInt(Math.round(order.amount * 1e18));
@@ -305,7 +210,19 @@ export const OrderDetails = () => {
           sender: new Address(address),
           chainID: network.chainId
         });
-        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie ESDT transakcie:', {
+          orderId: order.id,
+          hexOrderId,
+          providerAddress,
+          providerAddressHex,
+          deadline,
+          deadlineHex,
+          tokenId: paymentToken,
+          tokenIdHex,
+          amountHex,
+          data,
+          escrowAddress: ESCROW_ADDRESS
+        });
       }
 
       toast.info(`Spracováva sa ${paymentToken} platba, potvrďte v peňaženke...`);
@@ -316,24 +233,26 @@ export const OrderDetails = () => {
           processingMessage: `Spracováva sa ${paymentToken} platba...`,
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
-        },
-        timeout: 10000
+        }
       });
 
-      console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
+      console.log(`${paymentToken} platba odoslaná, session ID:`, sessionId);
 
       const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
         throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
       }
 
+      // Uložiť hash transakcie, ak je dostupný
+      const transactionHash = verification.transactionHash || null;
       const { error: updateError } = await supabase
         .from('orders')
         .update({
           payment_status: 'escrowed',
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
-          provider_address: providerAddress
+          provider_address: providerAddress,
+          transaction_hash: transactionHash // Uložiť hash, ak je k dispozícii
         })
         .eq('id', order.id);
 
@@ -349,10 +268,13 @@ export const OrderDetails = () => {
     } catch (error) {
       console.error('Payment error:', error);
       const errorMessage = error instanceof Error
-        ? error.message.includes('timeout') ? 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.'
-        : error.message.includes('User rejected') ? 'Transakcia bola zrušená používateľom.'
-        : error.message.includes('Insufficient funds') ? 'Nedostatok prostriedkov v peňaženke.'
-        : `${paymentToken} platba zlyhala: ${error.message}`
+        ? error.message.includes('timeout')
+          ? 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.'
+          : error.message.includes('User rejected')
+          ? 'Transakcia bola zrušená používateľom.'
+          : error.message.includes('Insufficient funds')
+          ? 'Nedostatok prostriedkov v peňaženke.'
+          : `${paymentToken} platba zlyhala: ${error.message}`
         : `${paymentToken} platba zlyhala: Neznáma chyba`;
       toast.error(errorMessage);
       setProviderAddressError(errorMessage);
@@ -361,557 +283,38 @@ export const OrderDetails = () => {
     }
   };
 
-  const handleReleasePayment = async () => {
-    try {
-      setIsReleaseLoading(true);
-      if (!address || !order) {
-        toast.error('Prosím, pripojte svoju peňaženku');
-        return;
-      }
-
-      const hexOrderId = uuidToHex(order.id);
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`release@${hexOrderId}`),
-        receiver: new Address(ESCROW_ADDRESS),
-        gasLimit: BigInt(20000000),
-        sender: new Address(address),
-        chainID: network.chainId
-      });
-
-      console.log('Vytváranie release transakcie:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
-      toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
-
-      const sessionId = await signAndSendTransactions({
-        transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Uvoľňuje sa platba...',
-          errorMessage: 'Uvoľnenie zlyhalo',
-          successMessage: 'Platba úspešne uvoľnená'
-        },
-        timeout: 10000
-      });
-
-      console.log('Platba uvoľnená, session ID:', sessionId);
-      const verification = await monitorTransactionStatus(sessionId);
-      if (!verification.success) {
-        throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
-      }
-
-      const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          payment_status: 'pending_release',
-          release_at: releaseTime,
-          status: 'completed',
-          status_updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (error) {
-        console.error('Error updating order:', error);
-        throw new Error(`Aktualizácia databázy zlyhala: ${error.message}`);
-      }
-
-      toast.success('Platba úspešne uvoľnená!');
-      setShowReviewModal(true);
-    } catch (error) {
-      console.error('Release error:', error);
-      toast.error(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
-    } finally {
-      setIsReleaseLoading(false);
-    }
-  };
-
-  const handleDisputePayment = async (reason: string) => {
-    try {
-      setIsPaymentLoading(true);
-      if (!address || !order) {
-        toast.error('Prosím, pripojte svoju peňaženku');
-        return;
-      }
-
-      const hexOrderId = uuidToHex(order.id);
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`dispute@${hexOrderId}`),
-        receiver: new Address(ESCROW_ADDRESS),
-        gasLimit: BigInt(20000000),
-        sender: new Address(address),
-        chainID: network.chainId
-      });
-
-      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
-      toast.info('Vytvára sa spor, potvrďte v peňaženke...');
-
-      const sessionId = await signAndSendTransactions({
-        transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Vytvára sa spor...',
-          errorMessage: 'Vytvorenie sporu zlyhalo',
-          successMessage: 'Spor úspešne vytvorený'
-        },
-        timeout: 10000
-      });
-
-      console.log('Spor vytvorený, session ID:', sessionId);
-      const verification = await monitorTransactionStatus(sessionId);
-      if (!verification.success) {
-        throw new Error(verification.error || 'Vytvorenie sporu zlyhalo pri overovaní');
-      }
-
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          payment_status: 'disputed',
-          status_updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (error) {
-        console.error('Error updating order:', error);
-        throw new Error(`Aktualizácia databázy zlyhala: ${error.message}`);
-      }
-
-      await supabase.from('notifications').insert({
-        user_id: order.client_id,
-        type: 'dispute_created',
-        title: 'Order Disputed',
-        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${reason}`,
-        data: { order_id: order.id },
-        read: false,
-      });
-
-      toast.success('Spor úspešne vytvorený!');
-      setShowDisputeModal(false);
-      window.location.reload();
-    } catch (error) {
-      console.error('Dispute error:', error);
-      toast.error(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
-    } finally {
-      setIsPaymentLoading(false);
-    }
-  };
-
-  const handleSubmitWork = async () => {
-    try {
-      setIsSubmitWorkLoading(true);
-      if (!order) {
-        toast.error('Objednávka nenájdená');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          work_status: 'submitted',
-          status: 'delivered',
-          status_updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (error) {
-        throw new Error(`Aktualizácia objednávky zlyhala: ${error.message}`);
-      }
-
-      await supabase.from('notifications').insert({
-        user_id: order.client_id,
-        type: 'work_delivered',
-        title: 'Work Delivered',
-        content: 'Poskytovateľ odovzdal prácu pre vašu objednávku. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.',
-        data: { order_id: order.id },
-        read: false,
-      });
-
-      await supabase.from('messages').insert({
-        order_id: order.id,
-        sender_id: user?.id || order.client_id,
-        content: JSON.stringify({
-          type: 'work_delivered',
-          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.',
-        }),
-        attachments: [],
-      });
-
-      toast.success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
-      window.location.reload();
-    } catch (error) {
-      console.error('Submit work error:', error);
-      toast.error(`Odovzdanie práce zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
-    } finally {
-      setIsSubmitWorkLoading(false);
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'green';
-      case 'delivered':
-        return 'yellow';
-      case 'in_progress':
-        return 'blue';
-      case 'cancelled':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
-
-  const getPaymentStatusColor = (status: string) => {
-    switch (status) {
-      case 'escrowed':
-        return 'green';
-      case 'pending_release':
-        return 'yellow';
-      case 'released':
-        return 'green';
-      case 'disputed':
-        return 'red';
-      case 'resolved':
-        return 'purple';
-      default:
-        return 'gray';
-    }
-  };
-
-  const getProgressValue = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 100;
-      case 'delivered':
-        return 75;
-      case 'in_progress':
-        return 50;
-      case 'cancelled':
-        return 100;
-      default:
-        return 25;
-    }
-  };
-
-  const getRemainingTime = () => {
-    if (!order?.deadline) return null;
-    const now = new Date();
-    const deadline = new Date(order.deadline);
-    const diff = deadline.getTime() - now.getTime();
-    if (diff <= 0) return 'Termín vypršal';
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    if (days > 0) return `${days} dní zostáva`;
-    return `${hours} hodín zostáva`;
-  };
-
-  const isClient = user?.id === order?.client?.id;
-  const isProvider = user?.id === order?.gig?.provider?.id;
-
-  const canPay = isClient && 
-                 (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
-                 order?.payment_status === 'pending' && 
-                 !providerAddressError;
-  const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
-  const canSubmitWork = isProvider && order?.status === 'in_progress' && order?.payment_status === 'escrowed' && order?.work_status !== 'submitted';
-  const canDispute = (isClient || isProvider) && order?.payment_status === 'escrowed' && order?.status !== 'completed' && order?.status !== 'cancelled' && order?.payment_status !== 'disputed';
-  const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
-  const isDisputeResolved = order?.payment_status === 'resolved';
-
-  useEffect(() => {
-    if (order && !isLoading) {
-      const providerAddress = order.provider_address || order.gig?.users?.wallet_address;
-      if (!isValidAddress(providerAddress) && order.gig_id) {
-        fetchProviderAddress(order.gig_id).then((address) => {
-          if (!address) {
-            setProviderAddressError('Neplatná alebo chýbajúca adresa poskytovateľa. Skontrolujte údaje gig-u.');
-          }
-        });
-      }
-    }
-  }, [order, isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Načítavanie detailov objednávky" reference="#">
-          <div className="flex justify-center">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Načítavanie detailov objednávky...</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  if (error || !order) {
-    return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="bg-gray-800 p-8 rounded-lg">
-          <p className="text-white">{error ? `Chyba: ${error.message}` : 'Objednávka nenájdená'}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto max-w-7xl px-6 py-8">
-      <div className="space-y-8">
-        <Card className="p-8" title="Detaily objednávky" reference="#">
-          <div className="space-y-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <h1 className="text-2xl font-bold text-white">{order.gig?.title || 'Vlastný projekt'}</h1>
-              <div className="flex gap-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  getStatusColor(order.status) === 'green' ? 'bg-green-100 text-green-800' :
-                  getStatusColor(order.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
-                  getStatusColor(order.status) === 'red' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  getPaymentStatusColor(order.payment_status) === 'green' ? 'bg-green-100 text-green-800' :
-                  getPaymentStatusColor(order.payment_status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                  getPaymentStatusColor(order.payment_status) === 'red' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  Platba: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
-                </span>
-                {wasDisputed && (
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
-                    isDisputeResolved ? 'bg-purple-100 text-purple-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {isDisputeResolved ? (
-                      <>
-                        <Shield size={14} />
-                        Vyriešené adminom
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle size={14} />
-                        Spor
-                      </>
-                    )}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {isDisputeResolved && (
-              <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-2 border-purple-400 rounded-xl p-6 text-center">
-                <div className="flex justify-center gap-3 mb-3">
-                  <Shield size={24} className="text-purple-400" />
-                  <CheckCircle size={24} className="text-green-400" />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  🏛️ Spor vyriešený administráciou
-                </h3>
-                <p className="text-gray-300 max-w-sm mx-auto">
-                  Tento spor bol oficiálne vyriešený administráciou platformy. Rozhodnutie je konečné a prostriedky boli distribuované.
-                </p>
-              </div>
-            )}
-
-            {providerAddressError && (
-              <div className="bg-red-100 border border-red-500 rounded-xl p-4">
-                <div className="flex items-center">
-                  <AlertTriangle size={20} className="text-red-800 mr-2" />
-                  <p className="text-red-800">{providerAddressError}</p>
-                </div>
-              </div>
-            )}
-
-            {canPay && (
-              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-gray-800 font-bold">Vyžaduje sa platba</h3>
-                    <p className="text-gray-800">
-                      Prosím, zaplaťte {order.amount} {order.payment_token} na začatie objednávky.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => setShowPaymentModal(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                    disabled={!!providerAddressError}
-                  >
-                    <DollarSign size={16} />
-                    Zaplatiť teraz
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {canSubmitWork && (
-              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-gray-800 font-bold">Práca pripravená na odovzdanie?</h3>
-                    <p className="text-gray-800">
-                      Po dokončení práce kliknite na tlačidlo pre notifikáciu klienta.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleSubmitWork}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                    disabled={isSubmitWorkLoading}
-                  >
-                    <FileText size={16} />
-                    Odovzdať prácu
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {canRelease && (
-              <div className="bg-green-100 border border-green-500 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-gray-800 font-bold">Práca odovzdaná</h3>
-                    <p className="text-gray-800">
-                      Poskytovateľ odovzdal prácu. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={handleReleasePayment}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                    disabled={isReleaseLoading}
-                  >
-                    <Check size={16} />
-                    Uvoľniť platbu
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-400">Pokrok objednávky</span>
-                {order.status === 'in_progress' && (
-                  <span className="text-blue-400">{getRemainingTime()}</span>
-                )}
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-2">
-                <div
-                  className={`h-2 rounded-full ${
-                    getStatusColor(order.status) === 'green' ? 'bg-green-500' :
-                    getStatusColor(order.status) === 'blue' ? 'bg-blue-500' :
-                    getStatusColor(order.status) === 'red' ? 'bg-red-500' :
-                    'bg-yellow-500'
-                  }`}
-                  style={{ width: `${getProgressValue(order.status)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between mt-2 text-gray-400 text-sm">
-                <span>Objednávka vytvorená</span>
-                <span>V priebehu</span>
-                <span>Odovzdaná</span>
-                <span>Dokončená</span>
-              </div>
-            </div>
-
-            <hr className="border-gray-600" />
-
-            <div>
-              <p className="text-gray-400 mb-2">Požiadavky objednávky:</p>
-              <p className="text-white">
-                {order.requirements?.description || 'Žiadne špecifické požiadavky'}
-              </p>
-            </div>
-
-            <hr className="border-gray-600" />
-
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="text-gray-400 mb-2">Klient</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                    {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
-                  </div>
-                  <span className="text-white">{order.client?.username || "Neznámy"}</span>
-                </div>
-              </div>
-              <div>
-                <p className="text-gray-400 mb-2">Suma</p>
-                <p className="text-blue-400 text-xl font-bold">
-                  {order.amount} {order.payment_token}
-                </p>
-                {isDisputeResolved && (
-                  <p className="text-purple-300 text-sm mt-1">
-                    ✅ Vyriešené adminom
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
-
-        <div className="bg-gray-800 p-8 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-6">Komunikácia</h2>
-          <OrderChat orderId={order.id} />
-        </div>
-      </div>
+    <div>
+      <h2>Detaily objednávky</h2>
+      <p>ID objednávky: {order.id}</p>
+      <p>Stav: {order.status}</p>
+      <p>Suma: {order.amount} {order.payment_token || 'EGLD'}</p>
+      <p>Stav platby: {order.payment_status}</p>
+      <p>Adresa klienta: {order.client_address}</p>
+      {order.provider_address && <p>Adresa poskytovateľa: {order.provider_address}</p>}
+      {order.gig && <p>Názov gig-u: {order.gig.title}</p>}
+      {order.transaction_hash && <p>Hash transakcie: {order.transaction_hash}</p>}
+      {providerAddressError && <p style={{ color: 'red' }}>Chyba: {providerAddressError}</p>}
+      
+      <button
+        onClick={() => setShowPaymentModal(true)}
+        disabled={isPaymentLoading || order.payment_status !== 'pending'}
+      >
+        {isPaymentLoading ? 'Spracováva sa...' : 'Zaplatiť teraz'}
+      </button>
 
       {showPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Dokončiť platbu</h3>
-            <div className="space-y-4">
-              <div className="bg-blue-100 border border-blue-500 rounded-md p-3">
-                <div className="flex items-center">
-                  <span className="text-blue-800 mr-2">ℹ️</span>
-                  <div>
-                    <p className="text-blue-800 font-medium">Bezpečná escrow platba</p>
-                    <p className="text-blue-800 text-sm">
-                      Vaša platba bude držaná v escrow až do schválenia dokončenej práce.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-800 p-4 rounded-md">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Suma objednávky:</span>
-                    <span className="text-white font-bold">
-                      {order.amount} {order.payment_token}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Servisný poplatok:</span>
-                    <span className="text-white">
-                      {order.payment_token === 'EGLD' ? `${(order.amount * 0.1).toFixed(2)} EGLD (10%)` : '0 IDEA (0%)'}
-                    </span>
-                  </div>
-                  <hr className="border-gray-600" />
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Celkom:</span>
-                    <span className="text-blue-400 font-bold">
-                      {order.payment_token === 'EGLD' ? (order.amount * 1.1).toFixed(2) : order.amount} {order.payment_token}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => setShowPaymentModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
-              >
-                Zrušiť
-              </Button>
-              <Button
-                onClick={handlePayment}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
-                disabled={isPaymentLoading || !!providerAddressError}
-              >
-                <DollarSign size={16} />
-                {isPaymentLoading ? 'Spracováva sa...' : 'Zaplatiť teraz'}
-              </Button>
-            </div>
-          </div>
+        <div className="modal">
+          <h3>Potvrdenie platby</h3>
+          <p>Suma: {order.amount} {order.payment_token || 'EGLD'}</p>
+          <button onClick={handlePayment} disabled={isPaymentLoading}>
+            {isPaymentLoading ? 'Spracováva sa...' : 'Potvrdiť platbu'}
+          </button>
+          <button onClick={() => setShowPaymentModal(false)}>Zrušiť</button>
         </div>
       )}
     </div>
   );
 };
+
+export default OrderDetails;
