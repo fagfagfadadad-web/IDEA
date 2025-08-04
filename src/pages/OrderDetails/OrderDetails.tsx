@@ -311,7 +311,7 @@ const OrderDetails = () => {
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
         },
-        timeout: 10000
+        timeout: 120000
       });
 
       console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
@@ -386,7 +386,7 @@ const OrderDetails = () => {
           errorMessage: 'Uvoľnenie zlyhalo',
           successMessage: 'Platba úspešne uvoľnená'
         },
-        timeout: 10000
+        timeout: 120000
       });
 
       console.log('Platba uvoľnená, session ID:', sessionId);
@@ -449,7 +449,7 @@ const OrderDetails = () => {
           errorMessage: 'Vytvorenie sporu zlyhalo',
           successMessage: 'Spor úspešne vytvorený'
         },
-        timeout: 10000
+        timeout: 120000
       });
 
       console.log('Spor vytvorený, session ID:', sessionId);
