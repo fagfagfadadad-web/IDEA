@@ -603,35 +603,192 @@ import { useOrders } from '../../hooks/useOrders';
                                       {profile?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </div>
                                   )}
-                                </div>
-                                <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                  {(profile?.username || "Unknown").substring(0, 6)}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                {isOwnProfile && (
-                                  <button
-                                    onClick={(e) => handleEditClick(e, gig.id)}
-                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-xs p-1"
-                                  >
-                                    <Edit2 size={10} />
-                                  </button>
-                                )}
-                                <span className="text-xs md:text-sm font-bold" style={{ color: statusColor }}>
-                                  {gig.price} {tokenSymbol}
-                                </span>
-                              </div>
+                                          <img
+                                            src={order.gig?.provider?.avatar_url || "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"}
+                                            alt={order.gig?.provider?.username || "Provider"}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.style.display = 'none';
+                                              const parent = target.parentElement;
+                                              if (parent) {
+                                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                                if (fallback) fallback.style.display = 'flex';
+                                              }
+                                            }}
+                                          />
+                                          <div 
+                                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                            style={{ display: 'none' }}
+                                          >
+                                            {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                          </div>
+                                        </div>
+                                        <span className="text-xs text-gray-800 truncate max-w-[60px]">
+                                          Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-1">
+                                        <Clock size={12} className="text-gray-400" />
+                                        <span className="text-xs text-gray-500">
+                                          {new Date(order.created_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Desktop Grid */}
-                  <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
-                    {filteredGigs.map((gig: any, index: number) => {
-                      const statusColor = getStatusColor(gig.category?.toLowerCase() || '');
+                        )}
+                        
+                        {/* Provider Orders */}
+                        {providerOrders.length > 0 && (
+                          <div className="space-y-4">
+                            <h4 className="text-md font-semibold text-gray-700">As Provider ({providerOrders.length})</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {providerOrders.slice(0, 4).map((order) => {
+                                const paymentToken = order.payment_token || 'EGLD';
+                                const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                                const tokenIcon = paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+                                const statusColor = getOrderStatusColor(order.status);
+                                
+                                return (
+                                  <div
+                                    key={order.id}
+                                    className="gradient-card cursor-pointer p-3"
+                                    onClick={() => navigate(`/orders/${order.id}`)}
+                                  >
+                                    <div className="space-y-2">
+                                      <div className="flex justify-between items-center">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                          statusColor === 'green' ? 'bg-green-100 text-green-800' :
+                                          statusColor === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                          statusColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                          statusColor === 'red' ? 'bg-red-100 text-red-800' :
+                                          'bg-gray-100 text-gray-800'
+                                        }`}>
+                                          {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                          {tokenIcon}
+                                          <span className="text-sm font-bold text-gray-800">
+                                            {order.amount} {tokenSymbol}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      
+                                      <h4 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                                        {order.gig?.title || 'Custom Project'}
+                                      </h4>
+                                      
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                          <img
+                                            src={order.client?.avatar_url || "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"}
+                                            alt={order.client?.username || "Client"}
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                              const target = e.target as HTMLImageElement;
+                                              target.style.display = 'none';
+                                              const parent = target.parentElement;
+                                              if (parent) {
+                                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                                if (fallback) fallback.style.display = 'flex';
+                                              }
+                                            }}
+                                          />
+                                          <div 
+                                            className="fallback-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                            style={{ display: 'none' }}
+                                          >
+                                            {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                          </div>
+                                        </div>
+                                        <span className="text-xs text-gray-800 truncate max-w-[60px]">
+                                          Client: {(order.client?.username || "Unknown").substring(0, 6)}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-1">
+                                        <Clock size={12} className="text-gray-400" />
+                                        <span className="text-xs text-gray-500">
+                                          {new Date(order.created_at).toLocaleDateString()}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Desktop Layout */}
+                        <div className="hidden md:block">
+                          {/* Client Orders Desktop */}
+                          {clientOrders.length > 0 && (
+                            <div className="space-y-4">
+                              <h4 className="text-md font-semibold text-gray-700">As Client ({clientOrders.length})</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {clientOrders.slice(0, 4).map((order) => {
+                                  const paymentToken = order.payment_token || 'EGLD';
+                                  const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                                  const tokenIcon = paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+                                  const statusColor = getOrderStatusColor(order.status);
+                                  
+                                  return (
+                                    <div
+                                      key={order.id}
+                                      className="gradient-card cursor-pointer p-3"
+                                      onClick={() => navigate(`/orders/${order.id}`)}
+                                    >
+                                      <div className="space-y-2">
+                                        <div className="flex justify-between items-center">
+                                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            statusColor === 'green' ? 'bg-green-100 text-green-800' :
+                                            statusColor === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                            statusColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                            statusColor === 'red' ? 'bg-red-100 text-red-800' :
+                                            'bg-gray-100 text-gray-800'
+                                          }`}>
+                                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                          </span>
+                                          <div className="flex items-center gap-1">
+                                            {tokenIcon}
+                                            <span className="text-sm font-bold text-gray-800">
+                                              {order.amount} {tokenSymbol}
+                                            </span>
+                                          </div>
+                                        </div>
+                                        
+                                        <h4 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                                          {order.gig?.title || 'Custom Project'}
+                                        </h4>
+                                        
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-6 h-6 rounded-full overflow-hidden relative">
+                                            <img
+                                              src={order.gig?.provider?.avatar_url || "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"}
+                                              alt={order.gig?.provider?.username || "Provider"}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                const parent = target.parentElement;
+                                                if (parent) {
+                                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                                  if (fallback) fallback.style.display = 'flex';
+                                                }
+                                              }}
+                                            />
+                                            <div 
+                                              className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                            </div>
                       const paymentToken = gig.payment_token || 'EGLD';
                       const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
                       const hasNoFees = paymentToken !== 'EGLD';
@@ -798,34 +955,26 @@ import { useOrders } from '../../hooks/useOrders';
                               <img
                                 src={order.gig?.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
                                 alt={order.gig?.title || "Order Image"}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-
-                            <div className="p-2 space-y-2">
-                              <h3 className="text-sm font-bold text-gray-800 line-clamp-2 h-8">
-                                {order.gig?.title || "Custom Project"}
-                              </h3>
-                              <p className="text-xs text-gray-600 line-clamp-2 h-6">
-                                Order #{order.id.slice(0, 8)}
-                              </p>
-                              <p className="text-xs text-gray-800">
-                                Progress: {getProgressValue(order.status)}%
-                              </p>
-                            </div>
-
-                            <div className="flex justify-between items-center p-2 border-t border-gray-100">
-                              <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 rounded-full overflow-hidden relative">
-                                  {order.client?.avatar_url ? (
-                                    <>
-                                      <img
-                                        src={order.client.avatar_url}
-                                        alt={order.client.username || "Client"}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.style.display = 'none';
+                                            <img
+                                              src={order.client?.avatar_url || "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"}
+                                              alt={order.client?.username || "Client"}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                const target = e.target as HTMLImageElement;
+                                                target.style.display = 'none';
+                                                const parent = target.parentElement;
+                                                if (parent) {
+                                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                                  if (fallback) fallback.style.display = 'flex';
+                                                }
+                                              }}
+                                            />
+                                            <div 
+                                              className="fallback-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                            </div>
                                           const parent = target.parentElement;
                                           if (parent) {
                                             const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
