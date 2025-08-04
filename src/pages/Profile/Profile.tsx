@@ -26,6 +26,7 @@ export const Profile = () => {
   const [deletedGigIds, setDeletedGigIds] = useState<string[]>([]);
   const [timeLeftMap, setTimeLeftMap] = useState<Record<string, string>>({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+import { useOrders } from '../../hooks/useOrders';
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -411,7 +412,7 @@ export const Profile = () => {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-white text-sm font-medium mb-2">
-                        Username
+                    {(clientOrders.length === 0 && providerOrders.length === 0) ? (
                       </label>
                       <input
                         type="text"
