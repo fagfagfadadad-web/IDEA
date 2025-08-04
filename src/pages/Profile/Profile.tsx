@@ -202,6 +202,15 @@ export const Profile = () => {
     }
   };
 
+  // Mobile tabs
+  const mobileTabs = [
+    { id: 0, label: 'Gigs', icon: <Briefcase size={16} /> },
+    { id: 1, label: 'Orders', icon: <ShoppingCart size={16} /> },
+    { id: 2, label: 'Reviews', icon: <Star size={16} /> },
+    { id: 3, label: 'Notifications', icon: <Bell size={16} /> },
+    { id: 4, label: 'Settings', icon: <Settings size={16} /> },
+  ];
+
   const tabs = [
     { id: 0, label: 'Overview', icon: <User size={18} />, color: 'indigo' },
     { id: 1, label: 'My Gigs', icon: <Package size={18} />, color: 'purple' },
@@ -1307,235 +1316,331 @@ export const Profile = () => {
                                       {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
                                     </span>
                                   </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+          {/* Mobile Header */}
+          <div className="gradient-card p-4">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white">
+                {profile?.avatar_url ? (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username || "Profile"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  profile?.username?.charAt(0)?.toUpperCase() || "U"
+                )}
+              </div>
+              <div className="flex-1">
+                <h1 className="text-lg font-bold text-gray-800">{profile?.username || 'Loading...'}</h1>
+                <p className="text-sm text-gray-600">{profile?.full_name || 'No name set'}</p>
+                <p className="text-xs text-gray-500">{profile?.bio || 'No bio available'}</p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setActiveTab(4)}
+                variant="primary"
+                size="sm"
+                fullWidth
+              >
+                Edit Profile
+              </Button>
+            </div>
+          </div>
 
-                      {/* As Provider */}
-                      {providerOrders.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <Award className="w-5 h-5 text-purple-600" />
-                            As Provider ({providerOrders.length})
-                          </h4>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {providerOrders.map((order) => (
-                              <div
-                                key={order.id}
-                                className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                                onClick={() => navigate(`/orders/${order.id}`)}
-                              >
-                                <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-semibold text-gray-900 line-clamp-1">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                      {order.status.replace('_', ' ')}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                {/* Both Client and Provider */}
-                                <div className="space-y-2 mb-3">
-                                  {/* Client */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
-                                      {order.client?.avatar_url ? (
-                                        <img
-                                          src={order.client.avatar_url}
-                                          alt={order.client.username || "Client"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Client: {order.client?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Provider */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                      {order.gig?.provider?.avatar_url ? (
-                                        <img
-                                          src={order.gig.provider.avatar_url}
-                                          alt={order.gig.provider.username || "Provider"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Provider: {order.gig?.provider?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                </div>
+          {/* Mobile Statistics Grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="gradient-card p-3 text-center">
+              <Briefcase size={20} className="text-blue-600 mx-auto mb-2" />
+              <p className="text-xl font-bold text-blue-600">{profile?.gigs?.length || 0}</p>
+              <p className="text-xs text-blue-600">Gigs Created</p>
+            </div>
+            <div className="gradient-card p-3 text-center">
+              <ShoppingCart size={20} className="text-green-600 mx-auto mb-2" />
+              <p className="text-xl font-bold text-green-600">{profile?.orders?.length || 0}</p>
+              <p className="text-xs text-green-600">Orders</p>
+            </div>
+            <div className="gradient-card p-3 text-center">
+              <Star size={20} className="text-yellow-600 mx-auto mb-2" />
+              <p className="text-xl font-bold text-yellow-600">{averageRating.toFixed(1)}</p>
+              <p className="text-xs text-yellow-600">Avg Rating</p>
+            </div>
+            <div className="gradient-card p-3 text-center">
+              <MessageSquare size={20} className="text-purple-600 mx-auto mb-2" />
+              <p className="text-xl font-bold text-purple-600">{totalReviews}</p>
+              <p className="text-xs text-purple-600">Reviews</p>
+            </div>
+          </div>
 
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {order.payment_token === 'EGLD' ? (
-                                      <DollarSign className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Coins className="w-4 h-4 text-purple-600" />
-                                    )}
-                                    <span className="font-semibold text-gray-900">
-                                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                                    </span>
-                                  </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === 3 && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-gray-900">Notifications</h3>
-                    {unreadNotifications.length > 0 && (
-                      <Button
-                        onClick={handleMarkAllNotificationsAsRead}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Check size={16} />
-                        Mark All Read ({unreadNotifications.length})
-                      </Button>
-                    )}
+          {/* Mobile Earnings */}
+          <div className="gradient-card p-4">
+            <h3 className="text-base font-bold text-gray-800 mb-3 text-center">Total Earned</h3>
+            <div className="space-y-3">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign size={18} className="text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">EGLD</span>
                   </div>
+                  <span className="text-xl font-bold text-blue-600">
+                    {totalEgldEarnings.toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-xs text-blue-600 mt-1">After 10% platform fee</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Coins size={18} className="text-purple-600" />
+                    <span className="text-sm font-medium text-purple-800">IDA</span>
+                  </div>
+                  <span className="text-xl font-bold text-purple-600">
+                    {totalIdaEarnings.toFixed(2)}
+                  </span>
+                </div>
+                <p className="text-xs text-purple-600 mt-1">No fees - 100% yours!</p>
+              </div>
+            </div>
+          </div>
 
-                  {notifications?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No notifications</h4>
-                      <p className="text-gray-600">You're all caught up!</p>
+          {/* Mobile Tabs */}
+          <div className="gradient-card overflow-hidden">
+            <div className="border-b border-gray-200">
+              <div className="flex overflow-x-auto scrollbar-hide">
+                {mobileTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 min-w-[120px] ${
+                      activeTab === tab.id
+                        ? 'border-indigo-500 text-indigo-600 bg-indigo-50'
+                        : 'border-transparent text-gray-500 hover:text-indigo-600'
+                    }`}
+                  >
+                    {tab.icon}
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-4">
+              {activeTab === 0 && (
+                <div className="space-y-3">
+                  {profile?.gigs?.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Briefcase size={32} className="text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600 mb-3">No gigs created yet</p>
+                      <Button
+                        onClick={() => navigate('/create-gig')}
+                        variant="primary"
+                        size="sm"
+                        fullWidth
+                      >
+                        Create Your First Gig
+                      </Button>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {notifications?.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`rounded-lg p-4 border transition-all duration-200 cursor-pointer hover:shadow-md ${
-                            !notification.read 
-                              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 border-l-4 border-l-blue-500' 
-                              : 'bg-gray-50 border-gray-200'
-                          }`}
-                          onClick={() => {
-                            if (notification.data?.order_id) {
-                              navigate(`/orders/${notification.data.order_id}`);
-                            }
-                          }}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className={`font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
-                                  {notification.title}
-                                </h4>
-                                {!notification.read && (
-                                  <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                                    New
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-gray-600 mb-2">
-                                {notification.content}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {new Date(notification.created_at).toLocaleString()}
-                              </p>
-                            </div>
-                          </div>
+                    profile?.gigs?.map((gig: any) => (
+                      <div 
+                        key={gig.id} 
+                        className="bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => navigate(`/gigs/${gig.id}`)}
+                      >
+                        <h4 className="text-sm font-bold text-gray-800 mb-2">{gig.title}</h4>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs text-gray-600">{gig.category}</span>
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            gig.status === 'active' ? 'bg-green-100 text-green-800' :
+                            gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {gig.status}
+                          </span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">{gig.duration} days</span>
+                          <span className="text-sm font-bold text-blue-600">
+                            {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
+                          </span>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
               )}
 
-              {/* Settings Tab */}
-              {activeTab === 4 && isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Settings</h3>
-                  
-                  <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-6 border border-gray-200">
-                    <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-gray-600" />
-                      Email Notifications
-                    </h4>
-                    <EmailNotificationsToggle enabled={profile.email_notifications_enabled || false} />
-                  </div>
-
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                    <h4 className="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
-                      <User className="w-5 h-5 text-blue-600" />
-                      Account Information
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Username:</span>
-                        <span className="font-medium text-gray-900">{profile.username}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Member since:</span>
-                        <span className="font-medium text-gray-900">
-                          {new Date(profile.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {profile.wallet_address && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Wallet:</span>
-                          <span className="font-mono text-xs text-gray-900">
-                            {profile.wallet_address.substring(0, 8)}...{profile.wallet_address.substring(profile.wallet_address.length - 6)}
+              {activeTab === 1 && (
+                <div className="space-y-3">
+                  {profile?.orders?.length === 0 ? (
+                    <div className="text-center py-6">
+                      <ShoppingCart size={32} className="text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600">No orders yet</p>
+                    </div>
+                  ) : (
+                    profile?.orders?.map((order: any) => (
+                      <div 
+                        key={order.id} 
+                        className="bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => navigate(`/orders/${order.id}`)}
+                      >
+                        <h4 className="text-sm font-bold text-gray-800 mb-2">
+                          {order.gig?.title || 'Custom Project'}
+                        </h4>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className={`text-xs px-2 py-1 rounded ${
+                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                          <span className="text-sm font-bold text-green-600">
+                            {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
                           </span>
                         </div>
-                      )}
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 bg-gray-300 rounded-full"></div>
+                            <span className="text-xs text-gray-600">
+                              {isCurrentUserClient(order) ? order.gig?.provider?.username : order.client?.username}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {new Date(order.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === 2 && (
+                <div className="space-y-3">
+                  {allReviews.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Star size={32} className="text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600">No reviews yet</p>
                     </div>
+                  ) : (
+                    allReviews.map((review: any) => (
+                      <div key={review.id} className="bg-gray-50 p-3 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                size={14}
+                                className={i < review.rating ? "text-yellow-400 fill-current" : "text-gray-300"}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-gray-600">
+                            by {review.order?.client?.username}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-2">{review.comment}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === 3 && (
+                <div className="space-y-3">
+                  {notifications?.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Bell size={32} className="text-gray-400 mx-auto mb-2" />
+                      <p className="text-gray-600">No notifications</p>
+                    </div>
+                  ) : (
+                    notifications?.slice(0, 5).map((notification) => (
+                      <div key={notification.id} className={`p-3 rounded-lg ${
+                        !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : 'bg-gray-50'
+                      }`}>
+                        <div className="flex justify-between items-start mb-1">
+                          <p className={`text-sm font-medium ${
+                            !notification.read ? 'text-blue-800' : 'text-gray-800'
+                          }`}>
+                            {notification.title}
+                          </p>
+                          {!notification.read && (
+                            <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                              New
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-600 mb-1">{notification.content}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(notification.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === 4 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.username}
+                      onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
                   </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.full_name}
+                      onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      value={editForm.bio}
+                      onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                      rows={3}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      Avatar URL
+                    </label>
+                    <input
+                      type="url"
+                      value={editForm.avatar_url}
+                      onChange={(e) => setEditForm({...editForm, avatar_url: e.target.value})}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={updateProfile.isLoading}
+                    variant="primary"
+                    fullWidth
+                  >
+                    {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
                 </div>
               )}
             </div>
