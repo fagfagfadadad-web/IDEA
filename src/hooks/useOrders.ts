@@ -88,6 +88,9 @@ export const useOrders = () => {
       console.log('🔍 useOrders: Query result:', { orders, error });
       console.log('🔍 useOrders: Orders count:', orders?.length || 0);
       console.log('🔍 useOrders: First few orders:', orders?.slice(0, 3));
+      orders?.forEach(order => {
+        console.log(`🔍 useOrders: Order ID: ${order.id}, Gig Provider ID: ${order.gig?.provider?.id}, Current User ID: ${user.id}`);
+      });
 
       if (error) throw error;
 
