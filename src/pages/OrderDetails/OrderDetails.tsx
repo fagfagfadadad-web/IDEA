@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card } from 'components';
+import { Button, Card, ExplorerLink, TRANSACTIONS_ENDPOINT } from 'components';
 import { 
   useGetIsLoggedIn, 
   useGetAccount, 
   useGetNetworkConfig, 
   Transaction, 
   Address,
-  TransactionManager
+  AbiRegistry,
+  SmartContractTransactionsFactory,
+  TransactionsFactoryConfig,
+  useTransactionOutcome
 } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
@@ -19,6 +22,24 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+
+const PING_TRANSACTION_INFO = {
+  processingMessage: 'Spracováva sa platba...',
+  errorMessage: 'Platba zlyhala',
+  successMessage: 'Platba úspešná'
+};
+
+const RELEASE_TRANSACTION_INFO = {
+  processingMessage: 'Uvoľňuje sa platba...',
+  errorMessage: 'Uvoľnenie zlyhalo',
+  successMessage: 'Platba úspešne uvoľnená'
+};
+
+const DISPUTE_TRANSACTION_INFO = {
+  processingMessage: 'Vytvára sa spor...',
+  errorMessage: 'Vytvorenie sporu zlyhalo',
+  successMessage: 'Spor úspešne vytvorený'
+};
 
 const isValidAddress = (addr: string | undefined): boolean => {
   if (!addr) return false;
@@ -136,46 +157,72 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
   }
 };
 
-const monitorTransactionStatus = async (sessionId: string, maxAttempts = 20) => {
-  console.log('Starting transaction monitoring for sessionId:', sessionId);
-  const txManager = TransactionManager.getInstance();
-
+const getSmartContractFactory = async (network: any) => {
   try {
-    // Pokus o použitie TransactionManager.getTransactionStatus
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for sessionId:`, sessionId);
-        const txStatus = await txManager.getTransactionStatus(sessionId);
-        console.log('Transaction status response:', JSON.stringify(txStatus, null, 2));
-
-        if (txStatus.status === 'success' || txStatus.status === 'executed') {
-          console.log('Transaction confirmed as successful:', sessionId);
-          return {
-            success: true,
-            data: txStatus,
-            transactionHash: txStatus.hash || txStatus.transactionHash || null
-          };
-        } else if (['fail', 'invalid', 'not_executed'].includes(txStatus.status)) {
-          console.error('Transaction failed:', sessionId, txStatus.status);
-          return { success: false, error: `Transakcia zlyhala so stavom: ${txStatus.status}` };
-        } else {
-          console.log(`Transakcia stále ${txStatus.status}, čaká sa...`);
-          await new Promise((resolve) => setTimeout(resolve, 6000));
-          continue;
-        }
-      } catch (error) {
-        console.error(`Pokus ${attempt} zlyhal:`, error instanceof Error ? error.message : error);
-        if (attempt === maxAttempts) {
-          throw new Error(`Monitorovanie transakcie zlyhalo po ${maxAttempts} pokusoch`);
-        }
-        await new Promise((resolve) => setTimeout(resolve, 6000));
-      }
-    }
-    throw new Error('Časový limit monitorovania transakcie');
+    const response = await axios.get('src/contracts/escrow.abi.json');
+    const abi = AbiRegistry.create(response.data);
+    const scFactory = new SmartContractTransactionsFactory({
+      config: new TransactionsFactoryConfig({
+        chainID: network.chainId
+      }),
+      abi
+    });
+    return scFactory;
   } catch (error) {
-    console.error('TransactionManager.getTransactionStatus failed:', error);
-    throw new Error(`Nepodarilo sa monitorovať transakciu pomocou TransactionManager: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+    console.error('Failed to load escrow ABI:', error);
+    throw new Error('Nepodarilo sa načítať ABI pre escrow kontrakt');
   }
+};
+
+const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
+  console.log('Starting transaction monitoring for hash:', txHash);
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      console.log(`Monitoring attempt ${attempt}/${maxAttempts} for transaction:`, txHash);
+      const response = await axios.get(
+        `https://api.multiversx.com/transactions/${txHash}`,
+        { timeout: 15000 }
+      );
+      const txData = response.data;
+      console.log('Transaction status response:', {
+        hash: txHash,
+        status: txData.status,
+        nonce: txData.nonce,
+        round: txData.round,
+        timestamp: txData.timestamp
+      });
+
+      if (['success', 'executed'].includes(txData.status)) {
+        console.log('Transaction confirmed as successful:', txHash);
+        return { success: true, data: txData, transactionHash: txHash };
+      } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
+        console.error('Transaction failed:', txHash, txData.status);
+        return { success: false, error: `Transakcia zlyhala so stavom: ${txData.status}` };
+      } else {
+        console.log(`Transakcia stále ${txData.status}, čaká sa...`);
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+        continue;
+      }
+    } catch (error) {
+      console.log(`Pokus ${attempt} zlyhal:`, error instanceof Error ? error.message : error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          console.log('Transakcia ešte nebola nájdená, čaká sa...');
+        } else if (error.response?.status === 429) {
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Limit prekročený, čaká sa ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+        } else {
+          console.error('Axios error:', error.response?.status, error.response?.data);
+        }
+      }
+      if (attempt === maxAttempts) {
+        throw new Error(`Monitorovanie transakcie zlyhalo po ${maxAttempts} pokusoch`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+    }
+  }
+  throw new Error('Časový limit monitorovania transakcie');
 };
 
 const OrderDetails = () => {
@@ -185,6 +232,7 @@ const OrderDetails = () => {
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
   const { user } = useAuth();
+  const txData = useTransactionOutcome();
   
   const { data: order, isLoading, error } = useOrderById(id || '');
 
@@ -272,54 +320,48 @@ const OrderDetails = () => {
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111));
-        const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
-        transaction = new Transaction({
-          value: amount,
-          data: Buffer.from(data),
-          receiver: new Address(ESCROW_ADDRESS),
-          gasLimit: BigInt(20000000),
+        const scFactory = await getSmartContractFactory(network);
+        transaction = scFactory.createTransactionForExecute({
           sender: new Address(address),
-          chainID: network.chainId
+          contract: new Address(ESCROW_ADDRESS),
+          function: 'deposit',
+          gasLimit: BigInt(20000000),
+          arguments: [hexOrderId, providerAddressHex, deadlineHex],
+          nativeTransferAmount: BigInt(Math.round(order.amount * 1e18 * 1.1111))
         });
-        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: (order.amount * 1.1111).toString(), escrowAddress: ESCROW_ADDRESS });
         toast.info('10% poplatok bude odpočítaný z EGLD platby.');
       } else {
+        const scFactory = await getSmartContractFactory(network);
         const value = BigInt(Math.round(order.amount * 1e18));
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
         const amountHex = value.toString(16).padStart(2, '0');
-        const data = `ESDTTransfer@${tokenIdHex}@${amountHex}@depositEsdt@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
-        transaction = new Transaction({
-          value: BigInt(0),
-          data: Buffer.from(data),
-          receiver: new Address(ESCROW_ADDRESS),
-          gasLimit: BigInt(20000000),
+        transaction = scFactory.createTransactionForExecute({
           sender: new Address(address),
-          chainID: network.chainId
+          contract: new Address(ESCROW_ADDRESS),
+          function: 'depositEsdt',
+          gasLimit: BigInt(20000000),
+          arguments: [hexOrderId, providerAddressHex, deadlineHex],
+          esdt: { tokenIdentifier: paymentToken, amount: value }
         });
-        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, escrowAddress: ESCROW_ADDRESS });
       }
 
       toast.info(`Spracováva sa ${paymentToken} platba, potvrďte v peňaženke...`);
       console.log('Calling signAndSendTransactions...');
-      const sessionId = await signAndSendTransactions({
+      const txHash = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: `Spracováva sa ${paymentToken} platba...`,
-          errorMessage: `${paymentToken} platba zlyhala`,
-          successMessage: `${paymentToken} platba úspešná`
-        },
+        transactionsDisplayInfo: PING_TRANSACTION_INFO,
         timeout: 120000
       });
 
-      console.log(`${paymentToken} platba odoslaná, session ID:`, sessionId);
+      console.log(`${paymentToken} platba odoslaná, transaction hash:`, txHash);
 
-      const verification = await monitorTransactionStatus(sessionId);
+      const verification = await monitorTransactionStatus(txHash);
       if (!verification.success) {
         throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const { error: updateError } = await supabase
         .from('orders')
         .update({
@@ -327,7 +369,7 @@ const OrderDetails = () => {
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
           provider_address: providerAddress,
-          transaction_hash: transactionHash
+          transaction_hash: txHash
         })
         .eq('id', order.id);
 
@@ -367,35 +409,30 @@ const OrderDetails = () => {
       }
 
       const hexOrderId = uuidToHex(order.id);
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`release@${hexOrderId}`),
-        receiver: new Address(ESCROW_ADDRESS),
-        gasLimit: BigInt(20000000),
+      const scFactory = await getSmartContractFactory(network);
+      const transaction = scFactory.createTransactionForExecute({
         sender: new Address(address),
-        chainID: network.chainId
+        contract: new Address(ESCROW_ADDRESS),
+        function: 'release',
+        gasLimit: BigInt(20000000),
+        arguments: [hexOrderId]
       });
 
       console.log('Vytváranie release transakcie:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
       toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
 
-      const sessionId = await signAndSendTransactions({
+      const txHash = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Uvoľňuje sa platba...',
-          errorMessage: 'Uvoľnenie zlyhalo',
-          successMessage: 'Platba úspešne uvoľnená'
-        },
+        transactionsDisplayInfo: RELEASE_TRANSACTION_INFO,
         timeout: 120000
       });
 
-      console.log('Platba uvoľnená, session ID:', sessionId);
-      const verification = await monitorTransactionStatus(sessionId);
+      console.log('Platba uvoľnená, transaction hash:', txHash);
+      const verification = await monitorTransactionStatus(txHash);
       if (!verification.success) {
         throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
       const { error } = await supabase
         .from('orders')
@@ -404,7 +441,7 @@ const OrderDetails = () => {
           release_at: releaseTime,
           status: 'completed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash
+          transaction_hash: txHash
         })
         .eq('id', order.id);
 
@@ -436,41 +473,36 @@ const OrderDetails = () => {
       }
 
       const hexOrderId = uuidToHex(order.id);
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`dispute@${hexOrderId}`),
-        receiver: new Address(ESCROW_ADDRESS),
-        gasLimit: BigInt(20000000),
+      const scFactory = await getSmartContractFactory(network);
+      const transaction = scFactory.createTransactionForExecute({
         sender: new Address(address),
-        chainID: network.chainId
+        contract: new Address(ESCROW_ADDRESS),
+        function: 'dispute',
+        gasLimit: BigInt(20000000),
+        arguments: [hexOrderId]
       });
 
       console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason: disputeReason, escrowAddress: ESCROW_ADDRESS });
       toast.info('Vytvára sa spor, potvrďte v peňaženke...');
 
-      const sessionId = await signAndSendTransactions({
+      const txHash = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Vytvára sa spor...',
-          errorMessage: 'Vytvorenie sporu zlyhalo',
-          successMessage: 'Spor úspešne vytvorený'
-        },
+        transactionsDisplayInfo: DISPUTE_TRANSACTION_INFO,
         timeout: 120000
       });
 
-      console.log('Spor vytvorený, session ID:', sessionId);
-      const verification = await monitorTransactionStatus(sessionId);
+      console.log('Spor vytvorený, transaction hash:', txHash);
+      const verification = await monitorTransactionStatus(txHash);
       if (!verification.success) {
         throw new Error(verification.error || 'Vytvorenie sporu zlyhalo pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const { error } = await supabase
         .from('orders')
         .update({
           payment_status: 'disputed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash
+          transaction_hash: txHash
         })
         .eq('id', order.id);
 
@@ -635,6 +667,13 @@ const OrderDetails = () => {
     }
   }, [order, isLoading]);
 
+  useEffect(() => {
+    if (txData.status && txData.txHash) {
+      console.log('Transaction outcome:', txData);
+      toast.info(`Transakcia ${txData.txHash} má stav: ${txData.status}`);
+    }
+  }, [txData]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
@@ -703,6 +742,28 @@ const OrderDetails = () => {
                 )}
               </div>
             </div>
+
+            {txData.status && txData.txHash && (
+              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
+                <p className="text-gray-800">
+                  <strong>Stav transakcie:</strong> {txData.status}
+                </p>
+                <p className="text-gray-800">
+                  <strong>Hash:</strong>{' '}
+                  <ExplorerLink
+                    page={`/${TRANSACTIONS_ENDPOINT}/${txData.txHash}`}
+                    className="border-b border-dotted border-gray-500 hover:border-solid hover:border-gray-800"
+                  >
+                    {txData.txHash}
+                  </ExplorerLink>
+                </p>
+                {txData.address && (
+                  <p className="text-gray-800">
+                    <strong>Odosielateľ:</strong> {txData.address}
+                  </p>
+                )}
+              </div>
+            )}
 
             {isDisputeResolved && (
               <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-2 border-purple-400 rounded-xl p-6 text-center">
@@ -1008,4 +1069,4 @@ const OrderDetails = () => {
   );
 };
 
-export { OrderDetails }; // Opravený export
+export { OrderDetails };
