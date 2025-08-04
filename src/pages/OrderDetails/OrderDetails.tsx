@@ -7,8 +7,7 @@ import {
   useGetAccount, 
   useGetNetworkConfig, 
   Transaction, 
-  Address,
-  TransactionManager
+  Address
 } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
@@ -18,56 +17,7 @@ import { supabase } from '../../lib/supabase';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-
-const isValidAddress = (addr: string | undefined): boolean => {
-  if (!addr) return false;
-  try {
-    new Address(addr);
-    return true;
-  } catch {
-    return false;
-  }
-};
-
-const addressToHex = (bech32Address: string): string => {
-  try {
-    if (!isValidAddress(bech32Address)) {
-      throw new Error('Neplatná adresa: adresa nie je v správnom Bech32 formáte');
-    }
-    const address = new Address(bech32Address);
-    const hex = address.hex();
-    const zeroAddress = '0000000000000000000000000000000000000000000000000000000000000000';
-    if (hex === zeroAddress) {
-      throw new Error('Adresa nemôže byť nulová');
-    }
-    return hex;
-  } catch (error) {
-    console.error('Failed to convert address to hex:', error);
-    throw new Error(`Neplatný formát adresy: ${bech32Address}`);
-  }
-};
-
-const uuidToHex = (uuid: string): string => {
-  const cleanUuid = uuid.replace(/-/g, '');
-  if (cleanUuid.length !== 32) {
-    throw new Error('Neplatný formát UUID, musí mať 32 hex znakov bez pomlčiek');
-  }
-  console.log('UUID conversion:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
-  return cleanUuid;
-};
-
-const getDeadlineTimestamp = (): number => {
-  const currentTime = Math.floor(Date.now() / 1000);
-  const deadline = currentTime + 7 * 24 * 60 * 60;
-  if (deadline <= currentTime + 86_400) {
-    throw new Error('Deadline musí byť aspoň 1 deň v budúcnosti');
-  }
-  console.log('Vygenerovaný deadline:', { currentTime, deadline });
-  return deadline;
-};
-
-const OrderDetails = () => {
+export const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
@@ -84,7 +34,8 @@ const OrderDetails = () => {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
-  const [disputeReason, setDisputeReason] = useState(''); // Added for dispute modal
+
+  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
   const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
     try {
@@ -113,6 +64,56 @@ const OrderDetails = () => {
       console.error('Error fetching provider address:', error);
       return null;
     }
+  };
+
+  const isValidAddress = (addr: string | undefined): boolean => {
+    if (!addr) return false;
+    try {
+      new Address(addr);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const addressToHex = (bech32Address: string): string => {
+    try {
+      if (!isValidAddress(bech32Address)) {
+        throw new Error('Neplatná adresa: adresa nie je v správnom Bech32 formáte');
+      }
+
+      const address = new Address(bech32Address);
+      const hex = address.hex();
+      const zeroAddress = '0000000000000000000000000000000000000000000000000000000000000000';
+
+      if (hex === zeroAddress) {
+        throw new Error('Adresa nemôže byť nulová');
+      }
+
+      return hex;
+    } catch (error) {
+      console.error('Failed to convert address to hex:', error);
+      throw new Error(`Neplatný formát adresy: ${bech32Address}`);
+    }
+  };
+
+  const uuidToHex = (uuid: string): string => {
+    const cleanUuid = uuid.replace(/-/g, '');
+    if (cleanUuid.length !== 32) {
+      throw new Error('Neplatný formát UUID, musí mať 32 hex znakov bez pomlčiek');
+    }
+    console.log('UUID conversion:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
+    return cleanUuid;
+  };
+
+  const getDeadlineTimestamp = (): number => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const deadline = currentTime + 7 * 24 * 60 * 60;
+    if (deadline <= currentTime + 86_400) {
+      throw new Error('Deadline musí byť aspoň 1 deň v budúcnosti');
+    }
+    console.log('Vygenerovaný deadline:', { currentTime, deadline });
+    return deadline;
   };
 
   const checkWalletBalance = async (walletAddress: string, requiredAmount: number, tokenId: string = 'EGLD') => {
@@ -152,7 +153,7 @@ const OrderDetails = () => {
             balance = 0;
           }
         } catch (error) {
-          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error);
+          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
           balance = 0;
         }
       }
@@ -173,8 +174,8 @@ const OrderDetails = () => {
         error: null
       };
     } catch (error) {
-      console.error('💥 Chyba pri kontrole zostatku:', error);
-      toast.error(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+      console.error('💥 Chyba pri kontrole zostatku:', error.message);
+      toast.error(`Chyba pri kontrole zostatku: ${error.message}`);
       return {
         hasEnoughFunds: false,
         balance: 0,
@@ -184,34 +185,46 @@ const OrderDetails = () => {
     }
   };
 
-  const monitorTransactionStatus = async (sessionId: string, maxAttempts = 20) => {
-    console.log('Starting transaction monitoring for sessionId:', sessionId);
-    const txManager = TransactionManager.getInstance();
-
+  const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
+    console.log('Starting transaction monitoring for hash:', txHash);
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for sessionId:`, sessionId);
-        // Use TransactionManager to check transaction status
-        const txStatus = await txManager.getTransactionStatus(sessionId);
-        console.log('Transaction status response:', JSON.stringify(txStatus, null, 2));
+        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for transaction:`, txHash);
+        const response = await axios.get(
+          `https://api.multiversx.com/transactions/${txHash}`,
+          { timeout: 15000 }
+        );
+        const txData = response.data;
+        console.log('Transaction status response:', {
+          hash: txHash,
+          status: txData.status,
+          nonce: txData.nonce,
+          round: txData.round,
+          timestamp: txData.timestamp,
+        });
 
-        if (txStatus.status === 'success' || txStatus.status === 'executed') {
-          console.log('Transaction confirmed as successful:', sessionId);
-          return {
-            success: true,
-            data: txStatus,
-            transactionHash: txStatus.hash || txStatus.transactionHash || null
-          };
-        } else if (['fail', 'invalid', 'not_executed'].includes(txStatus.status)) {
-          console.error('Transaction failed:', sessionId, txStatus.status);
-          return { success: false, error: `Transakcia zlyhala so stavom: ${txStatus.status}` };
+        if (['success', 'executed'].includes(txData.status)) {
+          console.log('Transaction confirmed as successful:', txHash);
+          return { success: true, data: txData };
+        } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
+          console.error('Transaction failed:', txHash, txData.status);
+          return { success: false, error: `Transakcia zlyhala so stavom: ${txData.status}` };
         } else {
-          console.log(`Transakcia stále ${txStatus.status}, čaká sa...`);
+          console.log(`Transakcia stále ${txData.status}, čaká sa...`);
           await new Promise((resolve) => setTimeout(resolve, 6000));
           continue;
         }
       } catch (error) {
         console.log(`Pokus ${attempt} zlyhal:`, error instanceof Error ? error.message : error);
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 404) {
+            console.log('Transakcia ešte nebola nájdená, čaká sa...');
+          } else if (error.response?.status === 429) {
+            const delay = Math.pow(2, attempt) * 1000;
+            console.log(`Limit prekročený, čaká sa ${delay}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
         if (attempt === maxAttempts) {
           throw new Error(`Monitorovanie transakcie zlyhalo po ${maxAttempts} pokusoch`);
         }
@@ -304,25 +317,23 @@ const OrderDetails = () => {
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
         },
-        timeout: 120000
+        timeout: 10000
       });
 
-      console.log(`${paymentToken} platba odoslaná, session ID:`, sessionId);
+      console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
 
       const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
         throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const { error: updateError } = await supabase
         .from('orders')
         .update({
           payment_status: 'escrowed',
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
-          provider_address: providerAddress,
-          transaction_hash: transactionHash
+          provider_address: providerAddress
         })
         .eq('id', order.id);
 
@@ -338,13 +349,10 @@ const OrderDetails = () => {
     } catch (error) {
       console.error('Payment error:', error);
       const errorMessage = error instanceof Error
-        ? error.message.includes('timeout')
-          ? 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.'
-          : error.message.includes('User rejected')
-          ? 'Transakcia bola zrušená používateľom.'
-          : error.message.includes('Insufficient funds')
-          ? 'Nedostatok prostriedkov v peňaženke.'
-          : `${paymentToken} platba zlyhala: ${error.message}`
+        ? error.message.includes('timeout') ? 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.'
+        : error.message.includes('User rejected') ? 'Transakcia bola zrušená používateľom.'
+        : error.message.includes('Insufficient funds') ? 'Nedostatok prostriedkov v peňaženke.'
+        : `${paymentToken} platba zlyhala: ${error.message}`
         : `${paymentToken} platba zlyhala: Neznáma chyba`;
       toast.error(errorMessage);
       setProviderAddressError(errorMessage);
@@ -381,7 +389,7 @@ const OrderDetails = () => {
           errorMessage: 'Uvoľnenie zlyhalo',
           successMessage: 'Platba úspešne uvoľnená'
         },
-        timeout: 120000
+        timeout: 10000
       });
 
       console.log('Platba uvoľnená, session ID:', sessionId);
@@ -390,7 +398,6 @@ const OrderDetails = () => {
         throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
       const { error } = await supabase
         .from('orders')
@@ -399,7 +406,6 @@ const OrderDetails = () => {
           release_at: releaseTime,
           status: 'completed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash
         })
         .eq('id', order.id);
 
@@ -418,15 +424,11 @@ const OrderDetails = () => {
     }
   };
 
-  const handleDisputePayment = async () => {
+  const handleDisputePayment = async (reason: string) => {
     try {
       setIsPaymentLoading(true);
       if (!address || !order) {
         toast.error('Prosím, pripojte svoju peňaženku');
-        return;
-      }
-      if (!disputeReason.trim()) {
-        toast.error('Prosím, zadajte dôvod sporu');
         return;
       }
 
@@ -440,7 +442,7 @@ const OrderDetails = () => {
         chainID: network.chainId
       });
 
-      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason: disputeReason, escrowAddress: ESCROW_ADDRESS });
+      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
       toast.info('Vytvára sa spor, potvrďte v peňaženke...');
 
       const sessionId = await signAndSendTransactions({
@@ -450,7 +452,7 @@ const OrderDetails = () => {
           errorMessage: 'Vytvorenie sporu zlyhalo',
           successMessage: 'Spor úspešne vytvorený'
         },
-        timeout: 120000
+        timeout: 10000
       });
 
       console.log('Spor vytvorený, session ID:', sessionId);
@@ -459,13 +461,11 @@ const OrderDetails = () => {
         throw new Error(verification.error || 'Vytvorenie sporu zlyhalo pri overovaní');
       }
 
-      const transactionHash = verification.transactionHash || null;
       const { error } = await supabase
         .from('orders')
         .update({
           payment_status: 'disputed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash
         })
         .eq('id', order.id);
 
@@ -478,14 +478,13 @@ const OrderDetails = () => {
         user_id: order.client_id,
         type: 'dispute_created',
         title: 'Order Disputed',
-        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${disputeReason}`,
+        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${reason}`,
         data: { order_id: order.id },
-        read: false
+        read: false,
       });
 
       toast.success('Spor úspešne vytvorený!');
       setShowDisputeModal(false);
-      setDisputeReason('');
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
@@ -508,7 +507,7 @@ const OrderDetails = () => {
         .update({
           work_status: 'submitted',
           status: 'delivered',
-          status_updated_at: new Date().toISOString()
+          status_updated_at: new Date().toISOString(),
         })
         .eq('id', order.id);
 
@@ -522,7 +521,7 @@ const OrderDetails = () => {
         title: 'Work Delivered',
         content: 'Poskytovateľ odovzdal prácu pre vašu objednávku. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.',
         data: { order_id: order.id },
-        read: false
+        read: false,
       });
 
       await supabase.from('messages').insert({
@@ -530,9 +529,9 @@ const OrderDetails = () => {
         sender_id: user?.id || order.client_id,
         content: JSON.stringify({
           type: 'work_delivered',
-          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.'
+          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.',
         }),
-        attachments: []
+        attachments: [],
       });
 
       toast.success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
@@ -786,26 +785,6 @@ const OrderDetails = () => {
               </div>
             )}
 
-            {canDispute && (
-              <div className="bg-red-100 border border-red-500 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-gray-800 font-bold">Problém s objednávkou?</h3>
-                    <p className="text-gray-800">
-                      Ak máte problém, môžete vytvoriť spor, ktorý preskúma administrácia.
-                    </p>
-                  </div>
-                  <Button
-                    onClick={() => setShowDisputeModal(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                  >
-                    <AlertTriangle size={16} />
-                    Vytvoriť spor
-                  </Button>
-                </div>
-              </div>
-            )}
-
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-400">Pokrok objednávky</span>
@@ -848,9 +827,9 @@ const OrderDetails = () => {
                 <p className="text-gray-400 mb-2">Klient</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                    {order.client?.username?.charAt(0)?.toUpperCase() || '?'}
+                    {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-white">{order.client?.username || 'Neznámy'}</span>
+                  <span className="text-white">{order.client?.username || "Neznámy"}</span>
                 </div>
               </div>
               <div>
@@ -933,74 +912,6 @@ const OrderDetails = () => {
           </div>
         </div>
       )}
-
-      {showDisputeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Vytvoriť spor</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-gray-400 mb-2 block">Dôvod sporu</label>
-                <textarea
-                  value={disputeReason}
-                  onChange={(e) => setDisputeReason(e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg p-3"
-                  rows={4}
-                  placeholder="Popíšte dôvod sporu..."
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => {
-                  setShowDisputeModal(false);
-                  setDisputeReason('');
-                }}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
-              >
-                Zrušiť
-              </Button>
-              <Button
-                onClick={handleDisputePayment}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
-                disabled={isPaymentLoading || !disputeReason.trim()}
-              >
-                <AlertTriangle size={16} />
-                Potvrdiť spor
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showReviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Ohodnotiť poskytovateľa</h3>
-            <p className="text-gray-300">Vaše hodnotenie pomôže ostatným používateľom.</p>
-            {/* Add review form here */}
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => setShowReviewModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
-              >
-                Zrušiť
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  window.location.reload();
-                }}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
-              >
-                Odoslať hodnotenie
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-export default OrderDetails;
