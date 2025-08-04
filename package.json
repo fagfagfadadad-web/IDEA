@@ -24,6 +24,7 @@
     "react-toastify": "^11.0.5"
   },
   "scripts": {
+    "dev": "yarn copy-mainnet-config && vite dev",
     "lint": "eslint --ext js,ts,tsx src --fix",
     "run-cypress": "npx cypress run",
     "start": "yarn copy-mainnet-config && vite dev",
