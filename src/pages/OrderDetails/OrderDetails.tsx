@@ -7,6 +7,7 @@ import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import escrowAbi from '../../contracts/escrow.abi.json';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -148,8 +149,7 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
 
 const getSmartContractFactory = async (network: any) => {
   try {
-    const response = await axios.get('src/contracts/escrow.abi.json');
-    const abi = AbiRegistry.create(response.data);
+    const abi = AbiRegistry.create(escrowAbi);
     const scFactory = new SmartContractTransactionsFactory({
       config: new TransactionsFactoryConfig({
         chainID: network.chainId
@@ -159,7 +159,7 @@ const getSmartContractFactory = async (network: any) => {
     return scFactory;
   } catch (error) {
     console.error('Failed to load escrow ABI:', error);
-    throw new Error('Nepodarilo sa načítať ABI pre escrow kontrakt');
+    throw new Error('Nepodarilo sa inicializovať escrow kontrakt');
   }
 };
 
