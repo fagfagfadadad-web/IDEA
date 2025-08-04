@@ -47,11 +47,7 @@ export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     username: '',
-    full_name: '',
-    bio: '',
-    avatar_url: '',
-    email_notifications_enabled: false
-  });
+  const [mobileActiveTab, setMobileActiveTab] = useState('gigs');
   const [activeTab, setActiveTab] = useState(0);
   const [mobileActiveTab, setMobileActiveTab] = useState(0);
 
@@ -59,176 +55,371 @@ export const Profile = () => {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab === 'notifications') setActiveTab(3);
-    else if (tab === 'settings') setActiveTab(4);
-    else setActiveTab(0);
-  }, [searchParams]);
-
-  // Initialize edit form when profile loads
-  useEffect(() => {
-    if (profile) {
-      setEditForm({
-        username: profile.username || '',
-        full_name: profile.full_name || '',
-        bio: profile.bio || '',
-        avatar_url: profile.avatar_url || '',
-        email_notifications_enabled: profile.email_notifications_enabled || false
-      });
-    }
-  }, [profile]);
-
-  const handleEditSubmit = async () => {
-    try {
-      await updateProfile.mutateAsync(editForm);
-      setIsEditing(false);
-      refetch();
-      alert('Profile updated successfully');
-    } catch (error) {
-      alert('Error updating profile');
-    }
-  };
-
-  const handleDeleteGig = async (gigId: string) => {
-    if (confirm('Are you sure you want to delete this gig?')) {
-      try {
-        await deleteGig.mutateAsync(gigId);
-        alert('Gig deleted successfully');
-        refetch();
-      } catch (error) {
-        alert('Error deleting gig');
-      }
-    }
-  };
-
-  const handleUpdateGigStatus = async (gigId: string, status: string) => {
-    try {
-      await updateGigStatus.mutateAsync({ id: gigId, status });
-      alert(`Gig status updated to ${status}`);
-      refetch();
-    } catch (error) {
-      alert('Error updating gig status');
-    }
-  };
-
-  const isOwnProfile = !id || user?.id === profile?.id;
-
-  // Calculate statistics
-  const totalGigs = gigs?.length || 0;
-  const activeGigs = gigs?.filter(g => g.status === 'active').length || 0;
-  const totalOrders = orders?.length || 0;
-  const completedOrders = orders?.filter(o => o.status === 'completed').length || 0;
-  
-  // Calculate earnings
-  const egldEarnings = orders
-    ?.filter(o => o.status === 'completed' && o.payment_token === 'EGLD')
-    ?.reduce((sum, o) => sum + (o.amount * 0.9), 0) || 0; // 10% fee deducted
-  
-  const idaEarnings = orders
-    ?.filter(o => o.status === 'completed' && (o.payment_token === 'IDA-f9bc1d' || o.payment_token === 'IDA'))
-    ?.reduce((sum, o) => sum + o.amount, 0) || 0; // No fees
-
-  // Calculate reviews
-  const allReviews = orders?.flatMap(o => o.reviews || []) || [];
-  const averageRating = allReviews.length > 0 
-    ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length 
-    : 0;
-
-  const unreadNotifications = notifications?.filter(n => !n.read).length || 0;
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Profile" reference="#">
-          <div className="flex justify-center">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Loading profile...</p>
+          <div className="space-y-4">
+            {/* Always visible Statistics */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <BarChart3 size={20} className="text-indigo-600" />
+                Statistics
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Briefcase size={14} className="text-blue-600" />
+                  </div>
+                  <p className="text-xl font-bold text-blue-600">{profile?.gigs?.length || 0}</p>
+                  <p className="text-xs text-gray-600">Gigs</p>
+                </div>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <ShoppingCart size={14} className="text-green-600" />
+                  </div>
+                  <p className="text-xl font-bold text-green-600">{profile?.orders?.length || 0}</p>
+                  <p className="text-xs text-gray-600">Orders</p>
+                </div>
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <Star size={14} className="text-yellow-600" />
+                  </div>
+                  <p className="text-xl font-bold text-yellow-600">{averageRating.toFixed(1)}</p>
+                  <p className="text-xs text-gray-600">Rating</p>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg text-center">
+                  <div className="flex items-center justify-center gap-1 mb-1">
+                    <DollarSign size={14} className="text-purple-600" />
+                  </div>
+                  <p className="text-xl font-bold text-purple-600">{(totalEgldEarnings + totalIdaEarnings).toFixed(2)}</p>
+                  <p className="text-xs text-gray-600">Total</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </Card>
-      </div>
-    );
-  }
 
-  if (error || !profile) {
-    return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="bg-red-900 border border-red-500 rounded-md p-4">
-          <div className="flex items-center">
-            <span className="text-red-400 mr-2">⚠️</span>
-            <span className="text-white">{error ? `Error: ${error.message}` : 'Profile not found'}</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop version (unchanged)
-  if (!isMobile) {
-    const tabs = [
-      { id: 0, label: 'Overview', icon: <User size={16} /> },
-      { id: 1, label: 'My Gigs', icon: <Briefcase size={16} /> },
-      { id: 2, label: 'My Orders', icon: <ShoppingCart size={16} /> },
-      { id: 3, label: 'Notifications', icon: <Bell size={16} /> },
-      { id: 4, label: 'Settings', icon: <Settings size={16} /> },
-    ];
-
-    return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="space-y-8">
-          {/* Profile Header */}
-          <Card className="p-8" title="Profile Header" reference="#">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-              <div className="w-32 h-32 rounded-full overflow-hidden relative bg-gray-600">
-                {profile.avatar_url ? (
-                  <>
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.username || "Profile"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div 
-                      className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-4xl text-white absolute inset-0"
-                      style={{ display: 'none' }}
-                    >
-                      {profile.username?.charAt(0)?.toUpperCase() || "U"}
+            {/* Earnings breakdown */}
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <DollarSign size={20} className="text-green-600" />
+                Earnings
+              </h3>
+              <div className="space-y-3">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <DollarSign size={16} className="text-blue-600" />
+                      <span className="font-medium text-gray-800">EGLD</span>
                     </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-gray-600 flex items-center justify-center text-4xl text-white">
-                    {profile.username?.charAt(0)?.toUpperCase() || "U"}
+                    <span className="text-lg font-bold text-blue-600">{totalEgldEarnings.toFixed(2)}</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">After 10% platform fee</p>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Coins size={16} className="text-purple-600" />
+                      <span className="font-medium text-gray-800">IDA</span>
+                    </div>
+                    <span className="text-lg font-bold text-purple-600">{totalIdaEarnings.toFixed(2)}</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">No fees - 100% yours!</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Tabs Menu */}
+            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+              <div className="flex overflow-x-auto scrollbar-hide">
+                <button
+                  onClick={() => setMobileActiveTab('gigs')}
+                  className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    mobileActiveTab === 'gigs'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Gigs
+                </button>
+                <button
+                  onClick={() => setMobileActiveTab('orders')}
+                  className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    mobileActiveTab === 'orders'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Orders
+                </button>
+                <button
+                  onClick={() => setMobileActiveTab('reviews')}
+                  className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    mobileActiveTab === 'reviews'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Reviews
+                </button>
+                <button
+                  onClick={() => setMobileActiveTab('settings')}
+                  className={`flex-shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                    mobileActiveTab === 'settings'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Settings
+                </button>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-4">
+                {/* Gigs Tab */}
+                {mobileActiveTab === 'gigs' && (
+                  <div className="space-y-4">
+                    {profile?.gigs?.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">No gigs created yet</p>
+                        <Button
+                          onClick={() => navigate('/create-gig')}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                        >
+                          Create Your First Gig
+                        </Button>
+                      </div>
+                    ) : (
+                      profile?.gigs?.map((gig: any) => (
+                        <div key={gig.id} className="bg-gray-50 rounded-lg overflow-hidden">
+                          {/* Gig Header */}
+                          <div className="p-3 border-b border-gray-200">
+                            <div className="flex justify-between items-start">
+                              <span className="text-xs text-gray-500">
+                                {new Date(gig.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
+                                {gig.category}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Gig Image */}
+                          <div className="relative h-32">
+                            <img
+                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
+                              alt={gig.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          {/* Gig Content */}
+                          <div className="p-3 space-y-2">
+                            <h4 className="font-bold text-gray-800">{gig.title}</h4>
+                            <p className="text-sm text-gray-600 line-clamp-2">{gig.description}</p>
+                            <p className="text-sm text-gray-800">Duration: {gig.duration} days</p>
+                          </div>
+
+                          {/* Gig Footer with Actions */}
+                          <div className="p-3 border-t border-gray-200">
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="text-lg font-bold text-blue-600">
+                                {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
+                              </span>
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                gig.status === 'active' ? 'bg-green-100 text-green-800' :
+                                gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {gig.status}
+                              </span>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                onClick={() => navigate(`/gigs/${gig.id}/edit`)}
+                                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-3 rounded-lg text-sm flex items-center justify-center gap-1"
+                              >
+                                <Edit size={14} />
+                                Edit
+                              </Button>
+                              <Button
+                                onClick={() => handleDeleteGig(gig.id)}
+                                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg text-sm flex items-center justify-center gap-1"
+                              >
+                                <Trash2 size={14} />
+                                Delete
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 )}
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-3xl font-bold text-white mb-2">
-                  {profile.full_name || profile.username}
-                </h1>
-                <p className="text-gray-400 mb-4">@{profile.username}</p>
-                {profile.bio && (
-                  <p className="text-gray-300 mb-4">{profile.bio}</p>
+
+                {/* Orders Tab */}
+                {mobileActiveTab === 'orders' && (
+                  <div className="space-y-4">
+                    {profile?.orders?.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-gray-600 mb-4">No orders yet</p>
+                        <Button
+                          onClick={() => navigate('/gigs')}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                        >
+                          Browse Gigs
+                        </Button>
+                      </div>
+                    ) : (
+                      profile?.orders?.map((order: any) => {
+                        const isClient = order.client_id === profile?.id;
+                        const isProvider = order.gig?.provider_id === profile?.id;
+                        
+                        return (
+                          <div key={order.id} className="bg-gray-50 rounded-lg overflow-hidden">
+                            {/* Order Header */}
+                            <div className="p-3 border-b border-gray-200">
+                              <div className="flex justify-between items-start">
+                                <span className="text-xs text-gray-500">
+                                  {new Date(order.created_at).toLocaleDateString()}
+                                </span>
+                                <div className="flex gap-1">
+                                  <span className={`px-2 py-1 rounded text-xs ${
+                                    order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                    order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                    order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-gray-100 text-gray-800'
+                                  }`}>
+                                    {order.status}
+                                  </span>
+                                  <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs">
+                                    Order #{order.id.slice(-6)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Order Content */}
+                            <div className="p-3 space-y-3">
+                              <h4 className="font-bold text-gray-800">{order.gig?.title || 'Custom Project'}</h4>
+                              
+                              {/* Progress Bar */}
+                              <div>
+                                <div className="flex justify-between text-xs text-gray-600 mb-1">
+                                  <span>Progress</span>
+                                  <span>
+                                    {order.status === 'completed' ? '100%' :
+                                     order.status === 'delivered' ? '75%' :
+                                     order.status === 'in_progress' ? '50%' : '25%'}
+                                  </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className={`h-2 rounded-full ${
+                                      order.status === 'completed' ? 'bg-green-500' :
+                                      order.status === 'delivered' ? 'bg-yellow-500' :
+                                      order.status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-400'
+                                    }`}
+                                    style={{ 
+                                      width: order.status === 'completed' ? '100%' :
+                                             order.status === 'delivered' ? '75%' :
+                                             order.status === 'in_progress' ? '50%' : '25%'
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+
+                              {/* Participants */}
+                              <div className="flex justify-between items-center">
+                                {/* Client */}
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <User size={12} className="text-blue-600" />
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-gray-500">Client</p>
+                                    <p className="text-sm font-medium text-gray-800">
+                                      {order.client?.username || 'Unknown'}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Provider */}
+                                <div className="flex items-center gap-2">
+                                  <div>
+                                    <p className="text-xs text-gray-500 text-right">Provider</p>
+                                    <p className="text-sm font-medium text-gray-800">
+                                      {order.gig?.provider?.username || 'Unknown'}
+                                    </p>
+                                  </div>
+                                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <User size={12} className="text-purple-600" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Amount */}
+                              <div className="text-center">
+                                <span className="text-lg font-bold text-green-600">
+                                  {order.amount} {order.payment_token || 'EGLD'}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Order Footer */}
+                            <div className="p-3 border-t border-gray-200">
+                              <Button
+                                onClick={() => navigate(`/orders/${order.id}`)}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg text-sm"
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 )}
-                <p className="text-gray-400 text-sm">
-                  Member since {new Date(profile.created_at).toLocaleDateString()}
-                </p>
-                
-                {isOwnProfile && (
-                  <Button
-                    onClick={() => setIsEditing(true)}
-                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                  >
-                    <Edit size={16} />
-                    Edit Profile
-                  </Button>
+
+                {/* Reviews Tab */}
+                {mobileActiveTab === 'reviews' && (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="flex justify-center items-center gap-1 mb-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            size={16}
+                            fill={star <= averageRating ? '#FFD700' : 'transparent'}
+                            color={star <= averageRating ? '#FFD700' : '#D1D5DB'}
+                          />
+                        ))}
+                      </div>
+                      <p className="text-lg font-bold text-gray-800">{averageRating.toFixed(1)} / 5</p>
+                      <p className="text-sm text-gray-600">Based on {totalReviews} review{totalReviews !== 1 ? 's' : ''}</p>
+                    </div>
+                    {totalReviews === 0 && (
+                      <p className="text-gray-600 text-center py-4">No reviews yet</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Settings Tab */}
+                {mobileActiveTab === 'settings' && (
+                  <div className="space-y-4">
+                    {isOwnProfile ? (
+                      <div className="space-y-4">
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+                        >
+                          <Edit size={16} />
+                          Edit Profile
+                        </Button>
+                        <div className="bg-gray-50 p-3 rounded-lg">
+                          <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-600 text-center py-4">Settings not available for other users</p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
