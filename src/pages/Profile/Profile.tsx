@@ -51,7 +51,6 @@ import { TwitterShareButton } from '../components/TwitterShareButton';
 import { useDeleteGig } from '../../hooks/useGigs';
 import { usePayments } from '../../hooks/usePayments';
 import { useWindowSize } from '../../hooks/useWindowSize';
-import { supabase } from '../lib/supabase';
 import { supabase } from "../../lib/supabase";
 export const Profile = () => {
   const { id } = useParams();
