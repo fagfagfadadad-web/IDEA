@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card, ExplorerLink, TRANSACTIONS_ENDPOINT } from 'components';
+import { Button, Card, ExplorerLink, TRANSACTIONS_ENDPOINT } from 'lib'; // Predpokladám, že ExplorerLink je v lib
 import { 
   useGetIsLoggedIn, 
   useGetAccount, 
@@ -334,8 +334,6 @@ const OrderDetails = () => {
       } else {
         const scFactory = await getSmartContractFactory(network);
         const value = BigInt(Math.round(order.amount * 1e18));
-        const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
-        const amountHex = value.toString(16).padStart(2, '0');
         transaction = scFactory.createTransactionForExecute({
           sender: new Address(address),
           contract: new Address(ESCROW_ADDRESS),
@@ -344,7 +342,7 @@ const OrderDetails = () => {
           arguments: [hexOrderId, providerAddressHex, deadlineHex],
           esdt: { tokenIdentifier: paymentToken, amount: value }
         });
-        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, amount: value.toString(), escrowAddress: ESCROW_ADDRESS });
       }
 
       toast.info(`Spracováva sa ${paymentToken} platba, potvrďte v peňaženke...`);
