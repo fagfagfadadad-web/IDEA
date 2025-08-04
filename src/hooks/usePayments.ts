@@ -135,6 +135,10 @@ export const usePayments = () => {
         throw new Error('Prosím, pripojte svoju peňaženku');
       }
 
+      if (!providerAddress) {
+        throw new Error('Adresa poskytovateľa je povinná');
+      }
+
       // Kontrola zostatku s ohľadom na 10% poplatok
       const balanceCheck = await checkWalletBalance(address, amount, paymentToken);
       if (!balanceCheck.hasEnoughFunds) {
@@ -144,11 +148,11 @@ export const usePayments = () => {
       }
 
       if (paymentToken !== 'EGLD') {
-        return await sendEsdtPayment(orderId, amount, escrowAddress, providerAddress || address, paymentToken);
+        return await sendEsdtPayment(orderId, amount, escrowAddress, providerAddress, paymentToken);
       }
 
       const hexOrderId = uuidToHex(orderId);
-      const providerAddressHex = addressToHex(providerAddress || address);
+      const providerAddressHex = addressToHex(providerAddress);
       const deadline = getDeadlineTimestamp();
       const deadlineHex = deadline.toString(16);
       const value = BigInt(Math.round(amount * 1e18));
