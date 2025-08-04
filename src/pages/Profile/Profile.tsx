@@ -21,9 +21,9 @@ import {
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewModal } from 'components';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
-import { useProfile, useUpdateProfile } from '../hooks/useProfile';
-import { useGigs } from '../hooks/useGigs';
-import { useOrders } from '../hooks/useOrders';
+import { useProfile, useUpdateProfile } from 'hooks/useProfile';
+import { useGigs } from 'hooks/useGigs';
+import { useOrders } from 'hooks/useOrders';
 import { useNotifications, useMarkNotificationAsRead } from '../hooks/useNotifications';
 import { useAuth } from '../context/AuthContext';
 
