@@ -65,7 +65,7 @@ export const usePayments = () => {
             { timeout: 15000 }
           );
           if (response.data && response.data.balance) {
-            const tokenDecimals = response.data.decimals || 18; // Potvrdené 18 pre IDA-f9bc1d
+            const tokenDecimals = 18; // Potvrdené pre IDA-f9bc1d
             balance = parseFloat(response.data.balance) / Math.pow(10, tokenDecimals);
             console.log(`✅ Nájdený zostatok pre ${tokenId}:`, {
               raw: response.data.balance,
