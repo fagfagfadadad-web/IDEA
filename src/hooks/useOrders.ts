@@ -50,11 +50,15 @@ export const useOrders = () => {
         return;
       }
 
+      console.log('🔍 useOrders: Fetching orders for address:', address);
+
       const { data: user } = await supabase
         .from('users')
         .select('id')
         .eq('wallet_address', address)
         .maybeSingle();
+
+      console.log('🔍 useOrders: Found user:', user);
 
       if (!user) {
         setData([]);
@@ -75,6 +79,9 @@ export const useOrders = () => {
         `)
         .or(`client_id.eq.${user.id},provider_address.eq.${address}`)
         .order('created_at', { ascending: false });
+
+      console.log('🔍 useOrders: Query result:', { orders, error });
+      console.log('🔍 useOrders: Filter used:', `client_id.eq.${user.id},provider_address.eq.${address}`);
 
       if (error) throw error;
 
