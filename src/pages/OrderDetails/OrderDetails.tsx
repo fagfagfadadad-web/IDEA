@@ -361,6 +361,7 @@ const OrderDetails = () => {
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
         const amountHex = value.toString(16);
         const paddedAmountHex = amountHex.length % 2 === 0 ? amountHex : '0' + amountHex;
+        const functionNameHex = Buffer.from('depositEsdt', 'utf8').toString('hex');
         const data = `ESDTTransfer@${tokenIdHex}@${paddedAmountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: BigInt(0),
