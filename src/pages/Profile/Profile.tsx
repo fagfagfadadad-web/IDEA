@@ -134,6 +134,56 @@ export const Profile = () => {
 
   const unreadNotifications = notifications?.filter(n => !n.read).length || 0;
 
+  const getStatusColor = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case 'programming & tech':
+      case 'development':
+        return '#01c3a8';
+      case 'graphics & design':
+      case 'design':
+        return '#1890ff';
+      case 'digital marketing':
+      case 'marketing':
+        return '#ffb741';
+      case 'writing & translation':
+      case 'writing':
+        return '#ff6f61';
+      case 'video & animation':
+      case 'video':
+        return '#a259ff';
+      case 'ai services':
+      case 'ai':
+        return '#00ddeb';
+      case 'music & audio':
+      case 'audio':
+        return '#ffcc33';
+      case 'business':
+        return '#2ecc71';
+      case 'consulting':
+        return '#e91e63';
+      default:
+        return '#6b7280';
+    }
+  };
+
+  const getOrderStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return '#2ecc71';
+      case 'in_progress':
+        return '#1890ff';
+      case 'delivered':
+        return '#ffb741';
+      case 'cancelled':
+        return '#ff6f61';
+      case 'pending':
+      case 'pending_approval':
+        return '#a259ff';
+      default:
+        return '#6b7280';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
@@ -892,35 +942,93 @@ export const Profile = () => {
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {gigs?.map((gig) => (
-                      <div
-                        key={gig.id}
-                        className="border border-gray-200 rounded-lg p-3 cursor-pointer hover:bg-gray-50"
-                        onClick={() => navigate(`/gigs/${gig.id}`)}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium text-gray-800 text-sm line-clamp-1">{gig.title}</h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            gig.status === 'active' ? 'bg-green-100 text-green-800' :
-                            gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {gig.status}
-                          </span>
-                        </div>
-                        <p className="text-gray-600 text-xs line-clamp-2 mb-2">{gig.description}</p>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-1">
-                            {gig.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
-                            <span className="text-indigo-600 font-bold text-sm">
-                              {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                            </span>
+                  <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {gigs?.map((gig) => {
+                      const statusColor = getStatusColor(gig.category);
+                      const paymentToken = gig.payment_token || 'EGLD';
+                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                      const tokenIcon = paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+                      const hasNoFees = paymentToken !== 'EGLD';
+
+                      return (
+                        <div
+                          key={gig.id}
+                          className="min-w-[280px] w-[280px] bg-white border border-gray-200 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden relative flex-shrink-0 rounded-lg"
+                          onClick={() => navigate(`/gigs/${gig.id}`)}
+                          style={{
+                            borderTopColor: statusColor,
+                            borderTopWidth: '3px'
+                          }}
+                        >
+                          <div 
+                            className="py-2 px-3 border-b border-gray-200"
+                            style={{ backgroundColor: `${statusColor}20` }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                gig.status === 'active' ? 'bg-green-100 text-green-800' :
+                                gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {gig.status.charAt(0).toUpperCase() + gig.status.slice(1)}
+                              </span>
+                              <div className="flex gap-1">
+                                <span
+                                  className="px-2 py-1 rounded-full text-xs font-medium"
+                                  style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
+                                >
+                                  {gig.category.substring(0, 8)}...
+                                </span>
+                                {hasNoFees && (
+                                  <span className="px-1 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    0%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <span className="text-gray-500 text-xs">{gig.duration}d</span>
+                          
+                          <div className="relative h-32">
+                            <img
+                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
+                              alt={gig.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          <div className="p-3 space-y-2">
+                            <h3 className="text-sm font-bold text-gray-800 line-clamp-2 h-8">
+                              {gig.title}
+                            </h3>
+                            
+                            <p className="text-gray-600 text-xs line-clamp-2 h-6">
+                              {gig.description}
+                            </p>
+                            
+                            <p className="text-xs text-gray-800">
+                              Duration: {gig.duration} days
+                            </p>
+                          </div>
+
+                          <div className="flex justify-between items-center p-3 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white">
+                                {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                              </div>
+                              <span className="text-xs text-gray-800 truncate max-w-[80px]">
+                                {profile?.username}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {tokenIcon}
+                              <span className="text-sm font-bold" style={{ color: statusColor }}>
+                                {gig.price} {tokenSymbol}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -935,39 +1043,91 @@ export const Profile = () => {
                     <p className="text-gray-500">No orders yet</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {orders?.map((order) => (
-                      <div
-                        key={order.id}
-                        className="border border-gray-200 rounded-lg p-3 cursor-pointer hover:bg-gray-50"
-                        onClick={() => navigate(`/orders/${order.id}`)}
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-medium text-gray-800 text-sm line-clamp-1">
-                            {order.gig?.title || 'Custom Project'}
-                          </h4>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                            order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {order.status}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-1">
-                            {order.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
-                            <span className="text-indigo-600 font-bold text-sm">
-                              {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                            </span>
+                  <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {orders?.map((order) => {
+                      const statusColor = getOrderStatusColor(order.status);
+                      const paymentToken = order.payment_token || 'EGLD';
+                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                      const tokenIcon = paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+                      const hasNoFees = paymentToken !== 'EGLD';
+
+                      return (
+                        <div
+                          key={order.id}
+                          className="min-w-[280px] w-[280px] bg-white border border-gray-200 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden relative flex-shrink-0 rounded-lg"
+                          onClick={() => navigate(`/orders/${order.id}`)}
+                          style={{
+                            borderTopColor: statusColor,
+                            borderTopWidth: '3px'
+                          }}
+                        >
+                          <div 
+                            className="py-2 px-3 border-b border-gray-200"
+                            style={{ backgroundColor: `${statusColor}20` }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
+                                order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </span>
+                              <div className="flex gap-1">
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  Order
+                                </span>
+                                {hasNoFees && (
+                                  <span className="px-1 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    0%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <span className="text-gray-500 text-xs">
-                            {new Date(order.created_at).toLocaleDateString()}
-                          </span>
+                          
+                          <div className="relative h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                            <div className="text-center">
+                              <Briefcase size={32} className="text-gray-400 mx-auto mb-2" />
+                              <p className="text-xs text-gray-500">Order</p>
+                            </div>
+                          </div>
+
+                          <div className="p-3 space-y-2">
+                            <h3 className="text-sm font-bold text-gray-800 line-clamp-2 h-8">
+                              {order.gig?.title || 'Custom Project'}
+                            </h3>
+                            
+                            <p className="text-gray-600 text-xs line-clamp-2 h-6">
+                              Order from {order.client?.username || 'Client'}
+                            </p>
+                            
+                            <p className="text-xs text-gray-800">
+                              Created: {new Date(order.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          <div className="flex justify-between items-center p-3 border-t border-gray-100">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white">
+                                {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                              </div>
+                              <span className="text-xs text-gray-800 truncate max-w-[80px]">
+                                {order.client?.username}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {tokenIcon}
+                              <span className="text-sm font-bold" style={{ color: statusColor }}>
+                                {order.amount} {tokenSymbol}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
