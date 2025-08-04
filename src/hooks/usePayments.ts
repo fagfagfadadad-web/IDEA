@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Transaction, Address, useGetIsLoggedIn, useGetAccount, useGetNetworkConfig } from 'lib';
 import { signAndSendTransactions } from '../helpers';
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Pre notifikácie
+import { toast } from 'react-toastify';
 
 export const usePayments = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -146,7 +146,7 @@ export const usePayments = () => {
         value: value,
         data: Buffer.from(data),
         receiver: new Address(escrowAddress),
-        gasLimit: BigInt(20000000), // Zvýšené podľa transakcií
+        gasLimit: BigInt(20000000),
         sender: new Address(address),
         chainID: network.chainId
       });
@@ -447,7 +447,6 @@ export const usePayments = () => {
         throw new Error('Prosím, pripojte svoju peňaženku');
       }
       console.log('Odosiela sa práca pre objednávku:', orderId);
-      // Tu by mala byť logika na aktualizáciu stavu v databáze
       toast.success('Práca úspešne odoslaná!');
       return 'work-submitted';
     } catch (error) {
