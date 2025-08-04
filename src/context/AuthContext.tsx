@@ -84,6 +84,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (localError: any) {
         console.log('Local cleanup also failed, continuing anyway:', localError.message);
       }
+    } finally {
+      // Clear any stale refresh tokens from local storage
+      localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
     }
   };
 
