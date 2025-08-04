@@ -820,32 +820,89 @@ export const Profile = () => {
                                         {order.gig?.title || 'Custom Project'}
                                       </h4>
                                       
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full overflow-hidden relative">
-                                          <img
-                                            src={order.gig?.provider?.avatar_url || "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"}
-                                            alt={order.gig?.provider?.username || "Provider"}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              const parent = target.parentElement;
-                                              if (parent) {
-                                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                                if (fallback) fallback.style.display = 'flex';
-                                              }
-                                            }}
-                                          />
-                                          <div 
-                                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
-                                            style={{ display: 'none' }}
-                                          >
-                                            {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                      {/* Both Client and Provider */}
+                                      <div className="space-y-2">
+                                        {/* Client */}
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                            {order.client?.avatar_url ? (
+                                              <img
+                                                src={order.client.avatar_url}
+                                                alt={order.client.username || "Client"}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.src = "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg";
+                                                }}
+                                              />
+                                            ) : (
+                                              <img
+                                                src="https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"
+                                                alt="Client"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.style.display = 'none';
+                                                  const parent = target.parentElement;
+                                                  if (parent) {
+                                                    const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
+                                                    if (fallback) fallback.style.display = 'flex';
+                                                  }
+                                                }}
+                                              />
+                                            )}
+                                            <div 
+                                              className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                            </div>
                                           </div>
+                                          <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                            Client: {(order.client?.username || "Unknown").substring(0, 6)}
+                                          </span>
                                         </div>
-                                        <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                          Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
-                                        </span>
+                                        
+                                        {/* Provider */}
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                            {order.gig?.provider?.avatar_url ? (
+                                              <img
+                                                src={order.gig.provider.avatar_url}
+                                                alt={order.gig.provider.username || "Provider"}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.src = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg";
+                                                }}
+                                              />
+                                            ) : (
+                                              <img
+                                                src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
+                                                alt="Provider"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.style.display = 'none';
+                                                  const parent = target.parentElement;
+                                                  if (parent) {
+                                                    const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
+                                                    if (fallback) fallback.style.display = 'flex';
+                                                  }
+                                                }}
+                                              />
+                                            )}
+                                            <div 
+                                              className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                            </div>
+                                          </div>
+                                          <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                            Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                          </span>
+                                        </div>
                                       </div>
                                       
                                       <div className="flex items-center gap-1">
@@ -902,32 +959,89 @@ export const Profile = () => {
                                         {order.gig?.title || 'Custom Project'}
                                       </h4>
                                       
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full overflow-hidden relative">
-                                          <img
-                                            src={order.client?.avatar_url || "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"}
-                                            alt={order.client?.username || "Client"}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                              const target = e.target as HTMLImageElement;
-                                              target.style.display = 'none';
-                                              const parent = target.parentElement;
-                                              if (parent) {
-                                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                                if (fallback) fallback.style.display = 'flex';
-                                              }
-                                            }}
-                                          />
-                                          <div 
-                                            className="fallback-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
-                                            style={{ display: 'none' }}
-                                          >
-                                            {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                      {/* Both Client and Provider */}
+                                      <div className="space-y-2">
+                                        {/* Client */}
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                            {order.client?.avatar_url ? (
+                                              <img
+                                                src={order.client.avatar_url}
+                                                alt={order.client.username || "Client"}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.src = "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg";
+                                                }}
+                                              />
+                                            ) : (
+                                              <img
+                                                src="https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"
+                                                alt="Client"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.style.display = 'none';
+                                                  const parent = target.parentElement;
+                                                  if (parent) {
+                                                    const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
+                                                    if (fallback) fallback.style.display = 'flex';
+                                                  }
+                                                }}
+                                              />
+                                            )}
+                                            <div 
+                                              className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                            </div>
                                           </div>
+                                          <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                            Client: {(order.client?.username || "Unknown").substring(0, 6)}
+                                          </span>
                                         </div>
-                                        <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                          Client: {(order.client?.username || "Unknown").substring(0, 6)}
-                                        </span>
+                                        
+                                        {/* Provider */}
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                            {order.gig?.provider?.avatar_url ? (
+                                              <img
+                                                src={order.gig.provider.avatar_url}
+                                                alt={order.gig.provider.username || "Provider"}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.src = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg";
+                                                }}
+                                              />
+                                            ) : (
+                                              <img
+                                                src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
+                                                alt="Provider"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                  const target = e.target as HTMLImageElement;
+                                                  target.style.display = 'none';
+                                                  const parent = target.parentElement;
+                                                  if (parent) {
+                                                    const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
+                                                    if (fallback) fallback.style.display = 'flex';
+                                                  }
+                                                }}
+                                              />
+                                            )}
+                                            <div 
+                                              className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                              style={{ display: 'none' }}
+                                            >
+                                              {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                            </div>
+                                          </div>
+                                          <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                            Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                          </span>
+                                        </div>
                                       </div>
                                       
                                       <div className="flex items-center gap-1">
@@ -986,32 +1100,89 @@ export const Profile = () => {
                                           {order.gig?.title || 'Custom Project'}
                                         </h4>
                                         
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-6 h-6 rounded-full overflow-hidden relative">
-                                            <img
-                                              src={order.gig?.provider?.avatar_url || "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"}
-                                              alt={order.gig?.provider?.username || "Provider"}
-                                              className="w-full h-full object-cover"
-                                              onError={(e) => {
-                                                const target = e.target as HTMLImageElement;
-                                                target.style.display = 'none';
-                                                const parent = target.parentElement;
-                                                if (parent) {
-                                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                                  if (fallback) fallback.style.display = 'flex';
-                                                }
-                                              }}
-                                            />
-                                            <div 
-                                              className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
-                                              style={{ display: 'none' }}
-                                            >
-                                              {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                        {/* Both Client and Provider */}
+                                        <div className="space-y-2">
+                                          {/* Client */}
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                              {order.client?.avatar_url ? (
+                                                <img
+                                                  src={order.client.avatar_url}
+                                                  alt={order.client.username || "Client"}
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg";
+                                                  }}
+                                                />
+                                              ) : (
+                                                <img
+                                                  src="https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"
+                                                  alt="Client"
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                      const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
+                                                      if (fallback) fallback.style.display = 'flex';
+                                                    }
+                                                  }}
+                                                />
+                                              )}
+                                              <div 
+                                                className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                                style={{ display: 'none' }}
+                                              >
+                                                {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                              </div>
                                             </div>
+                                            <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                              Client: {(order.client?.username || "Unknown").substring(0, 6)}
+                                            </span>
                                           </div>
-                                          <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                                            Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
-                                          </span>
+                                          
+                                          {/* Provider */}
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                              {order.gig?.provider?.avatar_url ? (
+                                                <img
+                                                  src={order.gig.provider.avatar_url}
+                                                  alt={order.gig.provider.username || "Provider"}
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg";
+                                                  }}
+                                                />
+                                              ) : (
+                                                <img
+                                                  src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
+                                                  alt="Provider"
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                      const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
+                                                      if (fallback) fallback.style.display = 'flex';
+                                                    }
+                                                  }}
+                                                />
+                                              )}
+                                              <div 
+                                                className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                                style={{ display: 'none' }}
+                                              >
+                                                {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                              </div>
+                                            </div>
+                                            <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                              Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                            </span>
+                                          </div>
                                         </div>
                                         
                                         <div className="flex items-center gap-1">
@@ -1122,144 +1293,4 @@ export const Profile = () => {
                                 )}
                               </div>
                               <span className="text-xs text-gray-800">
-                                {order.client?.username || "Unknown"}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              {order.payment_status === 'pending_release' && timeLeftMap[order.id] === 'Ready to claim' && (
-                                <Button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleClaimPayment(order.id);
-                                  }}
-                                  className="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs flex items-center gap-1"
-                                >
-                                  <DollarSign size={10} />
-                                  Claim
-                                </Button>
-                              )}
-                              <span className="text-sm font-bold" style={{ color: statusColor }}>
-                                {order.amount} {tokenSymbol}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              ) : (
-                <p className="text-gray-400">No orders yet</p>
-              )}
-            </div>
-          )}
-
-          {activeTab === 2 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              {reviews.length > 0 ? (
-                reviews.map((review: any, index: number) => (
-                  <Card
-                    key={`${review.id}-${index}`}
-                    className="bg-gray-800 p-3 md:p-4 rounded-xl"
-                    title="Review"
-                    reference="#"
-                  >
-                    <div className="space-y-2 md:space-y-3">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <div className="w-5 md:w-6 h-5 md:h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                            {review.order?.client?.username?.charAt(0)?.toUpperCase() || "?"}
-                          </div>
-                          <div>
-                            <p className="text-white font-medium text-xs md:text-sm">
-                              {review.order?.client?.username || 'Anonymous'}
-                            </p>
-                            <p className="text-gray-400 text-xs">
-                              {new Date(review.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex">
-                          {Array(5)
-                            .fill('')
-                            .map((_, i) => (
-                              <Star
-                                key={i}
-                                size={12}
-                                className={i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-600'}
-                              />
-                            ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <p className="text-gray-400 text-xs mb-1">
-                          Order: {review.order?.gig?.title || "Custom Project"}
-                        </p>
-                        <p className="text-white text-xs md:text-sm">{review.comment}</p>
-                      </div>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <p className="text-gray-400">No reviews yet</p>
-              )}
-            </div>
-          )}
-
-          {isOwnProfile && activeTab === 3 && (
-            <Card className="bg-gray-800 p-4 rounded-xl" title="Settings" reference="#">
-              <div className="space-y-3 md:space-y-4">
-                <h3 className="text-base md:text-lg font-bold text-white mb-2">
-                  Notification Settings
-                </h3>
-                <EmailNotificationsToggle enabled={profile?.email_notifications_enabled ?? true} />
-              </div>
-            </Card>
-          )}
-        </div>
-      </Card>
-
-      {/* Add bottom padding for mobile navigation */}
-      <div className="h-20 md:h-0"></div>
-
-      {/* Delete Confirmation Dialog */}
-      {isDeleteAlertOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          {/* Wrapper div to constrain Card width to 640px */}
-          <div className="w-[40rem] min-w-[32rem] mx-auto" data-debug="modal-wrapper">
-            <Card
-              className="p-4 sm:p-6 !w-[40rem] !min-w-[32rem] !flex-none !bg-gray-900 mx-auto max-h-[90vh] overflow-y-auto"
-              style={{ width: '640px', minWidth: '512px', flex: '0 0 auto', backgroundColor: '#111827' }}
-              reference="#" // Remove title to avoid duplicate "Delete Gig"
-              data-debug="delete-gig-card"
-            >
-              {/* Inner wrapper to keep content compact at 576px */}
-              <div className="w-full max-w-[36rem] mx-auto space-y-6">
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Delete Gig</h3>
-                <p className="text-gray-400 mb-4">
-                  Are you sure you want to delete this gig? This action cannot be undone.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    onClick={() => setIsDeleteAlertOpen(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg text-sm sm:text-base"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleDeleteConfirm}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm sm:text-base"
-                    disabled={deleteGig.isLoading}
-                  >
-                    {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+                                {order.client
