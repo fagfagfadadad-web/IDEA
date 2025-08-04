@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
+import { Address } from '@multiversx/sdk-core';
 
 export const sendNotification = async ({ user_id, type, title, content, data }: {
   user_id: string;
@@ -49,7 +50,6 @@ export const useOrders = () => {
         return;
       }
 
-      // Get current user by wallet address
       const { data: user } = await supabase
         .from('users')
         .select('id')
@@ -61,7 +61,6 @@ export const useOrders = () => {
         return;
       }
 
-      // First, get gig IDs where user is provider
       const { data: userGigs } = await supabase
         .from('gigs')
         .select('id')
@@ -69,7 +68,6 @@ export const useOrders = () => {
 
       const gigIds = userGigs?.map(gig => gig.id) || [];
 
-      // Fetch orders for current user (as client or provider)
       const { data: orders, error } = await supabase
         .from('orders')
         .select(`
@@ -120,23 +118,37 @@ export const useCreateOrder = () => {
         throw new Error('Please connect your wallet first');
       }
 
-      // Get current user by wallet address
-      const { data: user } = await supabase
+      const { data: user, error: userError } = await supabase
         .from('users')
         .select('id')
         .eq('wallet_address', address)
         .maybeSingle();
 
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        throw new Error(`Failed to fetch user: ${userError.message}`);
+      }
+
       if (!user) {
         throw new Error('User not found. Please complete your profile first.');
       }
 
-      // Get gig details for provider address
-      const { data: gig } = await supabase
+      const { data: gig, error: gigError } = await supabase
         .from('gigs')
-        .select('provider:users!gigs_provider_id_fkey(wallet_address)')
+        .select('provider_id, users!provider_id(wallet_address)')
         .eq('id', orderData.gig_id)
         .single();
+
+      if (gigError) {
+        console.error('Error fetching gig:', gigError);
+        throw new Error(`Failed to fetch gig: ${gigError.message}`);
+      }
+
+      const providerAddress = gig?.users?.wallet_address;
+      if (!providerAddress || !isValidAddress(providerAddress)) {
+        console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
+        throw new Error('Provider address not found or invalid for gig');
+      }
 
       const { data: order, error } = await supabase
         .from('orders')
@@ -151,7 +163,7 @@ export const useCreateOrder = () => {
           payment_status: 'pending',
           work_status: 'pending',
           client_address: address,
-          provider_address: gig?.provider[0]?.wallet_address || ''
+          provider_address: providerAddress
         })
         .select(`
           *,
@@ -160,15 +172,28 @@ export const useCreateOrder = () => {
         `)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating order:', error);
+        throw new Error(`Failed to create order: ${error.message}`);
+      }
 
-      console.log('Order created successfully:', order);
+      console.log('Order created successfully:', JSON.stringify(order, null, 2));
       return order;
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const isValidAddress = (addr: string | undefined): boolean => {
+    if (!addr) return false;
+    try {
+      new Address(addr);
+      return true;
+    } catch {
+      return false;
     }
   };
 
@@ -189,23 +214,23 @@ export const useOrderById = (orderId: string) => {
     const fetchOrder = async () => {
       try {
         setIsLoading(true);
-        
         const { data: order, error } = await supabase
           .from('orders')
           .select(`
             *,
-            gig:gigs(
-              title,
-              provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name)
-            ),
-            client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
-            reviews(*)
+            client:client_id(id, username, avatar_url, full_name),
+            gig:gig_id(id, title, provider_id, users!provider_id(id, username, avatar_url, full_name, wallet_address))
           `)
           .eq('id', orderId)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase error fetching order:', error);
+          throw new Error(`Failed to fetch order: ${error.message}`);
+        }
 
+        if (!order) throw new Error('Order not found');
+        console.log('Fetched order data:', JSON.stringify(order, null, 2));
         setData(order);
       } catch (err) {
         console.error('Error fetching order:', err);
