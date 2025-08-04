@@ -311,7 +311,7 @@ const OrderDetails = () => {
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
         },
-        timeout: 120000
+        timeout: 300000
       });
 
       console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
