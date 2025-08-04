@@ -437,9 +437,10 @@ export const Profile = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Earned</p>
-                  <p className="text-2xl font-bold text-purple-600">
-                    {earnings.egld.toFixed(2)} EGLD
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-lg font-bold text-blue-600">{earnings.egld.toFixed(2)} EGLD</p>
+                    <p className="text-lg font-bold text-purple-600">{earnings.ida.toFixed(2)} IDA</p>
+                  </div>
                 </div>
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-purple-600" />
