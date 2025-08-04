@@ -382,6 +382,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(null);
         setIsProfileReady(false);
         setLastAddress(null); // Force full re-authentication on next login
+      } else if (event === 'TOKEN_REFRESHED' && !session && isMounted) {
+        console.log('🔄 AuthContext: Token refresh failed, clearing session');
+        handleSupabaseSignOut();
+        setUser(null);
+        setIsProfileReady(false);
+        setLastAddress(null);
+        setAuthMessage('Session expired. Please log in again.');
       }
     });
 
