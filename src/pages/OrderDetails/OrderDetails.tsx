@@ -2,12 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
 import { Button, Card } from 'components';
-import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig } from 'lib';
+import { 
+  useGetIsLoggedIn, 
+  useGetAccount, 
+  useGetNetworkConfig, 
+  Transaction, 
+  Address
+} from 'lib';
+import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
-import { usePayments } from '../../hooks/usePayments'; // Import usePayments
 import { useAuth } from '../../context/AuthContext';
 import { OrderChat } from '../../components/OrderChat';
 import { supabase } from '../../lib/supabase';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export const OrderDetails = () => {
   const { id } = useParams();
@@ -16,8 +24,7 @@ export const OrderDetails = () => {
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
   const { user } = useAuth();
-  const { sendPayment, releasePayment, disputePayment, submitWork } = usePayments(); // Použitie usePayments
-
+  
   const { data: order, isLoading, error } = useOrderById(id || '');
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
@@ -27,6 +34,9 @@ export const OrderDetails = () => {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
+  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+
+  // Utility functions
   const isValidAddress = (addr: string | undefined): boolean => {
     if (!addr) return false;
     try {
@@ -37,16 +47,457 @@ export const OrderDetails = () => {
     }
   };
 
-  const getRemainingTime = () => {
-    if (!order?.deadline) return null;
-    const now = new Date();
-    const deadline = new Date(order.deadline);
-    const diff = deadline.getTime() - now.getTime();
-    if (diff <= 0) return 'Deadline passed';
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    if (days > 0) return `${days} days remaining`;
-    return `${hours} hours remaining`;
+  const addressToHex = (bech32Address: string): string => {
+    try {
+      const address = new Address(bech32Address);
+      if (address.isZero()) {
+        throw new Error('Adresa nemôže byť nulová');
+      }
+      return address.hex();
+    } catch (error) {
+      console.error('Failed to convert address to hex:', error);
+      throw new Error(`Neplatný formát adresy: ${bech32Address}`);
+    }
+  };
+
+  const uuidToHex = (uuid: string): string => {
+    const cleanUuid = uuid.replace(/-/g, '');
+    if (cleanUuid.length !== 32) {
+      throw new Error('Neplatný formát UUID, musí mať 32 hex znakov bez pomlčiek');
+    }
+    console.log('UUID conversion:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
+    return cleanUuid;
+  };
+
+  const getDeadlineTimestamp = (): number => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const deadline = currentTime + 7 * 24 * 60 * 60; // 7 dní
+    if (deadline <= currentTime + 86_400) {
+      throw new Error('Deadline musí byť aspoň 1 deň v budúcnosti');
+    }
+    console.log('Vygenerovaný deadline:', { currentTime, deadline });
+    return deadline;
+  };
+
+  const checkWalletBalance = async (walletAddress: string, requiredAmount: number, tokenId: string = 'EGLD') => {
+    try {
+      console.log('🔍 Kontrola zostatku peňaženky:', { walletAddress, requiredAmount, tokenId });
+      if (!isValidAddress(walletAddress)) {
+        throw new Error('Neplatná adresa peňaženky');
+      }
+
+      let balance = 0;
+      if (tokenId === 'EGLD') {
+        const response = await axios.get(
+          `https://api.multiversx.com/accounts/${walletAddress}`,
+          { timeout: 15000 }
+        );
+        balance = response.data.balance
+          ? parseFloat(response.data.balance) / Math.pow(10, 18)
+          : 0;
+        console.log('💰 Výsledok EGLD zostatku:', { raw: response.data.balance, formatted: balance });
+      } else {
+        console.log(`🪙 Kontrola ESDT zostatku pre: ${tokenId}`);
+        try {
+          const response = await axios.get(
+            `https://api.multiversx.com/accounts/${walletAddress}/tokens/${tokenId}`,
+            { timeout: 15000 }
+          );
+          if (response.data && response.data.balance) {
+            const tokenDecimals = 18; // Potvrdené pre IDA-f9bc1d
+            balance = parseFloat(response.data.balance) / Math.pow(10, tokenDecimals);
+            console.log(`✅ Nájdený zostatok pre ${tokenId}:`, {
+              raw: response.data.balance,
+              decimals: tokenDecimals,
+              formatted: balance
+            });
+          } else {
+            console.log(`❌ Žiadny zostatok pre ${tokenId}`);
+            balance = 0;
+          }
+        } catch (error) {
+          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
+          balance = 0;
+        }
+      }
+
+      const effectiveAmount = tokenId === 'EGLD' ? requiredAmount * 1.1111 : requiredAmount; // 10% poplatok pre EGLD
+      console.log('🏁 Výsledok kontroly zostatku:', {
+        address: walletAddress,
+        tokenId,
+        balance,
+        requiredAmount: effectiveAmount,
+        hasEnoughFunds: balance >= effectiveAmount
+      });
+
+      return {
+        hasEnoughFunds: balance >= effectiveAmount,
+        balance,
+        required: effectiveAmount,
+        error: null
+      };
+    } catch (error) {
+      console.error('💥 Chyba pri kontrole zostatku:', error.message);
+      toast.error(`Chyba pri kontrole zostatku: ${error.message}`);
+      return {
+        hasEnoughFunds: false,
+        balance: 0,
+        required: requiredAmount,
+        error: error instanceof Error ? error.message : 'Neznáma chyba'
+      };
+    }
+  };
+
+  const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
+    console.log('Starting transaction monitoring for hash:', txHash);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        console.log(`Monitoring attempt ${attempt}/${maxAttempts} for transaction:`, txHash);
+        const response = await axios.get(
+          `https://api.multiversx.com/transactions/${txHash}`,
+          { timeout: 15000 }
+        );
+        const txData = response.data;
+        console.log('Transaction status response:', {
+          hash: txHash,
+          status: txData.status,
+          nonce: txData.nonce,
+          round: txData.round,
+          timestamp: txData.timestamp,
+        });
+
+        if (['success', 'executed'].includes(txData.status)) {
+          console.log('Transaction confirmed as successful:', txHash);
+          return { success: true, data: txData };
+        } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
+          console.error('Transaction failed:', txHash, txData.status);
+          return { success: false, error: `Transaction failed with status: ${txData.status}` };
+        } else {
+          console.log(`Transaction still ${txData.status}, waiting...`);
+          await new Promise((resolve) => setTimeout(resolve, 6000));
+          continue;
+        }
+      } catch (error) {
+        console.log(`Attempt ${attempt} failed:`, error instanceof Error ? error.message : error);
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === 404) {
+            console.log('Transaction not found yet, waiting...');
+          } else if (error.response?.status === 429) {
+            const delay = Math.pow(2, attempt) * 1000;
+            console.log(`Rate limit hit, waiting ${delay}ms...`);
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
+        if (attempt === maxAttempts) {
+          throw new Error(`Transaction monitoring failed after ${maxAttempts} attempts`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 6000));
+      }
+    }
+    throw new Error('Transaction monitoring timeout');
+  };
+
+  const handlePayment = async () => {
+    console.log('Payment button clicked!', { address, order });
+    if (!address || !order) {
+      toast.error('Prosím, pripojte svoju peňaženku');
+      return;
+    }
+
+    try {
+      setIsPaymentLoading(true);
+      console.log('Creating transaction...');
+
+      // Validácia providerAddress
+      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
+      if (!isValidAddress(providerAddress)) {
+        throw new Error('Neplatná alebo chýbajúca adresa poskytovateľa');
+      }
+
+      // Kontrola zostatku s ohľadom na 10% poplatok pre EGLD
+      const paymentToken = order.payment_token || 'EGLD';
+      const balanceCheck = await checkWalletBalance(address, order.amount, paymentToken);
+      if (!balanceCheck.hasEnoughFunds) {
+        throw new Error(
+          `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${paymentToken} (vrátane 10% poplatku pre EGLD), ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`
+        );
+      }
+
+      const hexOrderId = uuidToHex(order.id);
+      const providerAddressHex = addressToHex(providerAddress);
+      const deadline = getDeadlineTimestamp();
+      const deadlineHex = deadline.toString(16).padStart(16, '0'); // Zabezpečenie 8 bajtov pre u64
+
+      let transaction;
+      if (paymentToken === 'EGLD') {
+        const amount = BigInt(Math.round(order.amount * 1e18));
+        const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+        transaction = new Transaction({
+          value: amount,
+          data: Buffer.from(data),
+          receiver: new Address(ESCROW_ADDRESS),
+          gasLimit: BigInt(20000000),
+          sender: new Address(address),
+          chainID: network.chainId
+        });
+        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
+        toast.info('10% poplatok bude odpočítaný z EGLD platby.');
+      } else {
+        const value = BigInt(Math.round(order.amount * 1e18));
+        const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
+        const amountHex = value.toString(16).padStart(2, '0');
+        const data = `ESDTTransfer@${tokenIdHex}@${amountHex}@depositEsdt@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+        transaction = new Transaction({
+          value: BigInt(0),
+          data: Buffer.from(data),
+          receiver: new Address(ESCROW_ADDRESS),
+          gasLimit: BigInt(20000000),
+          sender: new Address(address),
+          chainID: network.chainId
+        });
+        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, data, escrowAddress: ESCROW_ADDRESS });
+      }
+
+      toast.info(`Spracováva sa ${paymentToken} platba, potvrďte v peňaženke...`);
+      console.log('Calling signAndSendTransactions...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: `Spracováva sa ${paymentToken} platba...`,
+          errorMessage: `${paymentToken} platba zlyhala`,
+          successMessage: `${paymentToken} platba úspešná`
+        },
+        timeout: 10000 // Zvýšený timeout na 10 sekúnd
+      });
+
+      console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
+
+      // Overenie transakcie
+      const verification = await monitorTransactionStatus(sessionId);
+      if (!verification.success) {
+        throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
+      }
+
+      // Aktualizácia stavu objednávky
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          payment_status: 'escrowed',
+          status: 'in_progress',
+          status_updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (updateError) {
+        console.error('Error updating order:', updateError);
+        throw new Error(`Aktualizácia databázy zlyhala: ${updateError.message}`);
+      }
+
+      console.log('Platba úspešná a databáza aktualizovaná');
+      toast.success(`${paymentToken} platba úspešná! Objednávka je teraz v priebehu.`);
+      setShowPaymentModal(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Payment error:', error);
+      let errorMessage = `${paymentToken} platba zlyhala`;
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.';
+        } else if (error.message.includes('User rejected')) {
+          errorMessage = 'Transakcia bola zrušená používateľom.';
+        } else if (error.message.includes('Insufficient funds')) {
+          errorMessage = 'Nedostatok prostriedkov v peňaženke.';
+        } else {
+          errorMessage = `${paymentToken} platba zlyhala: ${error.message}`;
+        }
+      }
+      toast.error(errorMessage);
+    } finally {
+      setIsPaymentLoading(false);
+    }
+  };
+
+  const handleReleasePayment = async () => {
+    try {
+      setIsReleaseLoading(true);
+      if (!address || !order) {
+        toast.error('Prosím, pripojte svoju peňaženku');
+        return;
+      }
+
+      const hexOrderId = uuidToHex(order.id);
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`release@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie release transakcie:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
+      toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
+
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Uvoľňuje sa platba...',
+          errorMessage: 'Uvoľnenie zlyhalo',
+          successMessage: 'Platba úspešne uvoľnená'
+        },
+        timeout: 10000 // Zvýšený timeout
+      });
+
+      console.log('Platba uvoľnená, session ID:', sessionId);
+      const verification = await monitorTransactionStatus(sessionId);
+      if (!verification.success) {
+        throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
+      }
+
+      const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          payment_status: 'pending_release',
+          release_at: releaseTime,
+          status: 'completed',
+          status_updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) {
+        console.error('Error updating order:', error);
+        throw new Error(`Aktualizácia databázy zlyhala: ${error.message}`);
+      }
+
+      toast.success('Platba úspešne uvoľnená!');
+      setShowReviewModal(true);
+    } catch (error) {
+      console.error('Release error:', error);
+      toast.error(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+    } finally {
+      setIsReleaseLoading(false);
+    }
+  };
+
+  const handleDisputePayment = async (reason: string) => {
+    try {
+      setIsPaymentLoading(true);
+      if (!address || !order) {
+        toast.error('Prosím, pripojte svoju peňaženku');
+        return;
+      }
+
+      const hexOrderId = uuidToHex(order.id);
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`dispute@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
+      toast.info('Vytvára sa spor, potvrďte v peňaženke...');
+
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Vytvára sa spor...',
+          errorMessage: 'Vytvorenie sporu zlyhalo',
+          successMessage: 'Spor úspešne vytvorený'
+        },
+        timeout: 10000 // Zvýšený timeout
+      });
+
+      console.log('Spor vytvorený, session ID:', sessionId);
+      const verification = await monitorTransactionStatus(sessionId);
+      if (!verification.success) {
+        throw new Error(verification.error || 'Vytvorenie sporu zlyhalo pri overovaní');
+      }
+
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          payment_status: 'disputed',
+          status_updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) {
+        console.error('Error updating order:', error);
+        throw new Error(`Aktualizácia databázy zlyhala: ${error.message}`);
+      }
+
+      await supabase.from('notifications').insert({
+        user_id: order.client_id,
+        type: 'dispute_created',
+        title: 'Order Disputed',
+        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${reason}`,
+        data: { order_id: order.id },
+        read: false,
+      });
+
+      toast.success('Spor úspešne vytvorený!');
+      setShowDisputeModal(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Dispute error:', error);
+      toast.error(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+    } finally {
+      setIsPaymentLoading(false);
+    }
+  };
+
+  const handleSubmitWork = async () => {
+    try {
+      setIsSubmitWorkLoading(true);
+      if (!order) {
+        toast.error('Objednávka nenájdená');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          work_status: 'submitted',
+          status: 'delivered',
+          status_updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id);
+
+      if (error) {
+        throw new Error(`Aktualizácia objednávky zlyhala: ${error.message}`);
+      }
+
+      await supabase.from('notifications').insert({
+        user_id: order.client_id,
+        type: 'work_delivered',
+        title: 'Work Delivered',
+        content: 'Poskytovateľ odovzdal prácu pre vašu objednávku. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.',
+        data: { order_id: order.id },
+        read: false,
+      });
+
+      await supabase.from('messages').insert({
+        order_id: order.id,
+        sender_id: user?.id || order.client_id,
+        content: JSON.stringify({
+          type: 'work_delivered',
+          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.',
+        }),
+        attachments: [],
+      });
+
+      toast.success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
+      window.location.reload();
+    } catch (error) {
+      console.error('Submit work error:', error);
+      toast.error(`Odovzdanie práce zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+    } finally {
+      setIsSubmitWorkLoading(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -96,115 +547,16 @@ export const OrderDetails = () => {
     }
   };
 
-  // Použitie usePayments pre platbu
-  const handlePayment = async () => {
-    console.log('Payment button clicked!', { address, order });
-    if (!address || !order) {
-      alert('Please connect your wallet first');
-      return;
-    }
-
-    try {
-      setIsPaymentLoading(true);
-
-      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
-      if (!isValidAddress(providerAddress)) {
-        throw new Error('Invalid or missing provider address');
-      }
-
-      console.log('Initiating payment with:', {
-        orderId: order.id,
-        amount: order.amount,
-        paymentToken: order.payment_token,
-        providerAddress
-      });
-
-      const sessionId = await sendPayment(
-        order.id,
-        order.amount,
-        undefined, // Použije defaultnú ESCROW_ADDRESS z usePayments
-        order.payment_token,
-        providerAddress
-      );
-
-      console.log('Payment successful, session ID:', sessionId);
-
-      // Aktualizácia stavu objednávky
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({
-          payment_status: 'escrowed',
-          status: 'in_progress',
-          status_updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (updateError) {
-        console.error('Error updating order:', updateError);
-        throw new Error(`Database update failed: ${updateError.message}`);
-      }
-
-      alert('Payment successful! Order is now in progress.');
-      setShowPaymentModal(false);
-      window.location.reload();
-    } catch (error) {
-      console.error('Payment error:', error);
-      alert(`Payment failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsPaymentLoading(false);
-    }
-  };
-
-  const handleReleasePayment = async () => {
-    try {
-      setIsReleaseLoading(true);
-      if (!address || !order) {
-        alert('Please connect your wallet first');
-        return;
-      }
-
-      const sessionId = await releasePayment(order.id);
-      console.log('Payment released, session ID:', sessionId);
-
-      const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-      const { error } = await supabase
-        .from('orders')
-        .update({
-          payment_status: 'pending_release',
-          release_at: releaseTime,
-          status: 'completed',
-          status_updated_at: new Date().toISOString(),
-        })
-        .eq('id', order.id);
-
-      if (error) {
-        console.error('Error updating order:', error);
-        throw new Error(`Database update failed: ${error.message}`);
-      }
-
-      alert('Payment released successfully!');
-      setShowReviewModal(true);
-    } catch (error) {
-      console.error('Release error:', error);
-      alert(`Release failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsReleaseLoading(false);
-    }
-  };
-
-  const handleSubmitWork = async () => {
-    try {
-      setIsSubmitWorkLoading(true);
-      if (!order) return;
-
-      await submitWork(order.id);
-      window.location.reload();
-    } catch (error) {
-      console.error('Submit work error:', error);
-      alert(`Submit work failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsSubmitWorkLoading(false);
-    }
+  const getRemainingTime = () => {
+    if (!order?.deadline) return null;
+    const now = new Date();
+    const deadline = new Date(order.deadline);
+    const diff = deadline.getTime() - now.getTime();
+    if (diff <= 0) return 'Termín vypršal';
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    if (days > 0) return `${days} dní zostáva`;
+    return `${hours} hodín zostáva`;
   };
 
   const isClient = user?.id === order?.client?.id;
@@ -220,11 +572,11 @@ export const OrderDetails = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Order Details" reference="#">
+        <Card className="p-8" title="Načítavanie detailov objednávky" reference="#">
           <div className="flex justify-center">
             <div className="space-y-4 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Loading order details...</p>
+              <p className="text-white">Načítavanie detailov objednávky...</p>
             </div>
           </div>
         </Card>
@@ -236,7 +588,7 @@ export const OrderDetails = () => {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
         <div className="bg-gray-800 p-8 rounded-lg">
-          <p className="text-white">{error ? `Error: ${error.message}` : 'Order not found'}</p>
+          <p className="text-white">{error ? `Chyba: ${error.message}` : 'Objednávka nenájdená'}</p>
         </div>
       </div>
     );
@@ -245,10 +597,10 @@ export const OrderDetails = () => {
   return (
     <div className="container mx-auto max-w-7xl px-6 py-8">
       <div className="space-y-8">
-        <Card className="p-8" title="Order Details" reference="#">
+        <Card className="p-8" title="Detaily objednávky" reference="#">
           <div className="space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
-              <h1 className="text-2xl font-bold text-white">{order.gig?.title || 'Custom Project'}</h1>
+              <h1 className="text-2xl font-bold text-white">{order.gig?.title || 'Vlastný projekt'}</h1>
               <div className="flex gap-3">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   getStatusColor(order.status) === 'green' ? 'bg-green-100 text-green-800' :
@@ -264,7 +616,7 @@ export const OrderDetails = () => {
                   getPaymentStatusColor(order.payment_status) === 'red' ? 'bg-red-100 text-red-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
-                  Payment: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
+                  Platba: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)}
                 </span>
                 {wasDisputed && (
                   <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
@@ -273,12 +625,12 @@ export const OrderDetails = () => {
                     {isDisputeResolved ? (
                       <>
                         <Shield size={14} />
-                        Admin Resolved
+                        Vyriešené adminom
                       </>
                     ) : (
                       <>
                         <AlertTriangle size={14} />
-                        Disputed
+                        Spor
                       </>
                     )}
                   </span>
@@ -293,11 +645,10 @@ export const OrderDetails = () => {
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">
-                  🏛️ Dispute Resolved by Administration
+                  🏛️ Spor vyriešený administráciou
                 </h3>
                 <p className="text-gray-300 max-w-sm mx-auto">
-                  This order had a dispute that was officially resolved by platform administration.
-                  The decision is final and funds have been distributed accordingly.
+                  Tento spor bol oficiálne vyriešený administráciou platformy. Rozhodnutie je konečné a prostriedky boli distribuované.
                 </p>
               </div>
             )}
@@ -306,9 +657,9 @@ export const OrderDetails = () => {
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Payment Required</h3>
+                    <h3 className="text-gray-800 font-bold">Vyžaduje sa platba</h3>
                     <p className="text-gray-800">
-                      Please pay {order.amount} {order.payment_token} to start this order.
+                      Prosím, zaplaťte {order.amount} {order.payment_token} na začatie objednávky.
                     </p>
                   </div>
                   <Button
@@ -316,7 +667,7 @@ export const OrderDetails = () => {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   >
                     <DollarSign size={16} />
-                    Pay Now
+                    Zaplatiť teraz
                   </Button>
                 </div>
               </div>
@@ -326,9 +677,9 @@ export const OrderDetails = () => {
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Work Ready to Submit?</h3>
+                    <h3 className="text-gray-800 font-bold">Práca pripravená na odovzdanie?</h3>
                     <p className="text-gray-800">
-                      When you've completed the work, click the button to notify the client.
+                      Po dokončení práce kliknite na tlačidlo pre notifikáciu klienta.
                     </p>
                   </div>
                   <Button
@@ -337,7 +688,7 @@ export const OrderDetails = () => {
                     disabled={isSubmitWorkLoading}
                   >
                     <FileText size={16} />
-                    Submit Work
+                    Odovzdať prácu
                   </Button>
                 </div>
               </div>
@@ -347,9 +698,9 @@ export const OrderDetails = () => {
               <div className="bg-green-100 border border-green-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Work Delivered</h3>
+                    <h3 className="text-gray-800 font-bold">Práca odovzdaná</h3>
                     <p className="text-gray-800">
-                      The provider has delivered the work. Please review and release payment if satisfied.
+                      Poskytovateľ odovzdal prácu. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.
                     </p>
                   </div>
                   <Button
@@ -358,7 +709,7 @@ export const OrderDetails = () => {
                     disabled={isReleaseLoading}
                   >
                     <Check size={16} />
-                    Release Payment
+                    Uvoľniť platbu
                   </Button>
                 </div>
               </div>
@@ -366,7 +717,7 @@ export const OrderDetails = () => {
 
             <div>
               <div className="flex justify-between mb-2">
-                <span className="text-gray-400">Order Progress</span>
+                <span className="text-gray-400">Pokrok objednávky</span>
                 {order.status === 'in_progress' && (
                   <span className="text-blue-400">{getRemainingTime()}</span>
                 )}
@@ -383,19 +734,19 @@ export const OrderDetails = () => {
                 ></div>
               </div>
               <div className="flex justify-between mt-2 text-gray-400 text-sm">
-                <span>Order Placed</span>
-                <span>In Progress</span>
-                <span>Delivered</span>
-                <span>Completed</span>
+                <span>Objednávka vytvorená</span>
+                <span>V priebehu</span>
+                <span>Odovzdaná</span>
+                <span>Dokončená</span>
               </div>
             </div>
 
             <hr className="border-gray-600" />
 
             <div>
-              <p className="text-gray-400 mb-2">Order Requirements:</p>
+              <p className="text-gray-400 mb-2">Požiadavky objednávky:</p>
               <p className="text-white">
-                {order.requirements?.description || 'No specific requirements provided'}
+                {order.requirements?.description || 'Žiadne špecifické požiadavky'}
               </p>
             </div>
 
@@ -403,22 +754,22 @@ export const OrderDetails = () => {
 
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-gray-400 mb-2">Client</p>
+                <p className="text-gray-400 mb-2">Klient</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
                     {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-white">{order.client?.username || "Unknown"}</span>
+                  <span className="text-white">{order.client?.username || "Neznámy"}</span>
                 </div>
               </div>
               <div>
-                <p className="text-gray-400 mb-2">Amount</p>
+                <p className="text-gray-400 mb-2">Suma</p>
                 <p className="text-blue-400 text-xl font-bold">
                   {order.amount} {order.payment_token}
                 </p>
                 {isDisputeResolved && (
                   <p className="text-purple-300 text-sm mt-1">
-                    ✅ Admin Resolved
+                    ✅ Vyriešené adminom
                   </p>
                 )}
               </div>
@@ -427,7 +778,7 @@ export const OrderDetails = () => {
         </Card>
 
         <div className="bg-gray-800 p-8 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-6">Communication</h2>
+          <h2 className="text-xl font-bold text-white mb-6">Komunikácia</h2>
           <OrderChat orderId={order.id} />
         </div>
       </div>
@@ -435,37 +786,36 @@ export const OrderDetails = () => {
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Complete Payment</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Dokončiť platbu</h3>
             <div className="space-y-4">
               <div className="bg-blue-100 border border-blue-500 rounded-md p-3">
                 <div className="flex items-center">
                   <span className="text-blue-800 mr-2">ℹ️</span>
                   <div>
-                    <p className="text-blue-800 font-medium">Secure Escrow Payment</p>
+                    <p className="text-blue-800 font-medium">Bezpečná escrow platba</p>
                     <p className="text-blue-800 text-sm">
-                      Your payment will be held in escrow until you approve the completed work.
+                      Vaša platba bude držaná v escrow až do schválenia dokončenej práce.
                     </p>
                   </div>
                 </div>
               </div>
-
               <div className="bg-gray-800 p-4 rounded-md">
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Order Amount:</span>
+                    <span className="text-gray-400">Suma objednávky:</span>
                     <span className="text-white font-bold">
                       {order.amount} {order.payment_token}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Service Fee:</span>
+                    <span className="text-gray-400">Servisný poplatok:</span>
                     <span className="text-white">
                       {order.payment_token === 'EGLD' ? `${(order.amount * 0.1).toFixed(2)} EGLD (10%)` : '0 IDEA (0%)'}
                     </span>
                   </div>
                   <hr className="border-gray-600" />
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Total:</span>
+                    <span className="text-gray-400">Celkom:</span>
                     <span className="text-blue-400 font-bold">
                       {order.payment_token === 'EGLD' ? (order.amount * 1.1).toFixed(2) : order.amount} {order.payment_token}
                     </span>
@@ -473,13 +823,12 @@ export const OrderDetails = () => {
                 </div>
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
               <Button
                 onClick={() => setShowPaymentModal(false)}
                 className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
               >
-                Cancel
+                Zrušiť
               </Button>
               <Button
                 onClick={handlePayment}
@@ -487,7 +836,7 @@ export const OrderDetails = () => {
                 disabled={isPaymentLoading}
               >
                 <DollarSign size={16} />
-                {isPaymentLoading ? 'Processing...' : 'Pay Now'}
+                {isPaymentLoading ? 'Spracováva sa...' : 'Zaplatiť teraz'}
               </Button>
             </div>
           </div>
