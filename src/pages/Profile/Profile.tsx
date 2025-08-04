@@ -299,8 +299,35 @@ export const Profile = () => {
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           <div className="flex-1">
             <div className="flex gap-3 items-center mb-3 md:mb-4">
-              <div className="w-12 md:w-16 h-12 md:h-16 bg-gray-600 rounded-full flex items-center justify-center text-lg md:text-xl text-white">
-                {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+              <div className="w-12 md:w-16 h-12 md:h-16 rounded-full overflow-hidden relative">
+                {profile?.avatar_url ? (
+                  <>
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.username || "Profile"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div 
+                      className="fallback-avatar w-full h-full bg-gray-600 rounded-full flex items-center justify-center text-lg md:text-xl text-white absolute inset-0"
+                      style={{ display: 'none' }}
+                    >
+                      {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-gray-600 rounded-full flex items-center justify-center text-lg md:text-xl text-white">
+                    {profile?.username?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                )}
               </div>
               <div className="space-y-1">
                 <h1 className="text-lg md:text-xl font-bold text-grey">{profile?.full_name || profile?.username}</h1>

@@ -145,7 +145,7 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs text-white hover:scale-105 transition-all duration-200 relative overflow-hidden"
+                      className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200"
                     >
                       {profile?.avatar_url ? (
                         <img
@@ -163,13 +163,13 @@ export const Header = () => {
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white">
+                        <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
                           {profile?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
                       {profile?.avatar_url && (
                         <div 
-                          className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                          className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                           style={{ display: 'none' }}
                         >
                           {profile?.username?.charAt(0)?.toUpperCase() || "U"}
