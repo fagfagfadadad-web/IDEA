@@ -1,35 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card, MxLink, OrderChat } from 'components'; // Button, Card, MxLink, OrderChat z components
-import { TRANSACTIONS_ENDPOINT, useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address, AbiRegistry, SmartContractTransactionsFactory, TransactionsFactoryConfig, useTransactionOutcome } from 'lib';
+import { Button, Card, OrderChat } from 'components';
+import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import escrowAbi from '../../contracts/escrow.abi.json';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-
-const PING_TRANSACTION_INFO = {
-  processingMessage: 'Spracováva sa platba...',
-  errorMessage: 'Platba zlyhala',
-  successMessage: 'Platba úspešná'
-};
-
-const RELEASE_TRANSACTION_INFO = {
-  processingMessage: 'Uvoľňuje sa platba...',
-  errorMessage: 'Uvoľnenie zlyhalo',
-  successMessage: 'Platba úspešne uvoľnená'
-};
-
-const DISPUTE_TRANSACTION_INFO = {
-  processingMessage: 'Vytvára sa spor...',
-  errorMessage: 'Vytvorenie sporu zlyhalo',
-  successMessage: 'Spor úspešne vytvorený'
-};
 
 const isValidAddress = (addr: string | undefined): boolean => {
   if (!addr) return false;
@@ -147,22 +128,6 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
   }
 };
 
-const getSmartContractFactory = async (network: any) => {
-  try {
-    const abi = AbiRegistry.create(escrowAbi);
-    const scFactory = new SmartContractTransactionsFactory({
-      config: new TransactionsFactoryConfig({
-        chainID: network.chainId
-      }),
-      abi
-    });
-    return scFactory;
-  } catch (error) {
-    console.error('Failed to load escrow ABI:', error);
-    throw new Error('Nepodarilo sa inicializovať escrow kontrakt');
-  }
-};
-
 const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
   console.log('Starting transaction monitoring for hash:', txHash);
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -183,7 +148,7 @@ const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
 
       if (['success', 'executed'].includes(txData.status)) {
         console.log('Transaction confirmed as successful:', txHash);
-        return { success: true, data: txData, transactionHash: txHash };
+        return { success: true, data: txData };
       } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
         console.error('Transaction failed:', txHash, txData.status);
         return { success: false, error: `Transakcia zlyhala so stavom: ${txData.status}` };
@@ -221,7 +186,6 @@ const OrderDetails = () => {
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
   const { user } = useAuth();
-  const txData = useTransactionOutcome();
   
   const { data: order, isLoading, error } = useOrderById(id || '');
 
@@ -232,7 +196,8 @@ const OrderDetails = () => {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
-  const [disputeReason, setDisputeReason] = useState('');
+
+  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
   const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
     try {
@@ -309,42 +274,49 @@ const OrderDetails = () => {
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const scFactory = await getSmartContractFactory(network);
-        transaction = scFactory.createTransactionForExecute({
-          sender: new Address(address),
-          contract: new Address(ESCROW_ADDRESS),
-          function: 'deposit',
+        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111));
+        const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+        transaction = new Transaction({
+          value: amount,
+          data: Buffer.from(data),
+          receiver: new Address(ESCROW_ADDRESS),
           gasLimit: BigInt(20000000),
-          arguments: [hexOrderId, providerAddressHex, deadlineHex],
-          nativeTransferAmount: BigInt(Math.round(order.amount * 1e18 * 1.1111))
+          sender: new Address(address),
+          chainID: network.chainId
         });
-        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: (order.amount * 1.1111).toString(), escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
         toast.info('10% poplatok bude odpočítaný z EGLD platby.');
       } else {
-        const scFactory = await getSmartContractFactory(network);
         const value = BigInt(Math.round(order.amount * 1e18));
-        transaction = scFactory.createTransactionForExecute({
-          sender: new Address(address),
-          contract: new Address(ESCROW_ADDRESS),
-          function: 'depositEsdt',
+        const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
+        const amountHex = value.toString(16).padStart(2, '0');
+        const data = `ESDTTransfer@${tokenIdHex}@${amountHex}@depositEsdt@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+        transaction = new Transaction({
+          value: BigInt(0),
+          data: Buffer.from(data),
+          receiver: new Address(ESCROW_ADDRESS),
           gasLimit: BigInt(20000000),
-          arguments: [hexOrderId, providerAddressHex, deadlineHex],
-          esdt: { tokenIdentifier: paymentToken, amount: value }
+          sender: new Address(address),
+          chainID: network.chainId
         });
-        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, amount: value.toString(), escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, data, escrowAddress: ESCROW_ADDRESS });
       }
 
       toast.info(`Spracováva sa ${paymentToken} platba, potvrďte v peňaženke...`);
       console.log('Calling signAndSendTransactions...');
-      const txHash = await signAndSendTransactions({
+      const sessionId = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: PING_TRANSACTION_INFO,
-        timeout: 120000
+        transactionsDisplayInfo: {
+          processingMessage: `Spracováva sa ${paymentToken} platba...`,
+          errorMessage: `${paymentToken} platba zlyhala`,
+          successMessage: `${paymentToken} platba úspešná`
+        },
+        timeout: 10000
       });
 
-      console.log(`${paymentToken} platba odoslaná, transaction hash:`, txHash);
+      console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
 
-      const verification = await monitorTransactionStatus(txHash);
+      const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
         throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
       }
@@ -355,8 +327,7 @@ const OrderDetails = () => {
           payment_status: 'escrowed',
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
-          provider_address: providerAddress,
-          transaction_hash: txHash
+          provider_address: providerAddress
         })
         .eq('id', order.id);
 
@@ -396,26 +367,30 @@ const OrderDetails = () => {
       }
 
       const hexOrderId = uuidToHex(order.id);
-      const scFactory = await getSmartContractFactory(network);
-      const transaction = scFactory.createTransactionForExecute({
-        sender: new Address(address),
-        contract: new Address(ESCROW_ADDRESS),
-        function: 'release',
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`release@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
         gasLimit: BigInt(20000000),
-        arguments: [hexOrderId]
+        sender: new Address(address),
+        chainID: network.chainId
       });
 
       console.log('Vytváranie release transakcie:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
       toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
 
-      const txHash = await signAndSendTransactions({
+      const sessionId = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: RELEASE_TRANSACTION_INFO,
-        timeout: 120000
+        transactionsDisplayInfo: {
+          processingMessage: 'Uvoľňuje sa platba...',
+          errorMessage: 'Uvoľnenie zlyhalo',
+          successMessage: 'Platba úspešne uvoľnená'
+        },
+        timeout: 10000
       });
 
-      console.log('Platba uvoľnená, transaction hash:', txHash);
-      const verification = await monitorTransactionStatus(txHash);
+      console.log('Platba uvoľnená, session ID:', sessionId);
+      const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
         throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
       }
@@ -427,8 +402,7 @@ const OrderDetails = () => {
           payment_status: 'pending_release',
           release_at: releaseTime,
           status: 'completed',
-          status_updated_at: new Date().toISOString(),
-          transaction_hash: txHash
+          status_updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
 
@@ -447,39 +421,39 @@ const OrderDetails = () => {
     }
   };
 
-  const handleDisputePayment = async () => {
+  const handleDisputePayment = async (reason: string) => {
     try {
       setIsPaymentLoading(true);
       if (!address || !order) {
         toast.error('Prosím, pripojte svoju peňaženku');
         return;
       }
-      if (!disputeReason.trim()) {
-        toast.error('Prosím, zadajte dôvod sporu');
-        return;
-      }
 
       const hexOrderId = uuidToHex(order.id);
-      const scFactory = await getSmartContractFactory(network);
-      const transaction = scFactory.createTransactionForExecute({
-        sender: new Address(address),
-        contract: new Address(ESCROW_ADDRESS),
-        function: 'dispute',
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`dispute@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
         gasLimit: BigInt(20000000),
-        arguments: [hexOrderId]
+        sender: new Address(address),
+        chainID: network.chainId
       });
 
-      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason: disputeReason, escrowAddress: ESCROW_ADDRESS });
+      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
       toast.info('Vytvára sa spor, potvrďte v peňaženke...');
 
-      const txHash = await signAndSendTransactions({
+      const sessionId = await signAndSendTransactions({
         transactions: [transaction],
-        transactionsDisplayInfo: DISPUTE_TRANSACTION_INFO,
-        timeout: 120000
+        transactionsDisplayInfo: {
+          processingMessage: 'Vytvára sa spor...',
+          errorMessage: 'Vytvorenie sporu zlyhalo',
+          successMessage: 'Spor úspešne vytvorený'
+        },
+        timeout: 10000
       });
 
-      console.log('Spor vytvorený, transaction hash:', txHash);
-      const verification = await monitorTransactionStatus(txHash);
+      console.log('Spor vytvorený, session ID:', sessionId);
+      const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
         throw new Error(verification.error || 'Vytvorenie sporu zlyhalo pri overovaní');
       }
@@ -488,8 +462,7 @@ const OrderDetails = () => {
         .from('orders')
         .update({
           payment_status: 'disputed',
-          status_updated_at: new Date().toISOString(),
-          transaction_hash: txHash
+          status_updated_at: new Date().toISOString()
         })
         .eq('id', order.id);
 
@@ -502,14 +475,13 @@ const OrderDetails = () => {
         user_id: order.client_id,
         type: 'dispute_created',
         title: 'Order Disputed',
-        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${disputeReason}`,
+        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${reason}`,
         data: { order_id: order.id },
-        read: false
+        read: false,
       });
 
       toast.success('Spor úspešne vytvorený!');
       setShowDisputeModal(false);
-      setDisputeReason('');
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
@@ -554,9 +526,9 @@ const OrderDetails = () => {
         sender_id: user?.id || order.client_id,
         content: JSON.stringify({
           type: 'work_delivered',
-          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.'
+          message: '✅ Práca bola odovzdaná! Klient môže teraz skontrolovať a uvoľniť platbu.',
         }),
-        attachments: []
+        attachments: [],
       });
 
       toast.success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
@@ -654,13 +626,6 @@ const OrderDetails = () => {
     }
   }, [order, isLoading]);
 
-  useEffect(() => {
-    if (txData.status && txData.txHash) {
-      console.log('Transaction outcome:', txData);
-      toast.info(`Transakcia ${txData.txHash} má stav: ${txData.status}`);
-    }
-  }, [txData]);
-
   if (isLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
@@ -729,28 +694,6 @@ const OrderDetails = () => {
                 )}
               </div>
             </div>
-
-            {txData.status && txData.txHash && (
-              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
-                <p className="text-gray-800">
-                  <strong>Stav transakcie:</strong> {txData.status}
-                </p>
-                <p className="text-gray-800">
-                  <strong>Hash:</strong>{' '}
-                  <MxLink
-                    to={`/${TRANSACTIONS_ENDPOINT}/${txData.txHash}`}
-                    className="border-b border-dotted border-gray-500 hover:border-solid hover:border-gray-800"
-                  >
-                    {txData.txHash}
-                  </MxLink>
-                </p>
-                {txData.address && (
-                  <p className="text-gray-800">
-                    <strong>Odosielateľ:</strong> {txData.address}
-                  </p>
-                )}
-              </div>
-            )}
 
             {isDisputeResolved && (
               <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-2 border-purple-400 rounded-xl p-6 text-center">
@@ -901,9 +844,9 @@ const OrderDetails = () => {
                 <p className="text-gray-400 mb-2">Klient</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                    {order.client?.username?.charAt(0)?.toUpperCase() || '?'}
+                    {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-white">{order.client?.username || 'Neznámy'}</span>
+                  <span className="text-white">{order.client?.username || "Neznámy"}</span>
                 </div>
               </div>
               <div>
@@ -987,71 +930,6 @@ const OrderDetails = () => {
         </div>
       )}
 
-      {showDisputeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Vytvoriť spor</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="text-gray-400 mb-2 block">Dôvod sporu</label>
-                <textarea
-                  value={disputeReason}
-                  onChange={(e) => setDisputeReason(e.target.value)}
-                  className="w-full bg-gray-700 text-white rounded-lg p-3"
-                  rows={4}
-                  placeholder="Popíšte dôvod sporu..."
-                />
-              </div>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => {
-                  setShowDisputeModal(false);
-                  setDisputeReason('');
-                }}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
-              >
-                Zrušiť
-              </Button>
-              <Button
-                onClick={handleDisputePayment}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
-                disabled={isPaymentLoading || !disputeReason.trim()}
-              >
-                <AlertTriangle size={16} />
-                Potvrdiť spor
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showReviewModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Ohodnotiť poskytovateľa</h3>
-            <p className="text-gray-300">Vaše hodnotenie pomôže ostatným používateľom.</p>
-            {/* Pridajte formulár na hodnotenie, ak je potrebný */}
-            <div className="flex gap-3 mt-6">
-              <Button
-                onClick={() => setShowReviewModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
-              >
-                Zrušiť
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowReviewModal(false);
-                  window.location.reload();
-                }}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
-              >
-                Odoslať hodnotenie
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
