@@ -663,96 +663,32 @@ export const Profile = () => {
                               className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </div>
-                        profile?.gigs?.map((gig: any) => {
-                          const paymentToken = gig.payment_token || 'EGLD';
-                          const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
-                          
-                          return (
-                            <div
-                              key={gig.id}
-                              className="bg-gray-800 rounded-lg overflow-hidden border border-gray-600"
-                            >
-                              {/* Date and Category Header */}
-                              <div className="flex justify-between items-center p-3 bg-gray-700">
-                                <span className="text-gray-300 text-xs">
-                                  {new Date(gig.created_at).toLocaleDateString()}
-                                </span>
-                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                                  {gig.category}
-                                </span>
-                              </div>
+                          <EmailNotificationsToggle enabled={editForm.email_notifications_enabled} />
+                          <Button
+                            onClick={handleEditSubmit}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+                            disabled={updateProfile.isLoading}
+                          >
+                            {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-400">You can only edit your own profile.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
-                              {/* Gig Image */}
-                              <div className="relative h-32">
-                                <img
-                                  src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                                  alt={gig.title}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-
-                              {/* Gig Content */}
-                              <div className="p-4 space-y-3">
-                                <h3 className="text-white font-bold text-lg">
-                                  {gig.title}
-                                </h3>
-                                
-                                <p className="text-gray-300 text-sm">
-                                  {gig.description.split('\n\nPackage Includes:')[0].substring(0, 100)}...
-                                </p>
-                                
-                                <p className="text-gray-400 text-sm">
-                                  Duration: {gig.duration} days
-                                </p>
-
-                                {/* Status and Price */}
-                                <div className="flex justify-between items-center">
-                                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                    gig.status === 'active' ? 'bg-green-100 text-green-800' :
-                                    gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-red-100 text-red-800'
-                                  }`}>
-                                    {gig.status.charAt(0).toUpperCase() + gig.status.slice(1)}
-                                  </span>
-                                  
-                                  <div className="flex items-center gap-1">
-                                    {paymentToken === 'EGLD' ? <DollarSign size={16} className="text-yellow-400" /> : <Coins size={16} className="text-purple-400" />}
-                                    <span className="text-xl font-bold text-white">
-                                      {gig.price} {tokenSymbol}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex gap-2 pt-2">
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      navigate(`/gigs/${gig.id}/edit`);
-                                    }}
-                                    className="flex-1 bg-transparent border border-gray-600 text-gray-300 hover:bg-gray-700 py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
-                                  >
-                                    <Edit size={14} />
-                                    Edit
-                                  </Button>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (confirm('Are you sure you want to delete this gig?')) {
-                                        // Mock delete - replace with real implementation
-                                        alert('Gig deleted successfully');
-                                      }
-                                    }}
-                                    className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
-                                  >
-                                    <Trash2 size={14} />
-                                    Delete
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })
+  // Mobile version
   const mobileTabs = [
     { id: 0, label: 'Gigs', icon: <Briefcase size={16} /> },
     { id: 1, label: 'Orders', icon: <ShoppingCart size={16} /> },
