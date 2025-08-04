@@ -673,7 +673,7 @@ const OrderDetails = () => {
                   getPaymentStatusColor(order.payment_status) === 'red' ? 'bg-red-100 text-red-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
-                  Platba: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)} ({(order.payment_token || 'EGLD') === 'EGLD' ? 'EGLD' : 'IDA'})
+                  Platba: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)} ({order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'})
                 </span>
                 {wasDisputed && (
                   <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
@@ -725,7 +725,7 @@ const OrderDetails = () => {
                   <div>
                     <h3 className="text-gray-800 font-bold">Vyžaduje sa platba</h3>
                     <p className="text-gray-800">
-                      Prosím, zaplaťte {order.amount} {(order.payment_token || 'EGLD') === 'EGLD' ? 'EGLD' : 'IDA'} na začatie objednávky.
+                      Prosím, zaplaťte {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'} na začatie objednávky.
                     </p>
                   </div>
                   <Button
@@ -852,7 +852,7 @@ const OrderDetails = () => {
               <div>
                 <p className="text-gray-400 mb-2">Suma</p>
                 <p className="text-blue-400 text-xl font-bold">
-                  {order.amount} {(order.payment_token || 'EGLD') === 'EGLD' ? 'EGLD' : 'IDA'}
+                  {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
                 </p>
                 {isDisputeResolved && (
                   <p className="text-purple-300 text-sm mt-1">
@@ -891,20 +891,20 @@ const OrderDetails = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Suma objednávky:</span>
                     <span className="text-white font-bold">
-                      {order.amount} {(order.payment_token || 'EGLD') === 'EGLD' ? 'EGLD' : 'IDA'}
+                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-400">Servisný poplatok:</span>
                     <span className="text-white">
-                      {(order.payment_token || 'EGLD') === 'EGLD' ? `${(order.amount * 0.1).toFixed(2)} EGLD (10%)` : '0 IDA (0%)'}
+                      {order.payment_token === 'EGLD' ? `${(order.amount * 0.1).toFixed(2)} EGLD (10%)` : '0 IDA (0%)'}
                     </span>
                   </div>
                   <hr className="border-gray-600" />
                   <div className="flex justify-between">
                     <span className="text-gray-400">Celkom:</span>
                     <span className="text-blue-400 font-bold">
-                      {(order.payment_token || 'EGLD') === 'EGLD' ? (order.amount * 1.1).toFixed(2) : order.amount} {(order.payment_token || 'EGLD') === 'EGLD' ? 'EGLD' : 'IDA'}
+                      {order.payment_token === 'EGLD' ? (order.amount * 1.1).toFixed(2) : order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
                     </span>
                   </div>
                 </div>
