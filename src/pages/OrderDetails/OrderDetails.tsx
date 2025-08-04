@@ -983,7 +983,7 @@ const OrderDetails = () => {
           <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
             <h3 className="text-xl font-bold text-white mb-4">Ohodnotiť poskytovateľa</h3>
             <p className="text-gray-300">Vaše hodnotenie pomôže ostatným používateľom.</p>
-            {/* Add review form here if needed */}
+            {/* Pridajte formulár na hodnotenie, ak je potrebný */}
             <div className="flex gap-3 mt-6">
               <Button
                 onClick={() => setShowReviewModal(false)}
@@ -1008,4 +1008,4 @@ const OrderDetails = () => {
   );
 };
 
-export const OrderDetails;
+export { OrderDetails }; // Opravený export
