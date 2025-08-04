@@ -1237,257 +1237,228 @@ export const Profile = () => {
                                   <div className="flex items-center gap-2">
                                     <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
                                       {order.client?.avatar_url ? (
-                                        <img
-                                          src={order.client.avatar_url}
-                                          alt={order.client.username || "Client"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Client: {order.client?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Provider */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                      {order.gig?.provider?.avatar_url ? (
-                                        <img
-                                          src={order.gig.provider.avatar_url}
-                                          alt={order.gig.provider.username || "Provider"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Provider: {order.gig?.provider?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                </div>
+          {/* Mobile Statistics - Always Visible */}
+          <div className="bg-white rounded-xl border border-gray-200 p-4">
+            <h2 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <BarChart3 size={18} className="text-blue-600" />
+              Statistics
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Briefcase size={14} className="text-blue-600" />
+                  <span className="text-xs text-gray-600">Gigs</span>
+                </div>
+                <p className="text-lg font-bold text-gray-800">{profile?.gigs?.length || 0}</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <ShoppingCart size={14} className="text-green-600" />
+                  <span className="text-xs text-gray-600">Orders</span>
+                </div>
+                <p className="text-lg font-bold text-gray-800">{profile?.orders?.length || 0}</p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Star size={14} className="text-yellow-600" />
+                  <span className="text-xs text-gray-600">Rating</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <p className="text-lg font-bold text-gray-800">{averageRating.toFixed(1)}</p>
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        size={12}
+                        className={i < Math.floor(averageRating) ? "text-yellow-400 fill-current" : "text-gray-300"}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <DollarSign size={14} className="text-purple-600" />
+                  <span className="text-xs text-gray-600">Earned</span>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-gray-800">{totalEgldEarnings.toFixed(2)} EGLD</p>
+                  <p className="text-sm font-bold text-gray-800">{totalIdaEarnings.toFixed(2)} IDA</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {order.payment_token === 'EGLD' ? (
-                                      <DollarSign className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Coins className="w-4 h-4 text-purple-600" />
-                                    )}
-                                    <span className="font-semibold text-gray-900">
-                                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                                    </span>
-                                  </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
+          {/* Mobile Tabs */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            {/* Tab Headers */}
+            <div className="flex border-b border-gray-200">
+              <button
+                onClick={() => setActiveTab(0)}
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  activeTab === 0
+                    ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-blue-600'
+                }`}
+              >
+                My Gigs
+              </button>
+              <button
+                onClick={() => setActiveTab(1)}
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  activeTab === 1
+                    ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-blue-600'
+                }`}
+              >
+                My Orders
+              </button>
+              <button
+                onClick={() => setActiveTab(3)}
+                className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+                  activeTab === 3
+                    ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
+                    : 'text-gray-600 hover:text-blue-600'
+                }`}
+              >
+                Settings
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-4">
+              {/* My Gigs Tab */}
+              {activeTab === 0 && (
+                <div>
+                  {profile?.gigs?.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 mb-4">No gigs created yet</p>
+                      <Button
+                        onClick={() => navigate('/create-gig')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                      >
+                        Create Your First Gig
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {profile.gigs.map((gig: any) => {
+                        const categoryColor = getCategoryColor(gig.category);
+                        const paymentToken = gig.payment_token || 'EGLD';
+                        const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                        
+                        return (
+                          <div 
+                            key={gig.id} 
+                            className="bg-gray-800 rounded-lg overflow-hidden border-l-4"
+                            style={{ borderLeftColor: categoryColor }}
+                          >
+                            {/* Gig Header */}
+                            <div className="p-3 bg-gray-700">
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs text-gray-300">
+                                  {new Date(gig.created_at).toLocaleDateString()}
+                                </span>
+                                <span 
+                                  className="px-2 py-1 rounded text-xs font-medium"
+                                  style={{ backgroundColor: `${categoryColor}20`, color: categoryColor }}
+                                >
+                                  {gig.category}
+                                </span>
                               </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                            </div>
 
-                      {/* As Provider */}
-                      {providerOrders.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <Award className="w-5 h-5 text-purple-600" />
-                            As Provider ({providerOrders.length})
-                          </h4>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {providerOrders.map((order) => (
-                              <div
-                                key={order.id}
-                                className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                                onClick={() => navigate(`/orders/${order.id}`)}
-                              >
-                                <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-semibold text-gray-900 line-clamp-1">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                      {order.status.replace('_', ' ')}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                {/* Both Client and Provider */}
-                                <div className="space-y-2 mb-3">
-                                  {/* Client */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
-                                      {order.client?.avatar_url ? (
-                                        <img
-                                          src={order.client.avatar_url}
-                                          alt={order.client.username || "Client"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Client: {order.client?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Provider */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                      {order.gig?.provider?.avatar_url ? (
-                                        <img
-                                          src={order.gig.provider.avatar_url}
-                                          alt={order.gig.provider.username || "Provider"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                      </div>
-                                    </div>
-                                    <span className="text-xs text-gray-600">
-                                      Provider: {order.gig?.provider?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                </div>
+                            {/* Gig Image */}
+                            <div className="relative h-32">
+                              <img
+                                src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
+                                alt={gig.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
 
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {order.payment_token === 'EGLD' ? (
-                                      <DollarSign className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Coins className="w-4 h-4 text-purple-600" />
-                                    )}
-                                    <span className="font-semibold text-gray-900">
-                                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                                    </span>
-                                  </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
+                            {/* Gig Content */}
+                            <div className="p-3 space-y-3">
+                              <h3 className="text-white font-bold text-sm">{gig.title}</h3>
+                              <p className="text-gray-300 text-xs line-clamp-2">{gig.description}</p>
+                              <p className="text-gray-300 text-xs">Duration: {gig.duration} days</p>
+                            </div>
+
+                            {/* Gig Footer */}
+                            <div className="flex justify-between items-center p-3 bg-gray-700">
+                              <div className="flex items-center gap-1">
+                                {paymentToken === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />}
+                                <span className="text-white font-bold text-sm">
+                                  {gig.price} {tokenSymbol}
+                                </span>
                               </div>
-                            ))}
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() => navigate(`/gigs/${gig.id}/edit`)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs flex items-center gap-1"
+                                >
+                                  <Edit size={12} />
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={() => {
+                                    if (confirm('Are you sure you want to delete this gig?')) {
+                                      // Handle delete
+                                    }
+                                  }}
+                                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs flex items-center gap-1"
+                                >
+                                  <Trash2 size={12} />
+                                  Delete
+                                </Button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Notifications Tab */}
-              {activeTab === 3 && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-gray-900">Notifications</h3>
-                    {unreadNotifications.length > 0 && (
-                      <Button
-                        onClick={handleMarkAllNotificationsAsRead}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Check size={16} />
-                        Mark All Read ({unreadNotifications.length})
-                      </Button>
-                    )}
-                  </div>
-
-                  {notifications?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No notifications</h4>
-                      <p className="text-gray-600">You're all caught up!</p>
+              {/* My Orders Tab */}
+              {activeTab === 1 && (
+                <div>
+                  {profile?.orders?.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No orders yet</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {notifications?.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`rounded-lg p-4 border transition-all duration-200 cursor-pointer hover:shadow-md ${
-                            !notification.read 
-                              ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 border-l-4 border-l-blue-500' 
-                              : 'bg-gray-50 border-gray-200'
-                          }`}
-                          onClick={() => {
-                            if (notification.data?.order_id) {
-                              navigate(`/orders/${notification.data.order_id}`);
-                            }
-                          }}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className={`font-medium ${!notification.read ? 'text-gray-900' : 'text-gray-700'}`}>
-                                  {notification.title}
-                                </h4>
-                                {!notification.read && (
-                                  <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                                    New
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-sm text-gray-600 mb-2">
-                                {notification.content}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {new Date(notification.created_at).toLocaleString()}
-                              </p>
+                      {profile.orders.slice(0, 10).map((order: any) => (
+                        <div key={order.id} className="bg-gray-50 rounded-lg p-3">
+                          <div className="space-y-2">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-semibold text-gray-800 text-sm">
+                                {order.gig?.title || 'Custom Project'}
+                              </h3>
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                                order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {order.status}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-gray-600">
+                                {order.amount} {order.payment_token || 'EGLD'}
+                              </span>
+                              <Button
+                                onClick={() => navigate(`/orders/${order.id}`)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
+                              >
+                                View
+                              </Button>
                             </div>
                           </div>
                         </div>
@@ -1498,43 +1469,16 @@ export const Profile = () => {
               )}
 
               {/* Settings Tab */}
-              {activeTab === 4 && isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Settings</h3>
-                  
-                  <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-6 border border-gray-200">
-                    <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-gray-600" />
-                      Email Notifications
-                    </h4>
-                    <EmailNotificationsToggle enabled={profile.email_notifications_enabled || false} />
-                  </div>
-
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                    <h4 className="text-lg font-medium text-gray-900 mb-2 flex items-center gap-2">
-                      <User className="w-5 h-5 text-blue-600" />
-                      Account Information
-                    </h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Username:</span>
-                        <span className="font-medium text-gray-900">{profile.username}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Member since:</span>
-                        <span className="font-medium text-gray-900">
-                          {new Date(profile.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {profile.wallet_address && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Wallet:</span>
-                          <span className="font-mono text-xs text-gray-900">
-                            {profile.wallet_address.substring(0, 8)}...{profile.wallet_address.substring(profile.wallet_address.length - 6)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+              {activeTab === 3 && (
+                <div className="space-y-4">
+                  <Button
+                    onClick={() => setIsEditingProfile(true)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    Edit Profile
+                  </Button>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
                   </div>
                 </div>
               )}
@@ -1544,4 +1488,29 @@ export const Profile = () => {
       </div>
     </div>
   );
+};
+// Helper function to get category color
+const getCategoryColor = (category: string) => {
+  switch (category?.toLowerCase()) {
+    case 'programming & tech':
+      return '#01c3a8';
+    case 'graphics & design':
+      return '#1890ff';
+    case 'digital marketing':
+      return '#ffb741';
+    case 'writing & translation':
+      return '#ff6f61';
+    case 'video & animation':
+      return '#a259ff';
+    case 'ai services':
+      return '#00ddeb';
+    case 'music & audio':
+      return '#ffcc33';
+    case 'business':
+      return '#2ecc71';
+    case 'consulting':
+      return '#e91e63';
+    default:
+      return '#6b7280';
+  }
 };
