@@ -78,11 +78,19 @@ export const OrderDetails = () => {
 
   const addressToHex = (bech32Address: string): string => {
     try {
+      if (!isValidAddress(bech32Address)) {
+        throw new Error('Neplatná adresa: adresa nie je v správnom Bech32 formáte');
+      }
+
       const address = new Address(bech32Address);
-      if (address.isZero()) {
+      const hex = address.hex();
+      const zeroAddress = '0000000000000000000000000000000000000000000000000000000000000000';
+
+      if (hex === zeroAddress) {
         throw new Error('Adresa nemôže byť nulová');
       }
-      return address.hex();
+
+      return hex;
     } catch (error) {
       console.error('Failed to convert address to hex:', error);
       throw new Error(`Neplatný formát adresy: ${bech32Address}`);
@@ -242,8 +250,8 @@ export const OrderDetails = () => {
       if (!isValidAddress(providerAddress) && order.gig_id) {
         console.log('Provider address not found in order, fetching from database...', { gigId: order.gig_id });
         providerAddress = await fetchProviderAddress(order.gig_id);
-        if (!providerAddress) {
-          throw new Error('Nepodarilo sa načítať adresu poskytovateľa z databázy. Skontrolujte údaje gig-u.');
+        if (!providerAddress || !isValidAddress(providerAddress)) {
+          throw new Error('Nepodarilo sa načítať platnú adresu poskytovateľa z databázy. Skontrolujte údaje gig-u.');
         }
         const { error: updateError } = await supabase
           .from('orders')
@@ -676,7 +684,7 @@ export const OrderDetails = () => {
                   }`}>
                     {isDisputeResolved ? (
                       <>
-                        <Shield size= {14} />
+                        <Shield size={14} />
                         Vyriešené adminom
                       </>
                     ) : (
