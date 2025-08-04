@@ -359,8 +359,8 @@ const OrderDetails = () => {
         // For IDA: no fees, client pays exact amount
         const value = BigInt(Math.round(order.amount * 1e18));
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
-        const amountHex = value.toString(16).padStart(value.toString(16).length % 2 === 0 ? value.toString(16).length : value.toString(16).length + 1, '0');
-        const functionNameHex = Buffer.from('depositEsdt', 'utf8').toString('hex'); // Convert function name to hex
+        const amountHex = value.toString(16);
+        const paddedAmountHex = amountHex.length % 2 === 0 ? amountHex : '0' + amountHex;
         const data = `ESDTTransfer@${tokenIdHex}@${paddedAmountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: BigInt(0),

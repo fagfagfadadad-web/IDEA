@@ -13,7 +13,7 @@ import { walletConnectV2ProjectId } from './config/sharedConfig';
 import { InitAppType } from './lib';
 
 export const config: InitAppType = {
-  storage: { getStorageCallback: () => sessionStorage },
+  storage: { getStorageCallback: () => localStorage },
   dAppConfig: {
     nativeAuth: true,
     environment: environment,
