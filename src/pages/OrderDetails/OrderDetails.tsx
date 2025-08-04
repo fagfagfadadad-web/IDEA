@@ -18,7 +18,8 @@ import { supabase } from '../../lib/supabase';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-// Predpokladané pomocné funkcie (zachované z vášho kódu)
+const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+
 const isValidAddress = (addr: string | undefined): boolean => {
   if (!addr) return false;
   try {
@@ -66,8 +67,6 @@ const getDeadlineTimestamp = (): number => {
   return deadline;
 };
 
-const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -85,6 +84,7 @@ const OrderDetails = () => {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
+  const [disputeReason, setDisputeReason] = useState(''); // Added for dispute modal
 
   const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
     try {
@@ -191,7 +191,7 @@ const OrderDetails = () => {
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         console.log(`Monitoring attempt ${attempt}/${maxAttempts} for sessionId:`, sessionId);
-        // Predpokladáme, že TransactionManager má metódu getTransactionStatus
+        // Use TransactionManager to check transaction status
         const txStatus = await txManager.getTransactionStatus(sessionId);
         console.log('Transaction status response:', JSON.stringify(txStatus, null, 2));
 
@@ -200,7 +200,7 @@ const OrderDetails = () => {
           return {
             success: true,
             data: txStatus,
-            transactionHash: txStatus.hash || txStatus.transactionHash || null // Ak je hash dostupný
+            transactionHash: txStatus.hash || txStatus.transactionHash || null
           };
         } else if (['fail', 'invalid', 'not_executed'].includes(txStatus.status)) {
           console.error('Transaction failed:', sessionId, txStatus.status);
@@ -304,7 +304,7 @@ const OrderDetails = () => {
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
         },
-        timeout: 120000 // Zvýšený timeout na 120 sekúnd
+        timeout: 120000
       });
 
       console.log(`${paymentToken} platba odoslaná, session ID:`, sessionId);
@@ -314,7 +314,6 @@ const OrderDetails = () => {
         throw new Error(verification.error || 'Transakcia zlyhala pri overovaní');
       }
 
-      // Uložiť hash transakcie, ak je dostupný
       const transactionHash = verification.transactionHash || null;
       const { error: updateError } = await supabase
         .from('orders')
@@ -323,7 +322,7 @@ const OrderDetails = () => {
           status: 'in_progress',
           status_updated_at: new Date().toISOString(),
           provider_address: providerAddress,
-          transaction_hash: transactionHash // Uložiť hash, ak je k dispozícii
+          transaction_hash: transactionHash
         })
         .eq('id', order.id);
 
@@ -382,7 +381,7 @@ const OrderDetails = () => {
           errorMessage: 'Uvoľnenie zlyhalo',
           successMessage: 'Platba úspešne uvoľnená'
         },
-        timeout: 120000 // Zvýšený timeout
+        timeout: 120000
       });
 
       console.log('Platba uvoľnená, session ID:', sessionId);
@@ -400,7 +399,7 @@ const OrderDetails = () => {
           release_at: releaseTime,
           status: 'completed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash // Uložiť hash, ak je k dispozícii
+          transaction_hash: transactionHash
         })
         .eq('id', order.id);
 
@@ -419,11 +418,15 @@ const OrderDetails = () => {
     }
   };
 
-  const handleDisputePayment = async (reason: string) => {
+  const handleDisputePayment = async () => {
     try {
       setIsPaymentLoading(true);
       if (!address || !order) {
         toast.error('Prosím, pripojte svoju peňaženku');
+        return;
+      }
+      if (!disputeReason.trim()) {
+        toast.error('Prosím, zadajte dôvod sporu');
         return;
       }
 
@@ -437,7 +440,7 @@ const OrderDetails = () => {
         chainID: network.chainId
       });
 
-      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
+      console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason: disputeReason, escrowAddress: ESCROW_ADDRESS });
       toast.info('Vytvára sa spor, potvrďte v peňaženke...');
 
       const sessionId = await signAndSendTransactions({
@@ -447,7 +450,7 @@ const OrderDetails = () => {
           errorMessage: 'Vytvorenie sporu zlyhalo',
           successMessage: 'Spor úspešne vytvorený'
         },
-        timeout: 120000 // Zvýšený timeout
+        timeout: 120000
       });
 
       console.log('Spor vytvorený, session ID:', sessionId);
@@ -462,7 +465,7 @@ const OrderDetails = () => {
         .update({
           payment_status: 'disputed',
           status_updated_at: new Date().toISOString(),
-          transaction_hash: transactionHash // Uložiť hash, ak je k dispozícii
+          transaction_hash: transactionHash
         })
         .eq('id', order.id);
 
@@ -475,13 +478,14 @@ const OrderDetails = () => {
         user_id: order.client_id,
         type: 'dispute_created',
         title: 'Order Disputed',
-        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${reason}`,
+        content: `Spor bol vytvorený pre objednávku ${order.id}. Dôvod: ${disputeReason}`,
         data: { order_id: order.id },
         read: false
       });
 
       toast.success('Spor úspešne vytvorený!');
       setShowDisputeModal(false);
+      setDisputeReason('');
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
@@ -935,38 +939,34 @@ const OrderDetails = () => {
           <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
             <h3 className="text-xl font-bold text-white mb-4">Vytvoriť spor</h3>
             <div className="space-y-4">
-              <div className="bg-red-100 border border-red-500 rounded-md p-3">
-                <div className="flex items-center">
-                  <AlertTriangle size={20} className="text-red-800 mr-2" />
-                  <div>
-                    <p className="text-red-800 font-medium">Vytvorenie sporu</p>
-                    <p className="text-red-800 text-sm">
-                      Uveďte dôvod sporu. Administrácia preskúma váš prípad.
-                    </p>
-                  </div>
-                </div>
+              <div>
+                <label className="text-gray-400 mb-2 block">Dôvod sporu</label>
+                <textarea
+                  value={disputeReason}
+                  onChange={(e) => setDisputeReason(e.target.value)}
+                  className="w-full bg-gray-700 text-white rounded-lg p-3"
+                  rows={4}
+                  placeholder="Popíšte dôvod sporu..."
+                />
               </div>
-              <textarea
-                className="w-full bg-gray-700 text-white rounded-md p-3"
-                placeholder="Uveďte dôvod sporu..."
-                rows={4}
-                onChange={(e) => setDisputeReason(e.target.value)}
-              ></textarea>
             </div>
             <div className="flex gap-3 mt-6">
               <Button
-                onClick={() => setShowDisputeModal(false)}
+                onClick={() => {
+                  setShowDisputeModal(false);
+                  setDisputeReason('');
+                }}
                 className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
               >
                 Zrušiť
               </Button>
               <Button
-                onClick={() => handleDisputePayment(disputeReason || 'Nešpecifikovaný dôvod')}
+                onClick={handleDisputePayment}
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
-                disabled={isPaymentLoading}
+                disabled={isPaymentLoading || !disputeReason.trim()}
               >
                 <AlertTriangle size={16} />
-                Vytvoriť spor
+                Potvrdiť spor
               </Button>
             </div>
           </div>
@@ -978,7 +978,7 @@ const OrderDetails = () => {
           <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
             <h3 className="text-xl font-bold text-white mb-4">Ohodnotiť poskytovateľa</h3>
             <p className="text-gray-300">Vaše hodnotenie pomôže ostatným používateľom.</p>
-            {/* Pridajte formulár na hodnotenie, ak je potrebný */}
+            {/* Add review form here */}
             <div className="flex gap-3 mt-6">
               <Button
                 onClick={() => setShowReviewModal(false)}
