@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useGetIsLoggedIn, useGetAccount, Transaction, Address, parseAmount, useGetNetworkConfig } from 'lib';
+import { Transaction, Address, useGetIsLoggedIn, useGetAccount, useGetNetworkConfig } from 'lib';
 import { signAndSendTransactions } from '../helpers';
+import axios from 'axios';
+import { toast } from 'react-toastify'; // Pre notifikácie
 
 export const usePayments = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -8,203 +10,449 @@ export const usePayments = () => {
   const { network } = useGetNetworkConfig();
   const [isLoading, setIsLoading] = useState(false);
 
-  // This would integrate with MultiversX smart contracts
-  const sendPayment = async (orderId: string, amount: number, escrowAddress: string, paymentToken: string) => {
-    setIsLoading(true);
+  // Konštanta pre adresu kontraktu
+  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
+
+  // Pomocná funkcia na konverziu UUID na hex
+  const uuidToHex = (uuid: string): string => {
+    const cleanUuid = uuid.replace(/-/g, '');
+    console.log('UUID konverzia:', { original: uuid, clean: cleanUuid, hex: cleanUuid });
+    return cleanUuid;
+  };
+
+  // Konverzia bech32 adresy na hex
+  const addressToHex = (bech32Address: string): string => {
     try {
-      if (!isLoggedIn || !address) {
-        throw new Error('Please connect your wallet first');
-      }
-
-      // Create MultiversX transaction for escrow payment
-      const value = parseAmount(amount.toString());
-      
-      const transaction = new Transaction({
-        value: BigInt(amount),
-        data: Buffer.from(`escrow_payment@${orderId}`),
-        receiver: new Address(escrowAddress),
-        gasLimit: BigInt(6000000),
-        sender: new Address(address),
-        chainID: network.chainId
-      });
-
-      const sessionId = await signAndSendTransactions({
-        transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Processing payment...',
-          errorMessage: 'Payment failed',
-          successMessage: 'Payment successful'
-        }
-      });
-      
-      console.log('Payment successful, session ID:', sessionId);
-      return sessionId;
+      const addressObj = new Address(bech32Address);
+      return addressObj.hex();
     } catch (error) {
-      console.error('Payment failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      console.error('Chyba pri konverzii adresy na hex:', error);
+      throw new Error(`Neplatný formát adresy: ${bech32Address}`);
     }
   };
 
-  const releasePayment = async (orderId: string) => {
-    setIsLoading(true);
-    try {
-      if (!isLoggedIn || !address) {
-        throw new Error('Please connect your wallet first');
-      }
-
-      // Create MultiversX transaction for payment release
-      // TODO: Replace with actual mainnet escrow contract address
-      const escrowAddress = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-      
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`release_payment@${orderId}`),
-        receiver: new Address(escrowAddress),
-        gasLimit: BigInt(6000000),
-        sender: new Address(address),
-        chainID: network.chainId
-      });
-
-      const sessionId = await signAndSendTransactions({
-        transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Releasing payment...',
-          errorMessage: 'Release failed',
-          successMessage: 'Payment released successfully'
-        }
-      });
-      
-      console.log('Payment released, session ID:', sessionId);
-      return sessionId;
-    } catch (error) {
-      console.error('Release failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+  // Generovanie deadline (7 dní od teraz)
+  const getDeadlineTimestamp = (): number => {
+    return Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60; // 7 dní
   };
 
-  const claimPayment = async (orderId: string) => {
-    setIsLoading(true);
+  // Kontrola zostatku peňaženky (EGLD alebo ESDT, napr. IDA-f9bc1d)
+  const checkWalletBalance = async (walletAddress: string, requiredAmount: number, tokenId: string = 'EGLD') => {
     try {
-      if (!isLoggedIn || !address) {
-        throw new Error('Please connect your wallet first');
+      console.log('🔍 Kontrola zostatku peňaženky:', { walletAddress, requiredAmount, tokenId });
+
+      if (!walletAddress || !new Address(walletAddress).isValid()) {
+        throw new Error('Neplatná adresa peňaženky');
       }
 
-      // Create MultiversX transaction for payment claim
-      // TODO: Replace with actual mainnet escrow contract address
-      const escrowAddress = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-      
-      const transaction = new Transaction({
-        value: BigInt(0),
-        data: Buffer.from(`claim_payment@${orderId}`),
-        receiver: new Address(escrowAddress),
-        gasLimit: BigInt(6000000),
-        sender: new Address(address),
-        chainID: network.chainId
-      });
+      let balance = 0;
 
-      const sessionId = await signAndSendTransactions({
-        transactions: [transaction],
-        transactionsDisplayInfo: {
-          processingMessage: 'Claiming payment...',
-          errorMessage: 'Claim failed',
-          successMessage: 'Payment claimed successfully'
+      if (tokenId === 'EGLD') {
+        console.log('💰 Kontrola EGLD zostatku...');
+        const response = await axios.get(
+          `https://api.multiversx.com/accounts/${walletAddress}`,
+          { timeout: 15000 }
+        );
+        balance = response.data.balance
+          ? parseFloat(response.data.balance) / Math.pow(10, 18)
+          : 0;
+        console.log('💰 Výsledok EGLD zostatku:', { raw: response.data.balance, formatted: balance });
+      } else {
+        console.log(`🪙 Kontrola ESDT zostatku pre: ${tokenId}`);
+        try {
+          const response = await axios.get(
+            `https://api.multiversx.com/accounts/${walletAddress}/tokens/${tokenId}`,
+            { timeout: 15000 }
+          );
+          if (response.data && response.data.balance) {
+            const tokenDecimals = response.data.decimals || 18; // Potvrdené 18 pre IDA-f9bc1d
+            balance = parseFloat(response.data.balance) / Math.pow(10, tokenDecimals);
+            console.log(`✅ Nájdený zostatok pre ${tokenId}:`, {
+              raw: response.data.balance,
+              decimals: tokenDecimals,
+              formatted: balance
+            });
+          } else {
+            console.log(`❌ Žiadny zostatok pre ${tokenId}`);
+            balance = 0;
+          }
+        } catch (error) {
+          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
+          balance = 0;
         }
-      });
-      
-      console.log('Payment claimed, session ID:', sessionId);
-      return sessionId;
-    } catch (error) {
-      console.error('Claim failed:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      }
 
-  const checkOrderPaymentStatus = async (orderId: string) => {
-    try {
-      console.log('Checking payment status for order:', orderId);
-      
-      // This would check the MultiversX blockchain for payment status
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      console.log('🏁 Výsledok kontroly zostatku:', {
+        address: walletAddress,
+        tokenId,
+        balance,
+        requiredAmount,
+        hasEnoughFunds: balance >= requiredAmount
+      });
+
       return {
-        isPaid: true,
-        txHash: 'mock-tx-hash',
+        hasEnoughFunds: balance >= requiredAmount,
+        balance,
+        required: requiredAmount,
         error: null
       };
     } catch (error) {
-      console.error('Error checking payment status:', error);
-      return {
-        isPaid: false,
-        txHash: null,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  };
-
-  const checkWalletBalance = async (walletAddress: string, requiredAmount: number) => {
-    try {
-      console.log('Checking wallet balance:', { walletAddress, requiredAmount });
-      
-      // This would check the actual wallet balance on MultiversX
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      return {
-        hasEnoughFunds: true,
-        balance: requiredAmount + 10, // Mock sufficient balance
-        required: requiredAmount
-      };
-    } catch (error) {
-      console.error('Error checking wallet balance:', error);
+      console.error('💥 Chyba pri kontrole zostatku:', error.message);
+      toast.error(`Chyba pri kontrole zostatku: ${error.message}`);
       return {
         hasEnoughFunds: false,
         balance: 0,
         required: requiredAmount,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Neznáma chyba'
       };
     }
   };
 
-  const submitWork = async (orderId: string) => {
+  // Odoslanie EGLD platby
+  const sendPayment = async (
+    orderId: string,
+    amount: number,
+    escrowAddress: string = ESCROW_ADDRESS,
+    paymentToken: string = 'EGLD',
+    providerAddress?: string
+  ) => {
     setIsLoading(true);
     try {
       if (!isLoggedIn || !address) {
-        throw new Error('Please connect your wallet first');
+        throw new Error('Prosím, pripojte svoju peňaženku');
       }
 
-      // Update order status to delivered
-      // This would typically also involve uploading deliverables
-      console.log('Submitting work for order:', orderId);
-      
-      console.log('Work submitted successfully');
-      return 'work-submitted';
+      // Kontrola zostatku
+      const balanceCheck = await checkWalletBalance(address, amount, paymentToken);
+      if (!balanceCheck.hasEnoughFunds) {
+        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${amount} ${paymentToken}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`;
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (paymentToken !== 'EGLD') {
+        return await sendEsdtPayment(orderId, amount, escrowAddress, providerAddress || address, paymentToken);
+      }
+
+      const hexOrderId = uuidToHex(orderId);
+      const providerAddressHex = addressToHex(providerAddress || address);
+      const deadline = getDeadlineTimestamp();
+      const deadlineHex = deadline.toString(16);
+      const value = BigInt(Math.round(amount * 1e18));
+
+      const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+
+      const transaction = new Transaction({
+        value: value,
+        data: Buffer.from(data),
+        receiver: new Address(escrowAddress),
+        gasLimit: BigInt(20000000), // Zvýšené podľa transakcií
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie EGLD transakcie:', { hexOrderId, providerAddressHex, deadlineHex, value: value.toString(), data, escrowAddress });
+
+      toast.info('Spracováva sa platba, potvrďte v peňaženke...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Spracováva sa platba...',
+          errorMessage: 'Platba zlyhala',
+          successMessage: 'Platba úspešná'
+        }
+      });
+
+      console.log('Platba úspešná, session ID:', sessionId);
+      toast.success('Platba úspešná!');
+      return sessionId;
     } catch (error) {
-      console.error('Submit work failed:', error);
+      console.error('Platba zlyhala:', error);
+      toast.error(`Platba zlyhala: ${error.message}`);
       throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Odoslanie ESDT platby (napr. IDA-f9bc1d)
+  const sendEsdtPayment = async (
+    orderId: string,
+    amount: number,
+    escrowAddress: string = ESCROW_ADDRESS,
+    providerAddress: string,
+    tokenId: string
+  ) => {
+    setIsLoading(true);
+    try {
+      if (!isLoggedIn || !address) {
+        throw new Error('Prosím, pripojte svoju peňaženku');
+      }
+
+      // Kontrola zostatku
+      const balanceCheck = await checkWalletBalance(address, amount, tokenId);
+      if (!balanceCheck.hasEnoughFunds) {
+        const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${amount} ${tokenId}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${tokenId}.`;
+        toast.error(errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      const hexOrderId = uuidToHex(orderId);
+      const providerAddressHex = addressToHex(providerAddress);
+      const deadline = getDeadlineTimestamp();
+      const deadlineHex = deadline.toString(16);
+      const value = BigInt(Math.round(amount * 1e18));
+      const tokenIdHex = Buffer.from(tokenId, 'utf8').toString('hex');
+      const amountHex = value.toString(16).padStart(2, '0');
+
+      const data = `ESDTTransfer@${tokenIdHex}@${amountHex}@depositEsdt@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(data),
+        receiver: new Address(escrowAddress),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie ESDT transakcie:', { hexOrderId, providerAddressHex, deadlineHex, tokenId, tokenIdHex, amountHex, data, escrowAddress });
+
+      toast.info(`Spracováva sa ${tokenId} platba, potvrďte v peňaženke...`);
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: `Spracováva sa ${tokenId} platba...`,
+          errorMessage: `${tokenId} platba zlyhala`,
+          successMessage: `${tokenId} platba úspešná`
+        }
+      });
+
+      console.log(`${tokenId} platba úspešná, session ID:`, sessionId);
+      toast.success(`${tokenId} platba úspešná!`);
+      return sessionId;
+    } catch (error) {
+      console.error(`${tokenId} platba zlyhala:`, error);
+      toast.error(`${tokenId} platba zlyhala: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Uvoľnenie platby
+  const releasePayment = async (orderId: string) => {
+    setIsLoading(true);
+    try {
+      if (!isLoggedIn || !address) {
+        throw new Error('Prosím, pripojte svoju peňaženku');
+      }
+
+      const hexOrderId = uuidToHex(orderId);
+
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`release@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie release transakcie:', { hexOrderId, escrowAddress: ESCROW_ADDRESS });
+
+      toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Uvoľňuje sa platba...',
+          errorMessage: 'Uvoľnenie zlyhalo',
+          successMessage: 'Platba úspešne uvoľnená'
+        }
+      });
+
+      console.log('Platba uvoľnená, session ID:', sessionId);
+      toast.success('Platba úspešne uvoľnená!');
+      return sessionId;
+    } catch (error) {
+      console.error('Uvoľnenie zlyhalo:', error);
+      toast.error(`Uvoľnenie zlyhalo: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Vyžiadanie platby
+  const claimPayment = async (orderId: string) => {
+    setIsLoading(true);
+    try {
+      if (!isLoggedIn || !address) {
+        throw new Error('Prosím, pripojte svoju peňaženku');
+      }
+
+      const hexOrderId = uuidToHex(orderId);
+
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`claim@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie claim transakcie:', { hexOrderId, escrowAddress: ESCROW_ADDRESS });
+
+      toast.info('Vyžaduje sa platba, potvrďte v peňaženke...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Vyžaduje sa platba...',
+          errorMessage: 'Vyžadovanie zlyhalo',
+          successMessage: 'Platba úspešne vyžiadaná'
+        }
+      });
+
+      console.log('Platba vyžiadaná, session ID:', sessionId);
+      toast.success('Platba úspešne vyžiadaná!');
+      return sessionId;
+    } catch (error) {
+      console.error('Vyžadovanie zlyhalo:', error);
+      toast.error(`Vyžadovanie zlyhalo: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Spor o platbu
   const disputePayment = async (orderId: string, reason: string) => {
     setIsLoading(true);
     try {
       if (!isLoggedIn || !address) {
-        throw new Error('Please connect your wallet first');
+        throw new Error('Prosím, pripojte svoju peňaženku');
       }
 
-      // Create dispute record in database
-      console.log('Creating dispute:', { orderId, reason });
-      
-      console.log('Dispute created successfully');
-      return 'dispute-created';
+      const hexOrderId = uuidToHex(orderId);
+
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`dispute@${hexOrderId}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie dispute transakcie:', { hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
+
+      toast.info('Vytvára sa spor, potvrďte v peňaženke...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Vytvára sa spor...',
+          errorMessage: 'Vytvorenie sporu zlyhalo',
+          successMessage: 'Spor úspešne vytvorený'
+        }
+      });
+
+      console.log('Spor vytvorený, session ID:', sessionId);
+      toast.success('Spor úspešne vytvorený!');
+      return sessionId;
     } catch (error) {
-      console.error('Dispute failed:', error);
+      console.error('Vytvorenie sporu zlyhalo:', error);
+      toast.error(`Vytvorenie sporu zlyhalo: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Riešenie sporu
+  const resolveDispute = async (orderId: string, refundToClient: boolean) => {
+    setIsLoading(true);
+    try {
+      if (!isLoggedIn || !address) {
+        throw new Error('Prosím, pripojte svoju peňaženku');
+      }
+
+      const hexOrderId = uuidToHex(orderId);
+      const refundFlag = refundToClient ? '01' : '00';
+
+      const transaction = new Transaction({
+        value: BigInt(0),
+        data: Buffer.from(`resolveDispute@${hexOrderId}@${refundFlag}`),
+        receiver: new Address(ESCROW_ADDRESS),
+        gasLimit: BigInt(20000000),
+        sender: new Address(address),
+        chainID: network.chainId
+      });
+
+      console.log('Vytváranie resolveDispute transakcie:', { hexOrderId, refundToClient, refundFlag, escrowAddress: ESCROW_ADDRESS });
+
+      toast.info('Rieši sa spor, potvrďte v peňaženke...');
+      const sessionId = await signAndSendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Rieši sa spor...',
+          errorMessage: 'Riešenie sporu zlyhalo',
+          successMessage: 'Spor úspešne vyriešený'
+        }
+      });
+
+      console.log('Spor vyriešený, session ID:', sessionId);
+      toast.success('Spor úspešne vyriešený!');
+      return sessionId;
+    } catch (error) {
+      console.error('Riešenie sporu zlyhalo:', error);
+      toast.error(`Riešenie sporu zlyhalo: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Kontrola stavu platby
+  const checkOrderPaymentStatus = async (orderId: string) => {
+    try {
+      console.log('Kontrola stavu platby pre objednávku:', orderId);
+      const hexOrderId = uuidToHex(orderId);
+      const response = await axios.get(
+        `https://api.multiversx.com/accounts/${address}/transactions?size=10&status=success`,
+        { timeout: 15000 }
+      );
+      const tx = response.data.find((t: any) => t.data && Buffer.from(t.data, 'base64').toString('utf8').includes(hexOrderId));
+      return {
+        isPaid: !!tx && ['success', 'executed'].includes(tx.status),
+        txHash: tx?.txHash || null,
+        error: null
+      };
+    } catch (error) {
+      console.error('Chyba pri kontrole stavu platby:', error);
+      toast.error(`Chyba pri kontrole stavu platby: ${error.message}`);
+      return {
+        isPaid: false,
+        txHash: null,
+        error: error instanceof Error ? error.message : 'Neznáma chyba'
+      };
+    }
+  };
+
+  // Odoslanie práce
+  const submitWork = async (orderId: string) => {
+    setIsLoading(true);
+    try {
+      if (!isLoggedIn || !address) {
+        throw new Error('Prosím, pripojte svoju peňaženku');
+      }
+      console.log('Odosiela sa práca pre objednávku:', orderId);
+      // Tu by mala byť logika na aktualizáciu stavu v databáze
+      toast.success('Práca úspešne odoslaná!');
+      return 'work-submitted';
+    } catch (error) {
+      console.error('Odoslanie práce zlyhalo:', error);
+      toast.error(`Odoslanie práce zlyhalo: ${error.message}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -213,12 +461,14 @@ export const usePayments = () => {
 
   return {
     sendPayment,
+    sendEsdtPayment,
     releasePayment,
     claimPayment,
+    disputePayment,
+    resolveDispute,
     checkOrderPaymentStatus,
     checkWalletBalance,
     submitWork,
-    disputePayment,
     isLoading
   };
 };
