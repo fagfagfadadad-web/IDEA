@@ -1,1572 +1,1369 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   User, 
   Settings, 
-  Bell, 
-  Briefcase, 
   Star, 
-  Calendar, 
+  Edit, 
+  Trash2, 
+  Plus, 
   DollarSign, 
   Clock, 
-  Edit, 
-  Save, 
-  X, 
-  Check,
+  Calendar,
+  Briefcase,
+  Bell,
+  Mail,
+  Shield,
   Eye,
-  MessageSquare,
+  MessageCircle,
   Award,
   TrendingUp,
-  Package,
-  Coins,
-  ChevronDown,
-  ChevronUp
+  MoreVertical,
+  Edit2,
+  X
 } from 'lucide-react';
-import { Button, Card, EmailNotificationsToggle } from 'components';
-import { useGetIsLoggedIn, useGetAccount } from 'lib';
-import { useProfile, useUpdateProfile } from 'hooks/useProfile';
-import { useOrders } from 'hooks/useOrders';
-import { useGigs } from 'hooks/useGigs';
-import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks/useNotifications';
-import { useAuth } from 'context/AuthContext';
-import { useWindowSize } from 'hooks/useWindowSize';
+import { Button, Card } from 'components';
+import { useGetIsLoggedIn } from 'lib';
+import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../context/AuthContext';
+import { useDeleteGig } from '../../hooks/useGigs';
+import { usePayments } from '../../hooks/usePayments';
+import { useWindowSize } from '../../hooks/useWindowSize';
+import { EmailNotificationsToggle } from '../../components/EmailNotificationsToggle';
+import { ReviewModal } from '../../components/ReviewModal';
+import { supabase } from '../../lib/supabase';
 
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const isLoggedIn = useGetIsLoggedIn();
-  const { address } = useGetAccount();
-  const { user } = useAuth();
+  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { data: profile, isLoading: profileLoading, refetch } = useProfile(id || user?.id);
+  const updateProfile = useUpdateProfile();
+  const deleteGig = useDeleteGig();
+  const { claimPayment } = usePayments();
   const { width } = useWindowSize();
   const isMobile = width < 768;
-  
-  const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile(id);
-  const { data: orders, isLoading: ordersLoading } = useOrders();
-  const { data: gigs, isLoading: gigsLoading } = useGigs();
-  const { data: notifications } = useNotifications();
-  const updateProfile = useUpdateProfile();
-  const markAllAsRead = useMarkAllNotificationsAsRead();
+  const [searchParams] = useSearchParams();
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [gigToDelete, setGigToDelete] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletedGigIds, setDeletedGigIds] = useState<string[]>([]);
+  const [timeLeftMap, setTimeLeftMap] = useState<Record<string, string>>({});
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [isEditing, setIsEditing] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({
-    stats: true,
-    gigs: false,
-    orders: false,
-    notifications: false,
-    settings: false
-  });
-  const [editForm, setEditForm] = useState({
+
+  const [formData, setFormData] = useState({
     username: '',
     full_name: '',
+    avatar_url: '',
     bio: '',
-    email_notifications_enabled: true
   });
 
-  // Calculate earnings from completed orders
-  const calculateEarnings = () => {
-    if (!orders) return { egld: 0, ida: 0 };
-    
-    const completedOrders = orders.filter((order: any) => order.status === 'completed');
-    
-    const egldEarnings = completedOrders
-      .filter((order: any) => order.payment_token === 'EGLD')
-      .reduce((sum: number, order: any) => {
-        // For EGLD, provider gets 90% (10% platform fee)
-        return sum + (order.amount * 0.9);
-      }, 0);
-    
-    const idaEarnings = completedOrders
-      .filter((order: any) => order.payment_token === 'IDA-f9bc1d')
-      .reduce((sum: number, order: any) => {
-        // For IDA, provider gets 100% (no fees)
-        return sum + order.amount;
-      }, 0);
-    
-    return { egld: egldEarnings, ida: idaEarnings };
-  };
+  // Check if we're still loading authentication or profile data
+  const isLoading = authLoading || profileLoading;
 
-  // Calculate review statistics
-  const calculateReviewStats = () => {
-    if (!orders) return { totalReviews: 0, averageRating: 0 };
-    
-    const reviewedOrders = orders.filter((order: any) => order.reviews && order.reviews.length > 0);
-    const totalReviews = reviewedOrders.length;
-    
-    if (totalReviews === 0) return { totalReviews: 0, averageRating: 0 };
-    
-    const totalRating = reviewedOrders.reduce((sum: number, order: any) => {
-      return sum + order.reviews[0].rating;
-    }, 0);
-    
-    const averageRating = totalRating / totalReviews;
-    
-    return { totalReviews, averageRating };
-  };
-
-  const earnings = calculateEarnings();
-  const reviewStats = calculateReviewStats();
-
-  const isOwnProfile = !id || (user && profile && user.id === profile.id);
-
-  // Initialize tab from URL params
+  // Countdown timer for orders
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'gigs') setActiveTab(1);
-    else if (tab === 'orders') setActiveTab(2);
-    else if (tab === 'notifications') setActiveTab(3);
-    else if (tab === 'settings') setActiveTab(4);
-    else setActiveTab(0);
-  }, [searchParams]);
+    const updateTimeLeft = () => {
+      if (profile?.orders) {
+        const newTimeLeftMap: Record<string, string> = {};
+        
+        profile.orders.forEach((order: any) => {
+          // For pending_release orders, calculate time until claimable
+          if (order.payment_status === 'pending_release' && order.release_at) {
+            const now = new Date();
+            const releaseTime = new Date(order.release_at);
+            const timeDiff = releaseTime.getTime() - now.getTime();
+            
+            if (timeDiff > 0) {
+              const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+              const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+              
+              if (days > 0) {
+                newTimeLeftMap[order.id] = `${days}d ${hours}h ${minutes}m`;
+              } else if (hours > 0) {
+                newTimeLeftMap[order.id] = `${hours}h ${minutes}m`;
+              } else {
+                newTimeLeftMap[order.id] = `${minutes}m`;
+              }
+            } else {
+              newTimeLeftMap[order.id] = 'Ready to claim';
+            }
+          }
+        });
+        
+        setTimeLeftMap(newTimeLeftMap);
+      }
+    };
+    
+    updateTimeLeft();
+    const interval = setInterval(updateTimeLeft, 60000); // Update every minute
+    
+    return () => clearInterval(interval);
+  }, [profile?.orders]);
 
-  // Initialize edit form when profile loads
+  // Update form data when profile loads
   useEffect(() => {
     if (profile) {
-      setEditForm({
+      setFormData({
         username: profile.username || '',
         full_name: profile.full_name || '',
+        avatar_url: profile.avatar_url || '',
         bio: profile.bio || '',
-        email_notifications_enabled: profile.email_notifications_enabled ?? true
       });
     }
   }, [profile]);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-    if (isEditing) {
-      // Reset form when canceling
-      setEditForm({
-        username: profile?.username || '',
-        full_name: profile?.full_name || '',
-        bio: profile?.bio || '',
-        email_notifications_enabled: profile?.email_notifications_enabled ?? true
-      });
+  // Real-time subscription for gigs
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const subscription = supabase
+      .channel('public:gigs')
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'gigs',
+          filter: `provider_id=eq.${user.id}`,
+        },
+        (payload) => {
+          setDeletedGigIds(prev => [...prev, payload.old.id]);
+          refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [refetch, user?.id]);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const orderId = searchParams.get('order');
+
+    if (tab === 'orders' && orderId) {
+      navigate(`/orders/${orderId}`);
     }
+  }, [searchParams, navigate]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
-  const handleSaveProfile = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await updateProfile.mutateAsync(editForm);
-      setIsEditing(false);
-      refetchProfile();
+      await updateProfile.mutateAsync(formData);
       alert('Profile updated successfully');
+      setIsEditModalOpen(false);
     } catch (error) {
-      alert('Error updating profile');
+      alert('Error updating profile: ' + (error instanceof Error ? error.message : 'Please try again later'));
     }
   };
 
-  const handleMarkAllNotificationsAsRead = async () => {
+  const handleDeleteClick = (e: React.MouseEvent, gigId: string) => {
+    e.stopPropagation();
+    setGigToDelete(gigId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!gigToDelete) {
+      return;
+    }
+
     try {
-      await markAllAsRead.mutateAsync();
-      alert('All notifications marked as read');
+      await deleteGig.mutateAsync(gigToDelete, {
+        onSuccess: async () => {
+          setDeletedGigIds(prev => [...prev, gigToDelete]);
+          await refetch();
+        },
+      });
+      alert('Gig deleted successfully');
     } catch (error) {
-      alert('Error marking notifications as read');
+      alert('Error deleting gig: ' + (error instanceof Error ? error.message : 'Please try again later'));
+    } finally {
+      setGigToDelete(null);
+      setShowDeleteModal(false);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, gigId: string) => {
+    e.stopPropagation();
+    navigate(`/gigs/${gigId}/edit`);
+  };
+
+  const handleClaimPayment = async (orderId: string) => {
+    try {
+      await claimPayment(orderId);
+      alert('Payment claimed successfully');
+    } catch (error) {
+      alert('Failed to claim payment: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'delivered': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'pending_approval': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed':
+        return '#01c3a8';
+      case 'in_progress':
+        return '#1890ff';
+      case 'cancelled':
+        return '#a63d2a';
+      default:
+        return '#ffb741';
     }
   };
 
-  const getPaymentStatusColor = (status: string) => {
+  const getCategoryColor = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case 'programming & tech':
+        return '#01c3a8';
+      case 'graphics & design':
+        return '#1890ff';
+      case 'digital marketing':
+        return '#ffb741';
+      case 'writing & translation':
+        return '#ff6f61';
+      case 'video & animation':
+        return '#a259ff';
+      case 'ai services':
+        return '#00ddeb';
+      case 'music & audio':
+        return '#ffcc33';
+      case 'business':
+        return '#2ecc71';
+      case 'consulting':
+        return '#e91e63';
+      default:
+        return '#a63d2a';
+    }
+  };
+
+  const getProgressValue = (status: string) => {
     switch (status) {
-      case 'escrowed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'released': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'disputed': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'completed':
+        return 100;
+      case 'in_progress':
+        return 50;
+      case 'cancelled':
+        return 100;
+      default:
+        return 25;
     }
   };
 
-  const getGigStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-100 text-green-800 border-green-200';
-      case 'paused': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'inactive': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const tabs = [
-    { id: 0, label: 'Overview', icon: <User size={18} />, color: 'indigo' },
-    { id: 1, label: 'My Gigs', icon: <Package size={18} />, color: 'purple' },
-    { id: 2, label: 'Orders', icon: <Briefcase size={18} />, color: 'blue' },
-    { id: 3, label: 'Notifications', icon: <Bell size={18} />, color: 'green' },
-    { id: 4, label: 'Settings', icon: <Settings size={18} />, color: 'gray' }
-  ];
-
-  if (!isLoggedIn && !id) {
+  // Show loading spinner while authentication or profile is loading
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-8">
-        <div className="container mx-auto max-w-4xl px-6">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 rounded-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <User className="h-8 w-8 text-amber-600" />
-              </div>
-              <div className="ml-3">
-                <h3 className="text-lg font-medium text-amber-800">Authentication Required</h3>
-                <p className="text-amber-700">Please log in to view your profile.</p>
-              </div>
+      <div className="container mx-auto max-w-7xl px-6 py-8">
+        <Card className="p-8" title="Loading Profile" reference="#">
+          <div className="flex justify-center">
+            <div className="space-y-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+              <p className="text-white">
+                {authLoading ? 'Setting up your profile...' : 'Loading profile data...'}
+              </p>
+              <p className="text-gray-400 text-sm">
+                Please wait while we prepare everything for you
+              </p>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     );
   }
 
-  if (profileLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-8">
-        <div className="container mx-auto max-w-4xl px-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <div className="flex justify-center items-center space-y-4">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading profile...</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Calculate statistics
+  const completedOrders = profile?.orders?.filter(order => order.status === 'completed') || [];
+  
+  // Calculate earnings for both EGLD and IDA tokens
+  const egldEarnings = completedOrders
+    .filter(order => (order.payment_token || 'EGLD') === 'EGLD')
+    .reduce((sum, order) => sum + (Number(order.amount) * 0.9), 0); // 10% fee deducted
+  
+  const idaEarnings = completedOrders
+    .filter(order => order.payment_token === 'IDA-f9bc1d')
+    .reduce((sum, order) => sum + Number(order.amount), 0); // No fees for IDA
+  
+  const totalEarnings = egldEarnings + idaEarnings;
+  
+  const reviews = completedOrders.flatMap(order => order.reviews || []);
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : 'N/A';
+
+  // Filter out deleted gigs client-side
+  const filteredGigs = profile?.gigs?.filter(gig => !deletedGigIds.includes(gig.id)) || [];
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-8">
-        <div className="container mx-auto max-w-4xl px-6">
-          <div className="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-400 rounded-lg p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <User className="h-8 w-8 text-red-600" />
-              </div>
-              <div className="ml-3">
-                <h3 className="text-lg font-medium text-red-800">Profile Not Found</h3>
-                <p className="text-red-700">The requested profile could not be found.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="container mx-auto max-w-7xl px-6 py-8">
+        <Card className="p-8" title="Profile Not Found" reference="#">
+          <p className="text-white">Profile not found</p>
+        </Card>
       </div>
     );
   }
 
-  const unreadNotifications = notifications?.filter(n => !n.read) || [];
-  const clientOrders = orders?.filter(order => order.client_id === profile.id) || [];
-  const providerOrders = orders?.filter(order => 
-    order.gig?.provider?.id === profile.id || 
-    order.provider_address === profile.wallet_address
-  ) || [];
+  const isOwnProfile = user?.id === profile.id;
 
-  // Mobile Component
+  // Mobile Layout
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 pb-20">
-        <div className="px-4 py-6 space-y-4">
-          {/* Mobile Header */}
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl p-6 text-white">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="w-20 h-20 rounded-full overflow-hidden relative bg-white/20">
-                {profile?.avatar_url ? (
-                  <>
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.username || "Profile"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div 
-                      className="fallback-avatar w-full h-full bg-white/20 flex items-center justify-center text-2xl text-white absolute inset-0"
-                      style={{ display: 'none' }}
-                    >
-                      {profile?.username?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-white/20 flex items-center justify-center text-2xl text-white">
-                    {profile?.username?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-                )}
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto max-w-md px-4 py-6">
+          {/* Profile Header - Mobile */}
+          <div className="bg-white rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xl text-white">
+                {profile?.username?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <div className="text-center">
-                <h1 className="text-xl font-bold">{profile?.username}</h1>
-                {profile?.full_name && (
-                  <p className="text-white/80">{profile.full_name}</p>
-                )}
-                {profile?.bio && (
-                  <p className="text-white/70 text-sm mt-2">{profile.bio}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile Stats Section */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <button
-              onClick={() => toggleSection('stats')}
-              className="w-full flex items-center justify-between p-4 text-left"
-            >
-              <h2 className="text-lg font-bold text-gray-800">Statistics</h2>
-              {expandedSections.stats ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {expandedSections.stats && (
-              <div className="px-4 pb-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Package size={16} className="text-blue-600" />
-                      <span className="text-xs text-blue-600 font-medium">Gigs</span>
-                    </div>
-                    <p className="text-lg font-bold text-blue-800">{gigs?.length || 0}</p>
-                  </div>
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Briefcase size={16} className="text-green-600" />
-                      <span className="text-xs text-green-600 font-medium">Orders</span>
-                    </div>
-                    <p className="text-lg font-bold text-green-800">{orders?.length || 0}</p>
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Star size={16} className="text-yellow-600" />
-                    <span className="text-sm text-yellow-600 font-medium">Rating</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={14}
-                          fill={star <= reviewStats.averageRating ? '#FFD700' : 'transparent'}
-                          color={star <= reviewStats.averageRating ? '#FFD700' : '#D1D5DB'}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm font-bold text-yellow-800">
-                      {reviewStats.averageRating.toFixed(1)} ({reviewStats.totalReviews})
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg border border-blue-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <DollarSign size={16} className="text-blue-600" />
-                        <span className="text-sm text-blue-600 font-medium">EGLD Earned</span>
-                      </div>
-                      <span className="text-lg font-bold text-blue-800">{earnings.egld.toFixed(2)}</span>
-                    </div>
-                    <p className="text-xs text-blue-600 mt-1">After 10% platform fee</p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg border border-purple-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Coins size={16} className="text-purple-600" />
-                        <span className="text-sm text-purple-600 font-medium">IDA Earned</span>
-                      </div>
-                      <span className="text-lg font-bold text-purple-800">{earnings.ida.toFixed(2)}</span>
-                    </div>
-                    <p className="text-xs text-purple-600 mt-1">No fees - 100% yours!</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Gigs Section */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <button
-              onClick={() => toggleSection('gigs')}
-              className="w-full flex items-center justify-between p-4 text-left"
-            >
-              <h2 className="text-lg font-bold text-gray-800">My Gigs ({gigs?.length || 0})</h2>
-              {expandedSections.gigs ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {expandedSections.gigs && (
-              <div className="px-4 pb-4 space-y-3">
-                {gigs?.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No gigs created yet</p>
-                ) : (
-                  gigs?.map((gig) => (
-                    <div key={gig.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <h3 className="font-medium text-gray-800 text-sm">{gig.title}</h3>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-xs text-gray-600">{gig.category}</span>
-                        <div className="flex items-center gap-1">
-                          {gig.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
-                          <span className="text-sm font-bold text-blue-600">
-                            {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Orders Section */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <button
-              onClick={() => toggleSection('orders')}
-              className="w-full flex items-center justify-between p-4 text-left"
-            >
-              <h2 className="text-lg font-bold text-gray-800">My Orders ({orders?.length || 0})</h2>
-              {expandedSections.orders ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {expandedSections.orders && (
-              <div className="px-4 pb-4 space-y-3">
-                {orders?.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">No orders yet</p>
-                ) : (
-                  orders?.slice(0, 5).map((order) => (
-                    <div key={order.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
-                          {order.gig?.title || 'Custom Project'}
-                        </h3>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                          order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                          order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1">
-                          {order.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
-                          <span className="text-sm font-bold text-blue-600">
-                            {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Notifications Section */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <button
-              onClick={() => toggleSection('notifications')}
-              className="w-full flex items-center justify-between p-4 text-left"
-            >
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-gray-800">Notifications</h2>
-                {unreadNotifications.length > 0 && (
-                  <span className="bg-red-500 text-white text-xs rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
-                    {unreadNotifications.length}
-                  </span>
-                )}
-              </div>
-              {expandedSections.notifications ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {expandedSections.notifications && (
-              <div className="px-4 pb-4 space-y-3">
-                {unreadNotifications.length > 0 && (
-                  <Button
-                    onClick={handleMarkAllNotificationsAsRead}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm"
-                    disabled={markAllAsRead.isLoading}
-                  >
-                    {markAllAsRead.isLoading ? 'Marking...' : `Mark all as read (${unreadNotifications.length})`}
-                  </Button>
-                )}
-                {notifications?.slice(0, 5).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`p-3 rounded-lg border ${
-                      !notification.read 
-                        ? 'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500' 
-                        : 'bg-gray-50 border-gray-200'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className={`text-sm font-medium ${
-                        !notification.read ? 'text-blue-800' : 'text-gray-800'
-                      }`}>
-                        {notification.title}
-                      </h4>
-                      {!notification.read && (
-                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                          New
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-600 line-clamp-2">{notification.content}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(notification.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Settings Section */}
-          <div className="bg-white rounded-xl border border-gray-200">
-            <button
-              onClick={() => toggleSection('settings')}
-              className="w-full flex items-center justify-between p-4 text-left"
-            >
-              <h2 className="text-lg font-bold text-gray-800">Settings</h2>
-              {expandedSections.settings ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </button>
-            {expandedSections.settings && (
-              <div className="px-4 pb-4 space-y-4">
-                {isEditing ? (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-1">Username</label>
-                      <input
-                        type="text"
-                        value={editForm.username}
-                        onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
-                      <input
-                        type="text"
-                        value={editForm.full_name}
-                        onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-gray-700 text-sm font-medium mb-1">Bio</label>
-                      <textarea
-                        value={editForm.bio}
-                        onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                        rows={3}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => setIsEditing(false)}
-                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm"
-                      >
-                        <X size={14} />
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSaveProfile}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm"
-                        disabled={updateProfile.isLoading}
-                      >
-                        <Save size={14} />
-                        {updateProfile.isLoading ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Username</p>
-                      <p className="font-medium text-gray-800">{profile?.username}</p>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Full Name</p>
-                      <p className="font-medium text-gray-800">{profile?.full_name || 'Not set'}</p>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-sm text-gray-600 mb-1">Bio</p>
-                      <p className="font-medium text-gray-800">{profile?.bio || 'No bio yet'}</p>
-                    </div>
-                    <Button
-                      onClick={() => {
-                        setEditForm({
-                          username: profile?.username || '',
-                          full_name: profile?.full_name || '',
-                          bio: profile?.bio || '',
-                          email_notifications_enabled: profile?.email_notifications_enabled ?? true
-                        });
-                        setIsEditing(true);
-                      }}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm"
-                    >
-                      <Edit size={14} />
-                      Edit Profile
-                    </Button>
-                    
-                    <div className="pt-2">
-                      <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-8">
-      <div className="container mx-auto max-w-6xl px-6">
-        <div className="space-y-8">
-          {/* Profile Header */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-32"></div>
-            <div className="relative px-8 pb-8">
-              <div className="flex flex-col md:flex-row items-start md:items-end gap-6 -mt-16">
-                {/* Avatar */}
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                    {profile.avatar_url ? (
-                      <img
-                        src={profile.avatar_url}
-                        alt={profile.username}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const parent = target.parentElement;
-                          if (parent) {
-                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <div 
-                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-3xl font-bold text-white"
-                      style={{ display: profile.avatar_url ? 'none' : 'flex' }}
-                    >
-                      {profile.username?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Profile Info */}
-                <div className="flex-1 space-y-4">
-                  {isEditing ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                          <input
-                            type="text"
-                            value={editForm.username}
-                            onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                          <input
-                            type="text"
-                            value={editForm.full_name}
-                            onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                        <textarea
-                          value={editForm.bio}
-                          onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                          rows={3}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                          placeholder="Tell us about yourself..."
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <h1 className="text-3xl font-bold text-gray-900">
-                        {profile.full_name || profile.username}
-                      </h1>
-                      {profile.full_name && (
-                        <p className="text-lg text-gray-600">@{profile.username}</p>
-                      )}
-                      <p className="text-gray-700 max-w-2xl">
-                        {profile.bio || "No bio available"}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={16} />
-                          <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
-                        </div>
-                        {profile.wallet_address && (
-                          <div className="flex items-center gap-1">
-                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                            <span>Wallet Connected</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
-                {isOwnProfile && (
-                  <div className="flex gap-3">
-                    {isEditing ? (
-                      <>
-                        <Button
-                          onClick={handleSaveProfile}
-                          disabled={updateProfile.isLoading}
-                          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                        >
-                          <Save size={16} />
-                          {updateProfile.isLoading ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                          onClick={handleEditToggle}
-                          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                        >
-                          <X size={16} />
-                          Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        onClick={handleEditToggle}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Edit size={16} />
-                        Edit Profile
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Gigs</p>
-                  <p className="text-2xl font-bold text-indigo-600">{gigs?.length || 0}</p>
-                </div>
-                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <Package className="w-6 h-6 text-indigo-600" />
-                </div>
+              <div className="flex-1">
+                <h1 className="text-xl font-bold text-gray-800">
+                  {profile?.full_name || profile?.username}
+                </h1>
+                <p className="text-gray-600 text-sm">Web3 Developer</p>
+                <p className="text-blue-600 text-xs">
+                  Member since {new Date(profile.created_at!).toLocaleDateString()}
+                </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-blue-600">{orders?.length || 0}</p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Briefcase className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-            </div>
+            <p className="text-gray-700 text-sm mb-4">
+              {profile?.bio || 'No bio yet'}
+            </p>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : '0.0'}
+            {isOwnProfile && (
+              <Button
+                onClick={() => setIsEditModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+              >
+                <Edit size={16} />
+                Edit Profile
+              </Button>
+            )}
+          </div>
+
+          {/* Statistics - Always Visible on Mobile */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="bg-white rounded-lg p-4 shadow-sm text-center">
+              <div className="flex items-center justify-center mb-2">
+                <TrendingUp size={20} className="text-green-600" />
+              </div>
+              <p className="text-gray-600 text-xs mb-1">Total Earned</p>
+              <div className="space-y-1">
+                {egldEarnings > 0 && (
+                  <p className="text-lg font-bold text-green-600">
+                    {egldEarnings.toFixed(2)} EGLD
                   </p>
-                </div>
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <Star className="w-6 h-6 text-yellow-600" />
-                </div>
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                ({reviewStats.totalReviews} reviews)
+                )}
+                {idaEarnings > 0 && (
+                  <p className="text-sm font-bold text-purple-600">
+                    {idaEarnings.toFixed(2)} IDA
+                  </p>
+                )}
+                {totalEarnings === 0 && (
+                  <p className="text-lg font-bold text-gray-800">0</p>
+                )}
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Earned</p>
-                  <div className="space-y-1">
-                    <p className="text-lg font-bold text-blue-600">{earnings.egld.toFixed(2)} EGLD</p>
-                    <p className="text-lg font-bold text-purple-600">{earnings.ida.toFixed(2)} IDA</p>
-                  </div>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-purple-600" />
-                </div>
+            <div className="bg-white rounded-lg p-4 shadow-sm text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Briefcase size={20} className="text-blue-600" />
               </div>
+              <p className="text-gray-600 text-xs mb-1">Completed</p>
+              <p className="text-lg font-bold text-blue-600">
+                {completedOrders.length}
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 shadow-sm text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Star size={20} className="text-yellow-500" />
+              </div>
+              <p className="text-gray-600 text-xs mb-1">Rating</p>
+              <p className="text-lg font-bold text-yellow-600">
+                {averageRating}
+              </p>
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          {/* Tabbed Panel - Mobile */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             {/* Tab Navigation */}
-            <div className="border-b border-gray-200 bg-gray-50">
-              <div className="flex overflow-x-auto">
-                {tabs.map((tab) => (
+            <div className="border-b border-gray-200">
+              <div className="flex overflow-x-auto scrollbar-hide">
+                <button
+                  onClick={() => setActiveTab(0)}
+                  className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    activeTab === 0
+                      ? 'border-blue-600 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  My Gigs
+                </button>
+                {isOwnProfile && (
                   <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-all duration-200 whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? `border-${tab.color}-500 text-${tab.color}-600 bg-white`
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    onClick={() => setActiveTab(1)}
+                    className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                      activeTab === 1
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-transparent text-gray-600 hover:text-blue-600'
                     }`}
                   >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                    {tab.id === 3 && unreadNotifications.length > 0 && (
-                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] h-5 flex items-center justify-center">
-                        {unreadNotifications.length}
-                      </span>
-                    )}
+                    My Orders
                   </button>
-                ))}
+                )}
+                {isOwnProfile && (
+                  <button
+                    onClick={() => setActiveTab(2)}
+                    className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                      activeTab === 2
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-transparent text-gray-600 hover:text-blue-600'
+                    }`}
+                  >
+                    Settings
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Tab Content */}
-            <div className="p-6">
-              {/* Overview Tab */}
-              {activeTab === 0 && (
-                <div className="space-y-6">
-                  {/* Earnings breakdown */}
-                  {(earnings.egld > 0 || earnings.ida > 0) && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Coins className="w-5 h-5 text-indigo-600" />
-                        Earnings Breakdown
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="text-blue-600" size={16} />
-                              <span className="font-medium text-gray-800">EGLD Earnings</span>
-                            </div>
-                            <span className="text-xl font-bold text-blue-600">
-                              {earnings.egld.toFixed(2)}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1">
-                            After 10% platform fee
-                          </p>
-                        </div>
-                        
-                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Coins className="text-purple-600" size={16} />
-                              <span className="font-medium text-gray-800">IDA Earnings</span>
-                            </div>
-                            <span className="text-xl font-bold text-purple-600">
-                              {earnings.ida.toFixed(2)}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 mt-1">
-                            No platform fees
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Reviews summary */}
-                  {reviewStats.totalReviews > 0 && (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <Star className="w-5 h-5 text-yellow-600" />
-                        Reviews Summary
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <Star
-                                key={star}
-                                size={20}
-                                className={star <= reviewStats.averageRating ? "text-yellow-400 fill-current" : "text-gray-300"}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xl font-bold text-gray-800">
-                            {reviewStats.averageRating.toFixed(1)} / 5.0
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-gray-800">
-                            {reviewStats.totalReviews}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            Total Reviews
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Recent Orders */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <Briefcase className="w-5 h-5 text-blue-600" />
-                        Recent Orders
-                      </h3>
-                      {orders?.slice(0, 3).map((order) => (
-                        <div
-                          key={order.id}
-                          className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                          onClick={() => navigate(`/orders/${order.id}`)}
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="font-semibold text-gray-900 line-clamp-1">
-                              {order.gig?.title || 'Custom Project'}
-                            </h4>
-                            <div className="flex gap-2">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                {order.status.replace('_', ' ')}
-                              </span>
-                            </div>
-                          </div>
-                          
-                          {/* Both Client and Provider */}
-                          <div className="space-y-2 mb-3">
-                            {/* Client */}
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
-                                {order.client?.avatar_url ? (
-                                  <img
-                                    src={order.client.avatar_url}
-                                    alt={order.client.username || "Client"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const parent = target.parentElement;
-                                      if (parent) {
-                                        const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                        if (fallback) fallback.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
-                                ) : null}
-                                <div 
-                                  className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                  style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                >
-                                  {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                </div>
-                              </div>
-                              <span className="text-sm text-gray-700">
-                                Client: {order.client?.username || "Unknown"}
-                              </span>
-                            </div>
-                            
-                            {/* Provider */}
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                {order.gig?.provider?.avatar_url ? (
-                                  <img
-                                    src={order.gig.provider.avatar_url}
-                                    alt={order.gig.provider.username || "Provider"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                      const parent = target.parentElement;
-                                      if (parent) {
-                                        const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                        if (fallback) fallback.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
-                                ) : null}
-                                <div 
-                                  className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                  style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                >
-                                  {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                </div>
-                              </div>
-                              <span className="text-sm text-gray-700">
-                                Provider: {order.gig?.provider?.username || "Unknown"}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              {order.payment_token === 'EGLD' ? (
-                                <DollarSign className="w-4 h-4 text-green-600" />
-                              ) : (
-                                <Coins className="w-4 h-4 text-purple-600" />
-                              )}
-                              <span className="font-semibold text-gray-900">
-                                {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              {new Date(order.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
-                      )) || (
-                        <div className="text-center py-8 text-gray-500">
-                          <Briefcase className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                          <p>No orders yet</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Recent Gigs */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <Package className="w-5 h-5 text-purple-600" />
-                        Recent Gigs
-                      </h3>
-                      {gigs?.slice(0, 3).map((gig) => (
-                        <div
-                          key={gig.id}
-                          className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                          onClick={() => navigate(`/gigs/${gig.id}`)}
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="font-semibold text-gray-900 line-clamp-1">
-                              {gig.title}
-                            </h4>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getGigStatusColor(gig.status)}`}>
-                              {gig.status}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                            {gig.description}
-                          </p>
-                          <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                              {gig.payment_token === 'EGLD' ? (
-                                <DollarSign className="w-4 h-4 text-green-600" />
-                              ) : (
-                                <Coins className="w-4 h-4 text-purple-600" />
-                              )}
-                              <span className="font-semibold text-gray-900">
-                                {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                              </span>
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              {gig.duration} days
-                            </span>
-                          </div>
-                        </div>
-                      )) || (
-                        <div className="text-center py-8 text-gray-500">
-                          <Package className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                          <p>No gigs yet</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
+            <div className="p-4">
               {/* My Gigs Tab */}
-              {activeTab === 1 && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-gray-900">My Gigs</h3>
-                    {isOwnProfile && (
-                      <Button
-                        onClick={() => navigate('/create-gig')}
-                        className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Package size={16} />
-                        Create New Gig
-                      </Button>
-                    )}
-                  </div>
+              {activeTab === 0 && (
+                <div className="space-y-4">
+                  {filteredGigs.length > 0 ? (
+                    filteredGigs.map((gig) => {
+                      const categoryColor = getCategoryColor(gig.category);
+                      const paymentToken = gig.payment_token || 'EGLD';
+                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
 
-                  {gigsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                    </div>
-                  ) : gigs?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Package className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No gigs yet</h4>
-                      <p className="text-gray-600 mb-4">Start offering your services to the community</p>
-                      {isOwnProfile && (
-                        <Button
-                          onClick={() => navigate('/create-gig')}
-                          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg"
-                        >
-                          Create Your First Gig
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {gigs?.map((gig) => (
+                      return (
                         <div
                           key={gig.id}
-                          className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-all duration-200 overflow-hidden group cursor-pointer"
+                          className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                           onClick={() => navigate(`/gigs/${gig.id}`)}
                         >
-                          <div className="relative h-48">
+                          {/* Header with date and category */}
+                          <div 
+                            className="flex justify-between items-center p-3 border-b border-gray-100"
+                            style={{ backgroundColor: `${categoryColor}10` }}
+                          >
+                            <span className="text-xs text-gray-500">
+                              {new Date(gig.created_at).toLocaleDateString()}
+                            </span>
+                            <span 
+                              className="px-2 py-1 rounded-full text-xs font-medium"
+                              style={{ backgroundColor: `${categoryColor}20`, color: categoryColor }}
+                            >
+                              {gig.category}
+                            </span>
+                          </div>
+
+                          {/* Gig Image */}
+                          <div className="relative h-32">
                             <img
                               src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
                               alt={gig.title}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                              className="w-full h-full object-cover"
                             />
-                            <div className="absolute top-3 right-3">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getGigStatusColor(gig.status)}`}>
-                                {gig.status}
-                              </span>
-                            </div>
                           </div>
-                          
+
+                          {/* Content */}
                           <div className="p-4 space-y-3">
-                            <h4 className="font-semibold text-gray-900 line-clamp-2">
+                            <h3 className="text-lg font-bold text-gray-800 line-clamp-2">
                               {gig.title}
-                            </h4>
-                            <p className="text-sm text-gray-600 line-clamp-2">
+                            </h3>
+                            
+                            <p className="text-gray-600 text-sm line-clamp-2">
                               {gig.description}
                             </p>
-                            <div className="flex justify-between items-center">
+
+                            <div className="flex justify-between items-center text-sm">
+                              <span className="text-gray-600">
+                                Duration: {gig.duration} days
+                              </span>
                               <div className="flex items-center gap-1">
-                                {gig.payment_token === 'EGLD' ? (
-                                  <DollarSign className="w-4 h-4 text-green-600" />
-                                ) : (
-                                  <Coins className="w-4 h-4 text-purple-600" />
-                                )}
-                                <span className="font-bold text-gray-900">
-                                  {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
+                                <DollarSign size={16} className="text-gray-600" />
+                                <span className="font-bold" style={{ color: categoryColor }}>
+                                  {gig.price} {tokenSymbol}
                                 </span>
                               </div>
-                              <span className="text-sm text-gray-500">
-                                {gig.duration} days
-                              </span>
                             </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* Orders Tab */}
-              {activeTab === 2 && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Orders</h3>
-
-                  {ordersLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    </div>
-                  ) : orders?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Briefcase className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h4>
-                      <p className="text-gray-600">Your orders will appear here</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {/* As Client */}
-                      {clientOrders.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <User className="w-5 h-5 text-blue-600" />
-                            As Client ({clientOrders.length})
-                          </h4>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {clientOrders.map((order) => (
-                              <div
-                                key={order.id}
-                                className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                                onClick={() => navigate(`/orders/${order.id}`)}
-                              >
-                                <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-semibold text-gray-900 line-clamp-1">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                      {order.status.replace('_', ' ')}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                {/* Both Client and Provider */}
-                                <div className="space-y-2 mb-3">
-                                  {/* Client */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
-                                      {order.client?.avatar_url ? (
-                                        <img
-                                          src={order.client.avatar_url}
-                                          alt={order.client.username || "Client"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                      </div>
-                                    </div>
-                                    <span className="text-sm text-gray-700">
-                                      Client: {order.client?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Provider */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                      {order.gig?.provider?.avatar_url ? (
-                                        <img
-                                          src={order.gig.provider.avatar_url}
-                                          alt={order.gig.provider.username || "Provider"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                      </div>
-                                    </div>
-                                    <span className="text-sm text-gray-700">
-                                      Provider: {order.gig?.provider?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {order.payment_token === 'EGLD' ? (
-                                      <DollarSign className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Coins className="w-4 h-4 text-purple-600" />
-                                    )}
-                                    <span className="font-semibold text-gray-900">
-                                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                                    </span>
-                                  </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
+                            {/* Action Buttons */}
+                            {isOwnProfile && (
+                              <div className="flex gap-2 pt-2">
+                                <Button
+                                  onClick={(e) => handleEditClick(e, gig.id)}
+                                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
+                                >
+                                  <Edit2 size={14} />
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={(e) => handleDeleteClick(e, gig.id)}
+                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2 text-sm"
+                                >
+                                  <Trash2 size={14} />
+                                  Delete
+                                </Button>
                               </div>
-                            ))}
+                            )}
                           </div>
                         </div>
-                      )}
-
-                      {/* As Provider */}
-                      {providerOrders.length > 0 && (
-                        <div>
-                          <h4 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                            <Package className="w-5 h-5 text-purple-600" />
-                            As Provider ({providerOrders.length})
-                          </h4>
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {providerOrders.map((order) => (
-                              <div
-                                key={order.id}
-                                className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-all duration-200 cursor-pointer"
-                                onClick={() => navigate(`/orders/${order.id}`)}
-                              >
-                                <div className="flex justify-between items-start mb-3">
-                                  <h4 className="font-semibold text-gray-900 line-clamp-1">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <div className="flex gap-2">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(order.status)}`}>
-                                      {order.status.replace('_', ' ')}
-                                    </span>
-                                  </div>
-                                </div>
-                                
-                                {/* Both Client and Provider */}
-                                <div className="space-y-2 mb-3">
-                                  {/* Client */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center">
-                                      {order.client?.avatar_url ? (
-                                        <img
-                                          src={order.client.avatar_url}
-                                          alt={order.client.username || "Client"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.client?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
-                                      </div>
-                                    </div>
-                                    <span className="text-sm text-gray-700">
-                                      Client: {order.client?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                  
-                                  {/* Provider */}
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-5 h-5 rounded-full overflow-hidden bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center">
-                                      {order.gig?.provider?.avatar_url ? (
-                                        <img
-                                          src={order.gig.provider.avatar_url}
-                                          alt={order.gig.provider.username || "Provider"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.target as HTMLImageElement;
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
-                                              if (fallback) fallback.style.display = 'flex';
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      <div 
-                                        className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white"
-                                        style={{ display: order.gig?.provider?.avatar_url ? 'none' : 'flex' }}
-                                      >
-                                        {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
-                                      </div>
-                                    </div>
-                                    <span className="text-sm text-gray-700">
-                                      Provider: {order.gig?.provider?.username || "Unknown"}
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="flex justify-between items-center">
-                                  <div className="flex items-center gap-2">
-                                    {order.payment_token === 'EGLD' ? (
-                                      <DollarSign className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                      <Coins className="w-4 h-4 text-purple-600" />
-                                    )}
-                                    <span className="font-semibold text-gray-900">
-                                      {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
-                                    </span>
-                                  </div>
-                                  <span className="text-xs text-gray-500">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === 3 && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-semibold text-gray-900">Notifications</h3>
-                    {unreadNotifications.length > 0 && (
-                      <Button
-                        onClick={handleMarkAllNotificationsAsRead}
-                        disabled={markAllAsRead.isLoading}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                      >
-                        <Check size={16} />
-                        {markAllAsRead.isLoading ? 'Marking...' : `Mark all as read (${unreadNotifications.length})`}
-                      </Button>
-                    )}
-                  </div>
-
-                  {notifications?.length === 0 ? (
-                    <div className="text-center py-12">
-                      <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                      <h4 className="text-lg font-medium text-gray-900 mb-2">No notifications</h4>
-                      <p className="text-gray-600">You're all caught up!</p>
-                    </div>
+                      );
+                    })
                   ) : (
-                    <div className="space-y-4">
-                      {notifications?.map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-4 rounded-lg border transition-all duration-200 ${
-                            !notification.read 
-                              ? 'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500' 
-                              : 'bg-white border-gray-200 hover:shadow-sm'
-                          }`}
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">No gigs yet</p>
+                      {isOwnProfile && (
+                        <Button
+                          onClick={() => navigate('/create-gig')}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
                         >
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className={`font-semibold ${
-                              !notification.read ? 'text-blue-900' : 'text-gray-900'
-                            }`}>
-                              {notification.title}
-                            </h4>
-                            <div className="flex items-center gap-2">
-                              {!notification.read && (
-                                <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
-                                  New
-                                </span>
-                              )}
-                              <span className="text-xs text-gray-500">
-                                {new Date(notification.created_at).toLocaleDateString()}
+                          <Plus size={16} />
+                          Create your first gig
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* My Orders Tab */}
+              {activeTab === 1 && isOwnProfile && (
+                <div className="space-y-4">
+                  {profile?.orders?.length > 0 ? (
+                    profile.orders.map((order) => {
+                      const statusColor = getStatusColor(order.status);
+                      const progressValue = getProgressValue(order.status);
+                      const isProvider = order.gig?.provider_id === user?.id;
+                      const canClaim = order.payment_status === 'pending_release' && 
+                                       order.release_at && 
+                                       new Date(order.release_at) <= new Date() &&
+                                       isProvider;
+
+                      return (
+                        <div
+                          key={order.id}
+                          className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                          onClick={() => navigate(`/orders/${order.id}`)}
+                        >
+                          {/* Header */}
+                          <div className="flex justify-between items-center p-3 border-b border-gray-100">
+                            <span className="text-xs text-gray-500">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </span>
+                            <span 
+                              className="px-2 py-1 rounded-full text-xs font-medium"
+                              style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
+                            >
+                              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </span>
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-4 space-y-3">
+                            <h3 className="text-lg font-bold text-gray-800">
+                              {order.gig?.title || "Custom Project"}
+                            </h3>
+                            
+                            <p className="text-gray-600 text-sm">
+                              Order #{order.id.slice(0, 8)}
+                            </p>
+
+                            {/* Progress */}
+                            <div>
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-gray-600 text-xs">Progress</span>
+                                <span className="text-gray-800 text-xs font-medium">{progressValue}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="h-2 rounded-full transition-all duration-300"
+                                  style={{ 
+                                    width: `${progressValue}%`,
+                                    backgroundColor: statusColor
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Payment Status */}
+                            {order.payment_status === 'pending_release' && (
+                              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="text-yellow-800 text-sm font-medium">
+                                      Payment Ready
+                                    </p>
+                                    <p className="text-yellow-700 text-xs">
+                                      {timeLeftMap[order.id] === 'Ready to claim' ? 
+                                        'Ready to claim now' : 
+                                        `Available in ${timeLeftMap[order.id] || 'calculating...'}`
+                                      }
+                                    </p>
+                                  </div>
+                                  {canClaim && (
+                                    <Button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleClaimPayment(order.id);
+                                      }}
+                                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs flex items-center gap-1"
+                                    >
+                                      <DollarSign size={12} />
+                                      Claim
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Amount */}
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600 text-sm">Amount:</span>
+                              <span className="font-bold text-gray-800">
+                                {order.amount} {order.payment_token || 'EGLD'}
                               </span>
                             </div>
                           </div>
-                          <p className="text-gray-700 mb-2">{notification.content}</p>
-                          {notification.action_url && (
-                            <Button
-                              onClick={() => navigate(notification.action_url)}
-                              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm"
-                            >
-                              <Eye size={14} />
-                              View
-                            </Button>
-                          )}
                         </div>
-                      ))}
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600">No orders yet</p>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Settings Tab */}
-              {activeTab === 4 && (
+              {activeTab === 2 && isOwnProfile && (
                 <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900">Settings</h3>
-                  
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 className="text-lg font-medium text-gray-900 mb-4">Email Notifications</h4>
-                    <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
-                  </div>
-
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h4 className="text-lg font-medium text-gray-900 mb-4">Account Information</h4>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                          <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">{profile?.username}</p>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                          <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg">{profile?.full_name || 'Not set'}</p>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                        <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg min-h-[80px]">{profile?.bio || 'No bio yet'}</p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Wallet Address</label>
-                        <p className="text-gray-900 bg-gray-50 px-3 py-2 rounded-lg font-mono text-sm break-all">
-                          {profile?.wallet_address || 'Not connected'}
-                        </p>
-                      </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">Notification Settings</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <EmailNotificationsToggle enabled={profile?.email_notifications_enabled ?? true} />
                     </div>
                   </div>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Bottom padding for mobile navigation */}
+          <div className="h-20"></div>
         </div>
+
+        {/* Edit Profile Modal - Mobile */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">Edit Profile</h3>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    placeholder="Enter username"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleChange}
+                    placeholder="Enter full name"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Avatar URL</label>
+                  <input
+                    type="url"
+                    name="avatar_url"
+                    value={formData.avatar_url}
+                    onChange={handleChange}
+                    placeholder="Enter avatar URL"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">Bio</label>
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    placeholder="Tell us about yourself"
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                    disabled={updateProfile.isLoading}
+                  >
+                    {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal - Mobile */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 w-full max-w-sm">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this gig? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                  disabled={deleteGig.isLoading}
+                >
+                  {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout (unchanged)
+  return (
+    <div className="container mx-auto max-w-7xl px-6 py-8">
+      <div className="space-y-8">
+        {/* Profile Header */}
+        <Card className="p-8" title="Profile Header" reference="#">
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <div className="flex gap-4 items-center mb-4">
+                <div className="w-20 h-20 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-2xl text-white">
+                  {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+                <div className="space-y-1">
+                  <h1 className="text-2xl font-bold text-white">
+                    {profile?.full_name || profile?.username}
+                  </h1>
+                  <p className="text-gray-400">Web3 Developer</p>
+                  <p className="text-blue-400 text-sm">
+                    Member since {new Date(profile.created_at!).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+
+              <p className="text-gray-300 text-lg mb-6">
+                {profile?.bio || 'No bio yet'}
+              </p>
+
+              {isOwnProfile && (
+                <Button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
+                >
+                  <Edit size={18} />
+                  Edit Profile
+                </Button>
+              )}
+            </div>
+
+            <div className="bg-gray-800 bg-opacity-50 p-6 rounded-xl min-w-64">
+              <div className="space-y-4">
+                <div>
+                  <p className="text-gray-400 text-sm">Total Earnings</p>
+                  <div className="space-y-1">
+                    {egldEarnings > 0 && (
+                      <p className="text-2xl font-bold text-green-400">
+                        {egldEarnings.toFixed(2)} EGLD
+                      </p>
+                    )}
+                    {idaEarnings > 0 && (
+                      <p className="text-xl font-bold text-purple-400">
+                        {idaEarnings.toFixed(2)} IDA
+                      </p>
+                    )}
+                    {totalEarnings === 0 && (
+                      <p className="text-2xl font-bold text-white">0</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-gray-400 text-sm">Completed Gigs</p>
+                  <p className="text-2xl font-bold text-white">
+                    {completedOrders.length}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-gray-400 text-sm">Average Rating</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-2xl font-bold text-white">
+                      {averageRating}
+                    </p>
+                    {averageRating !== 'N/A' && (
+                      <Star fill="yellow" color="yellow" size={20} />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Edit Profile Modal */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <Card className="p-6 max-w-md w-full mx-4" title="Edit Profile" reference="#">
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-white">Edit Profile</h3>
+                  <button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-white text-sm font-medium mb-2">Username</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      placeholder="Enter username"
+                      className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-white text-sm font-medium mb-2">Full Name</label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleChange}
+                      placeholder="Enter full name"
+                      className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-white text-sm font-medium mb-2">Avatar URL</label>
+                    <input
+                      type="url"
+                      name="avatar_url"
+                      value={formData.avatar_url}
+                      onChange={handleChange}
+                      placeholder="Enter avatar URL"
+                      className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-white text-sm font-medium mb-2">Bio</label>
+                    <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleChange}
+                      placeholder="Tell us about yourself"
+                      rows={4}
+                      className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      onClick={() => setIsEditModalOpen(false)}
+                      className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                      disabled={updateProfile.isLoading}
+                    >
+                      {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Profile Content - Desktop Tabs */}
+        <Card className="p-8" title="Profile Content" reference="#">
+          <div className="border-b border-gray-700 mb-6">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab(0)}
+                className={`pb-4 text-lg font-medium border-b-2 transition-colors ${
+                  activeTab === 0
+                    ? 'border-blue-500 text-blue-400'
+                    : 'border-transparent text-gray-400 hover:text-blue-400'
+                }`}
+              >
+                Active Gigs ({filteredGigs.length})
+              </button>
+              {isOwnProfile && (
+                <button
+                  onClick={() => setActiveTab(1)}
+                  className={`pb-4 text-lg font-medium border-b-2 transition-colors ${
+                    activeTab === 1
+                      ? 'border-blue-500 text-blue-400'
+                      : 'border-transparent text-gray-400 hover:text-blue-400'
+                  }`}
+                >
+                  Orders ({profile?.orders?.length || 0})
+                </button>
+              )}
+              <button
+                onClick={() => setActiveTab(2)}
+                className={`pb-4 text-lg font-medium border-b-2 transition-colors ${
+                  activeTab === 2
+                    ? 'border-blue-500 text-blue-400'
+                    : 'border-transparent text-gray-400 hover:text-blue-400'
+                }`}
+              >
+                Reviews ({reviews.length})
+              </button>
+              {isOwnProfile && (
+                <button
+                  onClick={() => setActiveTab(3)}
+                  className={`pb-4 text-lg font-medium border-b-2 transition-colors ${
+                    activeTab === 3
+                      ? 'border-blue-500 text-blue-400'
+                      : 'border-transparent text-gray-400 hover:text-blue-400'
+                  }`}
+                >
+                  Settings
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <div>
+            {/* Active Gigs Tab */}
+            {activeTab === 0 && (
+              <div>
+                {filteredGigs.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredGigs.map((gig) => {
+                      const categoryColor = getCategoryColor(gig.category);
+                      const paymentToken = gig.payment_token || 'EGLD';
+                      const tokenSymbol = paymentToken === 'EGLD' ? 'EGLD' : 'IDA';
+                      const hasNoFees = paymentToken !== 'EGLD';
+
+                      return (
+                        <div
+                          key={gig.id}
+                          className="bg-gray-800 bg-opacity-50 rounded-lg overflow-hidden border border-gray-600 hover:border-blue-500 transition-all duration-300 cursor-pointer"
+                          onClick={() => navigate(`/gigs/${gig.id}`)}
+                          style={{
+                            borderTopColor: categoryColor,
+                            borderTopWidth: '3px'
+                          }}
+                        >
+                          {/* Delete Button */}
+                          {isOwnProfile && (
+                            <button
+                              onClick={(e) => handleDeleteClick(e, gig.id)}
+                              className="absolute top-2 right-2 z-10 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full"
+                            >
+                              <X size={16} />
+                            </button>
+                          )}
+
+                          {/* Card Header */}
+                          <div className="flex justify-between items-center p-3 border-b border-gray-600">
+                            <span className="text-gray-400 text-xs">
+                              {new Date(gig.created_at).toLocaleDateString()}
+                            </span>
+                            <div className="flex gap-2">
+                              <span
+                                className="px-2 py-1 rounded-full text-xs font-medium"
+                                style={{ backgroundColor: `${categoryColor}20`, color: categoryColor }}
+                              >
+                                {gig.category}
+                              </span>
+                              {hasNoFees && (
+                                <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  No Fees
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Gig Image */}
+                          <div className="relative h-48">
+                            <img
+                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
+                              alt={gig.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          {/* Card Content */}
+                          <div className="p-4 space-y-3">
+                            <h3 className="text-lg font-bold text-white line-clamp-2">
+                              {gig.title}
+                            </h3>
+                            
+                            <p className="text-gray-300 text-sm line-clamp-3">
+                              {gig.description}
+                            </p>
+
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-400 text-sm">
+                                Duration: {gig.duration} days
+                              </span>
+                              <div className="flex items-center gap-1">
+                                <DollarSign size={16} className="text-gray-400" />
+                                <span className="text-lg font-bold" style={{ color: categoryColor }}>
+                                  {gig.price} {tokenSymbol}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            {isOwnProfile && (
+                              <div className="flex gap-2 pt-2">
+                                <Button
+                                  onClick={(e) => handleEditClick(e, gig.id)}
+                                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2"
+                                >
+                                  <Edit2 size={16} />
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={(e) => handleDeleteClick(e, gig.id)}
+                                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded-lg flex items-center justify-center gap-2"
+                                >
+                                  <Trash2 size={16} />
+                                  Delete
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400 mb-4">No gigs yet</p>
+                    {isOwnProfile && (
+                      <Button
+                        onClick={() => navigate('/create-gig')}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto"
+                      >
+                        <Plus size={18} />
+                        Create your first gig
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Orders Tab */}
+            {activeTab === 1 && isOwnProfile && (
+              <div>
+                {profile?.orders?.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {profile.orders.map((order) => {
+                      const statusColor = getStatusColor(order.status);
+                      const progressValue = getProgressValue(order.status);
+                      const isProvider = order.gig?.provider_id === user?.id;
+                      const canClaim = order.payment_status === 'pending_release' && 
+                                       order.release_at && 
+                                       new Date(order.release_at) <= new Date() &&
+                                       isProvider;
+
+                      return (
+                        <div
+                          key={order.id}
+                          className="bg-gray-800 bg-opacity-50 rounded-lg overflow-hidden border border-gray-600 hover:border-blue-500 transition-all duration-300 cursor-pointer relative"
+                          onClick={() => navigate(`/orders/${order.id}`)}
+                        >
+                          {/* Payment Status Badge */}
+                          {order.payment_status === 'pending_release' && (
+                            <div className="absolute top-2 left-2 right-2 z-10">
+                              <div className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                                canClaim ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {canClaim ? <DollarSign size={12} /> : <Clock size={12} />}
+                                {canClaim ? 'Ready to claim' : `Available in ${timeLeftMap[order.id] || 'calculating...'}`}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Card Header */}
+                          <div className="flex justify-between items-center p-4 border-b border-gray-600">
+                            <span className="text-gray-400 text-xs">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </span>
+                            <MoreVertical size={16} className="text-gray-400" />
+                          </div>
+
+                          {/* Card Content */}
+                          <div className="p-4 space-y-4">
+                            <h3 className="text-lg font-bold text-white">
+                              {order.gig?.title || "Custom Project"}
+                            </h3>
+                            
+                            <p className="text-gray-400 text-sm">
+                              Order #{order.id.slice(0, 8)}
+                            </p>
+
+                            {/* Progress */}
+                            <div>
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-white text-sm font-medium">Progress</span>
+                                <span className="text-white text-sm">{progressValue}%</span>
+                              </div>
+                              <div className="w-full bg-gray-600 rounded-full h-2">
+                                <div
+                                  className="h-2 rounded-full transition-all duration-300"
+                                  style={{ 
+                                    width: `${progressValue}%`,
+                                    backgroundColor: statusColor
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+
+                            {/* Payment Status */}
+                            {order.payment_status === 'pending_release' && (
+                              <div className="bg-gray-700 p-3 rounded-md">
+                                <p className="text-white text-sm font-medium mb-1">Payment Status</p>
+                                <p className="text-gray-300 text-xs">
+                                  {timeLeftMap[order.id] === 'Ready to claim' ? 
+                                    '🟢 Ready to claim' : 
+                                    `⏰ Available in ${timeLeftMap[order.id] || 'calculating...'}`
+                                  }
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Card Footer */}
+                          <div className="flex justify-between items-center p-4 border-t border-gray-600 bg-gray-900">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
+                                {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                              <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
+                                {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                            </div>
+                            
+                            {/* Payment Action */}
+                            {order.payment_status === 'pending_release' && canClaim ? (
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleClaimPayment(order.id);
+                                }}
+                                className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1"
+                              >
+                                <DollarSign size={12} />
+                                Claim Payment
+                              </Button>
+                            ) : (
+                              <span className="bg-gray-700 text-white rounded-full px-3 py-1 text-xs">
+                                {order.amount} {order.payment_token || 'EGLD'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  }
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No orders yet</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reviews Tab */}
+            {activeTab === 2 && (
+              <div>
+                {reviews.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="bg-gray-800 bg-opacity-50 p-6 rounded-xl border border-gray-600"
+                      >
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
+                                {review.order?.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                              <div>
+                                <p className="text-white font-medium text-sm">
+                                  {review.order?.client?.username}
+                                </p>
+                                <p className="text-gray-400 text-xs">
+                                  {new Date(review.created_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex">
+                              {Array(5)
+                                .fill('')
+                                .map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    size={16}
+                                    fill={i < review.rating ? '#FFD700' : 'transparent'}
+                                    color={i < review.rating ? '#FFD700' : '#A0AEC0'}
+                                  />
+                                ))}
+                            </div>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-400 text-xs mb-1">
+                              Order: {review.order?.gig?.title}
+                            </p>
+                            <p className="text-white text-sm">{review.comment}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-gray-400">No reviews yet</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Settings Tab */}
+            {activeTab === 3 && isOwnProfile && (
+              <div>
+                <div className="bg-gray-800 bg-opacity-50 p-6 rounded-xl border border-gray-600">
+                  <div className="space-y-6">
+                    <h3 className="text-xl font-bold text-white mb-4">Notification Settings</h3>
+                    <EmailNotificationsToggle enabled={profile?.email_notifications_enabled ?? true} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <Card className="p-6 max-w-md w-full mx-4" title="Delete Gig" reference="#">
+              <h3 className="text-xl font-bold text-white mb-4">Delete Gig</h3>
+              <p className="text-gray-400 mb-6">
+                Are you sure you want to delete this gig? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                  disabled={deleteGig.isLoading}
+                >
+                  {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Review Modal */}
+        {showReviewModal && selectedOrder && (
+          <ReviewModal
+            isOpen={showReviewModal}
+            onClose={() => setShowReviewModal(false)}
+            order={selectedOrder}
+            onReviewSubmitted={() => {
+              setShowReviewModal(false);
+              refetch();
+            }}
+          />
+        )}
       </div>
     </div>
   );
-};
-
-// Helper function to get category color
-const getCategoryColor = (category: string) => {
-  switch (category?.toLowerCase()) {
-    case 'programming & tech':
-      return '#01c3a8';
-    case 'graphics & design':
-      return '#1890ff';
-    case 'digital marketing':
-      return '#ffb741';
-    case 'writing & translation':
-      return '#ff6f61';
-    case 'video & animation':
-      return '#a259ff';
-    case 'ai services':
-      return '#00ddeb';
-    case 'music & audio':
-      return '#ffcc33';
-    case 'business':
-      return '#2ecc71';
-    case 'consulting':
-      return '#e91e63';
-    default:
-      return '#6b7280';
-  }
 };
