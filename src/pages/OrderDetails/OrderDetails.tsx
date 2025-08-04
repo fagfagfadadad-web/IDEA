@@ -370,7 +370,7 @@ const OrderDetails = () => {
           sender: new Address(address),
           chainID: network.chainId
         });
-        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, clientAddressHex, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, amountHex, data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, paddedAmountHex, data, escrowAddress: ESCROW_ADDRESS });
       }
 
       toast.info(`Spracováva sa ${tokenDisplayName} platba, potvrďte v peňaženke...`);
