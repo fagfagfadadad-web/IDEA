@@ -48,9 +48,9 @@ import { useAuth } from '../../context/AuthContext';
 import { EmailNotificationsToggle } from '../../components';
 import { MoreVertical, Plus, Star, X, Edit2, Clock, DollarSign, Coins } from 'lucide-react';
 import { TwitterShareButton } from '../components/TwitterShareButton';
-import { useDeleteGig } from '../hooks/useGigs';
-import { usePayments } from '../hooks/usePayments';
-import { useWindowSize } from '../hooks/useWindowSize';
+import { useDeleteGig } from '../../hooks/useGigs';
+import { usePayments } from '../../hooks/usePayments';
+import { useWindowSize } from '../../hooks/useWindowSize';
 import { supabase } from '../lib/supabase';
 
 export const Profile = () => {
