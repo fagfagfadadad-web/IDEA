@@ -1,58 +1,45 @@
-import {
-  getAccountProvider,
-  Transaction,
-  TransactionManager,
-  TransactionsDisplayInfoType
-} from 'lib';
+import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider } from 'lib';
 
-type SignAndSendTransactionsProps = {
+interface SignAndSendTransactionsProps {
   transactions: Transaction[];
   transactionsDisplayInfo?: TransactionsDisplayInfoType;
-};
+  timeout?: number;
+}
 
 export const signAndSendTransactions = async ({
   transactions,
-  transactionsDisplayInfo
+  transactionsDisplayInfo,
+  timeout = 120000
 }: SignAndSendTransactionsProps) => {
   console.log('🔄 signAndSendTransactions: Starting with transactions:', transactions);
-  
   try {
     const provider = getAccountProvider();
     console.log('🔄 signAndSendTransactions: Got provider:', provider);
-    console.log('🔄 signAndSendTransactions: Provider type:', provider.getType());
-    console.log('🔄 signAndSendTransactions: Provider type check completed');
-  
     const txManager = TransactionManager.getInstance();
     console.log('🔄 signAndSendTransactions: Got transaction manager');
 
     console.log('🔄 signAndSendTransactions: Signing transactions...');
-    console.log('🔄 signAndSendTransactions: About to call provider.signTransactions with:', transactions);
-    
-    // Add timeout to prevent hanging
-    const signPromise = provider.signTransactions(transactions);
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Transaction signing timeout after 60 seconds')), 60000)
-    );
-    
-    const signedTransactions = await Promise.race([signPromise, timeoutPromise]);
+    const signedTransactions = await Promise.race([
+      provider.signTransactions(transactions),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction signing timeout')), timeout))
+    ]);
     console.log('🔄 signAndSendTransactions: Transactions signed successfully:', signedTransactions);
-  
+
     console.log('🔄 signAndSendTransactions: Sending transactions...');
     const sentTransactions = await txManager.send(signedTransactions as Transaction[]);
-    console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
-  
-    console.log('🔄 signAndSendTransactions: Tracking transactions...');
-    const sessionId = await txManager.track(sentTransactions, {
-      transactionsDisplayInfo
-    });
-    console.log('🔄 signAndSendTransactions: Session ID:', sessionId);
+    console.log('🔄 signAndSendTransactions: Transactions sent:', JSON.stringify(sentTransactions, null, 2));
 
-    return sessionId;
+    const transactionHashes = sentTransactions.map((tx: any) => tx.hash || tx.transactionHash);
+    console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
+    if (!transactionHashes || transactionHashes.length === 0) {
+      throw new Error('Nepodarilo sa získať hash-y transakcií');
+    }
+
+    console.log('🔄 signAndSendTransactions: Tracking transactions...');
+    await txManager.track(sentTransactions, { transactionsDisplayInfo });
+    return transactionHashes[0]; // Vráti hash prvej transakcie
   } catch (error) {
     console.error('❌ signAndSendTransactions: Error occurred:', error);
-    console.error('❌ signAndSendTransactions: Error type:', typeof error);
-    console.error('❌ signAndSendTransactions: Error message:', error instanceof Error ? error.message : 'Unknown error');
-    console.error('❌ signAndSendTransactions: Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     throw error;
   }
 };
