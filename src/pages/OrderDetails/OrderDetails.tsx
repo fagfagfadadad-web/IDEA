@@ -927,8 +927,35 @@ const OrderDetails = () => {
               <div>
                 <p className="text-gray-400 mb-2">Klient</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                    {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                  <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-600">
+                    {order.client?.avatar_url ? (
+                      <>
+                        <img
+                          src={order.client.avatar_url}
+                          alt={order.client.username || "Client"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div 
+                          className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
+                          {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white">
+                        {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
                   </div>
                   <span className="text-white">{order.client?.username || "Neznámy"}</span>
                 </div>
