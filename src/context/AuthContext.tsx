@@ -107,17 +107,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
       console.log('📍 AuthContext: address:', address);
 
+      // Clear any stale tokens before checking session
+      try {
+        const storedToken = localStorage.getItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+        if (storedToken) {
+          const tokenData = JSON.parse(storedToken);
+          // Check if token is expired or invalid
+          if (!tokenData.refresh_token || !tokenData.access_token) {
+            console.log('🧹 AuthContext: Clearing invalid stored token');
+            localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+            await supabase.auth.signOut({ scope: 'local' });
+          }
+        }
+      } catch (tokenError) {
+        console.log('🧹 AuthContext: Error checking stored token, clearing:', tokenError);
+        localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+        await supabase.auth.signOut({ scope: 'local' });
+      }
+
       // Check existing session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       if (sessionError) {
-        console.error('❌ AuthContext: Session error:', sessionError);
+        console.error('❌ AuthContext: Session error:', sessionError.message);
+        
+        // Handle specific refresh token errors
+        if (sessionError.message?.includes('refresh_token_not_found') || 
+            sessionError.message?.includes('Invalid Refresh Token')) {
+          console.log('🧹 AuthContext: Clearing invalid refresh token');
+          localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+          await supabase.auth.signOut({ scope: 'local' });
+        }
+        
         // Reset authentication state when session retrieval fails
         setUser(null);
         setIsProfileReady(false);
         setAuthMessage('Session expired. Please log in again.');
         currentSession = null;
-        // Clear any stale session data
-        await handleSupabaseSignOut();
         return;
       } else {
         currentSession = session;
