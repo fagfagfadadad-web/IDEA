@@ -18,7 +18,9 @@ import {
   Award,
   TrendingUp,
   Package,
-  Coins
+  Coins,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle } from 'components';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
@@ -27,6 +29,7 @@ import { useOrders } from 'hooks/useOrders';
 import { useGigs } from 'hooks/useGigs';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks/useNotifications';
 import { useAuth } from 'context/AuthContext';
+import { useWindowSize } from 'hooks/useWindowSize';
 
 export const Profile = () => {
   const { id } = useParams();
@@ -35,6 +38,8 @@ export const Profile = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
   const { user } = useAuth();
+  const { width } = useWindowSize();
+  const isMobile = width < 768;
   
   const { data: profile, isLoading: profileLoading, refetch: refetchProfile } = useProfile(id);
   const { data: orders, isLoading: ordersLoading } = useOrders();
@@ -45,6 +50,13 @@ export const Profile = () => {
 
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({
+    stats: true,
+    gigs: false,
+    orders: false,
+    notifications: false,
+    settings: false
+  });
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
@@ -131,6 +143,13 @@ export const Profile = () => {
         email_notifications_enabled: profile?.email_notifications_enabled ?? true
       });
     }
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
   };
 
   const handleSaveProfile = async () => {
@@ -254,6 +273,372 @@ export const Profile = () => {
     order.gig?.provider?.id === profile.id || 
     order.provider_address === profile.wallet_address
   ) || [];
+
+  // Mobile Component
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 pb-20">
+        <div className="px-4 py-6 space-y-4">
+          {/* Mobile Header */}
+          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl p-6 text-white">
+            <div className="flex flex-col items-center space-y-4">
+              <div className="w-20 h-20 rounded-full overflow-hidden relative bg-white/20">
+                {profile?.avatar_url ? (
+                  <>
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.username || "Profile"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div 
+                      className="fallback-avatar w-full h-full bg-white/20 flex items-center justify-center text-2xl text-white absolute inset-0"
+                      style={{ display: 'none' }}
+                    >
+                      {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-white/20 flex items-center justify-center text-2xl text-white">
+                    {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                )}
+              </div>
+              <div className="text-center">
+                <h1 className="text-xl font-bold">{profile?.username}</h1>
+                {profile?.full_name && (
+                  <p className="text-white/80">{profile.full_name}</p>
+                )}
+                {profile?.bio && (
+                  <p className="text-white/70 text-sm mt-2">{profile.bio}</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Stats Section */}
+          <div className="bg-white rounded-xl border border-gray-200">
+            <button
+              onClick={() => toggleSection('stats')}
+              className="w-full flex items-center justify-between p-4 text-left"
+            >
+              <h2 className="text-lg font-bold text-gray-800">Statistics</h2>
+              {expandedSections.stats ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {expandedSections.stats && (
+              <div className="px-4 pb-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Package size={16} className="text-blue-600" />
+                      <span className="text-xs text-blue-600 font-medium">Gigs</span>
+                    </div>
+                    <p className="text-lg font-bold text-blue-800">{gigs?.length || 0}</p>
+                  </div>
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Briefcase size={16} className="text-green-600" />
+                      <span className="text-xs text-green-600 font-medium">Orders</span>
+                    </div>
+                    <p className="text-lg font-bold text-green-800">{orders?.length || 0}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-3 rounded-lg border border-yellow-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Star size={16} className="text-yellow-600" />
+                    <span className="text-sm text-yellow-600 font-medium">Rating</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          size={14}
+                          fill={star <= reviewStats.averageRating ? '#FFD700' : 'transparent'}
+                          color={star <= reviewStats.averageRating ? '#FFD700' : '#D1D5DB'}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-yellow-800">
+                      {reviewStats.averageRating.toFixed(1)} ({reviewStats.totalReviews})
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-3 rounded-lg border border-blue-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <DollarSign size={16} className="text-blue-600" />
+                        <span className="text-sm text-blue-600 font-medium">EGLD Earned</span>
+                      </div>
+                      <span className="text-lg font-bold text-blue-800">{earnings.egld.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">After 10% platform fee</p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-3 rounded-lg border border-purple-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Coins size={16} className="text-purple-600" />
+                        <span className="text-sm text-purple-600 font-medium">IDA Earned</span>
+                      </div>
+                      <span className="text-lg font-bold text-purple-800">{earnings.ida.toFixed(2)}</span>
+                    </div>
+                    <p className="text-xs text-purple-600 mt-1">No fees - 100% yours!</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Gigs Section */}
+          <div className="bg-white rounded-xl border border-gray-200">
+            <button
+              onClick={() => toggleSection('gigs')}
+              className="w-full flex items-center justify-between p-4 text-left"
+            >
+              <h2 className="text-lg font-bold text-gray-800">My Gigs ({gigs?.length || 0})</h2>
+              {expandedSections.gigs ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {expandedSections.gigs && (
+              <div className="px-4 pb-4 space-y-3">
+                {gigs?.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">No gigs created yet</p>
+                ) : (
+                  gigs?.map((gig) => (
+                    <div key={gig.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <h3 className="font-medium text-gray-800 text-sm">{gig.title}</h3>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-xs text-gray-600">{gig.category}</span>
+                        <div className="flex items-center gap-1">
+                          {gig.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
+                          <span className="text-sm font-bold text-blue-600">
+                            {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Orders Section */}
+          <div className="bg-white rounded-xl border border-gray-200">
+            <button
+              onClick={() => toggleSection('orders')}
+              className="w-full flex items-center justify-between p-4 text-left"
+            >
+              <h2 className="text-lg font-bold text-gray-800">My Orders ({orders?.length || 0})</h2>
+              {expandedSections.orders ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {expandedSections.orders && (
+              <div className="px-4 pb-4 space-y-3">
+                {orders?.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">No orders yet</p>
+                ) : (
+                  orders?.slice(0, 5).map((order) => (
+                    <div key={order.id} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-medium text-gray-800 text-sm line-clamp-1">
+                          {order.gig?.title || 'Custom Project'}
+                        </h3>
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
+                          order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1">
+                          {order.payment_token === 'EGLD' ? <DollarSign size={12} /> : <Coins size={12} />}
+                          <span className="text-sm font-bold text-blue-600">
+                            {order.amount} {order.payment_token === 'EGLD' ? 'EGLD' : 'IDA'}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(order.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Notifications Section */}
+          <div className="bg-white rounded-xl border border-gray-200">
+            <button
+              onClick={() => toggleSection('notifications')}
+              className="w-full flex items-center justify-between p-4 text-left"
+            >
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-gray-800">Notifications</h2>
+                {unreadNotifications.length > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
+                    {unreadNotifications.length}
+                  </span>
+                )}
+              </div>
+              {expandedSections.notifications ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {expandedSections.notifications && (
+              <div className="px-4 pb-4 space-y-3">
+                {unreadNotifications.length > 0 && (
+                  <Button
+                    onClick={handleMarkAllNotificationsAsRead}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm"
+                    disabled={markAllAsRead.isLoading}
+                  >
+                    {markAllAsRead.isLoading ? 'Marking...' : `Mark all as read (${unreadNotifications.length})`}
+                  </Button>
+                )}
+                {notifications?.slice(0, 5).map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-3 rounded-lg border ${
+                      !notification.read 
+                        ? 'bg-blue-50 border-blue-200 border-l-4 border-l-blue-500' 
+                        : 'bg-gray-50 border-gray-200'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-1">
+                      <h4 className={`text-sm font-medium ${
+                        !notification.read ? 'text-blue-800' : 'text-gray-800'
+                      }`}>
+                        {notification.title}
+                      </h4>
+                      {!notification.read && (
+                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+                          New
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-2">{notification.content}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(notification.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Settings Section */}
+          <div className="bg-white rounded-xl border border-gray-200">
+            <button
+              onClick={() => toggleSection('settings')}
+              className="w-full flex items-center justify-between p-4 text-left"
+            >
+              <h2 className="text-lg font-bold text-gray-800">Settings</h2>
+              {expandedSections.settings ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </button>
+            {expandedSections.settings && (
+              <div className="px-4 pb-4 space-y-4">
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-gray-700 text-sm font-medium mb-1">Username</label>
+                      <input
+                        type="text"
+                        value={editForm.username}
+                        onChange={(e) => setEditForm({...editForm, username: e.target.value})}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm font-medium mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        value={editForm.full_name}
+                        onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-700 text-sm font-medium mb-1">Bio</label>
+                      <textarea
+                        value={editForm.bio}
+                        onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
+                        rows={3}
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm"
+                      >
+                        <X size={14} />
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleSaveProfile}
+                        className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-sm"
+                        disabled={updateProfile.isLoading}
+                      >
+                        <Save size={14} />
+                        {updateProfile.isLoading ? 'Saving...' : 'Save'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-1">Username</p>
+                      <p className="font-medium text-gray-800">{profile?.username}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-1">Full Name</p>
+                      <p className="font-medium text-gray-800">{profile?.full_name || 'Not set'}</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-gray-600 mb-1">Bio</p>
+                      <p className="font-medium text-gray-800">{profile?.bio || 'No bio yet'}</p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setEditForm({
+                          username: profile?.username || '',
+                          full_name: profile?.full_name || '',
+                          bio: profile?.bio || '',
+                          email_notifications_enabled: profile?.email_notifications_enabled ?? true
+                        });
+                        setIsEditing(true);
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm"
+                    >
+                      <Edit size={14} />
+                      Edit Profile
+                    </Button>
+                    
+                    <div className="pt-2">
+                      <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 py-8">
