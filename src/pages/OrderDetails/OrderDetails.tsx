@@ -1,22 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card, ExplorerLink, TRANSACTIONS_ENDPOINT } from 'lib'; // Predpokladám, že ExplorerLink je v lib
-import { 
-  useGetIsLoggedIn, 
-  useGetAccount, 
-  useGetNetworkConfig, 
-  Transaction, 
-  Address,
-  AbiRegistry,
-  SmartContractTransactionsFactory,
-  TransactionsFactoryConfig,
-  useTransactionOutcome
-} from 'lib';
+import { Button, Card, MxLink, OrderChat } from 'components'; // Button, Card, MxLink, OrderChat z components
+import { TRANSACTIONS_ENDPOINT, useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address, AbiRegistry, SmartContractTransactionsFactory, TransactionsFactoryConfig, useTransactionOutcome } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
-import { OrderChat } from '../../components/OrderChat';
 import { supabase } from '../../lib/supabase';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -748,12 +737,12 @@ const OrderDetails = () => {
                 </p>
                 <p className="text-gray-800">
                   <strong>Hash:</strong>{' '}
-                  <ExplorerLink
-                    page={`/${TRANSACTIONS_ENDPOINT}/${txData.txHash}`}
+                  <MxLink
+                    to={`/${TRANSACTIONS_ENDPOINT}/${txData.txHash}`}
                     className="border-b border-dotted border-gray-500 hover:border-solid hover:border-gray-800"
                   >
                     {txData.txHash}
-                  </ExplorerLink>
+                  </MxLink>
                 </p>
                 {txData.address && (
                   <p className="text-gray-800">
