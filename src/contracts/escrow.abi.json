@@ -1,0 +1,235 @@
+{
+  "buildInfo": {
+    "rustc": {
+      "version": "1.71.0",
+      "commitHash": "8ede3aae28fe6e4d52b38157d7bfe0d3bceef225",
+      "commitDate": "2023-07-12",
+      "channel": "Stable",
+      "short": "rustc 1.71.0 (8ede3aae2 2023-07-12)"
+    },
+    "contractCrate": {
+      "name": "escrow",
+      "version": "0.0.0"
+    },
+    "framework": {
+      "name": "multiversx-sc",
+      "version": "0.43.2"
+    }
+  },
+  "name": "Escrow",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "deposit",
+      "mutability": "mutable",
+      "payableInTokens": ["EGLD"],
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        },
+        {
+          "name": "provider_address",
+          "type": "Address"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "depositEsdt",
+      "mutability": "mutable",
+      "payableInTokens": ["*"],
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        },
+        {
+          "name": "provider_address",
+          "type": "Address"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "release",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "dispute",
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "resolveDispute",
+      "onlyOwner": true,
+      "mutability": "mutable",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        },
+        {
+          "name": "release_to_provider",
+          "type": "bool"
+        }
+      ],
+      "outputs": []
+    },
+    {
+      "name": "getOrderInfo",
+      "mutability": "readonly",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "OrderInfo"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "identifier": "deposit",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes",
+          "indexed": true
+        },
+        {
+          "name": "client",
+          "type": "Address",
+          "indexed": true
+        },
+        {
+          "name": "provider",
+          "type": "Address",
+          "indexed": true
+        },
+        {
+          "name": "amount",
+          "type": "BigUint"
+        },
+        {
+          "name": "token",
+          "type": "TokenIdentifier"
+        }
+      ]
+    },
+    {
+      "identifier": "release",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes",
+          "indexed": true
+        },
+        {
+          "name": "provider",
+          "type": "Address",
+          "indexed": true
+        },
+        {
+          "name": "amount",
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "identifier": "dispute",
+      "inputs": [
+        {
+          "name": "order_id",
+          "type": "bytes",
+          "indexed": true
+        },
+        {
+          "name": "client",
+          "type": "Address",
+          "indexed": true
+        }
+      ]
+    }
+  ],
+  "types": {
+    "OrderInfo": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "client",
+          "type": "Address"
+        },
+        {
+          "name": "provider",
+          "type": "Address"
+        },
+        {
+          "name": "amount",
+          "type": "BigUint"
+        },
+        {
+          "name": "token",
+          "type": "TokenIdentifier"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        },
+        {
+          "name": "status",
+          "type": "OrderStatus"
+        }
+      ]
+    },
+    "OrderStatus": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Active",
+          "discriminant": 0
+        },
+        {
+          "name": "Released",
+          "discriminant": 1
+        },
+        {
+          "name": "Disputed",
+          "discriminant": 2
+        },
+        {
+          "name": "Resolved",
+          "discriminant": 3
+        }
+      ]
+    }
+  }
+}
