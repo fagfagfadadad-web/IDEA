@@ -36,7 +36,6 @@ export const OrderDetails = () => {
 
   const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
-  // Utility functions
   const isValidAddress = (addr: string | undefined): boolean => {
     if (!addr) return false;
     try {
@@ -171,30 +170,30 @@ export const OrderDetails = () => {
           return { success: true, data: txData };
         } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
           console.error('Transaction failed:', txHash, txData.status);
-          return { success: false, error: `Transaction failed with status: ${txData.status}` };
+          return { success: false, error: `Transakcia zlyhala so stavom: ${txData.status}` };
         } else {
-          console.log(`Transaction still ${txData.status}, waiting...`);
+          console.log(`Transakcia stále ${txData.status}, čaká sa...`);
           await new Promise((resolve) => setTimeout(resolve, 6000));
           continue;
         }
       } catch (error) {
-        console.log(`Attempt ${attempt} failed:`, error instanceof Error ? error.message : error);
+        console.log(`Pokus ${attempt} zlyhal:`, error instanceof Error ? error.message : error);
         if (axios.isAxiosError(error)) {
           if (error.response?.status === 404) {
-            console.log('Transaction not found yet, waiting...');
+            console.log('Transakcia ešte nebola nájdená, čaká sa...');
           } else if (error.response?.status === 429) {
             const delay = Math.pow(2, attempt) * 1000;
-            console.log(`Rate limit hit, waiting ${delay}ms...`);
+            console.log(`Limit prekročený, čaká sa ${delay}ms...`);
             await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
         if (attempt === maxAttempts) {
-          throw new Error(`Transaction monitoring failed after ${maxAttempts} attempts`);
+          throw new Error(`Monitorovanie transakcie zlyhalo po ${maxAttempts} pokusoch`);
         }
         await new Promise((resolve) => setTimeout(resolve, 6000));
       }
     }
-    throw new Error('Transaction monitoring timeout');
+    throw new Error('Časový limit monitorovania transakcie');
   };
 
   const handlePayment = async () => {
@@ -204,6 +203,7 @@ export const OrderDetails = () => {
       return;
     }
 
+    const paymentToken = order.payment_token || 'EGLD'; // Definovanie paymentToken na začiatku
     try {
       setIsPaymentLoading(true);
       console.log('Creating transaction...');
@@ -211,11 +211,10 @@ export const OrderDetails = () => {
       // Validácia providerAddress
       const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
       if (!isValidAddress(providerAddress)) {
-        throw new Error('Neplatná alebo chýbajúca adresa poskytovateľa');
+        throw new Error('Neplatná alebo chýbajúca adresa poskytovateľa. Skontrolujte údaje objednávky.');
       }
 
-      // Kontrola zostatku s ohľadom na 10% poplatok pre EGLD
-      const paymentToken = order.payment_token || 'EGLD';
+      // Kontrola zostatku
       const balanceCheck = await checkWalletBalance(address, order.amount, paymentToken);
       if (!balanceCheck.hasEnoughFunds) {
         throw new Error(
@@ -230,7 +229,7 @@ export const OrderDetails = () => {
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = BigInt(Math.round(order.amount * 1e18));
+        const amount = BigInt(Math.round(order.amount * 1e18 * 1.1111)); // Zahrnutie 10% poplatku
         const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: amount,
@@ -267,7 +266,7 @@ export const OrderDetails = () => {
           errorMessage: `${paymentToken} platba zlyhala`,
           successMessage: `${paymentToken} platba úspešná`
         },
-        timeout: 10000 // Zvýšený timeout na 10 sekúnd
+        timeout: 10000
       });
 
       console.log(`${paymentToken} platba úspešná, session ID:`, sessionId);
@@ -299,18 +298,12 @@ export const OrderDetails = () => {
       window.location.reload();
     } catch (error) {
       console.error('Payment error:', error);
-      let errorMessage = `${paymentToken} platba zlyhala`;
-      if (error instanceof Error) {
-        if (error.message.includes('timeout')) {
-          errorMessage = 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.';
-        } else if (error.message.includes('User rejected')) {
-          errorMessage = 'Transakcia bola zrušená používateľom.';
-        } else if (error.message.includes('Insufficient funds')) {
-          errorMessage = 'Nedostatok prostriedkov v peňaženke.';
-        } else {
-          errorMessage = `${paymentToken} platba zlyhala: ${error.message}`;
-        }
-      }
+      const errorMessage = error instanceof Error
+        ? error.message.includes('timeout') ? 'Časový limit podpisu transakcie vypršal. Skúste znova a uistite sa, že je peňaženka odomknutá.'
+        : error.message.includes('User rejected') ? 'Transakcia bola zrušená používateľom.'
+        : error.message.includes('Insufficient funds') ? 'Nedostatok prostriedkov v peňaženke.'
+        : `${paymentToken} platba zlyhala: ${error.message}`
+        : `${paymentToken} platba zlyhala: Neznáma chyba`;
       toast.error(errorMessage);
     } finally {
       setIsPaymentLoading(false);
@@ -345,7 +338,7 @@ export const OrderDetails = () => {
           errorMessage: 'Uvoľnenie zlyhalo',
           successMessage: 'Platba úspešne uvoľnená'
         },
-        timeout: 10000 // Zvýšený timeout
+        timeout: 10000
       });
 
       console.log('Platba uvoľnená, session ID:', sessionId);
@@ -408,7 +401,7 @@ export const OrderDetails = () => {
           errorMessage: 'Vytvorenie sporu zlyhalo',
           successMessage: 'Spor úspešne vytvorený'
         },
-        timeout: 10000 // Zvýšený timeout
+        timeout: 10000
       });
 
       console.log('Spor vytvorený, session ID:', sessionId);
