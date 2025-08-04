@@ -40,6 +40,7 @@ export const Profile = () => {
   const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
   const { data: notifications, isLoading: notificationsLoading, refetch: refetchNotifications } = useNotifications();
   const updateProfile = useUpdateProfile();
+  const markAsRead = useMarkNotificationAsRead();
 
   // State for editing
   const [isEditing, setIsEditing] = useState(false);
@@ -939,6 +940,158 @@ export const Profile = () => {
                                           </span>
                                         </div>
                                       </div>
+                                    </div>
+                                    
+                                    <div className="flex gap-2">
+                                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                        statusColor === 'green' ? 'bg-green-100 text-green-800' :
+                                        statusColor === 'blue' ? 'bg-blue-100 text-blue-800' :
+                                        statusColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                        statusColor === 'red' ? 'bg-red-100 text-red-800' :
+                                        'bg-gray-100 text-gray-800'
+                                      }`}>
+                                        {order.status}
+                                      </span>
+                                      
+                                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                        paymentStatusColor === 'green' ? 'bg-green-100 text-green-800' :
+                                        paymentStatusColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                                        paymentStatusColor === 'red' ? 'bg-red-100 text-red-800' :
+                                        paymentStatusColor === 'purple' ? 'bg-purple-100 text-purple-800' :
+                                        'bg-gray-100 text-gray-800'
+                                      }`}>
+                                        {order.payment_status}
+                                      </span>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex items-center gap-1">
+                                        {tokenIcon}
+                                        <span className="text-sm font-bold text-gray-800">
+                                          {order.amount} {tokenSymbol}
+                                        </span>
+                                      </div>
+                                      <span className="text-xs text-gray-600">
+                                        {new Date(order.created_at).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Desktop Layout */}
+                          <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead className="bg-gray-100">
+                                <tr>
+                                  <th className="text-left p-3 text-gray-700">Order</th>
+                                  <th className="text-left p-3 text-gray-700">Amount</th>
+                                  <th className="text-left p-3 text-gray-700">Status</th>
+                                  <th className="text-left p-3 text-gray-700">Payment</th>
+                                  <th className="text-left p-3 text-gray-700">Date</th>
+                                  <th className="text-left p-3 text-gray-700">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {providerOrders.map((order) => {
+                                  const statusColor = getStatusColor(order.status);
+                                  const paymentStatusColor = getPaymentStatusColor(order.payment_status);
+                                  const tokenSymbol = order.payment_token === 'EGLD' ? 'EGLD' : 'IDEA';
+                                  const tokenIcon = order.payment_token === 'EGLD' ? <DollarSign size={14} /> : <Coins size={14} />;
+
+                                  return (
+                                    <tr key={order.id} className="border-b border-gray-200 hover:bg-gray-50">
+                                      <td className="p-3">
+                                        <h4 className="text-sm font-semibold text-gray-800 line-clamp-1">
+                                          {order.gig?.title || 'Custom Project'}
+                                        </h4>
+                                        
+                                        {/* Both Client and Provider */}
+                                        <div className="space-y-2">
+                                          {/* Client */}
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                              {order.client?.avatar_url ? (
+                                                <img
+                                                  src={order.client.avatar_url}
+                                                  alt={order.client.username || "Client"}
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg";
+                                                  }}
+                                                />
+                                              ) : (
+                                                <img
+                                                  src="https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg"
+                                                  alt="Client"
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                      const fallback = parent.querySelector('.fallback-client-avatar') as HTMLElement;
+                                                      if (fallback) fallback.style.display = 'flex';
+                                                    }
+                                                  }}
+                                                />
+                                              )}
+                                              <div 
+                                                className="fallback-client-avatar w-full h-full bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                                style={{ display: 'none' }}
+                                              >
+                                                {order.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                              </div>
+                                            </div>
+                                            <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                              Client: {(order.client?.username || "Unknown").substring(0, 6)}
+                                            </span>
+                                          </div>
+                                          
+                                          {/* Provider */}
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full overflow-hidden relative">
+                                              {order.gig?.provider?.avatar_url ? (
+                                                <img
+                                                  src={order.gig.provider.avatar_url}
+                                                  alt={order.gig.provider.username || "Provider"}
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg";
+                                                  }}
+                                                />
+                                              ) : (
+                                                <img
+                                                  src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg"
+                                                  alt="Provider"
+                                                  className="w-full h-full object-cover"
+                                                  onError={(e) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.style.display = 'none';
+                                                    const parent = target.parentElement;
+                                                    if (parent) {
+                                                      const fallback = parent.querySelector('.fallback-provider-avatar') as HTMLElement;
+                                                      if (fallback) fallback.style.display = 'flex';
+                                                    }
+                                                  }}
+                                                />
+                                              )}
+                                              <div 
+                                                className="fallback-provider-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white absolute inset-0"
+                                                style={{ display: 'none' }}
+                                              >
+                                                {order.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                              </div>
+                                            </div>
+                                            <span className="text-xs text-gray-600 truncate max-w-[60px]">
+                                              Provider: {(order.gig?.provider?.username || "Unknown").substring(0, 6)}
+                                            </span>
+                                          </div>
+                                        </div>
                                       </td>
                                       <td className="p-3">
                                         <div className="flex items-center gap-1">
