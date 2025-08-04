@@ -44,7 +44,7 @@ import {
 } from '@chakra-ui/react';
 import { Link as RouterLink, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { EmailNotificationsToggle } from '../components/EmailNotificationsToggle';
 import { MoreVertical, Plus, Star, X, Edit2, Clock, DollarSign, Coins } from 'lucide-react';
 import { TwitterShareButton } from '../components/TwitterShareButton';
