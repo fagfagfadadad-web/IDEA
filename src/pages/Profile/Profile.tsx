@@ -52,6 +52,50 @@ export const Profile = () => {
     email_notifications_enabled: true
   });
 
+  // Calculate earnings from completed orders
+  const calculateEarnings = () => {
+    if (!orders) return { egld: 0, ida: 0 };
+    
+    const completedOrders = orders.filter((order: any) => order.status === 'completed');
+    
+    const egldEarnings = completedOrders
+      .filter((order: any) => order.payment_token === 'EGLD')
+      .reduce((sum: number, order: any) => {
+        // For EGLD, provider gets 90% (10% platform fee)
+        return sum + (order.amount * 0.9);
+      }, 0);
+    
+    const idaEarnings = completedOrders
+      .filter((order: any) => order.payment_token === 'IDA-f9bc1d')
+      .reduce((sum: number, order: any) => {
+        // For IDA, provider gets 100% (no fees)
+        return sum + order.amount;
+      }, 0);
+    
+    return { egld: egldEarnings, ida: idaEarnings };
+  };
+
+  // Calculate review statistics
+  const calculateReviewStats = () => {
+    if (!orders) return { totalReviews: 0, averageRating: 0 };
+    
+    const reviewedOrders = orders.filter((order: any) => order.reviews && order.reviews.length > 0);
+    const totalReviews = reviewedOrders.length;
+    
+    if (totalReviews === 0) return { totalReviews: 0, averageRating: 0 };
+    
+    const totalRating = reviewedOrders.reduce((sum: number, order: any) => {
+      return sum + order.reviews[0].rating;
+    }, 0);
+    
+    const averageRating = totalRating / totalReviews;
+    
+    return { totalReviews, averageRating };
+  };
+
+  const earnings = calculateEarnings();
+  const reviewStats = calculateReviewStats();
+
   const isOwnProfile = !id || (user && profile && user.id === profile.id);
 
   // Initialize tab from URL params
@@ -375,27 +419,30 @@ export const Profile = () => {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Completed</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {orders?.filter(o => o.status === 'completed').length || 0}
+                  <p className="text-sm font-medium text-gray-600">Avg Rating</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : '0.0'}
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Award className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <Star className="w-6 h-6 text-yellow-600" />
                 </div>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                ({reviewStats.totalReviews} reviews)
               </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Success Rate</p>
-                  <p className="text-2xl font-bold text-emerald-600">
-                    {orders?.length ? Math.round((orders.filter(o => o.status === 'completed').length / orders.length) * 100) : 0}%
+                  <p className="text-sm font-medium text-gray-600">Total Earned</p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {earnings.egld.toFixed(2)} EGLD
                   </p>
                 </div>
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-emerald-600" />
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-purple-600" />
                 </div>
               </div>
             </div>
@@ -433,6 +480,81 @@ export const Profile = () => {
               {/* Overview Tab */}
               {activeTab === 0 && (
                 <div className="space-y-6">
+                  {/* Earnings breakdown */}
+                  {(earnings.egld > 0 || earnings.ida > 0) && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Coins className="w-5 h-5 text-indigo-600" />
+                        Earnings Breakdown
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="text-blue-600" size={16} />
+                              <span className="font-medium text-gray-800">EGLD Earnings</span>
+                            </div>
+                            <span className="text-xl font-bold text-blue-600">
+                              {earnings.egld.toFixed(2)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            After 10% platform fee
+                          </p>
+                        </div>
+                        
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Coins className="text-purple-600" size={16} />
+                              <span className="font-medium text-gray-800">IDA Earnings</span>
+                            </div>
+                            <span className="text-xl font-bold text-purple-600">
+                              {earnings.ida.toFixed(2)}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mt-1">
+                            No platform fees
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reviews summary */}
+                  {reviewStats.totalReviews > 0 && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <Star className="w-5 h-5 text-yellow-600" />
+                        Reviews Summary
+                      </h3>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                size={20}
+                                className={star <= reviewStats.averageRating ? "text-yellow-400 fill-current" : "text-gray-300"}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xl font-bold text-gray-800">
+                            {reviewStats.averageRating.toFixed(1)} / 5.0
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-800">
+                            {reviewStats.totalReviews}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Total Reviews
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Recent Orders */}
                     <div className="space-y-4">
