@@ -140,12 +140,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (sessionError) {
         console.error('❌ AuthContext: Session error:', sessionError.message);
         
-        // Handle specific refresh token errors
+        // Handle specific refresh token errors - expanded to catch all variants
         if (sessionError.message?.includes('refresh_token_not_found') || 
-            sessionError.message?.includes('Invalid Refresh Token')) {
+            sessionError.message?.includes('Invalid Refresh Token') ||
+            sessionError.message?.includes('Refresh Token Not Found')) {
           console.log('🧹 AuthContext: Clearing invalid refresh token');
           localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
           await supabase.auth.signOut({ scope: 'local' });
+          await handleSupabaseSignOut();
         }
         
         // Reset authentication state when session retrieval fails
