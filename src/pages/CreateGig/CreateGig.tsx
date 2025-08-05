@@ -581,7 +581,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 />
                 {formData.payment_token === 'EGLD' && formData.price && (
                   <p className="text-orange-300 text-sm mt-2">
-                    💡 You'll receive: {(Number(formData.price) * 0.9).toFixed(4)} EGLD (after 10% fee)
+                    💡 You'll receive: {(Number(formData.price) * 0.9).toFixed(2)} EGLD (after 10% fee)
                   </p>
                 )}
               </div>
