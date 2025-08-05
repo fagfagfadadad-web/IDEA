@@ -19,7 +19,8 @@ import {
   Clock,
   Eye,
   MessageSquare,
-  Plus,
+  MessageCircle,
+  MoreVertical
   Trash2,
   TrendingUp,
   Coins
