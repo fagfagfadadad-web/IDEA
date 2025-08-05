@@ -79,8 +79,6 @@ export const Profile = () => {
     github_url: '',
     linkedin_url: '',
     website_url: '',
-    discord_username: '',
-    telegram_username: '',
   });
 
   const isOwnProfile = !id || (authUser?.id === profile?.id);

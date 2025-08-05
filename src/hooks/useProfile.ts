@@ -92,8 +92,6 @@ export const useUpdateProfile = () => {
     github_url?: string;
     linkedin_url?: string;
     website_url?: string;
-    discord_username?: string;
-    telegram_username?: string;
   }) => {
     setIsLoading(true);
     try {
