@@ -871,9 +871,9 @@ const OrderDetails = () => {
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Práca pripravená na odovzdanie?</h3>
+                    <h3 className="text-gray-800 font-bold">Work Ready for Delivery?</h3>
                     <p className="text-gray-800">
-                      Po dokončení práce kliknite na tlačidlo pre notifikáciu klienta.
+                      After completing the work, click the button to notify the client.
                     </p>
                   </div>
                   <Button
@@ -882,7 +882,7 @@ const OrderDetails = () => {
                     disabled={isSubmitWorkLoading}
                   >
                     <FileText size={16} />
-                    Odovzdať prácu
+                    Submit Work
                   </Button>
                 </div>
               </div>
@@ -1048,26 +1048,26 @@ const OrderDetails = () => {
               <div className="bg-gray-800 p-4 rounded-md">
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Order Amount:</span>
+                    <span className="text-gray-400">Order amount:</span>
                     <span className="text-white font-bold">
                       {order.amount} {tokenDisplayName}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Service Fee:</span>
+                    <span className="text-gray-400">Service fee:</span>
                     <span className="text-white">
                       {feeInfo.platformFee > 0 ? `${feeInfo.platformFee.toFixed(2)} ${tokenDisplayName} (${feeInfo.feePercentage}%)` : `0 ${tokenDisplayName} (0%)`}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Provider Will Receive:</span>
+                    <span className="text-gray-400">Provider will receive:</span>
                     <span className="text-white font-bold">
                       {feeInfo.providerGets} {tokenDisplayName}
                     </span>
                   </div>
                   <hr className="border-gray-600" />
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Total You Will Pay:</span>
+                    <span className="text-gray-400">You will pay total:</span>
                     <span className="text-blue-400 font-bold">
                       {feeInfo.clientPays} {tokenDisplayName}
                     </span>
