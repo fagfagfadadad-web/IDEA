@@ -3,6 +3,16 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
 
+interface GigWithProviderWallet {
+  id: string;
+  title: string;
+  provider_id: string;
+  payment_token: string;
+  provider: {
+    wallet_address: string;
+  };
+}
+
 export const sendNotification = async ({ user_id, type, title, content, data }: {
   user_id: string;
   type: string;
@@ -147,17 +157,14 @@ export const useCreateOrder = () => {
         .from('gigs')
         .select('provider_id, payment_token, provider:users!gigs_provider_id_fkey(wallet_address)')
         .eq('id', orderData.gig_id)
-        .single();
+        .single() as { data: GigWithProviderWallet | null; error: any };
 
       if (gigError) {
         console.error('Error fetching gig:', gigError);
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      // Handle both array and object responses from Supabase
-      const providerAddress = Array.isArray(gig?.provider) 
-        ? gig?.provider?.[0]?.wallet_address 
-        : gig?.provider?.wallet_address;
+      const providerAddress = gig?.provider?.wallet_address;
         
       if (!providerAddress || !isValidAddress(providerAddress)) {
         console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
