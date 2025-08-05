@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useToast } from '../context/ToastContext';
-import { useGetAccountInfo, sendTransactions } from 'lib';
+import { useGetAccountInfo } from 'lib';
 import { Address, SmartContract } from 'lib/sdkCore';
 import { contractAddress } from '../config';
+import { signAndSendTransactions } from '../../helpers';
 
 interface DisputeModalProps {
   isOpen: boolean;
