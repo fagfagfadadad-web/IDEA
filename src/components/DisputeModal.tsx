@@ -158,5 +158,3 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
     </div>
   );
 };
-  )
-}
