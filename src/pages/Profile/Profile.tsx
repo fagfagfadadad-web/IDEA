@@ -137,56 +137,63 @@ export const Profile = () => {
 
   if (!isLoggedIn && isOwnProfile) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Login Required" reference="#">
-          <div className="bg-yellow-900 border border-yellow-500 rounded-md p-4">
-            <div className="flex items-center">
-              <span className="text-yellow-400 mr-2">⚠️</span>
-              <span className="text-white">Please log in to view your profile.</span>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="gradient-card p-8">
+            <div className="bg-yellow-100 border border-yellow-400 rounded-md p-4">
+              <div className="flex items-center">
+                <span className="text-yellow-600 mr-2">⚠️</span>
+                <span className="text-gray-800">Please log in to view your profile.</span>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Profile" reference="#">
-          <div className="flex justify-center">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="gradient-card p-8">
+            <div className="flex justify-center">
+              <div className="space-y-4 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="text-gray-700">Loading profile...</p>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   if (error || !profile) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Profile Not Found" reference="#">
-          <div className="bg-red-900 border border-red-500 rounded-md p-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">⚠️</span>
-              <span className="text-white">
-                {error ? `Error: ${error.message}` : 'Profile not found'}
-              </span>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="gradient-card p-8">
+            <div className="bg-red-100 border border-red-400 rounded-md p-4">
+              <div className="flex items-center">
+                <span className="text-red-600 mr-2">⚠️</span>
+                <span className="text-gray-800">
+                  {error ? `Error: ${error.message}` : 'Profile not found'}
+                </span>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-7xl px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+      <div className="container mx-auto max-w-7xl px-6 py-8">
       <div className="space-y-8">
         {/* Profile Header */}
-        <Card className="p-8" title="Profile Header" reference="#">
+        <div className="gradient-card p-8">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             <div className="w-24 h-24 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-2xl text-white">
               {profile.username?.charAt(0)?.toUpperCase() || "U"}
@@ -195,11 +202,11 @@ export const Profile = () => {
             <div className="flex-1">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-white mb-2">
+                  <h1 className="text-2xl font-bold text-gray-800 mb-2">
                     {profile.full_name || profile.username}
                   </h1>
-                  <p className="text-gray-400 mb-2">@{profile.username}</p>
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
+                  <p className="text-gray-600 mb-2">@{profile.username}</p>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center gap-1">
                       <Calendar size={16} />
                       <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
@@ -210,7 +217,7 @@ export const Profile = () => {
                 {isOwnProfile && (
                   <Button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    variant="gradient"
                   >
                     <Edit size={16} />
                     Edit Profile
@@ -219,34 +226,34 @@ export const Profile = () => {
               </div>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Profile Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* About Me */}
-            <Card className="p-6" title="About Me" reference="#">
-              <h3 className="text-lg font-bold text-white mb-4">About Me</h3>
+            <div className="gradient-card p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">About Me</h3>
               {profile.bio ? (
-                <p className="text-gray-300 whitespace-pre-wrap">{profile.bio}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
               ) : (
-                <p className="text-gray-400 italic">
+                <p className="text-gray-500 italic">
                   {isOwnProfile ? 'Add a bio to tell others about yourself' : 'No bio available'}
                 </p>
               )}
-            </Card>
+            </div>
 
             {/* Social Media Links */}
-            <Card className="p-6" title="Social Media" reference="#">
-              <h3 className="text-lg font-bold text-white mb-4">Social Media Links</h3>
+            <div className="gradient-card p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Social Media Links</h3>
               <div className="space-y-3">
                 {profile.twitter_url && (
                   <a
                     href={profile.twitter_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
                   >
                     <Twitter size={20} />
                     <span>Twitter</span>
@@ -258,7 +265,7 @@ export const Profile = () => {
                     href={profile.github_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors"
+                    className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors"
                   >
                     <Github size={20} />
                     <span>GitHub</span>
@@ -270,7 +277,7 @@ export const Profile = () => {
                     href={profile.linkedin_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
                   >
                     <Linkedin size={20} />
                     <span>LinkedIn</span>
@@ -282,7 +289,7 @@ export const Profile = () => {
                     href={profile.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 text-green-400 hover:text-green-300 transition-colors"
+                    className="flex items-center gap-3 text-green-600 hover:text-green-700 transition-colors"
                   >
                     <Globe size={20} />
                     <span>Website</span>
@@ -290,33 +297,33 @@ export const Profile = () => {
                 )}
                 
                 {!profile.twitter_url && !profile.github_url && !profile.linkedin_url && !profile.website_url && (
-                  <p className="text-gray-400 italic">
+                  <p className="text-gray-500 italic">
                     {isOwnProfile ? 'Add your social media links to connect with others' : 'No social media links available'}
                   </p>
                 )}
               </div>
-            </Card>
+            </div>
 
             {/* Reviews Section - Show for public profiles */}
             {!isOwnProfile && (
-              <Card className="p-6" title="Reviews" reference="#">
+              <div className="gradient-card p-6">
                 <ReviewsList 
                   reviews={providerReviews || []}
                   isLoading={reviewsLoading}
                   error={reviewsError}
                   showTitle={true}
                 />
-              </Card>
+              </div>
             )}
 
             {/* My Gigs - Only for own profile */}
             {isOwnProfile && (
-              <Card className="p-6" title="My Gigs" reference="#">
+              <div className="gradient-card p-6">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-bold text-white">My Gigs</h3>
+                  <h3 className="text-lg font-bold text-gray-800">My Gigs</h3>
                   <Button
                     onClick={() => navigate('/create-gig')}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    variant="gradient"
                   >
                     <Plus size={16} />
                     Create Gig
@@ -325,10 +332,10 @@ export const Profile = () => {
                 
                 {gigs?.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-400 mb-4">You haven't created any gigs yet.</p>
+                    <p className="text-gray-600 mb-4">You haven't created any gigs yet.</p>
                     <Button
                       onClick={() => navigate('/create-gig')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 mx-auto"
+                      variant="gradient"
                     >
                       <Plus size={16} />
                       Create your first gig
@@ -339,12 +346,12 @@ export const Profile = () => {
                     {gigs?.map((gig) => (
                       <div
                         key={gig.id}
-                        className="bg-gray-800 bg-opacity-50 rounded-lg overflow-hidden border border-gray-600 hover:border-blue-500 transition-all duration-300 relative group"
+                        className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all duration-300 relative group"
                       >
                         {/* Gig Actions Menu */}
                         <div className="absolute top-2 right-2 z-10">
                           <div className="relative">
-                            <button className="p-1 bg-gray-800 bg-opacity-75 hover:bg-opacity-100 rounded text-gray-300 hover:text-white transition-colors">
+                            <button className="p-1 bg-white bg-opacity-75 hover:bg-opacity-100 rounded text-gray-600 hover:text-gray-800 transition-colors shadow-sm">
                               <MoreVertical size={16} />
                             </button>
                           </div>
@@ -362,7 +369,7 @@ export const Profile = () => {
                           
                           <div className="p-4 space-y-3">
                             <div className="flex justify-between items-start">
-                              <h4 className="text-white font-bold line-clamp-2 flex-1 mr-2">
+                              <h4 className="text-gray-800 font-bold line-clamp-2 flex-1 mr-2">
                                 {gig.title}
                               </h4>
                               <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
@@ -374,15 +381,15 @@ export const Profile = () => {
                               </span>
                             </div>
                             
-                            <p className="text-gray-400 text-sm line-clamp-2">
+                            <p className="text-gray-600 text-sm line-clamp-2">
                               {gig.description.split('\n\nPackage Includes:')[0]}
                             </p>
                             
                             <div className="flex justify-between items-center">
-                              <span className="text-blue-400 font-bold">
+                              <span className="text-indigo-600 font-bold">
                                 {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDEA'}
                               </span>
-                              <span className="text-gray-400 text-sm">
+                              <span className="text-gray-600 text-sm">
                                 {gig.duration} days
                               </span>
                             </div>
@@ -392,20 +399,20 @@ export const Profile = () => {
                     ))}
                   </div>
                 )}
-              </Card>
+              </div>
             )}
 
             {/* My Orders - Only for own profile */}
             {isOwnProfile && (
-              <Card className="p-6" title="My Orders" reference="#">
-                <h3 className="text-lg font-bold text-white mb-6">Recent Orders</h3>
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Recent Orders</h3>
                 
                 {orders?.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-400 mb-4">No orders yet.</p>
+                    <p className="text-gray-600 mb-4">No orders yet.</p>
                     <Button
                       onClick={() => navigate('/gigs')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                      variant="gradient"
                     >
                       Browse Gigs
                     </Button>
@@ -415,19 +422,19 @@ export const Profile = () => {
                     {orders?.slice(0, 5).map((order) => (
                       <div
                         key={order.id}
-                        className="bg-gray-800 bg-opacity-50 p-4 rounded-lg border border-gray-600 hover:border-blue-500 transition-all duration-300 cursor-pointer"
+                        className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
                         onClick={() => navigate(`/orders/${order.id}`)}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h4 className="text-white font-medium mb-1">
+                            <h4 className="text-gray-800 font-medium mb-1">
                               {order.gig?.title || 'Custom Project'}
                             </h4>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-gray-600 text-sm">
                               {order.amount} {order.payment_token || 'EGLD'} • {order.status}
                             </p>
                           </div>
-                          <span className="text-gray-400 text-sm">
+                          <span className="text-gray-600 text-sm">
                             {new Date(order.created_at).toLocaleDateString()}
                           </span>
                         </div>
@@ -435,7 +442,7 @@ export const Profile = () => {
                     ))}
                   </div>
                 )}
-              </Card>
+              </div>
             )}
           </div>
 
@@ -443,21 +450,22 @@ export const Profile = () => {
           {isOwnProfile && (
             <div className="space-y-8">
               {/* Settings */}
-              <Card className="p-6" title="Settings" reference="#">
-                <h3 className="text-lg font-bold text-white mb-4">Settings</h3>
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Settings</h3>
                 <div className="space-y-4">
                   <EmailNotificationsToggle enabled={profile.email_notifications_enabled || false} />
                 </div>
-              </Card>
+              </div>
 
               {/* Notifications */}
-              <Card className="p-6" title="Notifications" reference="#">
+              <div className="gradient-card p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold text-white">Notifications</h3>
+                  <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
                   {unreadCount > 0 && (
                     <Button
                       onClick={handleMarkAllAsRead}
-                      className="text-blue-400 hover:text-blue-300 bg-transparent border-none text-sm"
+                      variant="outline"
+                      size="sm"
                     >
                       Mark all as read ({unreadCount})
                     </Button>
@@ -465,7 +473,7 @@ export const Profile = () => {
                 </div>
                 
                 {notifications?.length === 0 ? (
-                  <p className="text-gray-400">No notifications</p>
+                  <p className="text-gray-600">No notifications</p>
                 ) : (
                   <div className="space-y-3 max-h-64 overflow-y-auto">
                     {notifications?.slice(0, 5).map((notification) => (
@@ -473,17 +481,17 @@ export const Profile = () => {
                         key={notification.id}
                         className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-700 transition-colors ${
                           !notification.read 
-                            ? 'bg-gray-800 border-blue-500' 
-                            : 'bg-gray-800 bg-opacity-50 border-gray-600'
+                            ? 'bg-blue-50 border-blue-300' 
+                            : 'bg-white border-gray-200'
                         }`}
                       >
                         <div className="space-y-1">
                           <p className={`text-sm ${
-                            !notification.read ? 'text-white font-medium' : 'text-gray-300'
+                            !notification.read ? 'text-gray-800 font-medium' : 'text-gray-700'
                           }`}>
                             {notification.title}
                           </p>
-                          <p className="text-gray-400 text-xs line-clamp-2">
+                          <p className="text-gray-600 text-xs line-clamp-2">
                             {notification.content}
                           </p>
                           <p className="text-gray-500 text-xs">
@@ -494,10 +502,11 @@ export const Profile = () => {
                     ))}
                   </div>
                 )}
-              </Card>
+              </div>
             </div>
           )}
         </div>
+      </div>
       </div>
 
       {/* Edit Profile Modal */}
