@@ -27,7 +27,12 @@ import {
   Shield,
   FileText,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Twitter,
+  Github,
+  Linkedin,
+  MessageSquare,
+  Send
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, NotificationsMenu, ReviewsList } from 'components';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
@@ -37,6 +42,7 @@ import { useOrders } from '../../hooks/useOrders';
 import { useNotifications, useMarkAllNotificationsAsRead } from '../../hooks/useNotifications';
 import { useAuth } from '../../context/AuthContext';
 import { useWindowSize } from '../../hooks/useWindowSize';
+import { TwitterShareButton } from '../components/TwitterShareButton';
 
 export const Profile = () => {
   const { id } = useParams();

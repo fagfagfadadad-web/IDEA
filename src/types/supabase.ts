@@ -28,6 +28,12 @@ export interface Database {
           is_admin: boolean | null
           referred_by: string | null
           referral_code: string | null
+          twitter_url: string | null
+          github_url: string | null
+          linkedin_url: string | null
+          website_url: string | null
+          discord_username: string | null
+          telegram_username: string | null
         }
         Insert: {
           id?: string
@@ -42,6 +48,12 @@ export interface Database {
           is_admin?: boolean | null
           referred_by?: string | null
           referral_code?: string | null
+          twitter_url?: string | null
+          github_url?: string | null
+          linkedin_url?: string | null
+          website_url?: string | null
+          discord_username?: string | null
+          telegram_username?: string | null
         }
         Update: {
           id?: string
@@ -56,6 +68,12 @@ export interface Database {
           is_admin?: boolean | null
           referred_by?: string | null
           referral_code?: string | null
+          twitter_url?: string | null
+          github_url?: string | null
+          linkedin_url?: string | null
+          website_url?: string | null
+          discord_username?: string | null
+          telegram_username?: string | null
         }
       }
       gigs: {
