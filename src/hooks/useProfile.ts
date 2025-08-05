@@ -16,13 +16,48 @@ export const useProfile = (id?: string) => {
     try {
       setIsLoading(true);
       
+      // For viewing other users' profiles, we don't need authentication
+      if (id) {
+        // Fetching someone else's public profile
+        const { data: profile, error } = await supabase
+          .from('users')
+          .select(`
+            id,
+            username,
+            full_name,
+            avatar_url,
+            bio,
+            created_at,
+            twitter_url,
+            github_url,
+            linkedin_url,
+            website_url
+          `)
+          .eq('id', id)
+          .maybeSingle();
+
+        if (error) {
+          if (error.code === 'PGRST116') {
+            console.log('Profile not found (PGRST116), treating as no profile');
+            setData(null);
+            setError(null);
+            return;
+          }
+          throw error;
+        }
+        setData(profile);
+        return;
+      }
+
+      // For own profile, require authentication
       if (!isAuthenticated || !user) {
         setData(null);
         setIsLoading(false);
         return;
       }
 
-      let query = supabase
+      // Fetching own profile with full data
+      const { data: profile, error } = await supabase
         .from('users')
         .select(`
           *,
@@ -34,32 +69,19 @@ export const useProfile = (id?: string) => {
             reviews(*)
           )
         `);
+        .eq('id', user.id)
+        .maybeSingle();
 
-      if (id) {
-        const { data: profile, error } = await query.eq('id', id).maybeSingle();
-        if (error) {
-          if (error.code === 'PGRST116') {
-            console.log('Profile not found (PGRST116), treating as no profile');
-            setData(null);
-            setError(null);
-            return;
-          }
-          throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          console.log('Profile not found (PGRST116), treating as no profile');
+          setData(null);
+          setError(null);
+          return;
         }
-        setData(profile);
-      } else {
-        const { data: profile, error } = await query.eq('id', user.id).maybeSingle();
-        if (error) {
-          if (error.code === 'PGRST116') {
-            console.log('Profile not found (PGRST116), treating as no profile');
-            setData(null);
-            setError(null);
-            return;
-          }
-          throw error;
-        }
-        setData(profile);
+        throw error;
       }
+      setData(profile);
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));

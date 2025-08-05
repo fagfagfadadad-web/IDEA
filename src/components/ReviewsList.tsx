@@ -1,19 +1,20 @@
 import React from 'react';
 import { Star } from 'lucide-react';
-import { useReviewsByGig } from '../hooks/useReviews';
 import { Card } from 'components';
 
 interface ReviewsListProps {
-  gigId: string;
+  reviews: any[];
+  isLoading: boolean;
+  error: Error | null;
   showTitle?: boolean;
 }
 
 export const ReviewsList: React.FC<ReviewsListProps> = ({ 
-  gigId, 
+  reviews,
+  isLoading,
+  error,
   showTitle = true 
 }) => {
-  const { data: reviews, isLoading, error } = useReviewsByGig(gigId);
-
   if (isLoading) {
     return (
       <div className="flex flex-col items-center space-y-4 py-4">

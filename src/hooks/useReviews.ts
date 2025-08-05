@@ -133,3 +133,54 @@ export const useCreateReview = () => {
     isLoading
   };
 };
+
+export const useReviewsForProvider = (providerId: string) => {
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!providerId) return;
+
+    fetchProviderReviews();
+  }, [providerId]);
+
+  const fetchProviderReviews = async () => {
+    try {
+      setIsLoading(true);
+      
+      const { data: reviews, error } = await supabase
+        .from('reviews')
+        .select(`
+          *,
+          order:orders!reviews_order_id_fkey(
+            id,
+            client:users!orders_client_id_fkey(username, avatar_url),
+            gig:gigs!orders_gig_id_fkey(
+              id,
+              title,
+              provider_id
+            )
+          )
+        `)
+        .eq('order.gig.provider_id', providerId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setData(reviews || []);
+    } catch (err) {
+      console.error('Error fetching provider reviews:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    data,
+    isLoading,
+    error,
+    refetch: fetchProviderReviews
+  };
+};
