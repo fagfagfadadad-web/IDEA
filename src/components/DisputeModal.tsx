@@ -175,7 +175,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 
             <div className="bg-orange-50 border border-orange-200 rounded-md p-3 sm:p-4">
               <div className="flex items-center gap-3 mb-3">
-                <AlertTriangle size={20} sm:size={24} className="text-orange-600" />
+                <AlertTriangle size={20} className="text-orange-600" />
                 <h4 className="text-gray-800 font-medium text-sm sm:text-base">Important Information</h4>
               </div>
               <p className="text-gray-700 text-sm">
@@ -213,7 +213,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 
             <div className="bg-blue-50 border border-blue-200 rounded-md p-3 sm:p-4">
               <div className="flex items-center gap-3 mb-2">
-                <Shield size={18} sm:size={20} className="text-blue-600" />
+                <Shield size={18} className="text-blue-600" />
                 <h4 className="text-gray-800 font-medium text-sm">Admin Review Process</h4>
               </div>
               <p className="text-gray-700 text-xs sm:text-sm">
