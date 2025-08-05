@@ -208,12 +208,12 @@ const OrderDetails = () => {
         .eq('id', gigId)
         .single();
       
-  } | null;
+      if (error) {
         console.error('Supabase error fetching provider address:', error);
         return null;
       }
       
-      const walletAddress = data?.provider?.[0]?.wallet_address;
+      const walletAddress = data?.provider?.wallet_address;
         
       console.log('Fetched provider data:', { data, walletAddress });
       
