@@ -450,12 +450,12 @@ export const usePayments = () => {
     setIsLoading(true);
     try {
       if (!isLoggedIn || !address) {
-        throw new Error('Prosím, pripojte svoju peňaženku');
+        throw new Error('Please connect your wallet');
       }
-      console.log('Odosiela sa práca pre objednávku:', orderId);
+      console.log('Submitting work for order:', orderId);
       return 'work-submitted';
     } catch (error) {
-      console.error('Odoslanie práce zlyhalo:', error);
+      console.error('Work submission failed:', error);
       throw error;
     } finally {
       setIsLoading(false);

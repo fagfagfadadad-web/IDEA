@@ -262,7 +262,7 @@ const OrderDetails = () => {
 
     // Check if payment was already made
     if (order.payment_status !== 'pending') {
-      showErrorToast('Payment has already been processed or is in another state');
+      alert('Platba už bola spracovaná alebo je v inom stave');
       return;
     }
 
@@ -275,7 +275,7 @@ const OrderDetails = () => {
 
       // Validate client address
       if (!isValidAddress(address)) {
-        throw new Error('Invalid client address');
+        throw new Error('Neplatná adresa klienta');
       }
 
       let providerAddress = order.provider_address || order.gig?.users?.wallet_address;
@@ -1032,15 +1032,15 @@ const OrderDetails = () => {
       {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 max-w-lg w-full mx-4 rounded-lg">
-            <h3 className="text-xl font-bold text-white mb-4">Dokončiť platbu</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Complete Payment</h3>
             <div className="space-y-4">
               <div className="bg-blue-100 border border-blue-500 rounded-md p-3">
                 <div className="flex items-center">
                   <span className="text-blue-800 mr-2">ℹ️</span>
                   <div>
-                    <p className="text-blue-800 font-medium">Bezpečná escrow platba</p>
+                    <p className="text-blue-800 font-medium">Secure escrow payment</p>
                     <p className="text-blue-800 text-sm">
-                      Vaša platba bude držaná v escrow až do schválenia dokončenej práce.
+                      Your payment will be held in escrow until approval of completed work.
                     </p>
                   </div>
                 </div>
@@ -1048,26 +1048,26 @@ const OrderDetails = () => {
               <div className="bg-gray-800 p-4 rounded-md">
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Suma objednávky:</span>
+                    <span className="text-gray-400">Order amount:</span>
                     <span className="text-white font-bold">
                       {order.amount} {tokenDisplayName}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Servisný poplatok:</span>
+                    <span className="text-gray-400">Service fee:</span>
                     <span className="text-white">
                       {feeInfo.platformFee > 0 ? `${feeInfo.platformFee.toFixed(2)} ${tokenDisplayName} (${feeInfo.feePercentage}%)` : `0 ${tokenDisplayName} (0%)`}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Poskytovateľ dostane:</span>
+                    <span className="text-gray-400">Provider will receive:</span>
                     <span className="text-white font-bold">
                       {feeInfo.providerGets} {tokenDisplayName}
                     </span>
                   </div>
                   <hr className="border-gray-600" />
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Zaplatíte celkom:</span>
+                    <span className="text-gray-400">You will pay total:</span>
                     <span className="text-blue-400 font-bold">
                       {feeInfo.clientPays} {tokenDisplayName}
                     </span>
@@ -1080,7 +1080,7 @@ const OrderDetails = () => {
                 onClick={() => setShowPaymentModal(false)}
                 className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
               >
-                Zrušiť
+                Cancel
               </Button>
               <Button
                 onClick={handlePayment}
@@ -1088,7 +1088,7 @@ const OrderDetails = () => {
                 disabled={isPaymentLoading || !!providerAddressError}
               >
                 <DollarSign size={16} />
-                {isPaymentLoading ? 'Spracováva sa...' : 'Zaplatiť teraz'}
+                {isPaymentLoading ? 'Processing...' : 'Pay Now'}
               </Button>
             </div>
           </div>
