@@ -61,6 +61,8 @@ export const Profile = () => {
     linkedin_url: '',
     website_url: '',
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>('');
 
   const updateProfile = useUpdateProfile();
   const deleteGig = useDeleteGig();
@@ -79,6 +81,7 @@ export const Profile = () => {
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
       });
+      setAvatarPreview(profile.avatar_url || '');
     }
   }, [profile]);
 
@@ -87,10 +90,52 @@ export const Profile = () => {
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image must be smaller than 5MB');
+        return;
+      }
+      
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const uploadAvatar = async (file: File): Promise<string> => {
+    // Mock upload - replace with real implementation
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Generate a mock URL - in real implementation, upload to your storage service
+        const mockUrl = `https://example.com/avatars/${Date.now()}-${file.name}`;
+        resolve(mockUrl);
+      }, 1000);
+    });
+  };
+
   const handleSaveProfile = async () => {
     try {
-      await updateProfile.mutateAsync(editForm);
+      let avatarUrl = editForm.avatar_url;
+      
+      // Upload avatar if a new file was selected
+      if (avatarFile) {
+        avatarUrl = await uploadAvatar(avatarFile);
+      }
+      
+      await updateProfile.mutateAsync({
+        ...editForm,
+        avatar_url: avatarUrl
+      });
       setIsEditModalOpen(false);
+      setAvatarFile(null);
       refetch();
       alert('Profile updated successfully');
     } catch (error) {
@@ -550,6 +595,36 @@ export const Profile = () => {
               </div>
 
               <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Profile Picture
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white">
+                      {avatarPreview ? (
+                        <img
+                          src={avatarPreview}
+                          alt="Avatar preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="w-full p-2 border border-gray-300 rounded-md text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <p className="text-gray-600 text-xs mt-1">
+                        Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2">
                     Username
