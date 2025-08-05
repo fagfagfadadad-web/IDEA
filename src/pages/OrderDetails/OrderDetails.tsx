@@ -959,7 +959,7 @@ const OrderDetails = () => {
 
             <div>
               <p className="text-gray-400 mb-2">Order Requirements:</p>
-              <p className="text-white">
+              <p className="text-grey">
                 {order.requirements?.description || 'No specific requirements'}
               </p>
             </div>
