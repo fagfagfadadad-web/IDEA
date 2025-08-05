@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield } from 'lucide-react';
+import {
   User, 
   Settings, 
   Star, 
@@ -597,14 +598,6 @@ export const Profile = () => {
                           <div className="p-4 space-y-3">
                             <div className="flex justify-between items-start">
                               <h4 className="text-gray-800 font-bold line-clamp-2 flex-1 mr-2">
-                            
-                            {/* Views counter */}
-                            <div className="flex items-center gap-2">
-                              <Eye size={14} className="text-gray-400" />
-                              <span className="text-gray-500 text-sm">
-                                {gig.view_count || 0} views
-                              </span>
-                            </div>
                                 {gig.title}
                               </h4>
                               <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
@@ -613,6 +606,14 @@ export const Profile = () => {
                                 'bg-red-100 text-red-800'
                               }`}>
                                 {gig.status}
+                              </span>
+                            </div>
+                            
+                            {/* Views counter */}
+                            <div className="flex items-center gap-2">
+                              <Eye size={14} className="text-gray-400" />
+                              <span className="text-gray-500 text-sm">
+                                {gig.view_count || 0} views
                               </span>
                             </div>
                             
