@@ -32,6 +32,7 @@ export default defineConfig({
     svgrPlugin(),
     nodePolyfills({
       globals: { Buffer: true, global: true, process: true },
+      include: ['timers'],
     }),
   ],
 });
