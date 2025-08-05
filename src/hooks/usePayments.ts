@@ -3,7 +3,6 @@ import { Transaction, Address, useGetIsLoggedIn, useGetAccount, useGetNetworkCon
 import { signAndSendTransactions } from '../helpers';
 import axios from 'axios';
 import { supabase } from '../lib/supabase';
-import { useToast } from '../context/ToastContext';
 
 // Helper function to validate MultiversX address
 const isValidAddress = (addr: string | undefined): boolean => {
@@ -21,7 +20,6 @@ export const usePayments = () => {
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
   const [isLoading, setIsLoading] = useState(false);
-  const { success, error: showError, info, warning } = useToast();
 
   // Konštanta pre adresu kontraktu
   const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
@@ -124,7 +122,6 @@ export const usePayments = () => {
       };
     } catch (error) {
       console.error('💥 Chyba pri kontrole zostatku:', error instanceof Error ? error.message : String(error));
-      showError(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : String(error)}`);
       return {
         hasEnoughFunds: false,
         balance: 0,
@@ -156,7 +153,6 @@ export const usePayments = () => {
       const balanceCheck = await checkWalletBalance(address, amount, paymentToken);
       if (!balanceCheck.hasEnoughFunds) {
         const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${paymentToken} (vrátane 10% poplatku pre EGLD), ale máte iba ${balanceCheck.balance.toFixed(4)} ${paymentToken}.`;
-        showError(errorMsg);
         throw new Error(errorMsg);
       }
 
@@ -182,8 +178,6 @@ export const usePayments = () => {
       });
 
       console.log('Vytváranie EGLD transakcie:', { hexOrderId, providerAddressHex, deadlineHex, value: value.toString(), data, escrowAddress });
-      info('10% poplatok bude odpočítaný z EGLD platby.');
-      info('Spracováva sa platba, potvrďte v peňaženke...');
 
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
@@ -195,11 +189,9 @@ export const usePayments = () => {
       });
 
       console.log('Platba úspešná, session ID:', sessionId);
-      success('Platba úspešná! Čistá suma po 10% poplatku bola uložená.');
       return sessionId;
     } catch (error) {
       console.error('Platba zlyhala:', error);
-      showError(`Platba zlyhala: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -224,7 +216,6 @@ export const usePayments = () => {
       const balanceCheck = await checkWalletBalance(address, amount, tokenId);
       if (!balanceCheck.hasEnoughFunds) {
         const errorMsg = `Nedostatok prostriedkov. Potrebujete aspoň ${balanceCheck.required.toFixed(4)} ${tokenId}, ale máte iba ${balanceCheck.balance.toFixed(4)} ${tokenId}.`;
-        showError(errorMsg);
         throw new Error(errorMsg);
       }
 
@@ -249,7 +240,6 @@ export const usePayments = () => {
 
       console.log('Vytváranie ESDT transakcie:', { hexOrderId, providerAddressHex, deadlineHex, tokenId, tokenIdHex, amountHex, data, escrowAddress });
 
-      info(`Spracováva sa ${tokenId} platba, potvrďte v peňaženke...`);
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -260,11 +250,9 @@ export const usePayments = () => {
       });
 
       console.log(`${tokenId} platba úspešná, session ID:`, sessionId);
-      success(`${tokenId} platba úspešná!`);
       return sessionId;
     } catch (error) {
       console.error(`${tokenId} platba zlyhala:`, error);
-      showError(`${tokenId} platba zlyhala: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -292,7 +280,6 @@ export const usePayments = () => {
 
       console.log('Vytváranie release transakcie:', { hexOrderId, escrowAddress: ESCROW_ADDRESS });
 
-      info('Uvoľňuje sa platba, potvrďte v peňaženke...');
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -303,11 +290,9 @@ export const usePayments = () => {
       });
 
       console.log('Platba uvoľnená, session ID:', sessionId);
-      success('Platba úspešne uvoľnená!');
       return sessionId;
     } catch (error) {
       console.error('Uvoľnenie zlyhalo:', error);
-      showError(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -335,7 +320,6 @@ export const usePayments = () => {
 
       console.log('Vytváranie claim transakcie:', { hexOrderId, escrowAddress: ESCROW_ADDRESS });
 
-      info('Vyžaduje sa platba, potvrďte v peňaženke...');
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -346,11 +330,9 @@ export const usePayments = () => {
       });
 
       console.log('Platba vyžiadaná, session ID:', sessionId);
-      success('Platba úspešne vyžiadaná!');
       return sessionId;
     } catch (error) {
       console.error('Vyžadovanie zlyhalo:', error);
-      showError(`Vyžadovanie zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -378,7 +360,6 @@ export const usePayments = () => {
 
       console.log('Vytváranie dispute transakcie:', { hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
 
-      info('Vytvára sa spor, potvrďte v peňaženke...');
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -389,11 +370,9 @@ export const usePayments = () => {
       });
 
       console.log('Spor vytvorený, session ID:', sessionId);
-      success('Spor úspešne vytvorený!');
       return sessionId;
     } catch (error) {
       console.error('Vytvorenie sporu zlyhalo:', error);
-      showError(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -422,7 +401,6 @@ export const usePayments = () => {
 
       console.log('Vytváranie resolveDispute transakcie:', { hexOrderId, refundToClient, refundFlag, escrowAddress: ESCROW_ADDRESS });
 
-      info('Rieši sa spor, potvrďte v peňaženke...');
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
@@ -433,11 +411,9 @@ export const usePayments = () => {
       });
 
       console.log('Spor vyriešený, session ID:', sessionId);
-      success('Spor úspešne vyriešený!');
       return sessionId;
     } catch (error) {
       console.error('Riešenie sporu zlyhalo:', error);
-      showError(`Riešenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -461,7 +437,6 @@ export const usePayments = () => {
       };
     } catch (error) {
       console.error('Chyba pri kontrole stavu platby:', error);
-      showError(`Chyba pri kontrole stavu platby: ${error instanceof Error ? error.message : String(error)}`);
       return {
         isPaid: false,
         txHash: null,
@@ -478,11 +453,9 @@ export const usePayments = () => {
         throw new Error('Prosím, pripojte svoju peňaženku');
       }
       console.log('Odosiela sa práca pre objednávku:', orderId);
-      success('Práca úspešne odoslaná!');
       return 'work-submitted';
     } catch (error) {
       console.error('Odoslanie práce zlyhalo:', error);
-      showError(`Odoslanie práce zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
