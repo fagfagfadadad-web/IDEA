@@ -677,9 +677,9 @@ const OrderDetails = () => {
   };
 
   const isClient = user?.id === order?.client?.id;
-  const isProvider = user?.id === order?.gig?.provider?.id || 
+  const isProvider = user?.id === order?.gig?.users?.id || 
                     (user && order?.provider_address && user.wallet_address === order.provider_address) ||
-                    (user && order?.gig?.users && order.gig.users.some((u: any) => u.wallet_address === user.wallet_address));
+                    (user && order?.gig?.users && order.gig.users.wallet_address === user.wallet_address);
 
   const canPay = isClient && 
                  (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
