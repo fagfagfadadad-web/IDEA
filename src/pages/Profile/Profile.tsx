@@ -626,6 +626,25 @@ export const Profile = () => {
                 ) : (
                   <div className="space-y-4">
                     {orders?.slice(0, 5).map((order) => (
+                      // Calculate if 3 days have passed since completion
+                      const isCompleted = order.status === 'completed';
+                      const completionDate = new Date(order.status_updated_at);
+                      const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                      const now = new Date();
+                      const canClaim = isCompleted && now >= threeDaysLater;
+                      const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
+                      
+                      // Format countdown
+                      const formatCountdown = (ms: number) => {
+                        const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        if (days > 0) return `${days}d ${hours}h`;
+                        if (hours > 0) return `${hours}h ${minutes}m`;
+                        return `${minutes}m`;
+                      };
+                      
                       <div
                         key={order.id}
                         className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
@@ -839,10 +858,12 @@ export const Profile = () => {
                       const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
                       
                       return (
-                        <div key={rating} className="flex items-center gap-3">
+                          <div 
+                            className="flex justify-between items-start cursor-pointer"
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                          >
                           <div className="flex items-center gap-1 w-12">
-                            <span className="text-gray-800 text-sm">{rating}</span>
-                            <Star size={12} className="text-yellow-500" />
+                          className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300"
                           </div>
                           <div className="flex-1 bg-gray-200 rounded-full h-2">
                             <div
@@ -853,6 +874,40 @@ export const Profile = () => {
                           <span className="text-gray-600 text-sm w-12 text-right">
                             {count}
                           </span>
+                          
+                          {/* Claim Payment Section for Completed Orders */}
+                          {isCompleted && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-800">
+                                    {canClaim ? '💰 Ready to claim payment' : '⏳ Payment claim available in:'}
+                                  </p>
+                                  {!canClaim && (
+                                    <p className="text-xs text-gray-600">
+                                      {formatCountdown(timeUntilClaim)}
+                                    </p>
+                                  )}
+                                </div>
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (canClaim) {
+                                      handleClaimPayment(order.id);
+                                    }
+                                  }}
+                                  disabled={!canClaim}
+                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                    canClaim 
+                                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  }`}
+                                >
+                                  {canClaim ? 'Claim Payment' : `Wait ${formatCountdown(timeUntilClaim)}`}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
