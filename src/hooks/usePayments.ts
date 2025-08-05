@@ -4,6 +4,17 @@ import { signAndSendTransactions } from '../helpers';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+// Helper function to validate MultiversX address
+const isValidAddress = (addr: string | undefined): boolean => {
+  if (!addr) return false;
+  try {
+    new Address(addr);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const usePayments = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
@@ -27,7 +38,7 @@ export const usePayments = () => {
   const addressToHex = (bech32Address: string): string => {
     try {
       const addressObj = new Address(bech32Address);
-      if (addressObj.isZero()) {
+      if (addressObj.bech32() === 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu') {
         throw new Error('Adresa nemôže byť nulová');
       }
       return addressObj.hex();
@@ -52,7 +63,7 @@ export const usePayments = () => {
     try {
       console.log('🔍 Kontrola zostatku peňaženky:', { walletAddress, requiredAmount, tokenId });
 
-      if (!walletAddress || !new Address(walletAddress).isValid()) {
+      if (!isValidAddress(walletAddress)) {
         throw new Error('Neplatná adresa peňaženky');
       }
 
