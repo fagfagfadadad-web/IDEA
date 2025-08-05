@@ -98,7 +98,7 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
         >
           <div className="w-full space-y-4 sm:space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="text-lg sm:text-xl font-bold text-white">Order Requirements</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-grey">Order Requirements</h3>
               <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-white"
