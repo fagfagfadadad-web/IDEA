@@ -155,6 +155,7 @@ export const useCreateOrder = () => {
       }
 
       const providerAddress = gig?.users?.wallet_address;
+      const providerAddress = gig?.users?.[0]?.wallet_address;
       if (!providerAddress || !isValidAddress(providerAddress)) {
         console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
         throw new Error('Provider address not found or invalid for gig');

@@ -100,6 +100,7 @@ export const usePayments = () => {
           }
         } catch (error) {
           console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
+          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error instanceof Error ? error.message : 'Unknown error');
           balance = 0;
         }
       }
@@ -122,12 +123,13 @@ export const usePayments = () => {
       };
     } catch (error) {
       console.error('💥 Chyba pri kontrole zostatku:', error.message);
-      toast.error(`Chyba pri kontrole zostatku: ${error.message}`);
+      console.error('💥 Chyba pri kontrole zostatku:', error instanceof Error ? error.message : 'Unknown error');
+      toast.error(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return {
         hasEnoughFunds: false,
         balance: 0,
         required: requiredAmount,
-        error: error instanceof Error ? error.message : 'Neznáma chyba'
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   };
@@ -197,7 +199,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error('Platba zlyhala:', error);
-      toast.error(`Platba zlyhala: ${error.message}`);
+      toast.error(`Platba zlyhala: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -262,7 +264,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error(`${tokenId} platba zlyhala:`, error);
-      toast.error(`${tokenId} platba zlyhala: ${error.message}`);
+      toast.error(`${tokenId} platba zlyhala: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -305,7 +307,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error('Uvoľnenie zlyhalo:', error);
-      toast.error(`Uvoľnenie zlyhalo: ${error.message}`);
+      toast.error(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -348,7 +350,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error('Vyžadovanie zlyhalo:', error);
-      toast.error(`Vyžadovanie zlyhalo: ${error.message}`);
+      toast.error(`Vyžadovanie zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -391,7 +393,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error('Vytvorenie sporu zlyhalo:', error);
-      toast.error(`Vytvorenie sporu zlyhalo: ${error.message}`);
+      toast.error(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -435,7 +437,7 @@ export const usePayments = () => {
       return sessionId;
     } catch (error) {
       console.error('Riešenie sporu zlyhalo:', error);
-      toast.error(`Riešenie sporu zlyhalo: ${error.message}`);
+      toast.error(`Riešenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
@@ -463,7 +465,7 @@ export const usePayments = () => {
       return {
         isPaid: false,
         txHash: null,
-        error: error instanceof Error ? error.message : 'Neznáma chyba'
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   };
@@ -480,7 +482,7 @@ export const usePayments = () => {
       return 'work-submitted';
     } catch (error) {
       console.error('Odoslanie práce zlyhalo:', error);
-      toast.error(`Odoslanie práce zlyhalo: ${error.message}`);
+      toast.error(`Odoslanie práce zlyhalo: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     } finally {
       setIsLoading(false);
