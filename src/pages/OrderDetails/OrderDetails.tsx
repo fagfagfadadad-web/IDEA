@@ -471,14 +471,13 @@ const OrderDetails = () => {
         throw new Error(verification.error || 'Uvoľnenie zlyhalo pri overovaní');
       }
 
-      const releaseTime = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
       const { error } = await supabase
         .from('orders')
         .update({
-          payment_status: 'pending_release',
-          release_at: releaseTime,
+          payment_status: 'released',
           status: 'completed',
-          status_updated_at: new Date().toISOString()
+          status_updated_at: new Date().toISOString(),
+          work_status: 'completed'
         })
         .eq('id', order.id);
 
@@ -487,8 +486,43 @@ const OrderDetails = () => {
         throw new Error(`Aktualizácia databázy zlyhala: ${error.message}`);
       }
 
+      // Send notification to provider
+      try {
+        await supabase.from('notifications').insert({
+          user_id: order.gig?.provider?.id || order.gig?.users?.id,
+          type: 'payment_released',
+          title: 'Payment Released',
+          content: `Platba za objednávku "${order.gig?.title || 'Custom Project'}" bola úspešne uvoľnená.`,
+          data: { order_id: order.id },
+          read: false
+        });
+      } catch (notificationError) {
+        console.error('Error sending notification:', notificationError);
+        // Don't fail the whole process if notification fails
+      }
+
+      // Add system message to chat
+      try {
+        await supabase.from('messages').insert({
+          order_id: order.id,
+          sender_id: user?.id || order.client?.id,
+          content: JSON.stringify({
+            type: 'payment_released',
+            message: '💰 Platba bola úspešne uvoľnená! Objednávka je dokončená.',
+          }),
+          attachments: [],
+        });
+      } catch (messageError) {
+        console.error('Error adding system message:', messageError);
+        // Don't fail the whole process if message fails
+      }
+
       toast.success('Platba úspešne uvoľnená!');
-      setShowReviewModal(true);
+      
+      // Force refresh the order data
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error('Release error:', error);
       toast.error(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
