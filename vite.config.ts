@@ -1,11 +1,26 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import svgrPlugin from 'vite-plugin-svgr';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
   server: {
+    port: Number(process.env.PORT) || 3000,
+    strictPort: true,
+    host: true,
+    https: false, // Vypni HTTPS
+    watch: {
+      usePolling: false,
+      useFsEvents: false,
+    },
+    hmr: {
+      overlay: false,
+    },
+  },
+  build: {
+    outDir: 'build',
+    sourcemap: false,
     rollupOptions: {
       output: {
         sourcemap: false,
@@ -32,7 +47,6 @@ export default defineConfig({
     svgrPlugin(),
     nodePolyfills({
       globals: { Buffer: true, global: true, process: true },
-      include: ['timers'],
     }),
   ],
 });
