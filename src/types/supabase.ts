@@ -34,6 +34,7 @@ export interface Database {
           website_url: string | null
           discord_username: string | null
           telegram_username: string | null
+          is_banned: boolean | null
         }
         Insert: {
           id?: string
@@ -54,6 +55,7 @@ export interface Database {
           website_url?: string | null
           discord_username?: string | null
           telegram_username?: string | null
+          is_banned?: boolean | null
         }
         Update: {
           id?: string
@@ -74,6 +76,7 @@ export interface Database {
           website_url?: string | null
           discord_username?: string | null
           telegram_username?: string | null
+          is_banned?: boolean | null
         }
       }
       gigs: {
