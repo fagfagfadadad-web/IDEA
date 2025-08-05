@@ -691,11 +691,11 @@ const OrderDetails = () => {
     const now = new Date();
     const deadline = new Date(order.deadline);
     const diff = deadline.getTime() - now.getTime();
-    if (diff <= 0) return 'Deadline expired';
+    if (diff <= 0) return 'Termín vypršal';
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    if (days > 0) return `${days} days remaining`;
-    return `${hours} hours remaining`;
+    if (days > 0) return `${days} dní zostáva`;
+    return `${hours} hodín zostáva`;
   };
 
   const isClient = user?.id === order?.client?.id;
@@ -1090,7 +1090,7 @@ const OrderDetails = () => {
                 <DollarSign size={16} />
                 {isPaymentLoading ? 'Processing...' : 'Pay Now'}
               </Button>
-            <p className="text-white">Loading order details...</p>
+            </div>
           </div>
         </div>
       )}
