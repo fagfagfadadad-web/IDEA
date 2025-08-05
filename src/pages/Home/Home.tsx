@@ -6,6 +6,7 @@ import { RouteNamesEnum } from 'localConstants';
 import { useAllGigs } from '../../hooks/useGigs';
 import { useClientRequests } from '../../hooks/useClientRequests';
 import { useWindowSize } from '../../hooks/useWindowSize';
+import { useTrackGigView } from '../../hooks/useGigViews';
 import {
   Code,
   Palette,
@@ -75,6 +76,7 @@ export const Home = () => {
   const { address } = useGetAccount();
   const { data: gigs, isLoading: gigsLoading, error: gigsError } = useAllGigs();
   const { data: requests, isLoading: requestsLoading, error: requestsError } = useClientRequests();
+  const { trackView } = useTrackGigView();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -237,7 +239,7 @@ export const Home = () => {
   const handleGigClick = (gigId: string) => {
     try {
       // Track view before navigation
-      trackView(gigId, user?.id);
+      trackView(gigId);
       navigate(`/gigs/${gigId}`);
     } catch (error) {
       console.error("Navigation error:", error);
