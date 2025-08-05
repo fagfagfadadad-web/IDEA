@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useToast } from '../context/ToastContext';
+import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks';
+import { sendTransactions } from '@multiversx/sdk-dapp/services';
+import { Address, ContractFunction, ResultsParser, SmartContract, Transaction } from '@multiversx/sdk-core';
+import { contractAddress } from '../config';
 
 interface DisputeModalProps {
   isOpen: boolean;
@@ -19,6 +23,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success: showSuccessToast, error: showErrorToast } = useToast();
+  const { address } = useGetAccountInfo();
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
@@ -26,12 +31,34 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
       return;
     }
 
+    if (!address) {
+      showErrorToast('Please connect your wallet first');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       
-      // Mock dispute submission - replace with real implementation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      console.log('Submitting dispute:', { orderId: order.id, reason });
+      // Create smart contract transaction for dispute
+      const contract = new SmartContract({
+        address: new Address(contractAddress)
+      });
+
+      const transaction = contract.methodsExplicit
+        .createDispute([order.id, reason])
+        .withSender(new Address(address))
+        .withGasLimit(10000000)
+        .withChainID('D')
+        .buildTransaction();
+
+      await sendTransactions({
+        transactions: [transaction],
+        transactionsDisplayInfo: {
+          processingMessage: 'Creating dispute...',
+          errorMessage: 'Dispute creation failed',
+          successMessage: 'Dispute created successfully'
+        }
+      });
       
       showSuccessToast('Dispute submitted successfully. An admin will review your case.');
       
@@ -51,7 +78,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-md sm:max-w-lg md:max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="p-4 sm:p-6">
         <div className="space-y-6">
           <div>
@@ -125,6 +152,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
               {isSubmitting ? 'Submitting...' : 'Submit Dispute'}
             </Button>
           </div>
+        </div>
         </div>
       </Card>
     </div>
