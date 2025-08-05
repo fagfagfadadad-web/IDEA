@@ -1,10 +1,23 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
+// Throttle tracking to prevent spam - store last track time per gig
+const lastTrackTimes = new Map<string, number>();
+const TRACK_THROTTLE_MS = 10 * 60 * 1000; // 10 minutes
+
 export const useTrackGigView = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const trackView = async (gigId: string, userId?: string) => {
+    // Check if we've tracked this gig recently
+    const now = Date.now();
+    const lastTrackTime = lastTrackTimes.get(gigId);
+    
+    if (lastTrackTime && (now - lastTrackTime) < TRACK_THROTTLE_MS) {
+      console.log(`View tracking throttled for gig ${gigId} - last tracked ${Math.round((now - lastTrackTime) / 1000 / 60)} minutes ago`);
+      return { success: true, throttled: true };
+    }
+
     setIsLoading(true);
     try {
       // Get user's IP address (simplified - in production you might want a more robust solution)
@@ -49,7 +62,7 @@ export const useTrackGigView = () => {
       }
 
       if (existingView) {
-        console.log('IP already viewed this gig in the last 24 hours');
+        console.log(`IP already viewed gig ${gigId} in the last 24 hours`);
         return { success: true, alreadyViewed: true };
       }
 
@@ -64,14 +77,16 @@ export const useTrackGigView = () => {
         });
 
       if (error) {
-        console.error('Error tracking gig view:', error);
+        console.error(`Error tracking view for gig ${gigId}:`, error);
         return { success: false, error: error.message };
       }
 
-      console.log('Gig view tracked successfully');
+      // Update throttle time only on successful track
+      lastTrackTimes.set(gigId, now);
+      console.log(`Gig view tracked successfully for ${gigId}`);
       return { success: true, alreadyViewed: false };
     } catch (error) {
-      console.error('Error tracking gig view:', error);
+      console.error(`Error tracking view for gig ${gigId}:`, error);
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     } finally {
       setIsLoading(false);
