@@ -988,7 +988,7 @@ const OrderDetails = () => {
                           }}
                         />
                         <div 
-                          className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-grey absolute inset-0"
+                          className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white absolute inset-0"
                           style={{ display: 'none' }}
                         >
                           {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
@@ -1000,7 +1000,7 @@ const OrderDetails = () => {
                       </div>
                     )}
                   </div>
-                  <span className="text-white">{order.client?.username || "Unknown"}</span>
+                  <span className="text-grey">{order.client?.username || "Unknown"}</span>
                 </div>
               </div>
               <div>
