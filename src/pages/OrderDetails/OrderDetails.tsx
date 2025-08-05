@@ -824,10 +824,10 @@ const OrderDetails = () => {
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">
-                  🏛️ Spor vyriešený administráciou
+                  🏛️ Dispute Resolved by Administration
                 </h3>
                 <p className="text-gray-300 max-w-sm mx-auto">
-                  Tento spor bol oficiálne vyriešený administráciou platformy. Rozhodnutie je konečné a prostriedky boli distribuované.
+                  This dispute has been officially resolved by platform administration. The decision is final and funds have been distributed.
                 </p>
               </div>
             )}
@@ -892,9 +892,9 @@ const OrderDetails = () => {
               <div className="bg-green-100 border border-green-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Work Delivered</h3>
+                    <h3 className="text-gray-800 font-bold">Práca odovzdaná</h3>
                     <p className="text-gray-800">
-                      The provider has delivered the work. Please review and release payment if you're satisfied.
+                      Poskytovateľ odovzdal prácu. Prosím, skontrolujte a uvoľnite platbu, ak ste spokojní.
                     </p>
                   </div>
                   <Button
@@ -903,7 +903,7 @@ const OrderDetails = () => {
                     disabled={isReleaseLoading}
                   >
                     <Check size={16} />
-                    Release Payment
+                    Uvoľniť platbu
                   </Button>
                 </div>
               </div>
