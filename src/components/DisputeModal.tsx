@@ -91,7 +91,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please explain in detail why you're disputing this order..."
-              rows={4}
+              rows={6}
               className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
             />
             <p className="text-gray-400 text-xs">
@@ -110,24 +110,25 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <div className="flex gap-3 pt-4">
             <Button
               onClick={onClose}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg order-2 sm:order-1"
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg order-1 sm:order-2"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
               disabled={!reason.trim() || isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit Dispute'}
             </Button>
           </div>
         </div>
-        </div>
-      </div>
+      </Card>
     </div>
   );
 };
+  )
+}
