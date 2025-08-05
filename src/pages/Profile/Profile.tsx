@@ -603,7 +603,8 @@ export const Profile = () => {
                   <label className="block text-gray-800 text-sm font-medium mb-2">
                     Profile Picture URL
                   </label>
-                  <div className="flex items-center gap-4">
+                  <div className="space-y-3">
+                    {/* Current avatar preview */}
                     <div className="w-16 h-16 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white">
                       {editForm.avatar_url ? (
                         <img
@@ -632,17 +633,19 @@ export const Profile = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex-1">
+                    
+                    {/* URL input */}
+                    <div>
                       <input
                         type="url"
                         name="avatar_url"
                         value={editForm.avatar_url}
                         onChange={handleEditFormChange}
                         placeholder="https://example.com/your-avatar.jpg"
-                        className="w-full p-2 border border-gray-300 rounded-md text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                       <p className="text-gray-600 text-xs mt-1">
-                        Enter a direct URL to your profile image
+                        Enter a direct URL to your profile image (JPG, PNG, GIF)
                       </p>
                     </div>
                   </div>
