@@ -51,7 +51,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
         .withChainID('D')
         .buildTransaction();
 
-      await sendTransactions({
+      await signAndSendTransactions({
         transactions: [transaction],
         transactionsDisplayInfo: {
           processingMessage: 'Creating dispute...',
