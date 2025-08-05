@@ -23,7 +23,8 @@ import {
   MoreVertical,
   Trash2,
   TrendingUp,
-  Coins
+  Coins,
+  Plus
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
