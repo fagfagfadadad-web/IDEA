@@ -20,7 +20,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason for the dispute');
+      showErrorToast('Please provide a reason for the dispute');
       return;
     }
 
@@ -31,7 +31,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
       await new Promise(resolve => setTimeout(resolve, 2000));
       console.log('Submitting dispute:', { orderId: order.id, reason });
       
-      alert('Dispute submitted successfully. An admin will review your case.');
+      showSuccessToast('Dispute submitted successfully. An admin will review your case.');
       
       setReason('');
       onClose();
@@ -39,7 +39,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
         onDisputeSubmitted();
       }
     } catch (error) {
-      alert('Error submitting dispute. Please try again later.');
+      showErrorToast('Error submitting dispute. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card, OrderChat } from 'components';
+import { Button, Card, OrderChat, DisputeModal } from 'components';
 import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
@@ -1094,6 +1094,17 @@ const OrderDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Dispute Modal */}
+      <DisputeModal
+        isOpen={showDisputeModal}
+        onClose={() => setShowDisputeModal(false)}
+        order={order}
+        onDisputeSubmitted={() => {
+          setShowDisputeModal(false);
+          window.location.reload();
+        }}
+      />
 
     </div>
   );
