@@ -213,7 +213,7 @@ const OrderDetails = () => {
         return null;
       }
       
-      const walletAddress = data?.users?.wallet_address;
+      const walletAddress = data?.users?.[0]?.wallet_address;
       console.log('Fetched provider data:', { data, walletAddress });
       
       if (!isValidAddress(walletAddress)) {

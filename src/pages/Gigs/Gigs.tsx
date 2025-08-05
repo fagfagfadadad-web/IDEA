@@ -7,8 +7,6 @@ import { useAllGigs } from '../../hooks/useGigs';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { useTrackGigView } from '../../hooks/useGigViews';
 import { useAuth } from '../../context/AuthContext';
-import { useTrackGigView } from '../../hooks/useGigViews';
-import { useAuth } from '../../context/AuthContext';
 
 const categories = [
   'Programming & Tech',
