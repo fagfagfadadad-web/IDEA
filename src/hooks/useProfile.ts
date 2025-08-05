@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useToast } from '../context/ToastContext';
 
 export const useProfile = (id?: string) => {
   const [data, setData] = useState<any>(null);
@@ -104,7 +103,6 @@ export const useProfile = (id?: string) => {
 export const useUpdateProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
-  const { success, error: showError } = useToast();
 
   const mutateAsync = async (profileData: {
     username?: string;
@@ -132,11 +130,9 @@ export const useUpdateProfile = () => {
 
       if (error) throw error;
 
-      success('Profile updated successfully');
       return updatedProfile;
     } catch (error) {
       console.error('Error updating profile:', error);
-      showError('Failed to update profile. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
