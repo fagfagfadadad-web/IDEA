@@ -6,6 +6,7 @@ import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Addr
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
 import axios from 'axios';
 
@@ -184,6 +185,7 @@ const OrderDetails = () => {
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
   const { user } = useAuth();
+  const { success, error: showError } = useToast();
   
   const { data: order, isLoading, error } = useOrderById(id || '');
 
@@ -629,11 +631,11 @@ const OrderDetails = () => {
         attachments: [],
       });
 
-      showToast('Work has been successfully delivered', 'success');
+      success('Work has been successfully delivered');
       window.location.reload();
     } catch (error) {
       console.error('Submit work error:', error);
-      showToast(error instanceof Error ? error.message : 'Error submitting work', 'error');
+      showError(error instanceof Error ? error.message : 'Error submitting work');
     } finally {
       setIsSubmitWorkLoading(false);
     }

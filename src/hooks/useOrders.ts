@@ -168,7 +168,7 @@ export const useCreateOrder = () => {
           amount: orderData.amount,
           requirements: orderData.requirements || {},
           deadline: orderData.deadline,
-          payment_token: gig.payment_token || 'EGLD',
+          payment_token: (gig as any).payment_token || 'EGLD',
           status: 'pending_approval',
           payment_status: 'pending',
           work_status: 'pending',
