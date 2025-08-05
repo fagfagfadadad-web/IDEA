@@ -108,7 +108,7 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-sm sm:text-base md:text-lg font-medium text-white">
+              <h4 className="text-sm sm:text-base md:text-lg font-medium text-grey">
                 {gig?.title || 'Loading...'}
               </h4>
               <p className="text-gray-400 text-xs sm:text-sm md:text-base">
