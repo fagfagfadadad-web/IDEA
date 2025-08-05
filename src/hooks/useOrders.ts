@@ -154,7 +154,11 @@ export const useCreateOrder = () => {
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      const providerAddress = gig?.provider?.[0]?.wallet_address;
+      // Handle both array and object responses from Supabase
+      const providerAddress = Array.isArray(gig?.provider) 
+        ? gig?.provider?.[0]?.wallet_address 
+        : gig?.provider?.wallet_address;
+        
       if (!providerAddress || !isValidAddress(providerAddress)) {
         console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
         throw new Error('Provider address not found or invalid for gig');

@@ -213,7 +213,11 @@ const OrderDetails = () => {
         return null;
       }
       
-      const walletAddress = data?.users?.[0]?.wallet_address;
+      // Handle both array and object responses from Supabase
+      const walletAddress = Array.isArray(data?.users) 
+        ? data?.users?.[0]?.wallet_address 
+        : data?.users?.wallet_address;
+        
       console.log('Fetched provider data:', { data, walletAddress });
       
       if (!isValidAddress(walletAddress)) {
