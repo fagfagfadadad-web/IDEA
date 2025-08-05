@@ -215,6 +215,8 @@ const OrderDetails = () => {
       
       const walletAddress = data?.provider?.wallet_address;
         
+      const walletAddress = data?.provider?.[0]?.wallet_address;
+        
       console.log('Fetched provider data:', { data, walletAddress });
       
       if (!isValidAddress(walletAddress)) {
