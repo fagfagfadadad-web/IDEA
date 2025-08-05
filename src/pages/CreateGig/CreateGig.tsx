@@ -53,9 +53,10 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
+  const isEditMode = isEditing || window.location.pathname.includes('/edit');
 
   // Real hooks
-  const { data: gig, isLoading: isGigLoading } = useGigById(id || '');
+  const { data: gig, isLoading: isGigLoading } = useGigById(isEditMode && id ? id : '');
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const createGig = useCreateGig();
   const updateGig = useUpdateGig();
@@ -83,7 +84,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
   // Load gig data when editing
   useEffect(() => {
-    if (isEditing && gig) {
+    if (isEditMode && gig) {
       // Extract package details from description
       const parts = gig.description.split('\n\nPackage Includes:\n');
       const description = parts[0];
@@ -101,7 +102,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
       setPackageDetails(details);
     }
-  }, [isEditing, gig]);
+  }, [isEditMode, gig]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     acceptedFiles.forEach(file => {
@@ -203,7 +204,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
         status: formData.status,
       };
 
-      if (isEditing && id) {
+      if (isEditMode && id) {
         await updateGig.mutateAsync({ ...gigData, id });
         alert('Gig updated successfully');
       } else {
@@ -214,7 +215,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       navigate('/profile');
     } catch (error) {
       console.error('Error creating/updating gig:', error);
-      alert(`Error ${isEditing ? 'updating' : 'creating'} gig: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Error ${isEditMode ? 'updating' : 'creating'} gig: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -227,7 +228,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
   const selectedToken = paymentTokens.find(token => token.id === formData.payment_token);
 
-  if (isEditing && isGigLoading) {
+  if (isEditMode && isGigLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
         <Card className="p-8" title="Loading Gig" reference="#">
@@ -255,7 +256,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
     <div className="container mx-auto max-w-7xl px-6 py-8">
       <Card className="p-8" title="Create Gig" reference="#">
         <div className="space-y-8">
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold gradient-text mb-2">{isEditing ? 'Edit Gig' : 'Create a New Gig'}</h1>
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold gradient-text mb-2">{isEditMode ? 'Edit Gig' : 'Create a New Gig'}</h1>
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
@@ -614,8 +615,8 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   disabled={createGig.isLoading || updateGig.isLoading}
                 >
                   {createGig.isLoading || updateGig.isLoading 
-                    ? (isEditing ? 'Updating...' : 'Creating...') 
-                    : (isEditing ? 'Update Gig' : 'Create Gig')
+                    ? (isEditMode ? 'Updating...' : 'Creating...') 
+                    : (isEditMode ? 'Update Gig' : 'Create Gig')
                   }
                 </Button>
               </div>
