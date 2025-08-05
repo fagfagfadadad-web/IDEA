@@ -1090,7 +1090,7 @@ const OrderDetails = () => {
                 <DollarSign size={16} />
                 {isPaymentLoading ? 'Processing...' : 'Pay Now'}
               </Button>
-            </div>
+            <p className="text-white">Loading order details...</p>
           </div>
         </div>
       )}
