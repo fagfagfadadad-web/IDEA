@@ -12,3 +12,4 @@ export * from './useReviews';
 export * from './usePayments';
 export * from './useCustomToast';
 export * from './useGigViews';
+export * as useOrders from './useOrders';
