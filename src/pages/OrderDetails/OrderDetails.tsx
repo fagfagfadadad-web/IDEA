@@ -408,7 +408,6 @@ const OrderDetails = () => {
 
       console.log('Platba úspešná a databáza aktualizovaná');
       setShowPaymentModal(false);
-      showToast('Platba bola úspešne spracovaná', 'success');
       window.location.reload();
     } catch (error) {
       console.error('Payment error:', error);
@@ -423,7 +422,7 @@ const OrderDetails = () => {
           ? 'Transakcia zlyhala na smart kontrakte. Možno už existuje platba pre túto objednávku alebo sú neplatné parametre.'
           : `${tokenDisplayName} platba zlyhala: ${error.message}`
         : `${tokenDisplayName} platba zlyhala: Neznáma chyba`;
-      showToast(errorMessage, 'error');
+      setProviderAddressError(errorMessage);
     } finally {
       setIsPaymentLoading(false);
     }
@@ -582,9 +581,11 @@ const OrderDetails = () => {
       });
 
       setShowDisputeModal(false);
+      showToast('Spor bol úspešne vytvorený', 'success');
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
+      showToast(error instanceof Error ? error.message : 'Chyba pri vytváraní sporu', 'error');
     } finally {
       setIsPaymentLoading(false);
     }
