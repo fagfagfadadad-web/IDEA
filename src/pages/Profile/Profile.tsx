@@ -181,6 +181,24 @@ export const Profile = () => {
     }
   };
 
+  const handleClaimPayment = async (orderId: string) => {
+    try {
+      // Import the payment hook
+      const { usePayments } = await import('../../hooks/usePayments');
+      const { claimPayment } = usePayments();
+      
+      await claimPayment(orderId);
+      
+      // Refresh orders after successful claim
+      if (orders) {
+        // Force refresh by navigating to the order details
+        navigate(`/orders/${orderId}`);
+      }
+    } catch (error) {
+      console.error('Error claiming payment:', error);
+      alert(`Error claiming payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
   if (!isLoggedIn && isOwnProfile) {

@@ -3,6 +3,7 @@ import { Transaction, Address, useGetIsLoggedIn, useGetAccount, useGetNetworkCon
 import { signAndSendTransactions } from '../helpers';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { supabase } from '../lib/supabase';
 
 // Helper function to validate MultiversX address
 const isValidAddress = (addr: string | undefined): boolean => {
