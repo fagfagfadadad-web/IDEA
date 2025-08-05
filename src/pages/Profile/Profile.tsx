@@ -550,30 +550,6 @@ export const Profile = () => {
                           </p>
                         </div>
                       </div>
-                    </div>
-
-                    {isOwnProfile && !isEditing && (
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleEditProfile}
-                          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm"
-                        >
-                          <Edit size={14} />
-                          Edit Profile
-                        </Button>
-                        <Button
-                          onClick={() => navigate('/create-gig')}
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm"
-                        >
-                          <Briefcase size={14} />
-                          Create Gig
-                        </Button>
-                      </div>
-                    )}
-
-                    <div className="text-gray-600 text-xs text-center">
-                      <p>Member since {new Date(profile.created_at).toLocaleDateString()}</p>
-                    </div>
                   </div>
                 )}
               </div>

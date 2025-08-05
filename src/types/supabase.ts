@@ -53,8 +53,6 @@ export interface Database {
           github_url?: string | null
           linkedin_url?: string | null
           website_url?: string | null
-          discord_username?: string | null
-          telegram_username?: string | null
           is_banned?: boolean | null
         }
         Update: {
@@ -74,8 +72,6 @@ export interface Database {
           github_url?: string | null
           linkedin_url?: string | null
           website_url?: string | null
-          discord_username?: string | null
-          telegram_username?: string | null
           is_banned?: boolean | null
         }
       }
