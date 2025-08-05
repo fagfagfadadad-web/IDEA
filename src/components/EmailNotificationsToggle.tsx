@@ -64,24 +64,24 @@ export const EmailNotificationsToggle: React.FC<EmailNotificationsToggleProps> =
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+          className="flex-1 min-w-0 p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           <div className="relative w-24">
-            {!isLoading && !showSuccess && (
+        <div className="relative w-20 flex-shrink-0">
               <Button
                 onClick={handleEmailSubmit}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
-              >
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-2 rounded-lg text-sm"
                 Add
               </Button>
             )}
             {isLoading && !showSuccess && (
               <div className="w-full h-12 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            <div className="w-full h-[48px] flex items-center justify-center">
               </div>
             )}
             {showSuccess && (
               <div className="w-full h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                <Check size={20} className="text-white" />
+            <div className="w-full h-[48px] bg-green-500 rounded-lg flex items-center justify-center">
               </div>
             )}
           </div>
