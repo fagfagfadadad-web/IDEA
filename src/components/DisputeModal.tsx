@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
-import { useToast } from '../context/ToastContext';
 
 interface DisputeModalProps {
   isOpen: boolean;
@@ -18,11 +17,10 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 }) => {
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { success, error: showError } = useToast();
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
-      showError('Please provide a reason for the dispute');
+      alert('Please provide a reason for the dispute');
       return;
     }
 
@@ -33,7 +31,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
       await new Promise(resolve => setTimeout(resolve, 2000));
       console.log('Submitting dispute:', { orderId: order.id, reason });
       
-      success('Dispute submitted successfully. An admin will review your case.');
+      alert('Dispute submitted successfully. An admin will review your case.');
       
       setReason('');
       onClose();
@@ -41,7 +39,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
         onDisputeSubmitted();
       }
     } catch (error) {
-      showError('Error submitting dispute. Please try again later.');
+      alert('Error submitting dispute. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }

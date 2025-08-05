@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Star } from 'lucide-react';
 import { useCreateReview, useOrderReview } from '../hooks/useReviews';
 import { Button, Card } from 'components';
-import { useToast } from '../context/ToastContext';
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -22,7 +21,6 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [hoveredRating, setHoveredRating] = useState(0);
   const [comment, setComment] = useState(existingReview?.comment || '');
   const createReview = useCreateReview();
-  const { success, error: showError } = useToast();
 
   // Update state when existing review changes
   React.useEffect(() => {
@@ -34,12 +32,12 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      showError('Please select a rating from 1 to 5 stars');
+      alert('Please select a rating from 1 to 5 stars');
       return;
     }
 
     if (!comment.trim()) {
-      showError('Please write a review comment');
+      alert('Please write a review comment');
       return;
     }
 
@@ -63,7 +61,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         onReviewSubmitted();
       }
     } catch (error) {
-      showError('Error submitting review. Please try again later.');
+      alert('Error submitting review. Please try again later.');
     }
   };
 

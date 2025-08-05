@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
-import { useToast } from '../context/ToastContext';
 
 export type Notification = {
   id: string;
@@ -76,7 +75,6 @@ export const useNotifications = () => {
 
 export const useMarkNotificationAsRead = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { success, error: showError } = useToast();
 
   const mutateAsync = async (notificationId: string) => {
     setIsLoading(true);
@@ -88,11 +86,9 @@ export const useMarkNotificationAsRead = () => {
 
       if (error) throw error;
 
-      success('Notification marked as read');
       return notificationId;
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      showError('Failed to mark notification as read.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -108,7 +104,6 @@ export const useMarkNotificationAsRead = () => {
 export const useMarkAllNotificationsAsRead = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
-  const { success, error: showError } = useToast();
 
   const mutateAsync = async () => {
     setIsLoading(true);
@@ -136,11 +131,9 @@ export const useMarkAllNotificationsAsRead = () => {
 
       if (error) throw error;
 
-      success('All notifications marked as read');
       return [];
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      showError('Failed to mark all notifications as read.');
       throw error;
     } finally {
       setIsLoading(false);
