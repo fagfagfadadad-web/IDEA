@@ -237,6 +237,14 @@ export const useOrderById = (orderId: string) => {
           .single();
 
         if (error) {
+          // Handle 'not found' case gracefully
+          if (error.code === 'PGRST116') {
+            console.log('Order not found:', orderId);
+            setData(null);
+            setError(null);
+            return;
+          }
+          
           console.error('Supabase error fetching order:', error);
           throw new Error(`Failed to fetch order: ${error.message}`);
         }
