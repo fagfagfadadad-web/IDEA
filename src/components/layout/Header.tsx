@@ -371,7 +371,6 @@ export const Header = () => {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <Settings size={18} />
-                          navigate(RouteNamesEnum.home);
                     Settings
                   </Link>
                   <button
