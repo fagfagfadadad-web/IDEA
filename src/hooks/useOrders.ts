@@ -237,7 +237,7 @@ export const useOrderById = (orderId: string) => {
         }
 
         if (!order) throw new Error('Order not found');
-        const providerAddress = gig?.users?.[0]?.wallet_address;
+        const providerAddress = order.gig?.users?.[0]?.wallet_address;
         console.log('Fetched order data:', JSON.stringify(order, null, 2));
         setData(order);
       } catch (err) {
