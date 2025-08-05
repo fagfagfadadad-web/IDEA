@@ -20,7 +20,7 @@ import {
   Eye,
   MessageSquare,
   MessageCircle,
-  MoreVertical
+  MoreVertical,
   Trash2,
   TrendingUp,
   Coins
