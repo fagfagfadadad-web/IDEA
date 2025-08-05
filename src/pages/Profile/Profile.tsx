@@ -27,10 +27,10 @@ import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components'
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
 import { useAuth } from '../../context/AuthContext';
-import { useGigs, useDeleteGig, useUpdateGigStatus } from '../hooks/useGigs';
-import { useOrders } from '../hooks/useOrders';
-import { useNotifications, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
-import { useReviewsForProvider } from '../hooks/useReviews';
+import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
+import { useOrders } from 'hooks';
+import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
+import { useReviewsForProvider } from 'hooks';
 
 export const Profile = () => {
   const { id } = useParams();
