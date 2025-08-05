@@ -691,11 +691,11 @@ const OrderDetails = () => {
     const now = new Date();
     const deadline = new Date(order.deadline);
     const diff = deadline.getTime() - now.getTime();
-    if (diff <= 0) return 'Termín vypršal';
+    if (diff <= 0) return 'Deadline expired';
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    if (days > 0) return `${days} dní zostáva`;
-    return `${hours} hodín zostáva`;
+    if (days > 0) return `${days} days remaining`;
+    return `${hours} hours remaining`;
   };
 
   const isClient = user?.id === order?.client?.id;
@@ -871,9 +871,9 @@ const OrderDetails = () => {
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Work Ready for Delivery?</h3>
+                    <h3 className="text-gray-800 font-bold">Práca pripravená na odovzdanie?</h3>
                     <p className="text-gray-800">
-                      After completing the work, click the button to notify the client.
+                      Po dokončení práce kliknite na tlačidlo pre notifikáciu klienta.
                     </p>
                   </div>
                   <Button
@@ -882,7 +882,7 @@ const OrderDetails = () => {
                     disabled={isSubmitWorkLoading}
                   >
                     <FileText size={16} />
-                    Submit Work
+                    Odovzdať prácu
                   </Button>
                 </div>
               </div>
