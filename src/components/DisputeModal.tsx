@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
+import { useToast } from '../context/ToastContext';
 
 interface DisputeModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
 }) => {
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
 
   const handleSubmit = async () => {
     if (!reason.trim()) {
@@ -48,8 +50,9 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" title="Dispute Modal" reference="#">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-xl w-full max-w-md sm:max-w-lg md:max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6">
         <div className="space-y-6">
           <div>
             <h3 className="text-xl font-bold text-white mb-2">Initiate Dispute</h3>
@@ -88,7 +91,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Please explain in detail why you're disputing this order..."
-              rows={6}
+              rows={4}
               className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
             />
             <p className="text-gray-400 text-xs">
@@ -107,23 +110,24 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
             </p>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               onClick={onClose}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg order-2 sm:order-1"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg order-1 sm:order-2"
               disabled={!reason.trim() || isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit Dispute'}
             </Button>
           </div>
         </div>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
