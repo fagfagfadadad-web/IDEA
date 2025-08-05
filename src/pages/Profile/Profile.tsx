@@ -21,7 +21,8 @@ import {
   MessageSquare,
   Plus,
   Trash2,
-  MoreVertical,
+  Eye,
+  TrendingUp
   Coins
 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
