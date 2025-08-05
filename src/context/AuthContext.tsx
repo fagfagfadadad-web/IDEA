@@ -326,7 +326,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Enhance auth user with profile data
         const enhancedUser = {
           ...authUser,
-          is_admin: existingUserById.is_admin
+          is_admin: existingUserById.is_admin,
+          wallet_address: walletAddress
         };
         
         setUser(enhancedUser);
@@ -386,7 +387,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Enhance auth user with profile data
       const enhancedUser = {
         ...authUser,
-        is_admin: profile.is_admin
+        is_admin: profile.is_admin,
+        wallet_address: walletAddress
       };
       
       setUser(enhancedUser);

@@ -677,19 +677,36 @@ const OrderDetails = () => {
   };
 
   const isClient = user?.id === order?.client?.id;
-  const isProvider = user?.id === order?.gig?.provider?.id;
+  const isProvider = user?.id === order?.gig?.provider?.id || 
+                    (user && order?.provider_address && user.wallet_address === order.provider_address) ||
+                    (user && order?.gig?.users && order.gig.users.some((u: any) => u.wallet_address === user.wallet_address));
 
   const canPay = isClient && 
                  (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
                  order?.payment_status === 'pending' && 
                  !providerAddressError;
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
-  const canSubmitWork = isProvider && order?.status === 'in_progress' && order?.payment_status === 'escrowed' && order?.work_status !== 'submitted';
+  const canSubmitWork = isProvider && 
+                        order?.status === 'in_progress' && 
+                        order?.payment_status === 'escrowed' && 
+                        order?.work_status !== 'submitted';
   const canDispute = (isClient || isProvider) && order?.payment_status === 'escrowed' && order?.status !== 'completed' && order?.status !== 'cancelled' && order?.payment_status !== 'disputed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
   useEffect(() => {
+    console.log('🔍 OrderDetails: Debug info:', {
+      userId: user?.id,
+      userWalletAddress: user?.wallet_address,
+      orderProviderAddress: order?.provider_address,
+      gigProviderId: order?.gig?.provider?.id,
+      isProvider,
+      canSubmitWork,
+      orderStatus: order?.status,
+      paymentStatus: order?.payment_status,
+      workStatus: order?.work_status
+    });
+    
     if (order && !isLoading) {
       const providerAddress = order.provider_address || order.gig?.users?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
