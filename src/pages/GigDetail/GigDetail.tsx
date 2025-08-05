@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Check, Star, MessageCircle, DollarSign, Coins, AlertTriangle } from 'lucide-react';
+import { Check, Star, MessageCircle, DollarSign, Coins, AlertTriangle, User } from 'lucide-react';
 import { Button, Card, OrderRequirementsModal } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useGigById, useAllGigs } from '../../hooks/useGigs';
@@ -321,6 +321,13 @@ export const GigDetail = () => {
                   <p className="font-bold text-white">1 hour</p>
                 </div>
               </div>
+              <Button
+                onClick={() => navigate(`/profile/${gig.provider?.id}`)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
+              >
+                <User size={16} />
+                View Full Profile
+              </Button>
             </div>
           </div>
         </div>
