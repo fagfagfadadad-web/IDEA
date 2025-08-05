@@ -550,6 +550,26 @@ export const Profile = () => {
                           </p>
                         </div>
                       </div>
+                    </div>
+
+                    {isOwnProfile && (
+                      <div className="flex gap-2 mt-4">
+                        <Button
+                          onClick={handleEditProfile}
+                          className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 text-sm"
+                        >
+                          <Edit size={12} />
+                          Edit
+                        </Button>
+                        <Button
+                          onClick={() => navigate('/create-gig')}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg font-semibold flex items-center justify-center gap-1 text-sm"
+                        >
+                          <Briefcase size={12} />
+                          Create
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
