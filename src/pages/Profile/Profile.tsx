@@ -112,8 +112,6 @@ export const Profile = () => {
         github_url: profile.github_url || '',
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
-        discord_username: profile.discord_username || '',
-        telegram_username: profile.telegram_username || '',
       });
     }
   }, [profile, isOwnProfile]);
@@ -165,8 +163,6 @@ export const Profile = () => {
         github_url: profile.github_url || '',
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
-        discord_username: profile.discord_username || '',
-        telegram_username: profile.telegram_username || '',
       });
     }
   };
@@ -469,22 +465,6 @@ export const Profile = () => {
                         value={editForm.website_url}
                         onChange={(e) => setEditForm({...editForm, website_url: e.target.value})}
                         placeholder="Website URL"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
-                      />
-                      
-                      <input
-                        type="text"
-                        value={editForm.discord_username}
-                        onChange={(e) => setEditForm({...editForm, discord_username: e.target.value})}
-                        placeholder="Discord Username"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
-                      />
-                      
-                      <input
-                        type="text"
-                        value={editForm.telegram_username}
-                        onChange={(e) => setEditForm({...editForm, telegram_username: e.target.value})}
-                        placeholder="Telegram Username"
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
                       />
                     </div>
@@ -1188,28 +1168,6 @@ export const Profile = () => {
                               value={editForm.website_url}
                               onChange={(e) => setEditForm({...editForm, website_url: e.target.value})}
                               placeholder="https://yourwebsite.com"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-gray-700 text-sm font-semibold mb-2">Discord Username</label>
-                            <input
-                              type="text"
-                              value={editForm.discord_username}
-                              onChange={(e) => setEditForm({...editForm, discord_username: e.target.value})}
-                              placeholder="yourusername#1234"
-                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-gray-700 text-sm font-semibold mb-2">Telegram Username</label>
-                            <input
-                              type="text"
-                              value={editForm.telegram_username}
-                              onChange={(e) => setEditForm({...editForm, telegram_username: e.target.value})}
-                              placeholder="@yourusername"
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                             />
                           </div>
