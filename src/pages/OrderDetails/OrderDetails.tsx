@@ -262,7 +262,7 @@ const OrderDetails = () => {
 
     // Check if payment was already made
     if (order.payment_status !== 'pending') {
-      alert('Platba už bola spracovaná alebo je v inom stave');
+      showErrorToast('Payment has already been processed or is in another state');
       return;
     }
 
@@ -275,7 +275,7 @@ const OrderDetails = () => {
 
       // Validate client address
       if (!isValidAddress(address)) {
-        throw new Error('Neplatná adresa klienta');
+        throw new Error('Invalid client address');
       }
 
       let providerAddress = order.provider_address || order.gig?.users?.wallet_address;
