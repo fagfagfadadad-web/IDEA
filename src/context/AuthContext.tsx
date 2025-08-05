@@ -85,8 +85,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('Local cleanup also failed, continuing anyway:', localError.message);
       }
     } finally {
-      // Clear any stale refresh tokens from local storage
-      localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+      // Clear all Supabase-related tokens from local storage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
+          localStorage.removeItem(key);
+        }
+      });
     }
   };
 
