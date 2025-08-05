@@ -204,7 +204,7 @@ const OrderDetails = () => {
       console.log('Fetching provider address for gig:', { gigId });
       const { data, error } = await supabase
         .from('gigs')
-        .select('provider_id, users!provider_id(wallet_address)')
+        .select('provider_id, provider:users!provider_id(wallet_address)')
         .eq('id', gigId)
         .single();
       
@@ -213,10 +213,7 @@ const OrderDetails = () => {
         return null;
       }
       
-      // Handle both array and object responses from Supabase
-      const walletAddress = Array.isArray(data?.users) 
-        ? data?.users?.[0]?.wallet_address 
-        : data?.users?.wallet_address;
+      const walletAddress = data?.provider?.wallet_address;
         
       console.log('Fetched provider data:', { data, walletAddress });
       
