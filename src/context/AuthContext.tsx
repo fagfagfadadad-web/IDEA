@@ -145,8 +145,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             sessionError.message?.includes('Invalid Refresh Token') ||
             sessionError.message?.includes('Refresh Token Not Found')) {
           console.log('🧹 AuthContext: Clearing invalid refresh token');
-          localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
-          await supabase.auth.signOut({ scope: 'local' });
           await handleSupabaseSignOut();
         }
         
