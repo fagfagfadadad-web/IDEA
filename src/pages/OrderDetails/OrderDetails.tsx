@@ -871,9 +871,9 @@ const OrderDetails = () => {
               <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="text-gray-800 font-bold">Work Ready for Delivery?</h3>
+                    <h3 className="text-gray-800 font-bold">Práca pripravená na odovzdanie?</h3>
                     <p className="text-gray-800">
-                      After completing the work, click the button to notify the client.
+                      Po dokončení práce kliknite na tlačidlo pre notifikáciu klienta.
                     </p>
                   </div>
                   <Button
@@ -882,7 +882,7 @@ const OrderDetails = () => {
                     disabled={isSubmitWorkLoading}
                   >
                     <FileText size={16} />
-                    Submit Work
+                    Odovzdať prácu
                   </Button>
                 </div>
               </div>
@@ -968,7 +968,7 @@ const OrderDetails = () => {
 
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-gray-400 mb-2">Klient</p>
+                <p className="text-gray-400 mb-2">Client</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-600">
                     {order.client?.avatar_url ? (
@@ -1000,22 +1000,22 @@ const OrderDetails = () => {
                       </div>
                     )}
                   </div>
-                  <span className="text-white">{order.client?.username || "Neznámy"}</span>
+                  <span className="text-white">{order.client?.username || "Unknown"}</span>
                 </div>
               </div>
               <div>
-                <p className="text-gray-400 mb-2">Suma</p>
+                <p className="text-gray-400 mb-2">Amount</p>
                 <p className="text-blue-400 text-xl font-bold">
                   {order.amount} {tokenDisplayName}
                 </p>
                 {paymentToken === 'EGLD' && (
                   <p className="text-gray-400 text-sm">
-                    Poskytovateľ dostane: {feeInfo.providerGets} EGLD
+                    Provider will receive: {feeInfo.providerGets} EGLD
                   </p>
                 )}
                 {isDisputeResolved && (
                   <p className="text-purple-300 text-sm mt-1">
-                    ✅ Vyriešené adminom
+                    ✅ Resolved by Admin
                   </p>
                 )}
               </div>
