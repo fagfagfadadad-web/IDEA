@@ -68,7 +68,7 @@ export const useProfile = (id?: string) => {
             client:users!orders_client_id_fkey(username, avatar_url),
             reviews(*)
           )
-        `);
+        `)
         .eq('id', user.id)
         .maybeSingle();
 
