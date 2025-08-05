@@ -281,7 +281,7 @@ const OrderDetails = () => {
         throw new Error('Invalid client address');
       }
 
-      let providerAddress = order.provider_address || order.gig?.users?.wallet_address;
+      let providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
         console.log('Provider address not found in order, fetching from database...', { gigId: order.gig_id });
         providerAddress = await fetchProviderAddress(order.gig_id);
