@@ -3,6 +3,43 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
 
+interface OrderDetailsData {
+  id: string;
+  status: string;
+  amount: number;
+  payment_status: string;
+  payment_token: string;
+  provider_address?: string;
+  client_address?: string;
+  deadline?: string;
+  requirements?: any;
+  work_status?: string;
+  transaction_hash?: string;
+  created_at: string;
+  status_updated_at?: string;
+  gig_id?: string;
+  client_id: string;
+  client?: {
+    id: string;
+    username: string;
+    avatar_url?: string;
+    full_name?: string;
+    wallet_address?: string;
+  };
+  gig?: {
+    id: string;
+    title: string;
+    provider_id: string;
+    provider?: {
+      id: string;
+      username: string;
+      avatar_url?: string;
+      full_name?: string;
+      wallet_address: string;
+    };
+  };
+}
+
 interface GigWithProviderWallet {
   id: string;
   title: string;
@@ -221,7 +258,7 @@ export const useCreateOrder = () => {
 };
 
 export const useOrderById = (orderId: string) => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<OrderDetailsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
