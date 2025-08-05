@@ -32,6 +32,51 @@ import { useOrders } from 'hooks';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
 import { useReviewsForProvider } from 'hooks';
 
+// Helper function to calculate earnings from orders
+const calculateEarnings = (orders: any[]) => {
+  const completedOrders = orders?.filter(order => order.status === 'completed') || [];
+  
+  const egldEarnings = completedOrders
+    .filter(order => order.payment_token === 'EGLD')
+    .reduce((sum, order) => sum + (order.amount * 0.9), 0); // 90% after 10% fee
+    
+  const idaEarnings = completedOrders
+    .filter(order => order.payment_token !== 'EGLD')
+    .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
+    
+  return {
+    egld: egldEarnings,
+    ida: idaEarnings,
+    totalOrders: completedOrders.length,
+    totalEarnings: egldEarnings + idaEarnings
+  };
+};
+
+// Helper function to calculate review statistics
+const calculateReviewStats = (reviews: any[]) => {
+  if (!reviews || reviews.length === 0) {
+    return {
+      averageRating: 0,
+      totalReviews: 0,
+      ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    };
+  }
+  
+  const totalReviews = reviews.length;
+  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+  
+  const ratingDistribution = reviews.reduce((dist, review) => {
+    dist[review.rating] = (dist[review.rating] || 0) + 1;
+    return dist;
+  }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  
+  return {
+    averageRating,
+    totalReviews,
+    ratingDistribution
+  };
+};
+
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
