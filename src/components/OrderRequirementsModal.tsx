@@ -25,6 +25,10 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
   const loading = false;
   const isProfileReady = true;
 
+  // Early return if modal is not open or gig is not available
+  if (!isOpen || !gig) {
+    return null;
+  }
   const handleSubmit = async () => {
     if (!user || !isProfileReady) {
       alert('Please wait while we finish setting up your profile');
@@ -36,10 +40,15 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
       return;
     }
 
+    // Additional safety check for gig
+    if (!gig?.id) {
+      alert('Gig information is not available. Please try again.');
+      return;
+    }
     try {
       const order = await createOrder.mutateAsync({
-        gig_id: gig.id,
-        amount: gig.price,
+        gig_id: gig?.id,
+        amount: gig?.price || 0,
         requirements: {
           description: requirements,
           timestamp: new Date().toISOString(),
@@ -47,13 +56,12 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
       });
 
       alert('Order placed successfully. The provider will review your order.');
-      onOrderCreated(order.id);
+      onOrderCreated(order?.id);
     } catch (error) {
       alert('Error placing order. Please try again later.');
     }
   };
 
-  if (!isOpen) return null;
 
   if (loading) {
     return (
@@ -103,7 +111,7 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
 
             <div className="space-y-4">
               <h4 className="text-base sm:text-lg font-medium text-white">
-                {gig.title}
+                {gig?.title || 'Loading...'}
               </h4>
               <p className="text-gray-400 text-sm sm:text-base">
                 Please provide your project requirements. This will help the provider
@@ -132,7 +140,7 @@ export const OrderRequirementsModal: React.FC<OrderRequirementsModalProps> = ({
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={createOrder.isLoading || !isProfileReady}
+                disabled={createOrder.isLoading || !isProfileReady || !gig?.id}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
               >
                 {createOrder.isLoading ? 'Placing Order...' : 'Place Order'}
