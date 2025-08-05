@@ -164,8 +164,6 @@ export const useCreateOrder = () => {
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      const providerAddress = gig?.provider?.wallet_address;
-        
       const providerAddress = gig?.provider?.[0]?.wallet_address;
         
       if (!providerAddress || !isValidAddress(providerAddress)) {
