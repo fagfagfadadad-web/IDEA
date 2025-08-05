@@ -218,12 +218,30 @@ export const Profile = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
         <div className="container mx-auto max-w-7xl px-6 py-8">
           <div className="gradient-card p-8">
-            <div className="bg-red-100 border border-red-400 rounded-md p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
               <div className="flex items-center">
-                <span className="text-red-600 mr-2">⚠️</span>
-                <span className="text-gray-800">
-                  {error ? `Error: ${error.message}` : 'Profile not found'}
-                </span>
+                <User size={20} className="text-blue-600 mr-3" />
+                <div>
+                  <p className="text-gray-800 font-medium">
+                    {id ? 'User Profile Not Available' : 'Profile Setup Required'}
+                  </p>
+                  <p className="text-gray-600 text-sm mt-1">
+                    {id 
+                      ? 'This user hasn\'t completed their profile setup yet.' 
+                      : 'Please complete your profile to access all features.'
+                    }
+                  </p>
+                  {!id && isLoggedIn && (
+                    <Button
+                      onClick={() => navigate('/create-gig')}
+                      variant="gradient"
+                      size="sm"
+                      className="mt-3"
+                    >
+                      Complete Profile Setup
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
