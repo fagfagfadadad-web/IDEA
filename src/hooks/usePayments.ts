@@ -99,8 +99,7 @@ export const usePayments = () => {
             balance = 0;
           }
         } catch (error) {
-          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error.message);
-          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error instanceof Error ? error.message : 'Unknown error');
+          console.error(`⚠️ Chyba pri kontrole ESDT zostatku:`, error instanceof Error ? error.message : String(error));
           balance = 0;
         }
       }
@@ -122,14 +121,13 @@ export const usePayments = () => {
         error: null
       };
     } catch (error) {
-      console.error('💥 Chyba pri kontrole zostatku:', error.message);
-      console.error('💥 Chyba pri kontrole zostatku:', error instanceof Error ? error.message : 'Unknown error');
-      toast.error(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('💥 Chyba pri kontrole zostatku:', error instanceof Error ? error.message : String(error));
+      toast.error(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : String(error)}`);
       return {
         hasEnoughFunds: false,
         balance: 0,
         required: requiredAmount,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   };
@@ -461,11 +459,11 @@ export const usePayments = () => {
       };
     } catch (error) {
       console.error('Chyba pri kontrole stavu platby:', error);
-      toast.error(`Chyba pri kontrole stavu platby: ${error.message}`);
+      toast.error(`Chyba pri kontrole stavu platby: ${error instanceof Error ? error.message : String(error)}`);
       return {
         isPaid: false,
         txHash: null,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   };
