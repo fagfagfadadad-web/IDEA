@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
-import { useToast } from '../context/ToastContext';
 
 export const sendNotification = async ({ user_id, type, title, content, data }: {
   user_id: string;
@@ -115,7 +114,6 @@ export const useOrders = () => {
 export const useCreateOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
-  const { success, error: showError } = useToast();
 
   const mutateAsync = async (orderData: { 
     gig_id: string; 
@@ -186,11 +184,9 @@ export const useCreateOrder = () => {
 
       if (error) throw error;
 
-      success('Order created successfully');
       return order;
     } catch (err) {
       console.error('Error creating order:', err);
-      showError('Failed to create order. Please try again.');
       throw err;
     } finally {
       setIsLoading(false);
@@ -275,7 +271,6 @@ export const useOrderById = (orderId: string) => {
 
 export const useUpdateOrderStatus = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { success, error: showError } = useToast();
 
   const mutateAsync = async ({ orderId, status, amount }: { orderId: string; status: string; amount?: number }) => {
     setIsLoading(true);
@@ -298,11 +293,9 @@ export const useUpdateOrderStatus = () => {
 
       if (error) throw error;
 
-      success('Order status updated successfully');
       return order;
     } catch (error) {
       console.error('Error updating order status:', error);
-      showError('Failed to update order status. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
