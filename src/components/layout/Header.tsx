@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch } from 'lucide-react';
-import { Button } from 'components';
+import { Button, NotificationsMenu } from 'components';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useProfile } from '../../hooks/useProfile';
@@ -19,6 +19,7 @@ export const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
@@ -132,14 +133,17 @@ export const Header = () => {
               {isLoggedIn ? (
                 <div className="flex items-center space-x-3">
                   {/* Notifications */}
-                  <Link to="/profile?tab=notifications" className="relative">
+                  <button 
+                    onClick={() => setShowNotificationsModal(true)}
+                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
                         {unreadCount}
                       </span>
                     )}
-                  </Link>
+                  </button>
                   
                   {/* Profile Menu */}
                   <div className="relative">
@@ -401,6 +405,28 @@ export const Header = () => {
             </div>
           </div>
         </>
+      )}
+
+      {/* Notifications Modal */}
+      {showNotificationsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Notifications {unreadCount > 0 && `(${unreadCount} new)`}
+              </h3>
+              <button
+                onClick={() => setShowNotificationsModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              <NotificationsMenu />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
