@@ -90,11 +90,14 @@ export const Profile = () => {
   // Determine if this is the user's own profile
   const isOwnProfile = !id || (user?.id === profile?.id);
 
-  // Only load additional data for own profile
-  const { data: gigs, refetch: refetchGigs } = useGigs();
-  const { data: orders } = useOrders();
-  const { data: notifications } = useNotifications();
-  const { data: providerReviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(profile?.id || '');
+  // Clean data - no real data loaded yet
+  const gigs: any[] = [];
+  const orders: any[] = [];
+  const notifications: any[] = [];
+  const providerReviews: any[] = [];
+  const reviewsLoading = false;
+  const reviewsError = null;
+  const refetchGigs = () => {};
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
