@@ -145,7 +145,7 @@ export const useCreateOrder = () => {
 
       const { data: gig, error: gigError } = await supabase
         .from('gigs')
-        .select('provider_id, payment_token, provider:users!gigs_provider_id_fkey(id, wallet_address)')
+        .select('provider_id, payment_token, provider:users!gigs_provider_id_fkey(wallet_address)')
         .eq('id', orderData.gig_id)
         .single();
 
@@ -154,9 +154,9 @@ export const useCreateOrder = () => {
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      const providerAddress = gig?.provider?.wallet_address;
+      const providerAddress = gig?.provider?.[0]?.wallet_address;
       if (!providerAddress || !isValidAddress(providerAddress)) {
-        console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress, gigData: gig });
+        console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
         throw new Error('Provider address not found or invalid for gig');
       }
 

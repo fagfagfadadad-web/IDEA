@@ -5,7 +5,6 @@ import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useCreateGig, useUpdateGig, useGigById } from '../../hooks/useGigs';
 import { useProfile } from '../../hooks/useProfile';
-import { useToast } from '../../context/ToastContext';
 
 const categories = [
   'Programming & Tech',
@@ -61,7 +60,6 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const createGig = useCreateGig();
   const updateGig = useUpdateGig();
-  const { error: showErrorToast } = useToast();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -155,13 +153,13 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      showErrorToast('Please login to create a gig');
+      alert('Please login to create a gig');
       navigate('/');
       return;
     }
 
     if (!isProfileLoading && !profile) {
-      showErrorToast('Please complete your profile before creating a gig');
+      alert('Please complete your profile before creating a gig');
       navigate('/profile');
       return;
     }
@@ -171,7 +169,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
     e.preventDefault();
 
     if (!isLoggedIn || !profile) {
-      showErrorToast('Please complete your profile before creating a gig');
+      alert('Please complete your profile before creating a gig');
       navigate('/profile');
       return;
     }

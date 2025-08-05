@@ -111,16 +111,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
       console.log('📍 AuthContext: address:', address);
 
-      // CRITICAL: Aggressive session cleanup for desynchronized state
-      if (isLoggedIn && (!address || !user)) {
-        console.log('🧹 AuthContext: Detected desynchronized state (logged in but missing address/user), forcing full cleanup');
-        await handleSupabaseSignOut();
-        setUser(null);
-        setIsProfileReady(false);
-        setAuthMessage('Session expired. Please reconnect your wallet.');
-        return;
-      }
-
       // CRITICAL: Detect desynchronized state and clear Supabase session
       if (isLoggedIn && !user && address && address === lastAddress) {
         console.log('🧹 AuthContext: Detected desynchronized state, clearing Supabase session');
@@ -153,8 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle specific refresh token errors - expanded to catch all variants
         if (sessionError.message?.includes('refresh_token_not_found') || 
             sessionError.message?.includes('Invalid Refresh Token') ||
-            sessionError.message?.includes('Refresh Token Not Found') ||
-            sessionError.message?.includes('refresh_token_not_found')) {
+            sessionError.message?.includes('Refresh Token Not Found')) {
           console.log('🧹 AuthContext: Clearing invalid refresh token');
           await handleSupabaseSignOut();
         }
