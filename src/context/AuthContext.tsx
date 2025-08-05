@@ -111,6 +111,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
       console.log('📍 AuthContext: address:', address);
 
+      // CRITICAL: Detect desynchronized state and clear Supabase session
+      if (isLoggedIn && !user && address && address === lastAddress) {
+        console.log('🧹 AuthContext: Detected desynchronized state, clearing Supabase session');
+        await handleSupabaseSignOut();
+      }
+
       // Clear any stale tokens before checking session
       try {
         const storedToken = localStorage.getItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
