@@ -24,3 +24,4 @@ export * from './ShareGigButtons';
 export * from './StarRating';
 export * from './TwitterShareButton';
 export * from './layout';
+export * from './GigViewsStats';

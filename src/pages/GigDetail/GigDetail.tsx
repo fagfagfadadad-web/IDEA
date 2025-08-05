@@ -5,11 +5,15 @@ import { Button, Card, OrderRequirementsModal } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useGigById, useAllGigs } from '../../hooks/useGigs';
 import { useReviewsByGig } from '../../hooks/useReviews';
+import { useTrackGigView } from '../../hooks/useGigViews';
+import { useAuth } from '../../context/AuthContext';
 
 export const GigDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
+  const { user } = useAuth();
+  const { trackView } = useTrackGigView();
   
   useEffect(() => {
     console.log('🔍 GigDetail: Component mounted with ID:', id);
@@ -37,6 +41,13 @@ export const GigDetail = () => {
   const [isRequirementsOpen, setIsRequirementsOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+
+  // Track gig view when component mounts
+  useEffect(() => {
+    if (gig?.id) {
+      trackView(gig.id, user?.id);
+    }
+  }, [gig?.id, user?.id, trackView]);
 
   const handleOrder = () => {
     if (!isLoggedIn) {
@@ -180,6 +191,12 @@ export const GigDetail = () => {
           {/* Pricing Card */}
           <div className="bg-gray-800 rounded-lg p-6 w-full">
             <div className="space-y-6">
+              {/* Views Counter */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-400">Views:</span>
+                <span className="text-white font-medium">{gig.view_count || 0}</span>
+              </div>
+
               {/* Status Badge for Inactive Gigs */}
               {!isActive && (
                 <div className="bg-yellow-900 border border-yellow-500 rounded-md p-3">

@@ -236,6 +236,8 @@ export const Home = () => {
 
   const handleGigClick = (gigId: string) => {
     try {
+      // Track view before navigation
+      trackView(gigId, user?.id);
       navigate(`/gigs/${gigId}`);
     } catch (error) {
       console.error("Navigation error:", error);
