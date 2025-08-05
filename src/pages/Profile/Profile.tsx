@@ -26,7 +26,7 @@ import {
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from '../hooks/useGigs';
 import { useOrders } from '../hooks/useOrders';
 import { useNotifications, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
