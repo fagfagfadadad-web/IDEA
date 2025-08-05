@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { useGetAccountInfo } from 'lib';
 import { Address, SmartContract } from 'lib/sdkCore';
 import { contractAddress } from '../config';
-import { signAndSendTransactions } from '../../helpers';
+import { signAndSendTransactions } from '../helpers';
 
 interface DisputeModalProps {
   isOpen: boolean;
