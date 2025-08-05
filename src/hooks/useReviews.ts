@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 
 export const useReviewsByGig = (gigId: string) => {
   const [data, setData] = useState<any[]>([]);
@@ -94,6 +95,7 @@ export const useOrderReview = (orderId: string) => {
 export const useCreateReview = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (reviewData: {
     order_id: string;
@@ -118,10 +120,11 @@ export const useCreateReview = () => {
 
       if (error) throw error;
 
-      console.log('Review created successfully:', review);
+      success('Review submitted successfully');
       return review;
     } catch (error) {
       console.error('Error creating review:', error);
+      showError('Failed to submit review. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);

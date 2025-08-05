@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 export const useMyProposals = () => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,6 +84,7 @@ export const useMyProposals = () => {
 export const useCreateProposal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (proposalData: {
     request_id: string;
@@ -128,10 +130,11 @@ export const useCreateProposal = () => {
 
       if (error) throw error;
 
-      console.log('Proposal created successfully:', proposal);
+      success('Proposal submitted successfully');
       return proposal;
     } catch (error) {
       console.error('Error creating proposal:', error);
+      showError('Failed to submit proposal. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -146,6 +149,7 @@ export const useCreateProposal = () => {
 
 export const useWithdrawProposal = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async ({ id, requestId }: { id: string; requestId: string }) => {
     setIsLoading(true);
@@ -157,10 +161,11 @@ export const useWithdrawProposal = () => {
 
       if (error) throw error;
 
-      console.log('Proposal withdrawn successfully:', { id, requestId });
+      success('Proposal withdrawn successfully');
       return { id, requestId };
     } catch (error) {
       console.error('Error withdrawing proposal:', error);
+      showError('Failed to withdraw proposal. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -236,6 +241,7 @@ export const useProposalById = (id: string) => {
 export const useSendProposalMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (messageData: {
     proposalId: string;
@@ -272,10 +278,11 @@ export const useSendProposalMessage = () => {
 
       if (error) throw error;
 
-      console.log('Proposal message sent successfully:', message);
+      success('Message sent successfully');
       return message;
     } catch (error) {
       console.error('Error sending proposal message:', error);
+      showError('Failed to send message. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);

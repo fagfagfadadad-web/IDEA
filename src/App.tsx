@@ -5,6 +5,7 @@ import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
 import { BatchTransactionsContextProvider } from 'wrappers';
 import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
@@ -47,11 +48,13 @@ export const App = () => {
 
   return (
     <Router>
-      <AuthProvider>
-        <BatchTransactionsContextProvider>
-          <AppContent />
-        </BatchTransactionsContextProvider>
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <BatchTransactionsContextProvider>
+            <AppContent />
+          </BatchTransactionsContextProvider>
+        </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 };

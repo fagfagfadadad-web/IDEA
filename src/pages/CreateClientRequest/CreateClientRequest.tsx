@@ -5,6 +5,7 @@ import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useCreateClientRequest } from '../../hooks/useClientRequests';
 import { useProfile } from '../../hooks/useProfile';
+import { useToast } from '../../context/ToastContext';
 
 // Same categories as in the Gigs component
 const categories = [
@@ -26,6 +27,7 @@ export const CreateClientRequest = () => {
   // Real hooks
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const createRequest = useCreateClientRequest();
+  const { success, error: showError } = useToast();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -106,11 +108,10 @@ export const CreateClientRequest = () => {
       }
 
       await createRequest.mutateAsync(requestData);
-      alert('Request created successfully');
       navigate('/requests');
     } catch (error) {
       console.error('Error creating request:', error);
-      alert(`Error creating request: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showError(`Error creating request: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

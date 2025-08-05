@@ -5,6 +5,7 @@ import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useCreateGig, useUpdateGig, useGigById } from '../../hooks/useGigs';
 import { useProfile } from '../../hooks/useProfile';
+import { useToast } from '../../context/ToastContext';
 
 const categories = [
   'Programming & Tech',
@@ -60,6 +61,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const createGig = useCreateGig();
   const updateGig = useUpdateGig();
+  const { success, error: showError } = useToast();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -206,16 +208,14 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
       if (isEditMode && id) {
         await updateGig.mutateAsync({ ...gigData, id });
-        alert('Gig updated successfully');
       } else {
         await createGig.mutateAsync(gigData);
-        alert('Gig created successfully');
       }
       
       navigate('/profile');
     } catch (error) {
       console.error('Error creating/updating gig:', error);
-      alert(`Error ${isEditMode ? 'updating' : 'creating'} gig: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showError(`Error ${isEditMode ? 'updating' : 'creating'} gig: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

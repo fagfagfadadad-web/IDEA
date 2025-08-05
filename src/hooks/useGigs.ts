@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useToast } from '../context/ToastContext';
 
 export type GigInput = {
   title: string;
@@ -114,6 +115,7 @@ export const useAllGigs = () => {
 export const useCreateGig = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (input: GigInput) => {
     setIsLoading(true);
@@ -140,10 +142,11 @@ export const useCreateGig = () => {
 
       if (error) throw error;
 
-      console.log('Gig created successfully:', gig);
+      success('Gig created successfully');
       return gig;
     } catch (error) {
       console.error('Error creating gig:', error);
+      showError('Failed to create gig. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -158,6 +161,7 @@ export const useCreateGig = () => {
 
 export const useUpdateGig = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (input: GigInput & { id: string }) => {
     setIsLoading(true);
@@ -179,10 +183,11 @@ export const useUpdateGig = () => {
 
       if (error) throw error;
 
-      console.log('Gig updated successfully:', gig);
+      success('Gig updated successfully');
       return gig;
     } catch (error) {
       console.error('Error updating gig:', error);
+      showError('Failed to update gig. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -228,6 +233,7 @@ export const useUpdateGigStatus = () => {
 
 export const useDeleteGig = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (gigId: string, options?: { onSuccess?: () => void }) => {
     setIsLoading(true);
@@ -239,13 +245,14 @@ export const useDeleteGig = () => {
 
       if (error) throw error;
 
-      console.log('Gig deleted successfully');
+      success('Gig deleted successfully');
       if (options?.onSuccess) {
         options.onSuccess();
       }
       return gigId;
     } catch (error) {
       console.error('Error deleting gig:', error);
+      showError('Failed to delete gig. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);

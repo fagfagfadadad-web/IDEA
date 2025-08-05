@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useGetAccount } from '../lib';
+import { useToast } from '../context/ToastContext';
 
 export type ClientRequestInput = {
   title: string;
@@ -72,6 +73,7 @@ export const useClientRequests = () => {
 export const useCreateClientRequest = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (input: ClientRequestInput) => {
     setIsLoading(true);
@@ -111,10 +113,11 @@ export const useCreateClientRequest = () => {
 
       if (error) throw error;
 
-      console.log('Client request created successfully:', request);
+      success('Request created successfully');
       return request;
     } catch (error) {
       console.error('Error creating client request:', error);
+      showError('Failed to create request. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -129,6 +132,7 @@ export const useCreateClientRequest = () => {
 
 export const useUpdateClientRequest = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (input: ClientRequestInput & { id: string }) => {
     setIsLoading(true);
@@ -150,10 +154,11 @@ export const useUpdateClientRequest = () => {
 
       if (error) throw error;
 
-      console.log('Client request updated successfully:', request);
+      success('Request updated successfully');
       return request;
     } catch (error) {
       console.error('Error updating client request:', error);
+      showError('Failed to update request. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -234,6 +239,7 @@ export const useMyClientRequests = () => {
 
 export const useDeleteClientRequest = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async (requestId: string) => {
     setIsLoading(true);
@@ -245,10 +251,11 @@ export const useDeleteClientRequest = () => {
 
       if (error) throw error;
 
-      console.log('Client request deleted successfully');
+      success('Request deleted successfully');
       return requestId;
     } catch (error) {
       console.error('Error deleting client request:', error);
+      showError('Failed to delete request. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
@@ -264,6 +271,7 @@ export const useDeleteClientRequest = () => {
 export const useSelectProposal = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [variables, setVariables] = useState<any>(null);
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async ({ requestId, proposalId }: { requestId: string; proposalId: string }) => {
     setIsLoading(true);
@@ -276,10 +284,11 @@ export const useSelectProposal = () => {
 
       if (error) throw error;
 
-      console.log('Proposal selected and order created:', data);
+      success('Proposal accepted and order created');
       return { requestId, proposalId, orderId: data };
     } catch (error) {
       console.error('Error selecting proposal:', error);
+      showError('Failed to accept proposal. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);

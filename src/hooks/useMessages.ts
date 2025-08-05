@@ -3,6 +3,7 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export type Message = {
   id: string;
@@ -77,6 +78,7 @@ export const useMessages = (orderId?: string) => {
 export const useSendMessage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const { success, error: showError } = useToast();
 
   const mutateAsync = async ({
     orderId,
@@ -124,10 +126,11 @@ export const useSendMessage = () => {
 
       if (error) throw error;
 
-      console.log('Message sent successfully:', message);
+      success('Message sent successfully');
       return message;
     } catch (error) {
       console.error('Error sending message:', error);
+      showError('Failed to send message. Please try again.');
       throw error;
     } finally {
       setIsLoading(false);
