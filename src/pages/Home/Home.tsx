@@ -7,6 +7,7 @@ import { useAllGigs } from '../../hooks/useGigs';
 import { useClientRequests } from '../../hooks/useClientRequests';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { useTrackGigView } from '../../hooks/useGigViews';
+import { useAuth } from '../../context/AuthContext';
 import {
   Code,
   Palette,
@@ -25,6 +26,7 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 
 // Error Boundary component
@@ -74,6 +76,7 @@ export const Home = () => {
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
+  const { user } = useAuth();
   const { data: gigs, isLoading: gigsLoading, error: gigsError } = useAllGigs();
   const { data: requests, isLoading: requestsLoading, error: requestsError } = useClientRequests();
   const { trackView } = useTrackGigView();
@@ -535,9 +538,17 @@ export const Home = () => {
                                     ? `${(gig.description || "No description available").substring(0, 60)}...` 
                                     : (gig.description || "No description available")}
                                 </p>
-                                <p className="text-sm text-gray-700">
-                                  Duration: {gig.duration ? `${gig.duration} days` : "N/A"}
-                                </p>
+                                <div className="flex justify-between items-center">
+                                  <p className="text-sm text-gray-700">
+                                    Duration: {gig.duration ? `${gig.duration} days` : "N/A"}
+                                  </p>
+                                  <div className="flex items-center gap-1">
+                                    <Eye size={12} className="text-gray-400" />
+                                    <span className="text-xs text-gray-500">
+                                      {gig.view_count || 0}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
   
                               <div className="flex justify-between items-center p-4 border-t border-gray-100">
