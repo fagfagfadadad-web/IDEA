@@ -74,7 +74,13 @@ export const Profile = () => {
     username: '',
     full_name: '',
     bio: '',
-    avatar_url: ''
+    avatar_url: '',
+    twitter_url: '',
+    github_url: '',
+    linkedin_url: '',
+    website_url: '',
+    discord_username: '',
+    telegram_username: '',
   });
 
   const isOwnProfile = !id || (authUser?.id === profile?.id);
@@ -103,7 +109,13 @@ export const Profile = () => {
         username: profile.username || '',
         full_name: profile.full_name || '',
         bio: profile.bio || '',
-        avatar_url: profile.avatar_url || ''
+        avatar_url: profile.avatar_url || '',
+        twitter_url: profile.twitter_url || '',
+        github_url: profile.github_url || '',
+        linkedin_url: profile.linkedin_url || '',
+        website_url: profile.website_url || '',
+        discord_username: profile.discord_username || '',
+        telegram_username: profile.telegram_username || '',
       });
     }
   }, [profile, isOwnProfile]);
@@ -150,7 +162,13 @@ export const Profile = () => {
         username: profile.username || '',
         full_name: profile.full_name || '',
         bio: profile.bio || '',
-        avatar_url: profile.avatar_url || ''
+        avatar_url: profile.avatar_url || '',
+        twitter_url: profile.twitter_url || '',
+        github_url: profile.github_url || '',
+        linkedin_url: profile.linkedin_url || '',
+        website_url: profile.website_url || '',
+        discord_username: profile.discord_username || '',
+        telegram_username: profile.telegram_username || '',
       });
     }
   };
@@ -419,6 +437,60 @@ export const Profile = () => {
                       rows={3}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white resize-vertical text-sm"
                     />
+                    
+                    {/* Social Media Section */}
+                    <div className="space-y-2">
+                      <p className="text-sm font-semibold text-gray-700">Social Media Links</p>
+                      
+                      <input
+                        type="url"
+                        value={editForm.twitter_url}
+                        onChange={(e) => setEditForm({...editForm, twitter_url: e.target.value})}
+                        placeholder="Twitter URL"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                      
+                      <input
+                        type="url"
+                        value={editForm.github_url}
+                        onChange={(e) => setEditForm({...editForm, github_url: e.target.value})}
+                        placeholder="GitHub URL"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                      
+                      <input
+                        type="url"
+                        value={editForm.linkedin_url}
+                        onChange={(e) => setEditForm({...editForm, linkedin_url: e.target.value})}
+                        placeholder="LinkedIn URL"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                      
+                      <input
+                        type="url"
+                        value={editForm.website_url}
+                        onChange={(e) => setEditForm({...editForm, website_url: e.target.value})}
+                        placeholder="Website URL"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                      
+                      <input
+                        type="text"
+                        value={editForm.discord_username}
+                        onChange={(e) => setEditForm({...editForm, discord_username: e.target.value})}
+                        placeholder="Discord Username"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                      
+                      <input
+                        type="text"
+                        value={editForm.telegram_username}
+                        onChange={(e) => setEditForm({...editForm, telegram_username: e.target.value})}
+                        placeholder="Telegram Username"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white text-sm"
+                      />
+                    </div>
+                    
                     <div className="flex gap-2">
                       <Button
                         onClick={handleSaveProfile}
@@ -1072,6 +1144,80 @@ export const Profile = () => {
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white resize-vertical"
                         />
                       </div>
+                      
+                      {/* Social Media Section */}
+                      <div>
+                        <label className="block text-gray-700 text-lg font-bold mb-4">Social Media Links</label>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">Twitter URL</label>
+                            <input
+                              type="url"
+                              value={editForm.twitter_url}
+                              onChange={(e) => setEditForm({...editForm, twitter_url: e.target.value})}
+                              placeholder="https://twitter.com/yourusername"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">GitHub URL</label>
+                            <input
+                              type="url"
+                              value={editForm.github_url}
+                              onChange={(e) => setEditForm({...editForm, github_url: e.target.value})}
+                              placeholder="https://github.com/yourusername"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">LinkedIn URL</label>
+                            <input
+                              type="url"
+                              value={editForm.linkedin_url}
+                              onChange={(e) => setEditForm({...editForm, linkedin_url: e.target.value})}
+                              placeholder="https://linkedin.com/in/yourusername"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">Website URL</label>
+                            <input
+                              type="url"
+                              value={editForm.website_url}
+                              onChange={(e) => setEditForm({...editForm, website_url: e.target.value})}
+                              placeholder="https://yourwebsite.com"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">Discord Username</label>
+                            <input
+                              type="text"
+                              value={editForm.discord_username}
+                              onChange={(e) => setEditForm({...editForm, discord_username: e.target.value})}
+                              placeholder="yourusername#1234"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-gray-700 text-sm font-semibold mb-2">Telegram Username</label>
+                            <input
+                              type="text"
+                              value={editForm.telegram_username}
+                              onChange={(e) => setEditForm({...editForm, telegram_username: e.target.value})}
+                              placeholder="@yourusername"
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      
                       <div className="flex gap-3">
                         <Button
                           onClick={handleSaveProfile}
