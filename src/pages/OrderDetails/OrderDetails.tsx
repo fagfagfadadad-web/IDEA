@@ -711,9 +711,10 @@ const OrderDetails = () => {
   };
 
   const isClient = user?.id === order?.client?.id;
-  const isProvider = user?.id === order?.gig?.users?.id || 
-                    (user && order?.provider_address && user.wallet_address === order.provider_address) ||
-                    (user && order?.gig?.users && order.gig.users.wallet_address === user.wallet_address);
+  const isProvider = user?.id === order?.gig?.provider_id || 
+                    user?.id === order?.gig?.provider?.id ||
+                    (user?.wallet_address && order?.provider_address && user.wallet_address === order.provider_address) ||
+                    (user?.wallet_address && order?.gig?.provider?.wallet_address && user.wallet_address === order.gig.provider.wallet_address);
 
   const canPay = isClient && 
                  (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
@@ -729,12 +730,15 @@ const OrderDetails = () => {
   const isDisputeResolved = order?.payment_status === 'resolved';
 
   useEffect(() => {
-    console.log('🔍 OrderDetails: Debug info:', {
+    console.log('🔍 OrderDetails: Provider Debug info:', {
       userId: user?.id,
       userWalletAddress: user?.wallet_address,
+      orderGigProviderId: order?.gig?.provider_id,
+      orderGigProviderUserId: order?.gig?.provider?.id,
       orderProviderAddress: order?.provider_address,
-      gigProviderId: order?.gig?.provider?.id,
+      gigProviderWalletAddress: order?.gig?.provider?.wallet_address,
       isProvider,
+      isClient,
       canSubmitWork,
       orderStatus: order?.status,
       paymentStatus: order?.payment_status,
