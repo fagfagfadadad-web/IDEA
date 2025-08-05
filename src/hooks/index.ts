@@ -5,7 +5,7 @@ export * from './useEffectOnlyOnUpdate';
 export * from './useGigs';
 export * from './useMessages';
 export * from './useNotifications';
-export { useOrderById, useCreateOrder } from './useOrders';
+export * from './useOrders';
 export * from './useProposals';
 export * from './useProfile';
 export * from './useReviews';
