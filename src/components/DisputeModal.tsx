@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { AlertTriangle, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useToast } from '../context/ToastContext';
-import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks';
-import { sendTransactions } from '@multiversx/sdk-dapp/services';
-import { Address, ContractFunction, ResultsParser, SmartContract, Transaction } from '@multiversx/sdk-core';
+import { useGetAccountInfo, sendTransactions } from 'lib';
+import { Address, SmartContract } from 'lib/sdkCore';
 import { contractAddress } from '../config';
 
 interface DisputeModalProps {
