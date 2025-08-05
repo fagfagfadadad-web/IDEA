@@ -374,35 +374,39 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
       )}
 
       {/* Message Input */}
-      <div className="flex gap-2">
-        <input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type your message here..."
-          className="flex-1 p-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        <button
-          onClick={() => document.getElementById('file-input')?.click()}
-          disabled={attachedFiles.length >= 5}
-          className="p-3 text-gray-400 hover:text-blue-400 disabled:opacity-50"
-        >
-          <Paperclip size={20} />
-        </button>
-        <input
-          id="file-input"
-          type="file"
-          multiple
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            onDrop(files);
-          }}
-          className="hidden"
-        />
+      <div className="flex flex-col md:flex-row gap-2">
+        <div className="flex gap-2 flex-1">
+          <input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message here..."
+            className="flex-1 p-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          <button
+            onClick={() => document.getElementById('file-input')?.click()}
+            disabled={attachedFiles.length >= 5}
+            className="p-3 text-gray-400 hover:text-blue-400 disabled:opacity-50 md:block"
+          >
+            <Paperclip size={20} />
+          </button>
+          <input
+            id="file-input"
+            type="file"
+            multiple
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              onDrop(files);
+            }}
+            className="hidden"
+          />
+        </div>
+        
+        {/* Send button - full width on mobile, inline on desktop */}
         <Button
           onClick={handleSendMessage}
           disabled={sendMessage.isLoading || isUploading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md flex items-center justify-center gap-2 w-full md:w-auto"
         >
           <Send size={16} />
           {isUploading ? 'Uploading...' : 'Send'}
