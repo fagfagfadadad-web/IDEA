@@ -714,8 +714,8 @@ export const Profile = () => {
           {/* Right Column - Only for own profile */}
           {isOwnProfile && (
             <div className="space-y-8">
-              {/* Statistics Overview */}
-              <div className="gradient-card p-6">
+              {/* Statistics Overview - Desktop Only */}
+              <div className="gradient-card p-6 hidden lg:block">
                 <h3 className="text-lg font-bold text-gray-800 mb-6">Statistics Overview</h3>
                 
                 {/* Main Stats Grid */}
