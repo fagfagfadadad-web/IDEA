@@ -63,7 +63,7 @@ export const routes: RouteWithTitleType[] = [
   {
     path: RouteNamesEnum.editGig,
     title: 'Edit Gig',
-    component: CreateGig,
+    component: () => <CreateGig isEditing={true} />,
     authenticatedRoute: true
   },
   {
