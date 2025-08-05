@@ -21,7 +21,6 @@ import {
   MessageSquare,
   Plus,
   Trash2,
-  Eye,
   TrendingUp
   Coins
 } from 'lucide-react';

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
-
 export const useMyProposals = () => {
   const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
