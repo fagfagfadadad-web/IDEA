@@ -581,11 +581,9 @@ const OrderDetails = () => {
       });
 
       setShowDisputeModal(false);
-      showToast('Spor bol úspešne vytvorený', 'success');
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
-      showToast(error instanceof Error ? error.message : 'Chyba pri vytváraní sporu', 'error');
     } finally {
       setIsPaymentLoading(false);
     }
@@ -631,9 +629,11 @@ const OrderDetails = () => {
         attachments: [],
       });
 
+      showToast('Práca bola úspešne odovzdaná', 'success');
       window.location.reload();
     } catch (error) {
       console.error('Submit work error:', error);
+      showToast(error instanceof Error ? error.message : 'Chyba pri odovzdávaní práce', 'error');
     } finally {
       setIsSubmitWorkLoading(false);
     }
