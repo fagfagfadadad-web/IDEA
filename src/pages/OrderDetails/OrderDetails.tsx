@@ -8,7 +8,7 @@ import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import axios from 'axios';
-import { toast } from 'react-toastify';
+import { useToast } from '../../context/ToastContext';
 
 const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
@@ -118,7 +118,7 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
     };
   } catch (error) {
     console.error('💥 Chyba pri kontrole zostatku:', error);
-    toast.error(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+    showError(`Chyba pri kontrole zostatku: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
     return {
       hasEnoughFunds: false,
       balance: 0,
@@ -188,6 +188,7 @@ const OrderDetails = () => {
   const { user } = useAuth();
   
   const { data: order, isLoading, error } = useOrderById(id || '');
+  const { success, error: showError, info, warning } = useToast();
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [isReleaseLoading, setIsReleaseLoading] = useState(false);
@@ -258,13 +259,13 @@ const OrderDetails = () => {
   const handlePayment = async () => {
     console.log('Payment button clicked!', { address, order });
     if (!address || !order) {
-      toast.error('Prosím, pripojte svoju peňaženku');
+      showError('Prosím, pripojte svoju peňaženku');
       return;
     }
 
     // Check if payment was already made
     if (order.payment_status !== 'pending') {
-      toast.error('Platba už bola spracovaná alebo je v inom stave');
+      showError('Platba už bola spracovaná alebo je v inom stave');
       return;
     }
 
@@ -354,7 +355,7 @@ const OrderDetails = () => {
           chainID: network.chainId
         });
         console.log('Vytváranie EGLD transakcie:', { orderId: order.id, hexOrderId, clientAddressHex, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
-        toast.info('10% poplatok bude odpočítaný z EGLD platby.');
+        info('10% poplatok bude odpočítaný z EGLD platby.');
       } else {
         // For IDA: no fees, client pays exact amount
         const value = BigInt(Math.round(order.amount * 1e18));
@@ -374,7 +375,7 @@ const OrderDetails = () => {
         console.log('Vytváranie ESDT transakcie:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, paddedAmountHex, data, escrowAddress: ESCROW_ADDRESS });
       }
 
-      toast.info(`Spracováva sa ${tokenDisplayName} platba, potvrďte v peňaženke...`);
+      info(`Spracováva sa ${tokenDisplayName} platba, potvrďte v peňaženke...`);
       console.log('Calling signAndSendTransactions...');
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
@@ -411,7 +412,7 @@ const OrderDetails = () => {
       }
 
       console.log('Platba úspešná a databáza aktualizovaná');
-      toast.success(`${tokenDisplayName} platba úspešná! Objednávka je teraz v priebehu.`);
+      success(`${tokenDisplayName} platba úspešná! Objednávka je teraz v priebehu.`);
       setShowPaymentModal(false);
       window.location.reload();
     } catch (error) {
@@ -427,7 +428,7 @@ const OrderDetails = () => {
           ? 'Transakcia zlyhala na smart kontrakte. Možno už existuje platba pre túto objednávku alebo sú neplatné parametre.'
           : `${tokenDisplayName} platba zlyhala: ${error.message}`
         : `${tokenDisplayName} platba zlyhala: Neznáma chyba`;
-      toast.error(errorMessage);
+      showError(errorMessage);
       setProviderAddressError(errorMessage);
     } finally {
       setIsPaymentLoading(false);
@@ -438,7 +439,7 @@ const OrderDetails = () => {
     try {
       setIsReleaseLoading(true);
       if (!address || !order) {
-        toast.error('Prosím, pripojte svoju peňaženku');
+        showError('Prosím, pripojte svoju peňaženku');
         return;
       }
 
@@ -453,7 +454,7 @@ const OrderDetails = () => {
       });
 
       console.log('Vytváranie release transakcie:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
-      toast.info('Uvoľňuje sa platba, potvrďte v peňaženke...');
+      info('Uvoľňuje sa platba, potvrďte v peňaženke...');
 
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
@@ -517,7 +518,7 @@ const OrderDetails = () => {
         // Don't fail the whole process if message fails
       }
 
-      toast.success('Platba úspešne uvoľnená!');
+      success('Platba úspešne uvoľnená!');
       
       // Force refresh the order data
       setTimeout(() => {
@@ -525,7 +526,7 @@ const OrderDetails = () => {
       }, 1000);
     } catch (error) {
       console.error('Release error:', error);
-      toast.error(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+      showError(`Uvoľnenie zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
     } finally {
       setIsReleaseLoading(false);
     }
@@ -535,7 +536,7 @@ const OrderDetails = () => {
     try {
       setIsPaymentLoading(true);
       if (!address || !order) {
-        toast.error('Prosím, pripojte svoju peňaženku');
+        showError('Prosím, pripojte svoju peňaženku');
         return;
       }
 
@@ -550,7 +551,7 @@ const OrderDetails = () => {
       });
 
       console.log('Vytváranie dispute transakcie:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
-      toast.info('Vytvára sa spor, potvrďte v peňaženke...');
+      info('Vytvára sa spor, potvrďte v peňaženke...');
 
       const sessionId = await signAndSendTransactions({
         transactions: [transaction],
@@ -590,12 +591,12 @@ const OrderDetails = () => {
         read: false,
       });
 
-      toast.success('Spor úspešne vytvorený!');
+      success('Spor úspešne vytvorený!');
       setShowDisputeModal(false);
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
-      toast.error(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+      showError(`Vytvorenie sporu zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
     } finally {
       setIsPaymentLoading(false);
     }
@@ -605,7 +606,7 @@ const OrderDetails = () => {
     try {
       setIsSubmitWorkLoading(true);
       if (!order) {
-        toast.error('Objednávka nenájdená');
+        showError('Objednávka nenájdená');
         return;
       }
 
@@ -641,11 +642,11 @@ const OrderDetails = () => {
         attachments: [],
       });
 
-      toast.success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
+      success('Práca úspešne odovzdaná! Klient bol notifikovaný.');
       window.location.reload();
     } catch (error) {
       console.error('Submit work error:', error);
-      toast.error(`Odovzdanie práce zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
+      showError(`Odovzdanie práce zlyhalo: ${error instanceof Error ? error.message : 'Neznáma chyba'}`);
     } finally {
       setIsSubmitWorkLoading(false);
     }
