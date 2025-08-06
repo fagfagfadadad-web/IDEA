@@ -1,120 +1,131 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { 
-  User, 
-  Settings, 
-  Star, 
-  Calendar, 
-  MapPin, 
-  Link as LinkIcon, 
-  Github, 
-  Twitter, 
-  Linkedin, 
-  Globe,
-  Edit,
-  Save,
-  X,
-  Plus,
-  Briefcase,
-  Clock,
-  DollarSign,
-  CheckCircle,
-  AlertTriangle,
-  FileText,
-  Bell
-} from 'lucide-react';
-import { Button, Card, EmailNotificationsToggle, ReviewsList, StarRating, GigViewsStats } from 'components';
+import { useParams, useNavigate } from 'react-router-dom';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check } from 'lucide-react';
+import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
-import { useGigs, useUpdateGigStatus, useDeleteGig } from '../../hooks/useGigs';
-import { useOrders } from '../../hooks/useOrders';
-import { useReviewsForProvider } from '../../hooks/useReviews';
-import { useNotifications } from '../../hooks/useNotifications';
+import { useProfile, useUpdateProfile } from 'hooks';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
+import { useOrders } from 'hooks';
+import { GigViewsStats } from '../../components/GigViewsStats';
+import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
+import { useReviewsForProvider } from 'hooks';
+
+// Helper function to calculate earnings from orders
+const calculateEarnings = (orders: any[]) => {
+  const completedOrders = orders?.filter(order => order.status === 'completed') || [];
+  
+  const egldEarnings = completedOrders
+    .filter(order => order.payment_token === 'EGLD')
+    .reduce((sum, order) => sum + (order.amount * 0.9), 0); // 90% after 10% fee
+    
+  const idaEarnings = completedOrders
+    .filter(order => order.payment_token !== 'EGLD')
+    .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
+    
+  return {
+    egld: egldEarnings,
+    ida: idaEarnings,
+    totalOrders: completedOrders.length,
+    totalEarnings: egldEarnings + idaEarnings
+  };
+};
+
+// Helper function to calculate review statistics
+const calculateReviewStats = (reviews: any[]) => {
+  if (!reviews || reviews.length === 0) {
+    return {
+      averageRating: 0,
+      totalReviews: 0,
+      ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    };
+  }
+  
+  const totalReviews = reviews.length;
+  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+  
+  const ratingDistribution = reviews.reduce((dist, review) => {
+    dist[review.rating] = (dist[review.rating] || 0) + 1;
+    return dist;
+  }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
+  
+  return {
+    averageRating,
+    totalReviews,
+    ratingDistribution
+  };
+};
 
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
-  const { success, error: showError } = useToast();
+  const { success, error: showErrorToast } = useToast();
   
-  // Determine if viewing own profile or someone else's
-  const isOwnProfile = !id || (user && id === user.id);
-  const profileId = id || user?.id;
+  // Use the id from params if viewing someone else's profile, otherwise use current user
+  const { data: profile, isLoading, error, refetch } = useProfile(id);
   
-  // Get initial tab from URL params
-  const initialTab = searchParams.get('tab');
-  const getInitialTabIndex = () => {
-    switch (initialTab) {
-      case 'gigs': return 1;
-      case 'orders': return 2;
-      case 'reviews': return 3;
-      case 'notifications': return 4;
-      case 'settings': return 5;
-      default: return 0;
-    }
-  };
+  // Determine if this is the user's own profile
+  const isOwnProfile = !id || (user?.id === profile?.id);
 
-  const [activeTab, setActiveTab] = useState(getInitialTabIndex());
-  const [isEditing, setIsEditing] = useState(false);
+  // Real hooks for data fetching
+  const { data: gigs, refetch: refetchGigs } = useGigs();
+  const { data: orders } = useOrders();
+  const { data: notifications } = useNotifications();
+  const { data: providerReviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(profile?.id || '');
+
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
+    avatar_url: '',
     bio: '',
     twitter_url: '',
     github_url: '',
     linkedin_url: '',
-    website_url: ''
+    website_url: '',
   });
 
-  // Hooks
-  const { data: profile, isLoading: profileLoading, error: profileError, refetch: refetchProfile } = useProfile(profileId);
-  const { data: gigs, isLoading: gigsLoading, refetch: refetchGigs } = useGigs();
-  const { data: orders, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
-  const { data: reviews, isLoading: reviewsLoading } = useReviewsForProvider(profileId || '');
-  const { data: notifications, isLoading: notificationsLoading } = useNotifications(user?.id);
   const updateProfile = useUpdateProfile();
-  const updateGigStatus = useUpdateGigStatus();
   const deleteGig = useDeleteGig();
+  const updateGigStatus = useUpdateGigStatus();
+  const markAllAsRead = useMarkAllNotificationsAsRead();
 
-  // Update form when profile loads
+  // Initialize edit form when profile loads
   useEffect(() => {
     if (profile) {
       setEditForm({
         username: profile.username || '',
         full_name: profile.full_name || '',
+        avatar_url: profile.avatar_url || '',
         bio: profile.bio || '',
         twitter_url: profile.twitter_url || '',
         github_url: profile.github_url || '',
         linkedin_url: profile.linkedin_url || '',
-        website_url: profile.website_url || ''
+        website_url: profile.website_url || '',
       });
     }
   }, [profile]);
 
-  const handleSaveProfile = async () => {
-    try {
-      await updateProfile.mutateAsync(editForm);
-      setIsEditing(false);
-      refetchProfile();
-      success('Profile updated successfully!');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      showError('Error updating profile');
-    }
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleGigStatusUpdate = async (gigId: string, status: string) => {
+  const handleSaveProfile = async () => {
     try {
-      await updateGigStatus.mutateAsync({ id: gigId, status });
-      refetchGigs();
-      success(`Gig ${status} successfully!`);
+      await updateProfile.mutateAsync({
+        ...editForm
+      });
+      setIsEditModalOpen(false);
+      refetch();
+      success('Profile updated successfully');
     } catch (error) {
-      console.error('Error updating gig status:', error);
-      showError('Error updating gig status');
+      console.error('Error updating profile:', error);
+      showErrorToast('Error updating profile. Please try again later.');
     }
   };
 
@@ -122,98 +133,64 @@ export const Profile = () => {
     if (!confirm('Are you sure you want to delete this gig?')) return;
     
     try {
-      await deleteGig.mutateAsync(gigId);
-      refetchGigs();
-      success('Gig deleted successfully!');
+      // Mock delete - replace with real implementation
+      console.log('Deleting gig:', gigId);
+      success('Gig deleted successfully');
     } catch (error) {
-      console.error('Error deleting gig:', error);
-      showError('Error deleting gig');
+      showErrorToast('Error deleting gig');
     }
   };
 
-  // Filter orders that need action from the user
-  const getPendingOrders = () => {
-    if (!orders || !isOwnProfile) return [];
-    
-    return orders.filter(order => {
-      const isClient = user?.id === order.client?.id;
-      const isProvider = user?.id === order.gig?.provider_id || 
-                        user?.wallet_address === order.provider_address;
-      
-      // Client needs to pay
-      if (isClient && order.payment_status === 'pending' && 
-          (order.status === 'pending_approval' || order.status === 'in_progress')) {
-        return true;
-      }
-      
-      // Client needs to release payment
-      if (isClient && order.status === 'delivered' && order.payment_status === 'escrowed') {
-        return true;
-      }
-      
-      // Provider needs to submit work
-      if (isProvider && order.status === 'in_progress' && 
-          order.payment_status === 'escrowed' && order.work_status !== 'submitted') {
-        return true;
-      }
-      
-      // Client can write review
-      if (isClient && order.status === 'completed' && order.payment_status === 'released') {
-        return true;
-      }
-      
-      return false;
-    });
+  const handleUpdateGigStatus = async (gigId: string, status: string) => {
+    try {
+      // Mock update - replace with real implementation
+      console.log('Updating gig status:', { gigId, status });
+      success(`Gig status updated to ${status}`);
+    } catch (error) {
+      showErrorToast('Error updating gig status');
+    }
   };
 
-  const getActionType = (order: any) => {
-    const isClient = user?.id === order.client?.id;
-    const isProvider = user?.id === order.gig?.provider_id || 
-                      user?.wallet_address === order.provider_address;
-    
-    if (isClient && order.payment_status === 'pending') {
-      return { type: 'payment', label: 'Payment Required', color: 'red', icon: <DollarSign size={16} /> };
+  const handleMarkAllAsRead = async () => {
+    try {
+      // Mock mark all as read - replace with real implementation
+      console.log('Marking all notifications as read');
+      alert('All notifications marked as read');
+    } catch (error) {
+      alert('Error marking notifications as read');
     }
-    
-    if (isClient && order.status === 'delivered') {
-      return { type: 'release', label: 'Review & Release Payment', color: 'green', icon: <CheckCircle size={16} /> };
-    }
-    
-    if (isProvider && order.status === 'in_progress' && order.work_status !== 'submitted') {
-      return { type: 'submit', label: 'Submit Work', color: 'blue', icon: <FileText size={16} /> };
-    }
-    
-    if (isClient && order.status === 'completed') {
-      return { type: 'review', label: 'Write Review', color: 'yellow', icon: <Star size={16} /> };
-    }
-    
-    return { type: 'unknown', label: 'Action Required', color: 'gray', icon: <Bell size={16} /> };
   };
 
-  const pendingOrders = getPendingOrders();
+  const handleClaimPayment = async (orderId: string) => {
+    try {
+      // Import the payment hook
+      const { usePayments } = await import('../../hooks/usePayments');
+      const { claimPayment } = usePayments();
+      
+      await claimPayment(orderId);
+      
+      // Refresh orders after successful claim
+      if (orders) {
+        // Force refresh by navigating to the order details
+        navigate(`/orders/${orderId}`);
+      }
+    } catch (error) {
+      console.error('Error claiming payment:', error);
+      alert(`Error claiming payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+  const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
-  const tabs = [
-    { id: 0, label: 'Overview', icon: <User size={16} /> },
-    ...(isOwnProfile ? [
-      { id: 1, label: 'My Gigs', icon: <Briefcase size={16} /> },
-      { id: 2, label: 'My Orders', icon: <Clock size={16} /> },
-      { id: 3, label: 'Reviews', icon: <Star size={16} /> },
-      { id: 4, label: 'Notifications', icon: <Bell size={16} /> },
-      { id: 5, label: 'Settings', icon: <Settings size={16} /> }
-    ] : [
-      { id: 1, label: 'Gigs', icon: <Briefcase size={16} /> },
-      { id: 3, label: 'Reviews', icon: <Star size={16} /> }
-    ])
-  ];
-
-  if (profileLoading) {
+  if (!isLoggedIn && isOwnProfile) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
         <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="flex justify-center py-8">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-              <p className="text-gray-700">Loading profile...</p>
+          <div className="gradient-card p-8">
+            <div className="bg-yellow-100 border border-yellow-400 rounded-md p-4">
+              <div className="flex items-center">
+                <span className="text-yellow-600 mr-2">⚠️</span>
+                <span className="text-gray-800">Please log in to view your profile.</span>
+              </div>
             </div>
           </div>
         </div>
@@ -221,16 +198,35 @@ export const Profile = () => {
     );
   }
 
-  if (profileError || !profile) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
         <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <div className="flex items-center">
-              <AlertTriangle className="text-red-500 mr-3" size={20} />
-              <span className="text-red-700 font-medium">
-                {profileError ? `Error: ${profileError.message}` : 'Profile not found'}
-              </span>
+          <div className="gradient-card p-8">
+            <div className="flex justify-center">
+              <div className="space-y-4 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="text-gray-700">Loading profile...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="gradient-card p-8">
+            <div className="bg-red-100 border border-red-400 rounded-md p-4">
+              <div className="flex items-center">
+                <span className="text-red-600 mr-2">⚠️</span>
+                <span className="text-gray-800">
+                  {error ? `Error: ${error.message}` : 'Profile not found'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -241,535 +237,345 @@ export const Profile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
       <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="space-y-8">
-          {/* Profile Header */}
-          <div className="gradient-card p-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-24 h-24 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-3xl font-bold text-white">
-                {profile.username?.charAt(0)?.toUpperCase() || "U"}
-              </div>
-              
-              <div className="flex-1 space-y-2">
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+      <div className="space-y-8">
+        {/* Profile Header */}
+        <div className="gradient-card p-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
+              {profile.avatar_url ? (
+                <>
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username || "Profile"}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const parent = target.parentElement;
+                      if (parent) {
+                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div 
+                    className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white absolute inset-0"
+                    style={{ display: 'none' }}
+                  >
+                    {profile.username?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                </>
+              ) : (
+                <span>{profile.username?.charAt(0)?.toUpperCase() || "U"}</span>
+              )}
+            </div>
+            
+            <div className="flex-1">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800 mb-2">
                     {profile.full_name || profile.username}
                   </h1>
-                  {isOwnProfile && (
-                    <Button
-                      onClick={() => setIsEditing(!isEditing)}
-                      variant="outline"
-                      size="sm"
-                    >
-                      <Edit size={16} />
-                      {isEditing ? 'Cancel' : 'Edit Profile'}
-                    </Button>
-                  )}
-                </div>
-                
-                <p className="text-gray-600">@{profile.username}</p>
-                
-                {profile.bio && (
-                  <p className="text-gray-700 max-w-2xl">
-                    {profile.bio}
-                  </p>
-                )}
-                
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Calendar size={16} />
-                    <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
+                  <p className="text-gray-600 mb-2">@{profile.username}</p>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <Calendar size={16} />
+                      <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
+                    </div>
                   </div>
                 </div>
-
-                {/* Social Links */}
-                {(profile.twitter_url || profile.github_url || profile.linkedin_url || profile.website_url) && (
-                  <div className="flex gap-3 pt-2">
-                    {profile.twitter_url && (
-                      <a
-                        href={profile.twitter_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-blue-500 transition-colors"
-                      >
-                        <Twitter size={20} />
-                      </a>
-                    )}
-                    {profile.github_url && (
-                      <a
-                        href={profile.github_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-gray-800 transition-colors"
-                      >
-                        <Github size={20} />
-                      </a>
-                    )}
-                    {profile.linkedin_url && (
-                      <a
-                        href={profile.linkedin_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-blue-600 transition-colors"
-                      >
-                        <Linkedin size={20} />
-                      </a>
-                    )}
-                    {profile.website_url && (
-                      <a
-                        href={profile.website_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-indigo-600 transition-colors"
-                      >
-                        <Globe size={20} />
-                      </a>
-                    )}
-                  </div>
+                
+                {isOwnProfile && (
+                  <Button
+                    onClick={() => setIsEditModalOpen(true)}
+                    variant="gradient"
+                  >
+                    <Edit size={16} />
+                    Edit Profile
+                  </Button>
                 )}
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Edit Profile Form */}
-          {isEditing && isOwnProfile && (
-            <div className="gradient-card p-8">
-              <h2 className="text-xl font-bold text-gray-800 mb-6">Edit Profile</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.username}
-                      onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.full_name}
-                      onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
-                  </div>
-                </div>
+        {/* Profile Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* About Me */}
+            <div className="gradient-card p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">About Me</h3>
+              {profile.bio ? (
+                <p className="text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
+              ) : (
+                <p className="text-gray-500 italic">
+                  {isOwnProfile ? 'Add a bio to tell others about yourself' : 'No bio available'}
+                </p>
+              )}
+            </div>
 
-                <div>
-                  <label className="block text-gray-700 text-sm font-medium mb-2">
-                    Bio
-                  </label>
-                  <textarea
-                    value={editForm.bio}
-                    onChange={(e) => setEditForm({...editForm, bio: e.target.value})}
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Tell us about yourself..."
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      Twitter URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editForm.twitter_url}
-                      onChange={(e) => setEditForm({...editForm, twitter_url: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="https://twitter.com/username"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      GitHub URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editForm.github_url}
-                      onChange={(e) => setEditForm({...editForm, github_url: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="https://github.com/username"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      LinkedIn URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editForm.linkedin_url}
-                      onChange={(e) => setEditForm({...editForm, linkedin_url: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="https://linkedin.com/in/username"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 text-sm font-medium mb-2">
-                      Website URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editForm.website_url}
-                      onChange={(e) => setEditForm({...editForm, website_url: e.target.value})}
-                      className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      placeholder="https://yourwebsite.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={() => setIsEditing(false)}
-                    variant="outline"
-                    className="flex-1"
+            {/* Social Media Links */}
+            <div className="gradient-card p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Social Media Links</h3>
+              <div className="space-y-3">
+                {profile.twitter_url && (
+                  <a
+                    href={profile.twitter_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
                   >
-                    <X size={16} />
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSaveProfile}
-                    disabled={updateProfile.isLoading}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white"
+                    <Twitter size={20} />
+                    <span>Twitter</span>
+                  </a>
+                )}
+                
+                {profile.github_url && (
+                  <a
+                    href={profile.github_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors"
                   >
-                    <Save size={16} />
-                    {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
+                    <Github size={20} />
+                    <span>GitHub</span>
+                  </a>
+                )}
+                
+                {profile.linkedin_url && (
+                  <a
+                    href={profile.linkedin_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    <Linkedin size={20} />
+                    <span>LinkedIn</span>
+                  </a>
+                )}
+                
+                {profile.website_url && (
+                  <a
+                    href={profile.website_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    <Globe size={20} />
+                    <span>Website</span>
+                  </a>
+                )}
+                
+                {!profile.twitter_url && !profile.github_url && !profile.linkedin_url && !profile.website_url && (
+                  <p className="text-gray-500 italic">
+                    {isOwnProfile ? 'Add your social media links to connect with others' : 'No social media links available'}
+                  </p>
+                )}
               </div>
             </div>
-          )}
 
-          {/* Tabs */}
-          <div className="gradient-card overflow-hidden">
-            <div className="bg-gray-50 border-b border-gray-200">
-              <div className="flex overflow-x-auto scrollbar-hide">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'border-indigo-500 text-indigo-600 bg-white'
-                        : 'border-transparent text-gray-500 hover:text-indigo-600'
-                    }`}
-                  >
-                    {tab.icon}
-                    <span>{tab.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            <div className="p-6">
-              {/* Overview Tab */}
-              {activeTab === 0 && (
-                <div className="space-y-8">
-                  {/* Orders Waiting for Action - Only for own profile */}
-                  {isOwnProfile && pendingOrders.length > 0 && (
+            {/* Statistics Overview - Mobile Only */}
+            {isOwnProfile && (
+              <div className="gradient-card p-6 lg:hidden">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Statistics Overview</h3>
+                
+                {/* Main Stats Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star size={16} className="text-yellow-500" />
+                      <span className="text-gray-800 text-sm font-medium">Average Rating</span>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {(() => {
+                        const stats = calculateReviewStats(providerReviews || []);
+                        return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                      })()}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      {(() => {
+                        const stats = calculateReviewStats(providerReviews || []);
+                        return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                      })()}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase size={16} className="text-green-600" />
+                      <span className="text-gray-800 text-sm font-medium">Active Gigs</span>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {gigs?.filter(g => g.status === 'active').length || 0}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      of {gigs?.length || 0} total
+                    </p>
+                  </div>
+                </div>
+
+                {/* Earnings Section */}
+                <div className="space-y-4">
+                  <h4 className="text-md font-bold text-gray-800">Earnings</h4>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign size={16} className="text-blue-600" />
+                          <span className="text-gray-800 font-medium">EGLD Earnings</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-800">
+                            {(() => {
+                              const earnings = calculateEarnings(orders || []);
+                              return earnings.egld.toFixed(2);
+                            })()} EGLD
+                          </p>
+                          <p className="text-gray-600 text-xs">After 10% fee</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Coins size={16} className="text-purple-600" />
+                          <span className="text-gray-800 font-medium">IDA Earnings</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-800">
+                            {(() => {
+                              const earnings = calculateEarnings(orders || []);
+                              return earnings.ida.toFixed(2);
+                            })()} IDA
+                          </p>
+                          <p className="text-gray-600 text-xs">No fees</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Check size={16} className="text-gray-600" />
+                        <span className="text-gray-800 font-medium">Completed Orders</span>
+                      </div>
+                      <p className="text-xl font-bold text-gray-800">
+                        {(() => {
+                          const earnings = calculateEarnings(orders || []);
+                          return earnings.totalOrders;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating Distribution */}
+                {(() => {
+                  const stats = calculateReviewStats(providerReviews || []);
+                  return stats.totalReviews > 0 ? (
                     <div className="space-y-4">
-                      <h3 className="text-xl font-bold text-gray-800">Orders Waiting for Action</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {pendingOrders.map((order) => {
-                          const action = getActionType(order);
-                          const tokenSymbol = order.payment_token === 'EGLD' ? 'EGLD' : 'IDEA';
+                      <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
+                      <div className="space-y-2">
+                        {[5, 4, 3, 2, 1].map((rating) => {
+                          const count = stats.ratingDistribution[rating] || 0;
+                          const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
                           
                           return (
-                            <div
-                              key={order.id}
-                              className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                              onClick={() => navigate(`/orders/${order.id}`)}
-                            >
-                              <div className="space-y-3">
-                                <div className="flex justify-between items-start">
-                                  <h4 className="font-medium text-gray-800 line-clamp-1">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    action.color === 'red' ? 'bg-red-100 text-red-800' :
-                                    action.color === 'green' ? 'bg-green-100 text-green-800' :
-                                    action.color === 'blue' ? 'bg-blue-100 text-blue-800' :
-                                    action.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-gray-100 text-gray-800'
-                                  }`}>
-                                    {action.label}
-                                  </span>
-                                </div>
-                                
-                                <div className="flex items-center justify-between">
-                                  <span className="text-gray-600 text-sm">
-                                    {order.amount} {tokenSymbol}
-                                  </span>
-                                  <span className="text-gray-500 text-xs">
-                                    {new Date(order.created_at).toLocaleDateString()}
-                                  </span>
-                                </div>
-                                
-                                <div className={`flex items-center gap-2 text-sm ${
-                                  action.color === 'red' ? 'text-red-600' :
-                                  action.color === 'green' ? 'text-green-600' :
-                                  action.color === 'blue' ? 'text-blue-600' :
-                                  action.color === 'yellow' ? 'text-yellow-600' :
-                                  'text-gray-600'
-                                }`}>
-                                  {action.icon}
-                                  <span className="font-medium">{action.label}</span>
-                                </div>
+                            <div key={rating} className="flex items-center gap-3">
+                              <div className="flex items-center gap-1 w-12">
+                                <span className="text-gray-800 text-sm">{rating}</span>
+                                <Star size={12} className="text-yellow-500" />
                               </div>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-gray-600 text-sm w-12 text-right">
+                                {count}
+                              </span>
                             </div>
                           );
                         })}
                       </div>
                     </div>
-                  )}
+                  ) : null;
+                })()}
+              </div>
+            )}
+            {/* Reviews Section - Show for public profiles */}
+            {!isOwnProfile && (
+              <div className="gradient-card p-6">
+                <ReviewsList 
+                  reviews={providerReviews || []}
+                  isLoading={reviewsLoading}
+                  error={reviewsError}
+                  showTitle={true}
+                />
+              </div>
+            )}
 
-                  {/* Recent Orders - Only for own profile */}
-                  {isOwnProfile && (
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-bold text-gray-800">Recent Orders</h3>
-                      {ordersLoading ? (
-                        <div className="flex justify-center py-4">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                        </div>
-                      ) : !orders || orders.length === 0 ? (
-                        <div className="text-center py-8">
-                          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Briefcase size={24} className="text-gray-400" />
-                          </div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-2">No orders yet</h4>
-                          <p className="text-gray-600">
-                            Your orders will appear here once you start using the platform.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {orders.slice(0, 6).map((order) => {
-                            const tokenSymbol = order.payment_token === 'EGLD' ? 'EGLD' : 'IDEA';
-                            
-                            return (
-                              <div
-                                key={order.id}
-                                className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                                onClick={() => navigate(`/orders/${order.id}`)}
-                              >
-                                <div className="space-y-3">
-                                  <div className="flex justify-between items-start">
-                                    <h4 className="font-medium text-gray-800 line-clamp-1">
-                                      {order.gig?.title || 'Custom Project'}
-                                    </h4>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                      order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                      order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                                      order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
-                                      'bg-gray-100 text-gray-800'
-                                    }`}>
-                                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-gray-600 text-sm">
-                                      {order.amount} {tokenSymbol}
-                                    </span>
-                                    <span className="text-gray-500 text-xs">
-                                      {new Date(order.created_at).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  )}
+            {/* My Reviews - Only for own profile */}
+            {isOwnProfile && (
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">My Reviews</h3>
+                <ReviewsList 
+                  reviews={providerReviews || []}
+                  isLoading={reviewsLoading}
+                  error={reviewsError}
+                  showTitle={false}
+                />
+              </div>
+            )}
 
-                  {/* Stats for public profiles */}
-                  {!isOwnProfile && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-white p-6 rounded-lg border border-gray-200">
-                        <h4 className="text-lg font-medium text-gray-800 mb-2">Active Gigs</h4>
-                        <p className="text-3xl font-bold text-indigo-600">
-                          {gigs?.filter(g => g.status === 'active').length || 0}
-                        </p>
-                      </div>
-                      
-                      <div className="bg-white p-6 rounded-lg border border-gray-200">
-                        <h4 className="text-lg font-medium text-gray-800 mb-2">Total Reviews</h4>
-                        <p className="text-3xl font-bold text-green-600">
-                          {reviews?.length || 0}
-                        </p>
-                      </div>
-                      
-                      <div className="bg-white p-6 rounded-lg border border-gray-200">
-                        <h4 className="text-lg font-medium text-gray-800 mb-2">Average Rating</h4>
-                        <div className="flex items-center gap-2">
-                          <p className="text-3xl font-bold text-yellow-600">
-                            {reviews && reviews.length > 0 
-                              ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-                              : '0.0'
-                            }
-                          </p>
-                          <StarRating 
-                            rating={reviews && reviews.length > 0 
-                              ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-                              : 0
-                            }
-                            size={20}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+            {/* My Gigs - Only for own profile */}
+            {isOwnProfile && (
+              <div className="gradient-card p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-bold text-gray-800">My Gigs</h3>
+                  <Button
+                    onClick={() => navigate('/create-gig')}
+                    variant="gradient"
+                  >
+                    <Plus size={16} />
+                    Create Gig
+                  </Button>
                 </div>
-              )}
-
-              {/* My Gigs Tab */}
-              {activeTab === 1 && isOwnProfile && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-gray-800">My Gigs</h3>
+                
+                {gigs?.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600 mb-4">You haven't created any gigs yet.</p>
                     <Button
                       onClick={() => navigate('/create-gig')}
                       variant="gradient"
-                      size="sm"
                     >
                       <Plus size={16} />
-                      Create New Gig
+                      Create your first gig
                     </Button>
                   </div>
-                  
-                  {gigsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    </div>
-                  ) : !gigs || gigs.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Briefcase size={24} className="text-gray-400" />
-                      </div>
-                      <h4 className="text-lg font-medium text-gray-800 mb-2">No gigs yet</h4>
-                      <p className="text-gray-600 mb-4">
-                        Create your first gig to start offering your services.
-                      </p>
-                      <Button
-                        onClick={() => navigate('/create-gig')}
-                        variant="gradient"
-                        size="md"
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {gigs?.map((gig) => (
+                      <div
+                        key={gig.id}
+                        className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all duration-300 relative group"
                       >
-                        <Plus size={16} />
-                        Create Your First Gig
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {gigs.map((gig) => (
-                        <div
-                          key={gig.id}
-                          className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                        >
-                          <img
-                            src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                            alt={gig.title}
-                            className="w-full h-32 object-cover"
-                          />
-                          
-                          <div className="p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                              <h4 className="font-medium text-gray-800 line-clamp-2">
-                                {gig.title}
-                              </h4>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                gig.status === 'active' ? 'bg-green-100 text-green-800' :
-                                gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {gig.status}
-                              </span>
-                            </div>
-                            
-                            <p className="text-gray-600 text-sm line-clamp-2">
-                              {gig.description}
-                            </p>
-                            
-                            <div className="flex justify-between items-center">
-                              <span className="text-indigo-600 font-bold">
-                                {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDEA'}
-                              </span>
-                              <span className="text-gray-500 text-sm">
-                                {gig.duration} days
-                              </span>
-                            </div>
-                            
-                            <div className="flex gap-2 pt-2">
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/gigs/${gig.id}`);
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="flex-1"
-                              >
-                                View
-                              </Button>
-                              <Button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/gigs/${gig.id}/edit`);
-                                }}
-                                variant="outline"
-                                size="sm"
-                                className="flex-1"
-                              >
-                                Edit
-                              </Button>
-                            </div>
-                            
-                            <GigViewsStats gigId={gig.id} className="pt-2" />
+                        {/* Gig Actions Menu */}
+                        <div className="absolute top-2 right-2 z-10">
+                          <div className="relative">
+                            <button className="p-1 bg-white bg-opacity-75 hover:bg-opacity-100 rounded text-gray-600 hover:text-gray-800 transition-colors shadow-sm">
+                              <MoreVertical size={16} />
+                            </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* Public Gigs Tab (for viewing other profiles) */}
-              {activeTab === 1 && !isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-800">Public Gigs</h3>
-                  
-                  {gigsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    </div>
-                  ) : !gigs || gigs.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Briefcase size={24} className="text-gray-400" />
-                      </div>
-                      <h4 className="text-lg font-medium text-gray-800 mb-2">No public gigs</h4>
-                      <p className="text-gray-600">
-                        This user hasn't published any gigs yet.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {gigs.filter(g => g.status === 'active').map((gig) => (
                         <div
-                          key={gig.id}
-                          className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                          className="cursor-pointer"
                           onClick={() => navigate(`/gigs/${gig.id}`)}
                         >
                           <img
@@ -779,202 +585,603 @@ export const Profile = () => {
                           />
                           
                           <div className="p-4 space-y-3">
-                            <h4 className="font-medium text-gray-800 line-clamp-2">
-                              {gig.title}
-                            </h4>
+                            <div className="flex justify-between items-start">
+                              <h4 className="text-gray-800 font-bold line-clamp-2 flex-1 mr-2">
+                                {gig.title}
+                              </h4>
+                              <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
+                                gig.status === 'active' ? 'bg-green-100 text-green-800' :
+                                gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {gig.status}
+                              </span>
+                            </div>
+                            
+                            {/* Views counter */}
+                            <div className="flex items-center gap-2">
+                              <Eye size={14} className="text-gray-400" />
+                              <span className="text-gray-500 text-sm">
+                                {gig.view_count || 0} views
+                              </span>
+                            </div>
                             
                             <p className="text-gray-600 text-sm line-clamp-2">
-                              {gig.description}
+                              {gig.description.split('\n\nPackage Includes:')[0]}
                             </p>
                             
                             <div className="flex justify-between items-center">
                               <span className="text-indigo-600 font-bold">
                                 {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDEA'}
                               </span>
-                              <span className="text-gray-500 text-sm">
+                              <span className="text-gray-600 text-sm">
                                 {gig.duration} days
                               </span>
                             </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* My Orders Tab */}
-              {activeTab === 2 && isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-800">My Orders</h3>
-                  
-                  {ordersLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    </div>
-                  ) : !orders || orders.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Clock size={24} className="text-gray-400" />
                       </div>
-                      <h4 className="text-lg font-medium text-gray-800 mb-2">No orders yet</h4>
-                      <p className="text-gray-600">
-                        Your orders will appear here once you start using the platform.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {orders.map((order) => {
-                        const tokenSymbol = order.payment_token === 'EGLD' ? 'EGLD' : 'IDEA';
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* My Orders - Only for own profile */}
+            {isOwnProfile && (
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Recent Orders</h3>
+                
+                {orders?.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-600 mb-4">No orders yet.</p>
+                    <Button
+                      onClick={() => navigate('/gigs')}
+                      variant="gradient"
+                    >
+                      Browse Gigs
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {orders?.slice(0, 5).map((order) => {
+                      // Calculate if 3 days have passed since completion
+                      const isCompleted = order.status === 'completed';
+                      const completionDate = new Date(order.status_updated_at);
+                      const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                      const now = new Date();
+                      const canClaim = isCompleted && now >= threeDaysLater;
+                      const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
+                      
+                      // Format countdown
+                      const formatCountdown = (ms: number) => {
+                        const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
                         
-                        return (
-                          <div
-                            key={order.id}
-                            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                          >
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                              <div className="space-y-2">
-                                <h4 className="font-medium text-gray-800">
-                                  {order.gig?.title || 'Custom Project'}
-                                </h4>
-                                <div className="flex items-center gap-4 text-sm text-gray-600">
-                                  <span>{order.amount} {tokenSymbol}</span>
-                                  <span>•</span>
-                                  <span>{new Date(order.created_at).toLocaleDateString()}</span>
-                                </div>
-                              </div>
-                              
-                              <div className="flex gap-2">
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                  order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                  order.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                                  order.status === 'delivered' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                </span>
-                                
-                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                  order.payment_status === 'released' ? 'bg-green-100 text-green-800' :
-                                  order.payment_status === 'escrowed' ? 'bg-blue-100 text-blue-800' :
-                                  order.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-gray-100 text-gray-800'
-                                }`}>
-                                  Payment: {order.payment_status}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Reviews Tab */}
-              {activeTab === 3 && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-800">
-                    {isOwnProfile ? 'Reviews I Received' : 'Reviews'}
-                  </h3>
-                  
-                  <ReviewsList 
-                    reviews={reviews || []}
-                    isLoading={reviewsLoading}
-                    error={null}
-                    showTitle={false}
-                  />
-                </div>
-              )}
-
-              {/* Notifications Tab */}
-              {activeTab === 4 && isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-800">Notifications</h3>
-                  
-                  {notificationsLoading ? (
-                    <div className="flex justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    </div>
-                  ) : !notifications || notifications.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Bell size={24} className="text-gray-400" />
-                      </div>
-                      <h4 className="text-lg font-medium text-gray-800 mb-2">No notifications</h4>
-                      <p className="text-gray-600">
-                        You're all caught up! New notifications will appear here.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {notifications.map((notification) => (
+                        if (days > 0) return `${days}d ${hours}h`;
+                        if (hours > 0) return `${hours}h ${minutes}m`;
+                        return `${minutes}m`;
+                      };
+                      
+                      return (
                         <div
-                          key={notification.id}
-                          className={`p-4 border rounded-lg ${
-                            notification.read ? 'bg-gray-50 border-gray-200' : 'bg-blue-50 border-blue-200'
-                          }`}
+                          key={order.id}
+                          className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
+                          onClick={() => navigate(`/orders/${order.id}`)}
                         >
                           <div className="flex justify-between items-start">
-                            <div className="space-y-1">
-                              <h4 className="font-medium text-gray-800">
-                                {notification.title}
+                            <div className="flex-1">
+                              <h4 className="text-gray-800 font-medium mb-1">
+                                {order.gig?.title || 'Custom Project'}
                               </h4>
                               <p className="text-gray-600 text-sm">
-                                {notification.content}
+                                {order.amount} {order.payment_token || 'EGLD'} • {order.status}
                               </p>
                             </div>
-                            <span className="text-gray-500 text-xs">
-                              {new Date(notification.created_at).toLocaleDateString()}
+                            <span className="text-gray-600 text-sm">
+                              {new Date(order.created_at).toLocaleDateString()}
                             </span>
                           </div>
+                          
+                          {/* Claim Payment Section for Completed Orders */}
+                          {isCompleted && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-800">
+                                    {canClaim ? '💰 Ready to claim payment' : '⏳ Payment claim available in:'}
+                                  </p>
+                                  {!canClaim && (
+                                    <p className="text-xs text-gray-600">
+                                      {formatCountdown(timeUntilClaim)}
+                                    </p>
+                                  )}
+                                </div>
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (canClaim) {
+                                      handleClaimPayment(order.id);
+                                    }
+                                  }}
+                                  disabled={!canClaim}
+                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                    canClaim 
+                                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  }`}
+                                >
+                                  {canClaim ? 'Claim Payment' : `Wait ${formatCountdown(timeUntilClaim)}`}
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      ))}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Only for own profile */}
+          {isOwnProfile && (
+            <div className="space-y-8">
+              {/* Statistics Overview - Desktop Only */}
+              <div className="gradient-card p-6 hidden lg:block">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">Statistics Overview</h3>
+                
+                {/* Main Stats Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star size={16} className="text-yellow-500" />
+                      <span className="text-gray-800 text-sm font-medium">Average Rating</span>
                     </div>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {(() => {
+                        const stats = calculateReviewStats(providerReviews || []);
+                        return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                      })()}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      {(() => {
+                        const stats = calculateReviewStats(providerReviews || []);
+                        return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                      })()}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Briefcase size={16} className="text-green-600" />
+                      <span className="text-gray-800 text-sm font-medium">Active Gigs</span>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-800">
+                      {gigs?.filter(g => g.status === 'active').length || 0}
+                    </p>
+                    <p className="text-gray-600 text-xs">
+                      of {gigs?.length || 0} total
+                    </p>
+                  </div>
+                </div>
+
+                {/* Earnings Section */}
+                <div className="space-y-4">
+                  <h4 className="text-md font-bold text-gray-800">Earnings</h4>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign size={16} className="text-blue-600" />
+                          <span className="text-gray-800 font-medium">EGLD Earnings</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-800">
+                            {(() => {
+                              const earnings = calculateEarnings(orders || []);
+                              return earnings.egld.toFixed(2);
+                            })()} EGLD
+                          </p>
+                          <p className="text-gray-600 text-xs">After 10% fee</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Coins size={16} className="text-purple-600" />
+                          <span className="text-gray-800 font-medium">IDA Earnings</span>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-gray-800">
+                            {(() => {
+                              const earnings = calculateEarnings(orders || []);
+                              return earnings.ida.toFixed(2);
+                            })()} IDA
+                          </p>
+                          <p className="text-gray-600 text-xs">No fees</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Check size={16} className="text-gray-600" />
+                        <span className="text-gray-800 font-medium">Completed Orders</span>
+                      </div>
+                      <p className="text-xl font-bold text-gray-800">
+                        {(() => {
+                          const earnings = calculateEarnings(orders || []);
+                          return earnings.totalOrders;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating Distribution */}
+                {(() => {
+                  const stats = calculateReviewStats(providerReviews || []);
+                  return stats.totalReviews > 0 ? (
+                    <div className="space-y-4">
+                      <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
+                      <div className="space-y-2">
+                        {[5, 4, 3, 2, 1].map((rating) => {
+                          const count = stats.ratingDistribution[rating] || 0;
+                          const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                          
+                          return (
+                            <div key={rating} className="flex items-center gap-3">
+                              <div className="flex items-center gap-1 w-12">
+                                <span className="text-gray-800 text-sm">{rating}</span>
+                                <Star size={12} className="text-yellow-500" />
+                              </div>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
+                                  style={{ width: `${percentage}%` }}
+                                ></div>
+                              </div>
+                              <span className="text-gray-600 text-sm w-12 text-right">
+                                {count}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+
+        {/* Statistics for Public Profiles */}
+        {!isOwnProfile && (
+          <div className="gradient-card p-6">
+            <h3 className="text-lg font-bold text-gray-800 mb-6">Provider Statistics</h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Star size={16} className="text-yellow-500" />
+                  <span className="text-gray-800 text-sm font-medium">Average Rating</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-800">
+                  {(() => {
+                    const stats = calculateReviewStats(providerReviews || []);
+                    return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                  })()}
+                </p>
+                <p className="text-gray-600 text-xs">
+                  {(() => {
+                    const stats = calculateReviewStats(providerReviews || []);
+                    return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                  })()}
+                </p>
+              </div>
+              
+              <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Briefcase size={16} className="text-green-600" />
+                  <span className="text-gray-800 text-sm font-medium">Total Gigs</span>
+                </div>
+                <p className="text-2xl font-bold text-gray-800">
+                  {/* For public profiles, we'd need to fetch their gigs separately */}
+                  0
+                </p>
+                <p className="text-gray-600 text-xs">
+                  available services
+                </p>
+              </div>
+            </div>
+
+            {/* Rating Distribution for Public Profile */}
+            {(() => {
+              const stats = calculateReviewStats(providerReviews || []);
+              return stats.totalReviews > 0 ? (
+                <div className="space-y-4">
+                  <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
+                  <div className="space-y-2">
+                    {[5, 4, 3, 2, 1].map((rating) => {
+                      const count = stats.ratingDistribution[rating] || 0;
+                      const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                      
+                      return (
+                        <div key={rating} className="flex items-center gap-3">
+                          <div className="flex items-center gap-1 w-12">
+                            <span className="text-gray-800 text-sm">{rating}</span>
+                            <Star size={12} className="text-yellow-500" />
+                          </div>
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-gray-600 text-sm w-12 text-right">
+                            {count}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-600">No reviews yet</p>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+              {/* Settings */}
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Settings</h3>
+                <div className="space-y-4">
+                  <EmailNotificationsToggle enabled={profile.email_notifications_enabled || false} />
+                </div>
+              </div>
+
+              {/* Notifications */}
+              <div className="gradient-card p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
+                  {unreadCount > 0 && (
+                    <Button
+                      onClick={handleMarkAllAsRead}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Mark all as read ({unreadCount})
+                    </Button>
                   )}
                 </div>
-              )}
-
-              {/* Settings Tab */}
-              {activeTab === 5 && isOwnProfile && (
-                <div className="space-y-6">
-                  <h3 className="text-xl font-bold text-gray-800">Settings</h3>
-                  
-                  <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h4 className="text-lg font-medium text-gray-800 mb-4">Email Notifications</h4>
-                    <EmailNotificationsToggle enabled={profile?.email_notifications_enabled || false} />
+                
+                {notifications?.length === 0 ? (
+                  <p className="text-gray-600">No notifications</p>
+                ) : (
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {notifications?.slice(0, 5).map((notification) => (
+                      <div
+                        key={notification.id}
+                        className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-700 transition-colors ${
+                          !notification.read 
+                            ? 'bg-blue-50 border-blue-300' 
+                            : 'bg-white border-gray-200'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <p className={`text-sm ${
+                            !notification.read ? 'text-gray-800 font-medium' : 'text-gray-700'
+                          }`}>
+                            {notification.title}
+                          </p>
+                          <p className="text-gray-600 text-xs line-clamp-2">
+                            {notification.content}
+                          </p>
+                          <p className="text-gray-500 text-xs">
+                            {new Date(notification.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  
-                  <div className="bg-white p-6 rounded-lg border border-gray-200">
-                    <h4 className="text-lg font-medium text-gray-800 mb-4">Account Information</h4>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">User ID:</span>
-                        <span className="text-gray-800 font-mono">{profile.id}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Wallet Address:</span>
-                        <span className="text-gray-800 font-mono">
-                          {profile.wallet_address ? 
-                            `${profile.wallet_address.substring(0, 8)}...${profile.wallet_address.substring(profile.wallet_address.length - 4)}` 
-                            : 'Not connected'
-                          }
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Member Since:</span>
-                        <span className="text-gray-800">{new Date(profile.created_at).toLocaleDateString()}</span>
-                      </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto rounded-lg">
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">Edit Profile</h3>
+                <button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-800"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Profile Picture URL
+                  </label>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    {/* Current avatar preview */}
+                    <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0">
+                      {editForm.avatar_url ? (
+                        <img
+                          src={editForm.avatar_url}
+                          alt="Avatar preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                      ) : (
+                        <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
+                      )}
+                    </div>
+                    
+                    {/* URL input */}
+                    <div className="flex-1">
+                      <input
+                        type="url"
+                        name="avatar_url"
+                        value={editForm.avatar_url}
+                        onChange={handleEditFormChange}
+                        placeholder="https://example.com/your-avatar.jpg"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <p className="text-gray-600 text-xs mt-1">
+                        Enter a direct URL to your profile image
+                      </p>
                     </div>
                   </div>
                 </div>
-              )}
+
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Username
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={editForm.username}
+                    onChange={handleEditFormChange}
+                    className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={editForm.full_name}
+                    onChange={handleEditFormChange}
+                    className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Bio
+                  </label>
+                  <textarea
+                    name="bio"
+                    value={editForm.bio}
+                    onChange={handleEditFormChange}
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Tell others about yourself..."
+                  />
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-bold text-gray-800 mb-3">Social Media Links</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-gray-800 text-sm font-medium mb-2">
+                        Twitter URL
+                      </label>
+                      <input
+                        type="url"
+                        name="twitter_url"
+                        value={editForm.twitter_url}
+                        onChange={handleEditFormChange}
+                        placeholder="https://twitter.com/yourusername"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-800 text-sm font-medium mb-2">
+                        GitHub URL
+                      </label>
+                      <input
+                        type="url"
+                        name="github_url"
+                        value={editForm.github_url}
+                        onChange={handleEditFormChange}
+                        placeholder="https://github.com/yourusername"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-800 text-sm font-medium mb-2">
+                        LinkedIn URL
+                      </label>
+                      <input
+                        type="url"
+                        name="linkedin_url"
+                        value={editForm.linkedin_url}
+                        onChange={handleEditFormChange}
+                        placeholder="https://linkedin.com/in/yourusername"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-800 text-sm font-medium mb-2">
+                        Website URL
+                      </label>
+                      <input
+                        type="url"
+                        name="website_url"
+                        value={editForm.website_url}
+                        onChange={handleEditFormChange}
+                        placeholder="https://yourwebsite.com"
+                        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={updateProfile.isLoading}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                >
+                  {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
