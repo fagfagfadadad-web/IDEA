@@ -9,9 +9,10 @@ interface GigWithProviderWallet {
   provider_id: string;
   payment_token: string;
   provider: {
-    wallet_address: string;
+    id?: string;
     username?: string;
     avatar_url?: string;
+    wallet_address: string;
   };
 }
 
@@ -19,12 +20,14 @@ interface Order {
   id: string;
   gig: GigWithProviderWallet;
   client: {
+    id?: string;
     username: string;
     avatar_url: string;
     wallet_address: string;
+    email?: string;
+    full_name?: string;
   };
   reviews: any[];
-  // ďalšie vlastnosti podľa schémy
   created_at: string;
   amount: number;
   status: string;
@@ -32,6 +35,11 @@ interface Order {
   work_status: string;
   client_address: string;
   provider_address: string;
+  status_updated_at: string;
+  payment_token: string;
+  deadline?: string;
+  requirements?: any;
+  transaction_hash?: string;
 }
 
 export const sendNotification = async ({
@@ -113,9 +121,9 @@ export const useOrders = () => {
           *,
           gig:gigs(
             title,
-            provider:users!gigs_provider_id_fkey(username, avatar_url, wallet_address)
+            provider:users!gigs_provider_id_fkey(id, username, avatar_url, wallet_address)
           ),
-          client:users!orders_client_id_fkey(username, avatar_url, wallet_address),
+          client:users!orders_client_id_fkey(id, username, avatar_url, wallet_address, email, full_name),
           reviews(*)
         `)
         .or(filterQuery)
@@ -184,7 +192,7 @@ export const useCreateOrder = () => {
         .select(`
           provider_id,
           payment_token,
-          provider:users!gigs_provider_id_fkey(wallet_address)
+          provider:users!gigs_provider_id_fkey(id, username, avatar_url, wallet_address)
         `)
         .eq('id', orderData.gig_id)
         .single();
@@ -212,17 +220,18 @@ export const useCreateOrder = () => {
           amount: orderData.amount,
           requirements: orderData.requirements || {},
           deadline: orderData.deadline,
-          payment_token: gig?.payment_token || 'EGLD',
+          payment_token: gig?.payment_token || orderData.payment_token || 'EGLD',
           status: 'pending_approval',
           payment_status: 'pending',
           work_status: 'pending',
           client_address: address,
           provider_address: providerAddress,
+          status_updated_at: new Date().toISOString(),
         })
         .select(`
           *,
           gig:gigs(title),
-          client:users!orders_client_id_fkey(username, email)
+          client:users!orders_client_id_fkey(id, username, email, avatar_url, full_name)
         `)
         .single();
 
@@ -254,7 +263,7 @@ export const useCreateOrder = () => {
 };
 
 export const useOrderById = (orderId: string) => {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
