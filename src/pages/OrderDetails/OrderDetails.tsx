@@ -202,7 +202,7 @@ const OrderDetails = () => {
       console.log('Fetching provider address for gig:', { gigId });
       const { data, error } = await supabase
         .from('gigs')
-        .select('provider_id, provider:users!gigs_provider_id_fkey(wallet_address)')
+        .select('provider_id, provider:users!gigs_provider_id_fkey(id, username, avatar_url, wallet_address)')
         .eq('id', gigId)
         .single();
 
