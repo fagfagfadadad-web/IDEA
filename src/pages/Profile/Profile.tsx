@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
@@ -58,6 +58,7 @@ const calculateReviewStats = (reviews: any[]) => {
 };
 
 export const Profile = () => {
+  const { id: profileId } = useParams(); // ID z URL parametra pre viewing iného profilu
   const { id } = useParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
@@ -86,9 +87,12 @@ export const Profile = () => {
     twitter_url: '',
     github_url: '',
     linkedin_url: '',
-    website_url: '',
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(profileId);
   });
-
+  
+  // Pre recenzie používame buď profileId (ak pozeráme iný profil) alebo user.id (ak pozeráme vlastný profil)
+  const reviewsUserId = profileId || user?.id || '';
+  const { data: providerReviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(reviewsUserId);
   const updateProfile = useUpdateProfile();
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
