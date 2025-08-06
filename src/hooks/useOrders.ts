@@ -10,10 +10,37 @@ interface GigWithProviderWallet {
   payment_token: string;
   provider: {
     wallet_address: string;
-  }[];
+    username?: string;
+    avatar_url?: string;
+  };
 }
 
-export const sendNotification = async ({ user_id, type, title, content, data }: {
+interface Order {
+  id: string;
+  gig: GigWithProviderWallet;
+  client: {
+    username: string;
+    avatar_url: string;
+    wallet_address: string;
+  };
+  reviews: any[];
+  // ďalšie vlastnosti podľa schémy
+  created_at: string;
+  amount: number;
+  status: string;
+  payment_status: string;
+  work_status: string;
+  client_address: string;
+  provider_address: string;
+}
+
+export const sendNotification = async ({
+  user_id,
+  type,
+  title,
+  content,
+  data,
+}: {
   user_id: string;
   type: string;
   title: string;
@@ -29,7 +56,7 @@ export const sendNotification = async ({ user_id, type, title, content, data }: 
         title,
         content,
         data: data || {},
-        read: false
+        read: false,
       });
 
     if (error) throw error;
@@ -41,7 +68,7 @@ export const sendNotification = async ({ user_id, type, title, content, data }: 
 };
 
 export const useOrders = () => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const isLoggedIn = useGetIsLoggedIn();
@@ -54,7 +81,7 @@ export const useOrders = () => {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      
+
       if (!isLoggedIn || !address) {
         console.log('🔍 useOrders: Not logged in or no address:', { isLoggedIn, address });
         setData([]);
@@ -80,7 +107,6 @@ export const useOrders = () => {
       const filterQuery = `client_id.eq.${user.id},provider_address.eq.${address}`;
       console.log('🔍 useOrders: Using filter query:', filterQuery);
 
-      // Get all orders where user is either client or provider (by wallet address)
       const { data: orders, error } = await supabase
         .from('orders')
         .select(`
@@ -117,7 +143,7 @@ export const useOrders = () => {
     data,
     isLoading,
     error,
-    refetch: fetchOrders
+    refetch: fetchOrders,
   };
 };
 
@@ -125,8 +151,8 @@ export const useCreateOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
 
-  const mutateAsync = async (orderData: { 
-    gig_id: string; 
+  const mutateAsync = async (orderData: {
+    gig_id: string;
     amount: number;
     requirements?: any;
     deadline?: string;
@@ -156,8 +182,8 @@ export const useCreateOrder = () => {
       const { data: gig, error: gigError } = await supabase
         .from('gigs')
         .select(`
-          provider_id, 
-          payment_token, 
+          provider_id,
+          payment_token,
           provider:users!gigs_provider_id_fkey(wallet_address)
         `)
         .eq('id', orderData.gig_id)
@@ -169,9 +195,12 @@ export const useCreateOrder = () => {
       }
 
       const providerAddress = gig?.provider?.wallet_address;
-        
+
       if (!providerAddress || !isValidAddress(providerAddress)) {
-        console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
+        console.error('Invalid or missing provider address for gig:', {
+          gigId: orderData.gig_id,
+          providerAddress,
+        });
         throw new Error('Provider address not found or invalid for gig');
       }
 
@@ -183,12 +212,12 @@ export const useCreateOrder = () => {
           amount: orderData.amount,
           requirements: orderData.requirements || {},
           deadline: orderData.deadline,
-          payment_token: (gig as any).payment_token || 'EGLD',
+          payment_token: gig?.payment_token || 'EGLD',
           status: 'pending_approval',
           payment_status: 'pending',
           work_status: 'pending',
           client_address: address,
-          provider_address: providerAddress
+          provider_address: providerAddress,
         })
         .select(`
           *,
@@ -220,7 +249,7 @@ export const useCreateOrder = () => {
 
   return {
     mutateAsync,
-    isLoading
+    isLoading,
   };
 };
 
@@ -241,8 +270,8 @@ export const useOrderById = (orderId: string) => {
             *,
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
             gig:gigs!orders_gig_id_fkey(
-              id, 
-              title, 
+              id,
+              title,
               provider_id,
               provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name, wallet_address)
             )
@@ -251,14 +280,13 @@ export const useOrderById = (orderId: string) => {
           .single();
 
         if (error) {
-          // Handle 'not found' case gracefully
           if (error.code === 'PGRST116') {
             console.log('Order not found:', orderId);
             setData(null);
             setError(null);
             return;
           }
-          
+
           console.error('Supabase error fetching order:', error);
           throw new Error(`Failed to fetch order: ${error.message}`);
         }
@@ -280,7 +308,7 @@ export const useOrderById = (orderId: string) => {
   return {
     data,
     isLoading,
-    error
+    error,
   };
 };
 
@@ -290,11 +318,11 @@ export const useUpdateOrderStatus = () => {
   const mutateAsync = async ({ orderId, status, amount }: { orderId: string; status: string; amount?: number }) => {
     setIsLoading(true);
     try {
-      const updateData: any = { 
+      const updateData: any = {
         status,
-        status_updated_at: new Date().toISOString()
+        status_updated_at: new Date().toISOString(),
       };
-      
+
       if (amount !== undefined) {
         updateData.amount = amount;
       }
@@ -319,6 +347,6 @@ export const useUpdateOrderStatus = () => {
 
   return {
     mutateAsync,
-    isLoading
+    isLoading,
   };
 };
