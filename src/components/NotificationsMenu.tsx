@@ -3,6 +3,7 @@ import { Bell, Check, CheckCheck, Clock, MessageSquare, AlertTriangle, DollarSig
 import { Button } from 'components';
 import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 interface NotificationsDropdownProps {
   notifications?: Notification[];
@@ -21,6 +22,7 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
   const markAsRead = useMarkNotificationAsRead();
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { success: showSuccessToast, error: showErrorToast } = useToast();
+  const { user } = useAuth();
 
   // Use props if provided, otherwise fall back to hook data
   const notifications = propNotifications || hookNotifications;
@@ -128,6 +130,11 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
   const handleMarkAllAsRead = async () => {
     try {
       console.log('Marking all notifications as read...');
+      
+      if (!user?.id) {
+        showErrorToast('Please log in to mark notifications as read');
+        return;
+      }
       
       if (unreadCount === 0) {
         showSuccessToast('All notifications are already read');
