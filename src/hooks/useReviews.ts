@@ -207,22 +207,40 @@ export const useReviewsForProvider = (providerId: string) => {
     try {
       setIsLoading(true);
       
+      // First get all orders for this provider
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('gig_id', 
+          supabase
+            .from('gigs')
+            .select('id')
+            .eq('provider_id', providerId)
+        );
+
+      if (ordersError) throw ordersError;
+
+      if (!orders || orders.length === 0) {
+        console.log('🔍 useReviewsForProvider: No orders found for provider:', providerId);
+        setData([]);
+        return;
+      }
+
+      const orderIds = orders.map(order => order.id);
+      console.log('🔍 useReviewsForProvider: Found order IDs for provider:', orderIds);
+
+      // Then get reviews for those orders
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
           *,
           order:orders!reviews_order_id_fkey(
             id,
-            gig_id,
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
-            gig:gigs!orders_gig_id_fkey(
-              id,
-              title,
-              provider_id
-            )
+            gig:gigs(title)
           )
         `)
-        .in('order.gig.provider_id', [providerId])
+        .in('order_id', orderIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
