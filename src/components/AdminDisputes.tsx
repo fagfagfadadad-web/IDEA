@@ -298,7 +298,7 @@ export const AdminDisputes: React.FC = () => {
                     <span className="font-medium">Gig:</span> {selectedDispute?.order?.gig?.title || 'Custom Project'}
                   </p>
                   <p className="text-gray-800">
-                    <span className="font-medium">Amount:</span> {selectedDispute?.order?.amount || 'N/A'} {selectedDispute?.order?.payment_token || 'EGLD'}
+                    <span className="font-medium">Amount:</span> {selectedDispute?.order?.amount || 'N/A'} {selectedDispute?.order?.payment_token || \'EGLD'}
                   </p>
                   <p className="text-gray-600 text-sm">
                     Order ID: {selectedDispute?.order?.id}
