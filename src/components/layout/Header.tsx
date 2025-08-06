@@ -28,12 +28,12 @@ export const Header = () => {
   useEffect(() => {
     console.log('🔔 Header: Notifications state:', {
       isLoggedIn,
-      userId: user?.id,
+      userId: profile?.id,
       notificationsCount: notifications?.length || 0,
       unreadCount,
       notifications: notifications?.slice(0, 3) // Log first 3 for debugging
     });
-  }, [notifications, unreadCount, isLoggedIn, user?.id]);
+  }, [notifications, unreadCount, isLoggedIn, profile?.id]);
 
   useEffect(() => {
     const searchParam = searchParams.get('search');
