@@ -641,7 +641,7 @@ const OrderDetails = () => {
 
       success('Work has been successfully delivered');
       window.location.reload();
-    } orderDetails catch (error) {
+    } catch (error) {
       console.error('Submit work error:', error);
       showError(error instanceof Error ? error.message : 'Error submitting work');
     } finally {
@@ -950,6 +950,7 @@ const OrderDetails = () => {
                   <Button
                     onClick={() => setShowDisputeModal(true)}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    disabled={isPaymentLoading}
                   >
                     <AlertTriangle size={16} className="text-white" />
                     Create Dispute
