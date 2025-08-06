@@ -155,16 +155,20 @@ export const useCreateOrder = () => {
 
       const { data: gig, error: gigError } = await supabase
         .from('gigs')
-        .select('provider_id, payment_token, provider:users!gigs_provider_id_fkey(wallet_address)')
+        .select(`
+          provider_id, 
+          payment_token, 
+          provider:users!gigs_provider_id_fkey(wallet_address)
+        `)
         .eq('id', orderData.gig_id)
-        .single() as { data: GigWithProviderWallet | null; error: any };
+        .single();
 
       if (gigError) {
         console.error('Error fetching gig:', gigError);
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      const providerAddress = gig?.provider?.[0]?.wallet_address;
+      const providerAddress = gig?.provider?.wallet_address;
         
       if (!providerAddress || !isValidAddress(providerAddress)) {
         console.error('Invalid or missing provider address for gig:', { gigId: orderData.gig_id, providerAddress });
