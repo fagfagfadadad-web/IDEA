@@ -5,14 +5,12 @@ import { Button } from 'components';
 import { NotificationsDropdown } from '../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { useProfile } from '../../hooks/useProfile';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { useAuth } from '../../context/AuthContext';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { data: profile } = useProfile();
   const { user } = useAuth();
   const { data: notifications } = useNotifications(user?.id);
   const navigate = useNavigate();
@@ -33,7 +31,9 @@ export const Header = () => {
       userId: user?.id,
       notificationsCount: notifications?.length || 0,
       unreadCount,
-      notifications: notifications?.slice(0, 3) // Log first 3 for debugging
+      notifications: notifications?.slice(0, 3), // Log first 3 for debugging
+      hasUser: !!user,
+      userReady: !!user?.id
     });
   }, [notifications, unreadCount, isLoggedIn, user?.id]);
 
@@ -165,10 +165,10 @@ export const Header = () => {
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200"
                     >
-                      {profile?.avatar_url ? (
+                      {user?.avatar_url ? (
                         <img
-                          src={profile.avatar_url}
-                          alt={profile.username || "Profile"}
+                          src={user.avatar_url}
+                          alt={user.username || "Profile"}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -182,15 +182,15 @@ export const Header = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
-                          {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                          {user?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
-                      {profile?.avatar_url && (
+                      {user?.avatar_url && (
                         <div 
                           className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                           style={{ display: 'none' }}
                         >
-                          {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                          {user?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
                     </button>
@@ -281,7 +281,7 @@ export const Header = () => {
                   <Bell size={20} className="text-gray-600" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
-                      {unreadCount}
+                      {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
                 </Link>

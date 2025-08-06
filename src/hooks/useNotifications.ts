@@ -26,7 +26,10 @@ export const useNotifications = (userId?: string) => {
 
   // Real-time subscription for notifications
   useEffect(() => {
-    if (!userId) return;
+    if (!userId || !isLoggedIn) {
+      console.log('🔔 useNotifications: Skipping subscription setup - no userId or not logged in');
+      return;
+    }
 
     console.log('🔔 Setting up real-time notifications subscription for user:', userId);
     
@@ -42,7 +45,10 @@ export const useNotifications = (userId?: string) => {
         },
         (payload) => {
           console.log('🔔 Real-time notification update:', payload);
-          fetchNotifications(); // Refresh notifications when changes occur
+          // Immediate refresh when real-time update occurs
+          setTimeout(() => {
+            fetchNotifications();
+          }, 100);
         }
       )
       .subscribe();
@@ -51,7 +57,8 @@ export const useNotifications = (userId?: string) => {
       console.log('🔔 Cleaning up notifications subscription');
       supabase.removeChannel(channel);
     };
-  }, [userId]);
+  }, [userId, isLoggedIn]);
+  
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
@@ -75,13 +82,16 @@ export const useNotifications = (userId?: string) => {
 
       console.log('🔔 useNotifications: Fetched notifications:', {
         total: notifications?.length || 0,
-        unread: notifications?.filter(n => !n.read).length || 0
+        unread: notifications?.filter(n => !n.read).length || 0,
+        latestNotification: notifications?.[0]?.title || 'None'
       });
 
       setData(notifications || []);
+      setError(null);
     } catch (err) {
       console.error('Error fetching notifications:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
+      setData([]);
     } finally {
       setIsLoading(false);
     }
