@@ -2,110 +2,14 @@ import React, { useState } from 'react';
 import { Search, MoreVertical, Trash2, Edit, Eye, CheckCircle, XCircle, DollarSign } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-
-// Mock data for demonstration
-const mockGigs = [
-  {
-    id: "1",
-    title: "Professional Web Development",
-    description: "I will create a modern, responsive website for your business",
-    category: "Programming & Tech",
-    price: "100",
-    duration: "7",
-    payment_token: "EGLD",
-    status: "active",
-    created_at: new Date().toISOString(),
-    media_urls: {
-      images: ["https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"]
-    },
-    provider: {
-      id: "provider1",
-      username: "webdev_pro",
-      avatar_url: "",
-      full_name: "John Developer"
-    }
-  },
-  {
-    id: "2",
-    title: "Logo Design & Branding",
-    description: "Professional logo design with complete brand identity package",
-    category: "Graphics & Design",
-    price: "50",
-    duration: "3",
-    payment_token: "IDEA",
-    status: "paused",
-    created_at: new Date().toISOString(),
-    media_urls: {
-      images: ["https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"]
-    },
-    provider: {
-      id: "provider2",
-      username: "designer_jane",
-      avatar_url: "",
-      full_name: "Jane Designer"
-    }
-  }
-];
-
-const useAllGigs = () => {
-  // Mock implementation - replace with real API call
-  return {
-    data: mockGigs,
-    isLoading: false,
-    error: null as Error | null
-  };
-};
-
-const useAdminDeleteGig = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const mutateAsync = async (gigId: string) => {
-    setIsLoading(true);
-    try {
-      // Mock API call - replace with real implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Deleting gig:', gigId);
-      alert('Gig deleted successfully');
-      return gigId;
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    mutateAsync,
-    isLoading
-  };
-};
-
-const useAdminUpdateGigStatus = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const mutateAsync = async ({ gigId, status }: { gigId: string; status: string }) => {
-    setIsLoading(true);
-    try {
-      // Mock API call - replace with real implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Updating gig status:', { gigId, status });
-      alert(`Gig status updated to ${status}`);
-      return { gigId, status };
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    mutateAsync,
-    isLoading
-  };
-};
+import { useAllGigs, useDeleteGig, useUpdateGigStatus } from '../hooks/useGigs';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export const AdminGigs: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
+  const { user } = useAuth();
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -117,9 +21,6 @@ export const AdminGigs: React.FC = () => {
   const { data: allGigs, isLoading, error } = useAllGigs();
   const deleteGig = useAdminDeleteGig();
   const updateGigStatus = useAdminUpdateGigStatus();
-
-  // Mock user - replace with real auth context
-  const user = isLoggedIn ? { id: 'admin1', username: 'admin', is_admin: true } : null;
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,20 +45,29 @@ export const AdminGigs: React.FC = () => {
     if (!selectedGig) return;
     
     try {
-      await deleteGig.mutateAsync(selectedGig.id);
+      await deleteGig.mutateAsync(selectedGig.id, {
+        onSuccess: () => {
+          showSuccessToast('Gig deleted successfully');
+          setShowDeleteModal(false);
+          setSelectedGig(null);
+        }
+      });
       setShowDeleteModal(false);
       setSelectedGig(null);
     } catch (error) {
       console.error('Failed to delete gig:', error);
+      showErrorToast('Failed to delete gig');
     }
   };
 
   const handleUpdateGigStatus = async (gigId: string, status: string) => {
     try {
       await updateGigStatus.mutateAsync({ gigId, status });
+      showSuccessToast(`Gig status updated to ${status}`);
       setShowMenu(null);
     } catch (error) {
       console.error('Failed to update gig status:', error);
+      showErrorToast('Failed to update gig status');
     }
   };
 

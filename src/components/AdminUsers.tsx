@@ -2,79 +2,14 @@ import React, { useState } from 'react';
 import { Search, MoreVertical, Ban, CheckCircle, Edit, User, Shield } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-
-// Mock data for demonstration
-const mockUsers = [
-  {
-    id: "1",
-    username: "webdev_pro",
-    full_name: "John Developer",
-    email: "john@example.com",
-    wallet_address: "erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0",
-    avatar_url: "",
-    created_at: new Date().toISOString(),
-    is_admin: false,
-    is_banned: false
-  },
-  {
-    id: "2",
-    username: "designer_jane",
-    full_name: "Jane Designer",
-    email: "jane@example.com",
-    wallet_address: "erd1qqqqqqqqqqqqqpgqfhnxunkpfeghxn72a8fq73dst50xgjrjpmuq4f7t39",
-    avatar_url: "",
-    created_at: new Date().toISOString(),
-    is_admin: false,
-    is_banned: false
-  }
-];
-
-const useUsers = (searchTerm = '', page = 1, pageSize = 10) => {
-  // Mock implementation - replace with real API call
-  const filteredUsers = mockUsers.filter(user => 
-    !searchTerm || 
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return {
-    data: {
-      data: filteredUsers.slice((page - 1) * pageSize, page * pageSize),
-      count: filteredUsers.length
-    },
-    isLoading: false,
-    error: null,
-    refetch: () => {}
-  };
-};
-
-const useUpdateUser = () => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const mutateAsync = async ({ userId, updates }: { userId: string; updates: any }) => {
-    setIsLoading(true);
-    try {
-      // Mock API call - replace with real implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Updating user:', { userId, updates });
-      alert('User updated successfully');
-      return { userId, updates };
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return {
-    mutateAsync,
-    isLoading
-  };
-};
+import { useUsers, useUpdateUser } from '../hooks/useUsers';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 export const AdminUsers: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
+  const { user } = useAuth();
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -92,9 +27,6 @@ export const AdminUsers: React.FC = () => {
   const { data: usersData, isLoading, error, refetch } = useUsers(searchTerm, currentPage, pageSize);
   const updateUser = useUpdateUser();
 
-  // Mock user - replace with real auth context
-  const user = isLoggedIn ? { id: 'admin1', username: 'admin', is_admin: true } : null;
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setCurrentPage(1);
@@ -107,8 +39,11 @@ export const AdminUsers: React.FC = () => {
         userId,
         updates: { is_banned: isBanned }
       });
+      showSuccessToast(`User ${isBanned ? 'banned' : 'unbanned'} successfully`);
+      refetch();
     } catch (error) {
       console.error('Failed to update ban status:', error);
+      showErrorToast('Failed to update user ban status');
     }
   };
 
@@ -118,8 +53,11 @@ export const AdminUsers: React.FC = () => {
         userId,
         updates: { is_admin: isAdmin }
       });
+      showSuccessToast(`Admin privileges ${isAdmin ? 'granted' : 'removed'} successfully`);
+      refetch();
     } catch (error) {
       console.error('Failed to update admin status:', error);
+      showErrorToast('Failed to update admin privileges');
     }
   };
 
@@ -144,10 +82,13 @@ export const AdminUsers: React.FC = () => {
         updates: editForm
       });
       
+      showSuccessToast('User updated successfully');
       setShowEditModal(false);
       setSelectedUser(null);
+      refetch();
     } catch (error) {
       console.error('Failed to save user edits:', error);
+      showErrorToast('Failed to update user');
     }
   };
 
