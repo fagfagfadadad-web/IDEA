@@ -197,7 +197,7 @@ const OrderDetails = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
 
-  // Define the provider type explicitly to avoid array inference
+  // Define the provider type explicitly
   interface Provider {
     id?: string;
     username?: string;
@@ -219,8 +219,8 @@ const OrderDetails = () => {
         return null;
       }
 
-      // Explicitly type the provider as an object
-      const walletAddress = (data?.provider as Provider | null)?.wallet_address;
+      // Use unknown as an intermediate type to safely assert to Provider
+      const walletAddress = ((data?.provider as unknown) as Provider | null)?.wallet_address ?? null;
 
       console.log('Fetched provider data:', { data, walletAddress });
 
