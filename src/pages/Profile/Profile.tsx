@@ -4,7 +4,7 @@ import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit,
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from '../../hooks/useGigs';
 import { useOrders } from '../../hooks/useOrders';
 import { GigViewsStats } from '../components/GigViewsStats';
