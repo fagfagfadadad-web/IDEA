@@ -12,7 +12,7 @@ import { useWindowSize } from '../../hooks/useWindowSize';
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { data: profile } = useProfile();
-  const { data: notifications } = useNotifications();
+  const { data: notifications } = useNotifications(profile?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
   const isMobile = width < 768;

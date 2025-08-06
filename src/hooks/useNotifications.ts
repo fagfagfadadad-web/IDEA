@@ -14,22 +14,21 @@ export type Notification = {
   created_at: string;
 };
 
-export const useNotifications = () => {
+export const useNotifications = (userId?: string) => {
   const [data, setData] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
 
   useEffect(() => {
     fetchNotifications();
-  }, [user?.id, isLoggedIn]);
+  }, [userId, isLoggedIn]);
 
   // Real-time subscription for notifications
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userId) return;
 
-    console.log('🔔 Setting up real-time notifications subscription for user:', user.id);
+    console.log('🔔 Setting up real-time notifications subscription for user:', userId);
     
     const channel = supabase
       .channel('notifications')
@@ -39,7 +38,7 @@ export const useNotifications = () => {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${user.id}`
+          filter: `user_id=eq.${userId}`
         },
         (payload) => {
           console.log('🔔 Real-time notification update:', payload);
@@ -52,24 +51,24 @@ export const useNotifications = () => {
       console.log('🔔 Cleaning up notifications subscription');
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [userId]);
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
       
-      if (!isLoggedIn || !user?.id) {
-        console.log('🔔 useNotifications: Not logged in or no address, clearing notifications');
+      if (!isLoggedIn || !userId) {
+        console.log('🔔 useNotifications: Not logged in or no userId, clearing notifications');
         setData([]);
         setIsLoading(false);
         return;
       }
 
-      console.log('🔔 useNotifications: Fetching notifications for user:', user.id);
+      console.log('🔔 useNotifications: Fetching notifications for user:', userId);
 
       const { data: notifications, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
