@@ -284,8 +284,35 @@ export const GigDetail = () => {
                 className="block hover:no-underline"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center text-xl text-white">
-                    {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                  <div className="w-16 h-16 rounded-full overflow-hidden relative bg-gray-600">
+                    {gig.provider?.avatar_url ? (
+                      <>
+                        <img
+                          src={gig.provider.avatar_url}
+                          alt={gig.provider.username || "Provider"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div 
+                          className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xl text-white absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
+                          {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xl text-white">
+                        {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white">

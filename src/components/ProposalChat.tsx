@@ -146,8 +146,35 @@ export const ProposalChat: React.FC<ProposalChatProps> = ({
         }`}>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                {msg.sender?.username?.charAt(0)?.toUpperCase() || "?"}
+              <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
+                {msg.sender?.avatar_url ? (
+                  <>
+                    <img
+                      src={msg.sender.avatar_url}
+                      alt={msg.sender.username || "User"}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }
+                      }}
+                    />
+                    <div 
+                      className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                      style={{ display: 'none' }}
+                    >
+                      {msg.sender?.username?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                  </>
+                ) : (
+                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                    {msg.sender?.username?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                )}
               </div>
               <span className="font-medium text-sm">
                 {msg.sender?.username}

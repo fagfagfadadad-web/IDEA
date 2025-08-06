@@ -25,7 +25,7 @@ export const useReviewsByGig = (gigId: string) => {
           order:orders!reviews_order_id_fkey(
             id,
             gig_id,
-            client:users!orders_client_id_fkey(username, avatar_url),
+            client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
             gig:gigs(title)
           )
         `)
@@ -183,7 +183,7 @@ export const useReviewsForProvider = (providerId: string) => {
           order:orders!reviews_order_id_fkey(
             id,
             gig_id,
-            client:users!orders_client_id_fkey(username, avatar_url),
+            client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
             gig:gigs!orders_gig_id_fkey(
               id,
               title,

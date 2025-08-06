@@ -278,8 +278,35 @@ export const ClientRequestDetail = () => {
               <div className="bg-gradient-to-r from-indigo-50 to-pink-50 rounded-lg p-6">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xl font-bold text-white">
-                      {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                    <div className="w-16 h-16 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                      {request.client?.avatar_url ? (
+                        <>
+                          <img
+                            src={request.client.avatar_url}
+                            alt={request.client.username || "Client"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                          <div 
+                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl font-bold text-white absolute inset-0"
+                            style={{ display: 'none' }}
+                          >
+                            {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl font-bold text-white">
+                          {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-800">
@@ -432,8 +459,35 @@ export const ClientRequestDetail = () => {
                         <div className="p-6 space-y-4">
                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-lg font-bold text-white">
-                                {proposal.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                                {proposal.provider?.avatar_url ? (
+                                  <>
+                                    <img
+                                      src={proposal.provider.avatar_url}
+                                      alt={proposal.provider.username || "Provider"}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div 
+                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      style={{ display: 'none' }}
+                                    >
+                                      {proposal.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-lg font-bold text-white">
+                                    {proposal.provider?.username?.charAt(0)?.toUpperCase() || "?"}
+                                  </div>
+                                )}
                               </div>
                               <div>
                                 <h3 className="text-lg font-bold text-gray-800">

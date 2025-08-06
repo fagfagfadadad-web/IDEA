@@ -35,7 +35,8 @@ export const useClientRequests = () => {
           client:users!client_requests_client_id_fkey(
             id,
             username,
-            avatar_url
+            avatar_url,
+            full_name
           ),
           proposals!proposals_request_id_fkey(
             id,
@@ -43,7 +44,8 @@ export const useClientRequests = () => {
             provider:users!proposals_provider_id_fkey(
               id,
               username,
-              avatar_url
+              avatar_url,
+              full_name
             )
           )
         `)
@@ -184,8 +186,7 @@ export const useClientRequestById = (id: string) => {
               id,
               username,
               full_name,
-              avatar_url,
-              created_at
+              avatar_url
             ),
             proposals!proposals_request_id_fkey(
               *,
@@ -193,7 +194,8 @@ export const useClientRequestById = (id: string) => {
                 id,
                 username,
                 full_name,
-                avatar_url
+                avatar_url,
+                created_at
               )
             )
           `)
@@ -228,8 +230,7 @@ export const useClientRequestById = (id: string) => {
             id,
             username,
             full_name,
-            avatar_url,
-            created_at
+            avatar_url
           ),
           proposals!proposals_request_id_fkey(
             *,
@@ -237,7 +238,8 @@ export const useClientRequestById = (id: string) => {
               id,
               username,
               full_name,
-              avatar_url
+              avatar_url,
+              created_at
             )
           )
         `)
@@ -302,7 +304,8 @@ export const useMyClientRequests = () => {
           client:users!client_requests_client_id_fkey(
             id,
             username,
-            avatar_url
+            avatar_url,
+            full_name
           ),
           proposals!proposals_request_id_fkey(
             id,
@@ -310,7 +313,8 @@ export const useMyClientRequests = () => {
             provider:users!proposals_provider_id_fkey(
               id,
               username,
-              avatar_url
+              avatar_url,
+              full_name
             )
           )
         `)

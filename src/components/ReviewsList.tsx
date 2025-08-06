@@ -98,8 +98,35 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
               {/* Review Header */}
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white">
-                    {review.order?.client?.username?.charAt(0)?.toUpperCase() || "U"}
+                  <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                    {review.order?.client?.avatar_url ? (
+                      <>
+                        <img
+                          src={review.order.client.avatar_url}
+                          alt={review.order.client.username || "Client"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div 
+                          className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
+                          {review.order?.client?.username?.charAt(0)?.toUpperCase() || "U"}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
+                        {review.order?.client?.username?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="text-gray-800 font-medium text-sm">

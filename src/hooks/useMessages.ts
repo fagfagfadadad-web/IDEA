@@ -49,7 +49,8 @@ export const useMessages = (orderId?: string) => {
           sender:users!messages_sender_id_fkey(
             id,
             username,
-            avatar_url
+            avatar_url,
+            full_name
           )
         `)
         .eq('order_id', orderId)
@@ -117,7 +118,8 @@ export const useSendMessage = () => {
           sender:users!messages_sender_id_fkey(
             id,
             username,
-            avatar_url
+            avatar_url,
+            full_name
           )
         `)
         .single();

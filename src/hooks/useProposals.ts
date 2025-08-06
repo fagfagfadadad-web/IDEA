@@ -45,7 +45,8 @@ export const useMyProposals = () => {
             id,
             username,
             full_name,
-            avatar_url
+            avatar_url,
+            bio
           ),
           request:client_requests!proposals_request_id_fkey(
             id,
@@ -54,7 +55,8 @@ export const useMyProposals = () => {
             client:users!client_requests_client_id_fkey(
               id,
               username,
-              avatar_url
+              avatar_url,
+              full_name
             )
           )
         `)
@@ -194,7 +196,8 @@ export const useProposalById = (id: string) => {
             id,
             username,
             full_name,
-            avatar_url
+            avatar_url,
+            bio
           ),
           request:client_requests!proposals_request_id_fkey(
             id,
@@ -203,7 +206,8 @@ export const useProposalById = (id: string) => {
             client:users!client_requests_client_id_fkey(
               id,
               username,
-              avatar_url
+              avatar_url,
+              full_name
             )
           )
         `)
