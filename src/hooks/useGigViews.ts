@@ -36,13 +36,14 @@ export const useTrackGigView = () => {
 
       // Check if this IP/user combination has already viewed this gig in the last 24 hours
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
       
       const { data: existingView } = await supabase
         .from('gig_views')
         .select('id')
         .eq('gig_id', gigId)
         .eq('viewer_ip', viewerIP)
-        .gte('created_at', twentyFourHoursAgo)
+        .gte('created_at', tenMinutesAgo)
         .maybeSingle();
 
       // If user is logged in, also check by user ID
@@ -52,17 +53,17 @@ export const useTrackGigView = () => {
           .select('id')
           .eq('gig_id', gigId)
           .eq('viewer_id', userId)
-          .gte('created_at', twentyFourHoursAgo)
+          .gte('created_at', tenMinutesAgo)
           .maybeSingle();
 
         if (existingUserView) {
-          console.log('User already viewed this gig in the last 24 hours');
+          console.log('User already viewed this gig in the last 10 minutes');
           return { success: true, alreadyViewed: true };
         }
       }
 
       if (existingView) {
-        console.log(`IP already viewed gig ${gigId} in the last 24 hours`);
+        console.log(`IP already viewed gig ${gigId} in the last 10 minutes`);
         return { success: true, alreadyViewed: true };
       }
 
