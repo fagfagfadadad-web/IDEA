@@ -106,10 +106,10 @@ export const Header = () => {
               <Link to="/requests" className="text-gray-800 hover:text-blue-600 transition-colors">
                 Open Bids
               </Link>
-              <Link to="/token-sale" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+              <a href="https://ideagigs.store/token-sale" target="_blank" rel="noopener noreferrer" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
                 <Coins size={16} />
                 Token Sale
-              </Link>
+              </a>
               {isLoggedIn && (
                 <>
                   <Link to="/my-requests" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
