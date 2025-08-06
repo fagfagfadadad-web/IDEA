@@ -87,8 +87,9 @@ export const Profile = () => {
     twitter_url: '',
     github_url: '',
     linkedin_url: '',
-  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(profileId);
   });
+  
+  const { data: profile, isLoading: profileLoading, error: profileError } = useProfile(profileId);
   
   // Pre recenzie používame buď profileId (ak pozeráme iný profil) alebo user.id (ak pozeráme vlastný profil)
   const reviewsUserId = profileId || user?.id || '';
