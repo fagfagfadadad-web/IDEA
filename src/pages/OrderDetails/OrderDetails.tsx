@@ -345,7 +345,7 @@ const OrderDetails = () => {
       let transaction;
       if (paymentToken === 'EGLD') {
         const amount = BigInt(Math.round(order.amount * 1e18));
-        const data = `deposit@${hexOrderId}@${clientAddressHex}@${providerAddressHex}@${deadlineHex}`;
+        const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           value: amount,
           data: Buffer.from(data),
