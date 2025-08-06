@@ -65,7 +65,7 @@ export const useProfile = (id?: string) => {
           client_orders:orders!orders_client_id_fkey(
             *,
             gig:gigs(title, provider_id),
-            client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
+            client:users!orders_client_id_fkey(username, avatar_url),
             reviews(*)
           )
         `)
@@ -108,7 +108,7 @@ export const useProfile = (id?: string) => {
         .select(`
           *,
           gig:gigs(title, provider_id),
-          client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
+          client:users!orders_client_id_fkey(username, avatar_url),
           reviews(*)
         `)
         .eq('provider_address', user.wallet_address || '')
@@ -148,36 +148,8 @@ export const useProfile = (id?: string) => {
       // Add combined orders to profile
       const enhancedProfile = {
         ...profile,
-        orders: uniqueOrders,
-        // Add separate arrays for different types of reviews
-        reviewsWritten: uniqueOrders
-          .filter(order => order.client?.id === user.id && order.reviews?.length > 0)
-          .flatMap(order => order.reviews.map(review => ({
-            ...review,
-            order: {
-              ...order,
-              gig: order.gig
-            }
-          }))),
-        reviewsReceived: uniqueOrders
-          .filter(order => order.gig?.provider_id === user.id && order.reviews?.length > 0)
-          .flatMap(order => order.reviews.map(review => ({
-            ...review,
-            order: {
-              ...order,
-              client: order.client
-            }
-          })))
+        orders: uniqueOrders
       };
-      
-      console.log('🔍 useProfile: Enhanced profile with separated reviews:', {
-        userId: user.id,
-        totalOrders: uniqueOrders.length,
-        reviewsWritten: enhancedProfile.reviewsWritten.length,
-        reviewsReceived: enhancedProfile.reviewsReceived.length,
-        reviewsWrittenData: enhancedProfile.reviewsWritten,
-        reviewsReceivedData: enhancedProfile.reviewsReceived
-      });
       
       setData(enhancedProfile);
     } catch (err) {
