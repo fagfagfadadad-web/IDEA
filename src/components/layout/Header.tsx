@@ -5,7 +5,7 @@ import { Button } from 'components';
 import { NotificationsDropdown } from '../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { useNotifications } from '../../hooks/useNotifications';
+import { useNotifications, Notification as CustomNotification } from '../../hooks/useNotifications';
 import { useWindowSize } from '../../hooks/useWindowSize';
 import { useAuth } from '../../context/AuthContext';
 

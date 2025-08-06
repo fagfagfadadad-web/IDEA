@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Bell, Check, CheckCheck, Clock, MessageSquare, AlertTriangle, DollarSign, FileText, X } from 'lucide-react';
 import { Button } from 'components';
-import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
+import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead, Notification as CustomNotification } from '../hooks/useNotifications';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 
 interface NotificationsDropdownProps {
-  notifications?: Notification[];
+  notifications?: CustomNotification[];
   isLoading?: boolean;
   error?: Error | null;
   onClose?: () => void;
@@ -75,7 +75,7 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
     }
   };
 
-  const handleNotificationClick = async (notification: any) => {
+  const handleNotificationClick = async (notification: CustomNotification) => {
     try {
       console.log('Notification clicked:', notification.id, 'Read status:', notification.read);
       console.log('Notification data:', notification.data);
