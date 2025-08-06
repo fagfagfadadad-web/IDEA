@@ -5,14 +5,27 @@ import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsR
 import { useToast } from '../context/ToastContext';
 
 interface NotificationsDropdownProps {
+  notifications?: Notification[];
+  isLoading?: boolean;
+  error?: Error | null;
   onClose?: () => void;
 }
 
-export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ onClose }) => {
-  const { data: notifications, isLoading, refetch } = useNotifications();
+export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ 
+  notifications: propNotifications, 
+  isLoading: propIsLoading, 
+  error: propError, 
+  onClose 
+}) => {
+  const { data: hookNotifications, isLoading: hookIsLoading, refetch } = useNotifications();
   const markAsRead = useMarkNotificationAsRead();
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { success: showSuccessToast, error: showErrorToast } = useToast();
+
+  // Use props if provided, otherwise fall back to hook data
+  const notifications = propNotifications || hookNotifications;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : hookIsLoading;
+  const error = propError !== undefined ? propError : null;
 
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 

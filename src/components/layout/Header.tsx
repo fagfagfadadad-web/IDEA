@@ -12,7 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
-  const { data: notifications } = useNotifications(user?.id);
+  const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
   const isMobile = width < 768;
@@ -450,7 +450,12 @@ export const Header = () => {
               </div>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsDropdown onClose={() => setShowNotificationsModal(false)} />
+              <NotificationsDropdown 
+                notifications={notifications}
+                isLoading={isLoading}
+                error={error}
+                onClose={() => setShowNotificationsModal(false)} 
+              />
             </div>
           </div>
         </>
