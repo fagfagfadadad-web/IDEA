@@ -5,7 +5,9 @@ import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useClientRequestById } from '../../hooks/useClientRequests';
 import { useCreateProposal } from '../../hooks/useProposals';
+import { useSelectProposal } from '../../hooks/useClientRequests';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { errorParse } from 'utils/errorParse';
 
 export const ClientRequestDetail = () => {
@@ -13,10 +15,12 @@ export const ClientRequestDetail = () => {
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
   
   // Use real hooks
   const { data: request, isLoading, error, refetch } = useClientRequestById(id || '');
   const createProposal = useCreateProposal();
+  const selectProposal = useSelectProposal();
 
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
   const [proposalForm, setProposalForm] = useState({
@@ -50,28 +54,28 @@ export const ClientRequestDetail = () => {
 
   const handleSubmitProposal = async () => {
     if (!isLoggedIn || !user) {
-      alert('Please login to submit a proposal');
+      showErrorToast('Please login to submit a proposal');
       return;
     }
 
     // Validate required fields
     if (!proposalForm.title.trim()) {
-      alert('Please provide a title for your proposal');
+      showErrorToast('Please provide a title for your proposal');
       return;
     }
 
     if (!proposalForm.description.trim()) {
-      alert('Please provide a description for your proposal');
+      showErrorToast('Please provide a description for your proposal');
       return;
     }
 
     if (!proposalForm.proposed_amount) {
-      alert('Please provide a proposed amount');
+      showErrorToast('Please provide a proposed amount');
       return;
     }
 
     if (!proposalForm.proposed_duration) {
-      alert('Please provide a proposed duration');
+      showErrorToast('Please provide a proposed duration');
       return;
     }
 
@@ -86,7 +90,7 @@ export const ClientRequestDetail = () => {
         deliverables: deliverables
       });
 
-      alert('Proposal submitted successfully');
+      showSuccessToast('Proposal submitted successfully');
       setIsProposalModalOpen(false);
       
       // Reset form
@@ -103,27 +107,32 @@ export const ClientRequestDetail = () => {
       refetch();
     } catch (error) {
       console.error('Error submitting proposal:', error);
-      alert('Error submitting proposal');
+      showErrorToast('Error submitting proposal');
     }
   };
 
   const handleWithdrawProposal = async (proposalId: string) => {
     try {
       // This would use a real hook
-      alert('Proposal withdrawn successfully');
+      showSuccessToast('Proposal withdrawn successfully');
       refetch();
     } catch (error) {
-      alert('Error withdrawing proposal');
+      showErrorToast('Error withdrawing proposal');
     }
   };
 
   const handleSelectProposal = async (proposalId: string) => {
     try {
-      // This would use a real hook
-      alert('Proposal accepted and order created');
-      navigate(`/orders/mock-order-id`);
+      const result = await selectProposal.mutateAsync({
+        requestId: id!,
+        proposalId: proposalId
+      });
+      
+      showSuccessToast('Proposal accepted and order created');
+      navigate(`/orders/${result.orderId}`);
     } catch (error) {
-      alert('Error accepting proposal');
+      console.error('Error accepting proposal:', error);
+      showErrorToast('Error accepting proposal');
     }
   };
 
