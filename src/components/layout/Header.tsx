@@ -24,6 +24,17 @@ export const Header = () => {
 
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
+  // Debug logging for notifications
+  useEffect(() => {
+    console.log('🔔 Header: Notifications state:', {
+      isLoggedIn,
+      address,
+      notificationsCount: notifications?.length || 0,
+      unreadCount,
+      notifications: notifications?.slice(0, 3) // Log first 3 for debugging
+    });
+  }, [notifications, unreadCount, isLoggedIn, address]);
+
   useEffect(() => {
     const searchParam = searchParams.get('search');
     if (searchParam) {
@@ -141,7 +152,7 @@ export const Header = () => {
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                        {unreadCount}
+                        {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
                     )}
                   </button>

@@ -29,6 +29,7 @@ export const useNotifications = () => {
       setIsLoading(true);
       
       if (!isLoggedIn || !address) {
+        console.log('🔔 useNotifications: Not logged in or no address, clearing notifications');
         setData([]);
         setIsLoading(false);
         return;
@@ -42,11 +43,13 @@ export const useNotifications = () => {
         .maybeSingle();
 
       if (!user) {
-        console.log('User profile not found, no notifications available');
+        console.log('🔔 useNotifications: User profile not found, no notifications available');
         setData([]);
         setError(null);
         return;
       }
+
+      console.log('🔔 useNotifications: Fetching notifications for user:', user.id);
 
       const { data: notifications, error } = await supabase
         .from('notifications')
@@ -55,6 +58,11 @@ export const useNotifications = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      console.log('🔔 useNotifications: Fetched notifications:', {
+        total: notifications?.length || 0,
+        unread: notifications?.filter(n => !n.read).length || 0
+      });
 
       setData(notifications || []);
     } catch (err) {
