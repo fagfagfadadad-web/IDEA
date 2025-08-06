@@ -409,24 +409,37 @@ export const Header = () => {
 
       {/* Notifications Modal */}
       {showNotificationsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Notifications {unreadCount > 0 && `(${unreadCount} new)`}
-              </h3>
-              <button
-                onClick={() => setShowNotificationsModal(false)}
-                className="text-gray-400 hover:text-gray-600 p-1"
-              >
-                <X size={20} />
-              </button>
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowNotificationsModal(false)}
+          />
+          <div className="fixed top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Notifications
+                  </h3>
+                  {unreadCount > 0 && (
+                    <p className="text-sm text-gray-600">
+                      {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setShowNotificationsModal(false)}
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsMenu />
+              <NotificationsDropdown onClose={() => setShowNotificationsModal(false)} />
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
