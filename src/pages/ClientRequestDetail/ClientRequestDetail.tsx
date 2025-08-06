@@ -188,7 +188,7 @@ export const ClientRequestDetail = () => {
   };
 
   // Check if current user has already submitted a proposal
-  const userProposal = request?.proposals?.find(p => p.provider_id === user?.id);
+  const userProposal = request?.proposals?.find((p: any) => p.provider_id === user?.id);
   const isClient = user?.id === request?.client?.id;
   
   const canSubmitProposal = isLoggedIn && !isClient && 
@@ -424,7 +424,7 @@ export const ClientRequestDetail = () => {
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {request.proposals.map((proposal) => (
+                    {request.proposals.map((proposal: any) => (
                       <div
                         key={proposal.id}
                         className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300"
