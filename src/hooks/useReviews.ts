@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useGetAccount } from 'lib';
+import { useGetAccount, useGetIsLoggedIn } from 'lib';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export const useReviewsByGig = (gigId: string) => {
   const [data, setData] = useState<any[]>([]);
@@ -23,11 +24,12 @@ export const useReviewsByGig = (gigId: string) => {
           *,
           order:orders!reviews_order_id_fkey(
             id,
+            gig_id,
             client:users!orders_client_id_fkey(username, avatar_url),
             gig:gigs(title)
           )
         `)
-        .eq('order.gig_id', gigId)
+        .in('order.gig_id', [gigId])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -93,7 +95,7 @@ export const useOrderReview = (orderId: string) => {
 
 export const useCreateReview = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { address } = useGetAccount();
+  const { user } = useAuth();
 
   const mutateAsync = async (reviewData: {
     order_id: string;
@@ -102,21 +104,47 @@ export const useCreateReview = () => {
   }) => {
     setIsLoading(true);
     try {
-      if (!address) {
+      if (!user?.id) {
         throw new Error('Please connect your wallet first');
       }
 
-      const { data: review, error } = await supabase
+      // Check if review already exists
+      const { data: existingReview } = await supabase
         .from('reviews')
-        .insert({
-          order_id: reviewData.order_id,
-          rating: reviewData.rating,
-          comment: reviewData.comment
-        })
-        .select()
-        .single();
+        .select('id')
+        .eq('order_id', reviewData.order_id)
+        .maybeSingle();
 
-      if (error) throw error;
+      let review;
+      if (existingReview) {
+        // Update existing review
+        const { data: updatedReview, error } = await supabase
+          .from('reviews')
+          .update({
+            rating: reviewData.rating,
+            comment: reviewData.comment
+          })
+          .eq('order_id', reviewData.order_id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        review = updatedReview;
+      } else {
+        // Create new review
+        const { data: newReview, error } = await supabase
+          .from('reviews')
+          .insert({
+            order_id: reviewData.order_id,
+            rating: reviewData.rating,
+            comment: reviewData.comment
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        review = newReview;
+      }
 
       return review;
     } catch (error) {

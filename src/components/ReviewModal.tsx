@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Star } from 'lucide-react';
 import { useCreateReview, useOrderReview } from '../hooks/useReviews';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Button, Card } from 'components';
 
 interface ReviewModalProps {
@@ -16,6 +18,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   order,
   onReviewSubmitted,
 }) => {
+  const { user } = useAuth();
+  const { success, error: showErrorToast } = useToast();
   const { data: existingReview } = useOrderReview(order?.id || '');
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -32,12 +36,17 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      alert('Please select a rating from 1 to 5 stars');
+      showErrorToast('Please select a rating from 1 to 5 stars');
       return;
     }
 
     if (!comment.trim()) {
-      alert('Please write a review comment');
+      showErrorToast('Please write a review comment');
+      return;
+    }
+
+    if (!user?.id) {
+      showErrorToast('Please log in to submit a review');
       return;
     }
 
@@ -48,6 +57,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         comment: comment.trim(),
       });
 
+      success(existingReview ? 'Review updated successfully!' : 'Review submitted successfully!');
 
       // Reset form if it's a new review
       if (!existingReview) {
@@ -61,7 +71,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         onReviewSubmitted();
       }
     } catch (error) {
-      alert('Error submitting review. Please try again later.');
+      console.error('Error submitting review:', error);
+      showErrorToast('Error submitting review. Please try again later.');
     }
   };
 
