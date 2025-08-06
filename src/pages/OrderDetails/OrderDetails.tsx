@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
-import { Button, Card, OrderChat, DisputeModal } from 'components';
+import { Button, Card, OrderChat, DisputeModal, ReviewModal } from 'components';
 import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
+import { useOrderReview } from '../../hooks/useReviews';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
@@ -196,6 +197,9 @@ const OrderDetails = () => {
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
+
+  // Add review hook
+  const { data: existingReview, refetch: refetchReview } = useOrderReview(order?.id || '');
 
   // Define the provider type explicitly
   interface Provider {
@@ -735,6 +739,10 @@ const OrderDetails = () => {
     order?.status === 'in_progress' &&
     order?.payment_status === 'escrowed' &&
     order?.work_status !== 'submitted';
+  const canReview = 
+    isClient && 
+    order?.status === 'completed' && 
+    order?.payment_status === 'released';
   const canDispute =
     (isClient || isProvider) &&
     order?.payment_status === 'escrowed' &&
@@ -947,6 +955,30 @@ const OrderDetails = () => {
               </div>
             )}
 
+            {canReview && (
+              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-gray-800 font-bold">
+                      {existingReview ? 'Update Your Review' : 'Leave a Review'}
+                    </h3>
+                    <p className="text-gray-800">
+                      {existingReview 
+                        ? 'You can update your review for this completed order.' 
+                        : 'Share your experience with this provider to help other clients.'}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => setShowReviewModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Star size={16} className="text-white" />
+                    {existingReview ? 'Update Review' : 'Write Review'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {canDispute && (
               <div className="bg-red-100 border border-red-500 rounded-xl p-4">
                 <div className="flex justify-between items-center">
@@ -1136,6 +1168,17 @@ const OrderDetails = () => {
         onDisputeSubmitted={() => {
           setShowDisputeModal(false);
           window.location.reload();
+        }}
+      />
+
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        order={order}
+        onReviewSubmitted={() => {
+          setShowReviewModal(false);
+          refetchReview();
+          success('Review submitted successfully!');
         }}
       />
     </div>

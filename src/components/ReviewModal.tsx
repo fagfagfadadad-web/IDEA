@@ -88,10 +88,10 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   // Get provider info from either gig-based or proposal-based order
   const getProviderInfo = () => {
-    if (order?.gig_id?.provider) {
+    if (order?.gig?.provider) {
       return {
-        username: order.gig_id.provider.username,
-        avatar_url: order.gig_id.provider.avatar_url
+        username: order.gig.provider.username,
+        avatar_url: order.gig.provider.avatar_url
       };
     }
     
@@ -105,8 +105,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
 
   // Get order title from either gig-based or proposal-based order
   const getOrderTitle = () => {
-    if (order?.gig_id?.title) {
-      return order.gig_id.title;
+    if (order?.gig?.title) {
+      return order.gig.title;
     }
     
     // For proposal-based orders

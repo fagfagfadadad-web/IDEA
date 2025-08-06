@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Check, Star, MessageCircle, DollarSign, Coins, AlertTriangle, User } from 'lucide-react';
-import { Button, Card, OrderRequirementsModal } from 'components';
+import { Button, Card, OrderRequirementsModal, ReviewsList, StarRating } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useGigById, useAllGigs } from '../../hooks/useGigs';
 import { useReviewsByGig } from '../../hooks/useReviews';
@@ -23,7 +23,7 @@ export const GigDetail = () => {
   // Real hooks
   const { data: gig, isLoading, error } = useGigById(id || '');
   const { data: allGigs } = useAllGigs();
-  const { data: reviews } = useReviewsByGig(id || '');
+  const { data: reviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsByGig(id || '');
 
   useEffect(() => {
     console.log('🔍 GigDetail: Gig data:', gig);
@@ -156,33 +156,13 @@ export const GigDetail = () => {
           </div>
 
           {/* Reviews Section */}
-          <div className="bg-gray-800 rounded-lg p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Reviews</h2>
-            {reviews && reviews.length > 0 ? (
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <div key={review.id} className="border-b border-gray-700 pb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            size={16}
-                            className={i < review.rating ? "text-yellow-400 fill-current" : "text-gray-600"}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-gray-400 text-sm">
-                        by {review.client.username}
-                      </span>
-                    </div>
-                    <p className="text-gray-300">{review.comment}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-gray-400">No reviews yet.</p>
-            )}
+          <div className="gradient-card p-8">
+            <ReviewsList 
+              reviews={reviews || []}
+              isLoading={reviewsLoading}
+              error={reviewsError}
+              showTitle={true}
+            />
           </div>
         </div>
 
@@ -253,20 +233,15 @@ export const GigDetail = () => {
               
               {/* Rating Display */}
               {reviews && reviews.length > 0 && (
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={16}
-                        className={i < averageRating ? "text-yellow-400 fill-current" : "text-gray-600"}
-                      />
-                    ))}
-                    <span className="text-white ml-2">{averageRating.toFixed(1)}</span>
-                  </div>
-                  <span className="text-gray-400 text-sm">
-                    ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
-                  </span>
+                <div className="flex items-center">
+                  <StarRating 
+                    rating={averageRating}
+                    size={16}
+                    showText={true}
+                    showCount={true}
+                    reviewCount={reviews.length}
+                    className="text-white"
+                  />
                 </div>
               )}
               

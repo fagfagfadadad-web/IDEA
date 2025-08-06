@@ -1,6 +1,6 @@
 import React from 'react';
 import { Star } from 'lucide-react';
-import { Card } from 'components';
+import { useNavigate } from 'react-router-dom';
 
 interface ReviewsListProps {
   reviews: any[];
@@ -15,6 +15,8 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
   error,
   showTitle = true 
 }) => {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center space-y-4 py-4">
@@ -38,8 +40,12 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
   if (!reviews || reviews.length === 0) {
     return (
       <div className="text-center py-8">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Star size={24} className="text-gray-400" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-800 mb-2">No reviews yet</h3>
         <p className="text-gray-600">
-          No reviews yet. Be the first to leave a review!
+          This provider hasn't received any reviews yet.
         </p>
       </div>
     );
@@ -93,11 +99,11 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white">
-                    {review.order.client.username.charAt(0).toUpperCase()}
+                    {review.order?.client?.username?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                   <div>
                     <p className="text-gray-800 font-medium text-sm">
-                      {review.order.client.full_name || review.order.client.username}
+                      {review.order?.client?.full_name || review.order?.client?.username || "Anonymous"}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {new Date(review.created_at).toLocaleDateString('en-US', {
@@ -115,6 +121,15 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
               <p className="text-gray-700 text-sm leading-relaxed">
                 {review.comment}
               </p>
+
+              {/* Order Info */}
+              {review.order?.gig?.title && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <p className="text-gray-500 text-xs">
+                    Review for: <span className="font-medium">{review.order.gig.title}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ))}

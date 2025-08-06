@@ -182,6 +182,7 @@ export const useReviewsForProvider = (providerId: string) => {
           *,
           order:orders!reviews_order_id_fkey(
             id,
+            gig_id,
             client:users!orders_client_id_fkey(username, avatar_url),
             gig:gigs!orders_gig_id_fkey(
               id,
@@ -190,7 +191,7 @@ export const useReviewsForProvider = (providerId: string) => {
             )
           )
         `)
-        .eq('order.gig.provider_id', providerId)
+        .in('order.gig.provider_id', [providerId])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -204,10 +205,12 @@ export const useReviewsForProvider = (providerId: string) => {
     }
   };
 
+  const refetch = fetchProviderReviews;
+
   return {
     data,
     isLoading,
     error,
-    refetch: fetchProviderReviews
+    refetch
   };
 };

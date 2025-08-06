@@ -520,6 +520,19 @@ export const Profile = () => {
               </div>
             )}
 
+            {/* My Reviews - Only for own profile */}
+            {isOwnProfile && (
+              <div className="gradient-card p-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-6">My Reviews</h3>
+                <ReviewsList 
+                  reviews={providerReviews || []}
+                  isLoading={reviewsLoading}
+                  error={reviewsError}
+                  showTitle={false}
+                />
+              </div>
+            )}
+
             {/* My Gigs - Only for own profile */}
             {isOwnProfile && (
               <div className="gradient-card p-6">

@@ -6,8 +6,11 @@ interface StarRatingProps {
   maxRating?: number;
   size?: number;
   showText?: boolean;
+  showCount?: boolean;
+  reviewCount?: number;
   isInteractive?: boolean;
   onRatingChange?: (rating: number) => void;
+  className?: string;
 }
 
 export const StarRating: React.FC<StarRatingProps> = ({
@@ -15,8 +18,11 @@ export const StarRating: React.FC<StarRatingProps> = ({
   maxRating = 5,
   size = 16,
   showText = false,
+  showCount = false,
+  reviewCount = 0,
   isInteractive = false,
   onRatingChange,
+  className = '',
 }) => {
   const [hoveredRating, setHoveredRating] = React.useState(0);
 
@@ -41,7 +47,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
   const displayRating = isInteractive ? (hoveredRating || rating) : rating;
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={`flex items-center gap-1 ${className}`}>
       <div className="flex gap-0.5">
         {Array.from({ length: maxRating }, (_, index) => {
           const starNumber = index + 1;
@@ -71,6 +77,12 @@ export const StarRating: React.FC<StarRatingProps> = ({
       {showText && (
         <span className="text-gray-400 text-sm ml-2">
           {rating.toFixed(1)} / {maxRating}
+        </span>
+      )}
+      
+      {showCount && (
+        <span className="text-gray-500 text-sm ml-2">
+          ({reviewCount} review{reviewCount !== 1 ? 's' : ''})
         </span>
       )}
     </div>
