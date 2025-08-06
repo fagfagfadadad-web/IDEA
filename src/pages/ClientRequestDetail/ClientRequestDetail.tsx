@@ -323,7 +323,7 @@ export const ClientRequestDetail = () => {
                 <div className="space-y-3">
                   <h3 className="text-lg font-bold text-gray-800">Required Skills</h3>
                   <div className="flex gap-2 flex-wrap">
-                    {request.skills_needed.map((skill, index) => (
+                    {request.skills_needed.map((skill: string, index: number) => (
                       <span
                         key={index}
                         className="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-full text-sm font-medium"
@@ -392,7 +392,7 @@ export const ClientRequestDetail = () => {
                   </h2>
                   {request.proposals && request.proposals.length > 0 && (
                     <span className="text-gray-600 text-sm">
-                      {request.proposals.filter(p => p.status === 'pending').length} pending
+                      {request.proposals.filter((p: any) => p.status === 'pending').length} pending
                     </span>
                   )}
                 </div>
