@@ -3,17 +3,20 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
 
+// Define the provider type explicitly
+interface Provider {
+  id?: string;
+  username?: string;
+  avatar_url?: string;
+  wallet_address: string;
+}
+
 interface GigWithProviderWallet {
   id: string;
   title: string;
   provider_id: string;
   payment_token: string;
-  provider: {
-    id?: string;
-    username?: string;
-    avatar_url?: string;
-    wallet_address: string;
-  };
+  provider: Provider;
 }
 
 interface Order {
@@ -206,7 +209,8 @@ export const useCreateOrder = () => {
         throw new Error(`Failed to fetch gig: ${gigError.message}`);
       }
 
-      const providerAddress = gig?.provider?.wallet_address;
+      // Use unknown as an intermediate type to safely assert to Provider
+      const providerAddress = ((gig?.provider as unknown) as Provider | null)?.wallet_address;
 
       if (!providerAddress || !isValidAddress(providerAddress)) {
         console.error('Invalid or missing provider address for gig:', {
