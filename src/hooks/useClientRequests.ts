@@ -264,7 +264,76 @@ export const useClientRequestById = (id: string) => {
 };
 
 export const useMyClientRequests = () => {
-  return useClientRequests(); // Same as useClientRequests
+  const [data, setData] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const { address } = useGetAccount();
+
+  useEffect(() => {
+    fetchMyClientRequests();
+  }, [address]);
+
+  const fetchMyClientRequests = async () => {
+    try {
+      setIsLoading(true);
+      
+      if (!address) {
+        setData([]);
+        return;
+      }
+
+      // Get current user by wallet address
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('wallet_address', address)
+        .maybeSingle();
+
+      if (!user) {
+        setData([]);
+        return;
+      }
+      
+      // Fetch client requests created by current user
+      const { data: requests, error } = await supabase
+        .from('client_requests')
+        .select(`
+          *,
+          client:users!client_requests_client_id_fkey(
+            id,
+            username,
+            avatar_url
+          ),
+          proposals!proposals_request_id_fkey(
+            id,
+            status,
+            provider:users!proposals_provider_id_fkey(
+              id,
+              username,
+              avatar_url
+            )
+          )
+        `)
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setData(requests || []);
+    } catch (err) {
+      console.error('Error fetching my client requests:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    data,
+    isLoading,
+    error,
+    refetch: fetchMyClientRequests
+  };
 };
 
 export const useDeleteClientRequest = () => {
