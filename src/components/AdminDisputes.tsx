@@ -112,7 +112,7 @@ export const AdminDisputes: React.FC = () => {
                           Gig: {dispute.order?.gig?.title || 'Custom Project'}
                         </p>
                         <p className="text-white">
-                          Amount: {dispute.order?.amount} {dispute.order?.payment_token || 'EGLD'}
+                          Amount: {dispute.order?.amount} {selectedDispute?.order?.payment_token || 'EGLD'}
                         </p>
                         <p className="text-gray-400 text-sm">
                           Order ID: {dispute.order?.id}
