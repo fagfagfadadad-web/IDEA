@@ -82,6 +82,26 @@ export const useProfile = (id?: string) => {
         throw error;
       }
       
+      console.log('🔍 useProfile: Fetched user profile with client orders:', profile);
+      console.log('🔍 useProfile: Client orders count:', profile?.client_orders?.length || 0);
+      profile?.client_orders?.forEach((order, index) => {
+        console.log(`🔍 Client Order ${index}:`, {
+          orderId: order.id,
+          clientData: order.client,
+          hasClient: !!order.client,
+          clientUsername: order.client?.username,
+          clientFullName: order.client?.full_name,
+          reviewsCount: order.reviews?.length || 0
+        });
+        order.reviews?.forEach((review, reviewIndex) => {
+          console.log(`🔍 Order Review ${reviewIndex}:`, {
+            reviewId: review.id,
+            rating: review.rating,
+            comment: review.comment
+          });
+        });
+      });
+
       // Fetch provider orders separately
       const { data: providerOrders, error: providerOrdersError } = await supabase
         .from('orders')
@@ -97,6 +117,19 @@ export const useProfile = (id?: string) => {
       if (providerOrdersError) {
         console.error('Error fetching provider orders:', providerOrdersError);
       }
+
+      console.log('🔍 useProfile: Fetched provider orders:', providerOrders);
+      console.log('🔍 useProfile: Provider orders count:', providerOrders?.length || 0);
+      providerOrders?.forEach((order, index) => {
+        console.log(`🔍 Provider Order ${index}:`, {
+          orderId: order.id,
+          clientData: order.client,
+          hasClient: !!order.client,
+          clientUsername: order.client?.username,
+          clientFullName: order.client?.full_name,
+          reviewsCount: order.reviews?.length || 0
+        });
+      });
 
       // Combine all orders and remove duplicates
       const allOrders = [

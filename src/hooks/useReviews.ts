@@ -34,6 +34,19 @@ export const useReviewsByGig = (gigId: string) => {
 
       if (error) throw error;
 
+      console.log('🔍 useReviewsByGig: Fetched reviews data:', reviews);
+      console.log('🔍 useReviewsByGig: Reviews count:', reviews?.length || 0);
+      reviews?.forEach((review, index) => {
+        console.log(`🔍 Review ${index}:`, {
+          reviewId: review.id,
+          orderId: review.order?.id,
+          clientData: review.order?.client,
+          hasClient: !!review.order?.client,
+          clientUsername: review.order?.client?.username,
+          clientFullName: review.order?.client?.full_name
+        });
+      });
+
       setData(reviews || []);
     } catch (err) {
       console.error('Error fetching reviews:', err);
@@ -195,6 +208,21 @@ export const useReviewsForProvider = (providerId: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      console.log('🔍 useReviewsForProvider: Fetched provider reviews data:', reviews);
+      console.log('🔍 useReviewsForProvider: Reviews count:', reviews?.length || 0);
+      reviews?.forEach((review, index) => {
+        console.log(`🔍 Provider Review ${index}:`, {
+          reviewId: review.id,
+          orderId: review.order?.id,
+          clientData: review.order?.client,
+          hasClient: !!review.order?.client,
+          clientUsername: review.order?.client?.username,
+          clientFullName: review.order?.client?.full_name,
+          gigTitle: review.order?.gig?.title,
+          providerId: review.order?.gig?.provider_id
+        });
+      });
 
       setData(reviews || []);
     } catch (err) {
