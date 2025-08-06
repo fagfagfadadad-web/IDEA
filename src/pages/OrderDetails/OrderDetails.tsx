@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
 import { Button, Card, OrderChat, DisputeModal } from 'components';
-import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
+import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address, parseAmount } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
@@ -344,7 +344,7 @@ const OrderDetails = () => {
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = BigInt(Math.round(order.amount * 1e18));
+        const amount = parseAmount(String(order.amount), 18);
         const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
           version: 1,
@@ -368,7 +368,7 @@ const OrderDetails = () => {
           escrowAddress: ESCROW_ADDRESS,
         });
       } else {
-        const value = BigInt(Math.round(order.amount * 1e18));
+        const value = parseAmount(String(order.amount), 18);
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
         const amountHex = value.toString(16);
         // Ensure even number of hex characters for proper encoding
