@@ -388,7 +388,7 @@ const OrderDetails = () => {
           deadlineHex,
           tokenId: paymentToken,
           tokenIdHex,
-          paddedAmountHex,
+          amountHex,
           data,
           escrowAddress: ESCROW_ADDRESS,
         });
