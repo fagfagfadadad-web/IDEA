@@ -19,8 +19,8 @@ export const AdminGigs: React.FC = () => {
   const pageSize = 10;
   
   const { data: allGigs, isLoading, error } = useAllGigs();
-  const deleteGig = useAdminDeleteGig();
-  const updateGigStatus = useAdminUpdateGigStatus();
+  const deleteGig = useDeleteGig();
+  const updateGigStatus = useUpdateGigStatus();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
