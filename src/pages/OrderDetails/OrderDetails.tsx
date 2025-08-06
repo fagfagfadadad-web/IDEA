@@ -347,6 +347,8 @@ const OrderDetails = () => {
         const amount = BigInt(Math.round(order.amount * 1e18));
         const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
+          version: 1,
+          options: 0,
           value: amount,
           data: Buffer.from(data),
           receiver: new Address(ESCROW_ADDRESS),
@@ -374,6 +376,8 @@ const OrderDetails = () => {
         const functionNameHex = Buffer.from('depositEsdt', 'utf8').toString('hex');
         const data = `ESDTTransfer@${tokenIdHex}@${paddedAmountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
+          version: 1,
+          options: 0,
           value: BigInt(0),
           data: Buffer.from(data),
           receiver: new Address(ESCROW_ADDRESS),
@@ -463,6 +467,8 @@ const OrderDetails = () => {
 
       const hexOrderId = uuidToHex(order.id);
       const transaction = new Transaction({
+        version: 1,
+        options: 0,
         value: BigInt(0),
         data: Buffer.from(`release@${hexOrderId}`),
         receiver: new Address(ESCROW_ADDRESS),
@@ -551,6 +557,8 @@ const OrderDetails = () => {
 
       const hexOrderId = uuidToHex(order.id);
       const transaction = new Transaction({
+        version: 1,
+        options: 0,
         value: BigInt(0),
         data: Buffer.from(`dispute@${hexOrderId}`),
         receiver: new Address(ESCROW_ADDRESS),

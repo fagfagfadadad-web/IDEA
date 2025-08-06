@@ -41,6 +41,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const handleSupabaseSignOut = async () => {
     try {
+      // Clear all Supabase-related tokens from local storage first
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
       // Check if there's an active session before attempting to sign out
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
@@ -84,13 +91,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } catch (localError: any) {
         console.log('Local cleanup also failed, continuing anyway:', localError.message);
       }
-    } finally {
-      // Clear all Supabase-related tokens from local storage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
-          localStorage.removeItem(key);
-        }
-      });
     }
   };
 
@@ -125,13 +125,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Check if token is expired or invalid
           if (!tokenData.refresh_token || !tokenData.access_token) {
             console.log('🧹 AuthContext: Clearing invalid stored token');
-            localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
+                localStorage.removeItem(key);
+              }
+            });
             await supabase.auth.signOut({ scope: 'local' });
           }
         }
       } catch (tokenError) {
         console.log('🧹 AuthContext: Error checking stored token, clearing:', tokenError);
-        localStorage.removeItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
+            localStorage.removeItem(key);
+          }
+        });
         await supabase.auth.signOut({ scope: 'local' });
       }
 
@@ -143,7 +151,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Handle specific refresh token errors - expanded to catch all variants
         if (sessionError.message?.includes('refresh_token_not_found') || 
             sessionError.message?.includes('Invalid Refresh Token') ||
-            sessionError.message?.includes('Refresh Token Not Found')) {
+            sessionError.message?.includes('Refresh Token Not Found') ||
+            sessionError.message?.includes('refresh_token_not_found')) {
           console.log('🧹 AuthContext: Clearing invalid refresh token');
           await handleSupabaseSignOut();
         }
