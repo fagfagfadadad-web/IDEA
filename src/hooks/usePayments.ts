@@ -110,7 +110,7 @@ export const usePayments = () => {
         address: walletAddress,
         tokenId,
         balance,
-        requiredAmount: effectiveAmount,
+        amountHex: paddedAmountHex,
         hasEnoughFunds: balance >= effectiveAmount
       });
 
@@ -225,10 +225,12 @@ export const usePayments = () => {
       const deadlineHex = deadline.toString(16);
       const value = BigInt(Math.round(amount * 1e18));
       const tokenIdHex = Buffer.from(tokenId, 'utf8').toString('hex');
-      const amountHex = value.toString(16).padStart(16, '0');
+      const amountHex = value.toString(16);
+      // Ensure even number of hex characters for proper encoding
+      const paddedAmountHex = amountHex.length % 2 === 0 ? amountHex : '0' + amountHex;
 
       const functionNameHex = Buffer.from('depositEsdt', 'utf8').toString('hex');
-      const data = `ESDTTransfer@${tokenIdHex}@${amountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+      const data = `ESDTTransfer@${tokenIdHex}@${paddedAmountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
 
       const transaction = new Transaction({
         value: BigInt(0),
