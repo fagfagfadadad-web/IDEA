@@ -5,6 +5,7 @@ import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components'
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
 import { useOrders } from 'hooks';
 import { GigViewsStats } from '../../components/GigViewsStats';
@@ -61,6 +62,7 @@ export const Profile = () => {
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
+  const { success, error: showErrorToast } = useToast();
   
   // Use the id from params if viewing someone else's profile, otherwise use current user
   const { data: profile, isLoading, error, refetch } = useProfile(id);
@@ -120,10 +122,10 @@ export const Profile = () => {
       });
       setIsEditModalOpen(false);
       refetch();
-      alert('Profile updated successfully');
+      success('Profile updated successfully');
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert(`Error updating profile: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      showErrorToast('Error updating profile. Please try again later.');
     }
   };
 
@@ -133,9 +135,9 @@ export const Profile = () => {
     try {
       // Mock delete - replace with real implementation
       console.log('Deleting gig:', gigId);
-      alert('Gig deleted successfully');
+      success('Gig deleted successfully');
     } catch (error) {
-      alert('Error deleting gig');
+      showErrorToast('Error deleting gig');
     }
   };
 
@@ -143,9 +145,9 @@ export const Profile = () => {
     try {
       // Mock update - replace with real implementation
       console.log('Updating gig status:', { gigId, status });
-      alert(`Gig status updated to ${status}`);
+      success(`Gig status updated to ${status}`);
     } catch (error) {
-      alert('Error updating gig status');
+      showErrorToast('Error updating gig status');
     }
   };
 
