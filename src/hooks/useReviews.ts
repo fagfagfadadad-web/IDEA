@@ -18,6 +18,24 @@ export const useReviewsByGig = (gigId: string) => {
     try {
       setIsLoading(true);
       
+      // First get all orders for this gig
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('gig_id', gigId);
+
+      if (ordersError) throw ordersError;
+
+      if (!orders || orders.length === 0) {
+        console.log('🔍 useReviewsByGig: No orders found for gig:', gigId);
+        setData([]);
+        return;
+      }
+
+      const orderIds = orders.map(order => order.id);
+      console.log('🔍 useReviewsByGig: Found order IDs for gig:', orderIds);
+
+      // Then get reviews for those orders
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
@@ -29,7 +47,7 @@ export const useReviewsByGig = (gigId: string) => {
             gig:gigs(title)
           )
         `)
-        .in('order.gig_id', [gigId])
+        .in('order_id', orderIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
