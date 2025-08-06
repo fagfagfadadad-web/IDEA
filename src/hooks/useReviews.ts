@@ -18,7 +18,7 @@ export const useReviewsByGig = (gigId: string) => {
     try {
       setIsLoading(true);
       
-      // First get all orders for this gig
+      // First get all orders for this gig to get the order IDs
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id')
@@ -35,7 +35,7 @@ export const useReviewsByGig = (gigId: string) => {
       const orderIds = orders.map(order => order.id);
       console.log('🔍 useReviewsByGig: Found order IDs for gig:', orderIds);
 
-      // Then get reviews for those orders
+      // Then get reviews for those orders with proper client data
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
@@ -57,7 +57,8 @@ export const useReviewsByGig = (gigId: string) => {
       reviews?.forEach((review, index) => {
         console.log(`🔍 Review ${index}:`, {
           reviewId: review.id,
-          orderId: review.order?.id,
+          orderId: review.order_id,
+          orderData: review.order,
           clientData: review.order?.client,
           hasClient: !!review.order?.client,
           clientUsername: review.order?.client?.username,
@@ -207,13 +208,20 @@ export const useReviewsForProvider = (providerId: string) => {
     try {
       setIsLoading(true);
       
+      // First get all orders where this user is the provider
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('gig_id', supabase.from('gigs').select('id').eq('provider_id', providerId));
+
+      // Alternative approach: get orders through gigs
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
           *,
           order:orders!reviews_order_id_fkey(
             id,
-            gig_id,
+            gig_id, 
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
             gig:gigs!orders_gig_id_fkey(
               id,
@@ -222,7 +230,7 @@ export const useReviewsForProvider = (providerId: string) => {
             )
           )
         `)
-        .in('order.gig.provider_id', [providerId])
+        .eq('order.gig.provider_id', providerId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -232,7 +240,8 @@ export const useReviewsForProvider = (providerId: string) => {
       reviews?.forEach((review, index) => {
         console.log(`🔍 Provider Review ${index}:`, {
           reviewId: review.id,
-          orderId: review.order?.id,
+          orderId: review.order_id,
+          orderData: review.order,
           clientData: review.order?.client,
           hasClient: !!review.order?.client,
           clientUsername: review.order?.client?.username,
