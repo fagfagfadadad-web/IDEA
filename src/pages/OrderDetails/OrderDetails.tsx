@@ -833,12 +833,12 @@ const OrderDetails = () => {
                   >
                     {isDisputeResolved ? (
                       <>
-                        <Shield size={14} />
+                        <Shield size={14} className="text-purple-400" />
                         Resolved by Admin
                       </>
                     ) : (
                       <>
-                        <AlertTriangle size={14} />
+                        <AlertTriangle size={14} className="text-red-800" />
                         Dispute
                       </>
                     )}
@@ -850,7 +850,7 @@ const OrderDetails = () => {
             {isDisputeResolved && (
               <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-2 border-purple-400 rounded-xl p-6 text-center">
                 <div className="flex justify-center gap-3 mb-3">
-                  <Shield size=24 className="text-purple-400" />
+                  <Shield size={24} className="text-purple-400" />
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">🏛️ Dispute Resolved by Administration</h3>
@@ -889,7 +889,7 @@ const OrderDetails = () => {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     disabled={!!providerAddressError}
                   >
-                    <DollarSign size={16} />
+                    <DollarSign size={16} className="text-white" />
                     Pay Now
                   </Button>
                 </div>
@@ -910,7 +910,7 @@ const OrderDetails = () => {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     disabled={isSubmitWorkLoading}
                   >
-                    <FileText size={16} />
+                    <FileText size={16} className="text-white" />
                     Submit Work
                   </Button>
                 </div>
@@ -931,7 +931,7 @@ const OrderDetails = () => {
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                     disabled={isReleaseLoading}
                   >
-                    <Check size={16} />
+                    <Check size={16} className="text-white" />
                     Release Payment
                   </Button>
                 </div>
@@ -951,7 +951,7 @@ const OrderDetails = () => {
                     onClick={() => setShowDisputeModal(true)}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                   >
-                    <AlertTriangle size={16} />
+                    <AlertTriangle size={16} className="text-white" />
                     Create Dispute
                   </Button>
                 </div>
@@ -1111,7 +1111,7 @@ const OrderDetails = () => {
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg flex items-center justify-center gap-2"
                 disabled={isPaymentLoading || !!providerAddressError}
               >
-                <DollarSign size={16} />
+                <DollarSign size={16} className="text-white" />
                 {isPaymentLoading ? 'Processing...' : 'Pay Now'}
               </Button>
             </div>
