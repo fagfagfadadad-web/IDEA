@@ -92,7 +92,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => 
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-[9999] space-y-2 max-w-sm w-full">
+    <div className="fixed top-4 right-4 z-[9999] space-y-3 max-w-sm w-full">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -109,47 +109,91 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   const getIcon = () => {
     switch (toast.type) {
       case 'success':
-        return <CheckCircle size={20} className="text-green-500 flex-shrink-0" />;
+        return <CheckCircle size={20} className="text-green-600 flex-shrink-0" />;
       case 'error':
-        return <AlertCircle size={20} className="text-red-500 flex-shrink-0" />;
+        return <AlertCircle size={20} className="text-red-600 flex-shrink-0" />;
       case 'warning':
-        return <AlertTriangle size={20} className="text-yellow-500 flex-shrink-0" />;
+        return <AlertTriangle size={20} className="text-yellow-600 flex-shrink-0" />;
       case 'info':
       default:
-        return <Info size={20} className="text-blue-500 flex-shrink-0" />;
+        return <Info size={20} className="text-blue-600 flex-shrink-0" />;
     }
   };
 
-  const getBackgroundColor = () => {
+  const getGradientClasses = () => {
     switch (toast.type) {
       case 'success':
-        return 'bg-white border-l-4 border-green-500 shadow-lg';
+        return 'bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500';
       case 'error':
-        return 'bg-white border-l-4 border-red-500 shadow-lg';
+        return 'bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500';
       case 'warning':
-        return 'bg-white border-l-4 border-yellow-500 shadow-lg';
+        return 'bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500';
       case 'info':
       default:
-        return 'bg-white border-l-4 border-blue-500 shadow-lg';
+        return 'bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500';
+    }
+  };
+
+  const getTextColor = () => {
+    switch (toast.type) {
+      case 'success':
+        return 'text-green-800';
+      case 'error':
+        return 'text-red-800';
+      case 'warning':
+        return 'text-yellow-800';
+      case 'info':
+      default:
+        return 'text-blue-800';
     }
   };
 
   return (
-    <div className={`${getBackgroundColor()} rounded-lg p-4 animate-in slide-in-from-right duration-300 hover:shadow-xl transition-all`}>
+    <div 
+      className={`
+        ${getGradientClasses()} 
+        rounded-xl p-4 shadow-lg backdrop-blur-sm
+        transform transition-all duration-300 ease-out
+        animate-in slide-in-from-right-full
+        hover:shadow-xl hover:scale-[1.02]
+        border border-white/20
+      `}
+      style={{
+        animation: 'slideInRight 0.3s ease-out'
+      }}
+    >
       <div className="flex items-start gap-3">
-        {getIcon()}
+        <div className="mt-0.5">
+          {getIcon()}
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-gray-800 text-sm font-medium leading-relaxed">
+          <p className={`${getTextColor()} text-sm font-medium leading-relaxed`}>
             {toast.message}
           </p>
         </div>
         <button
           onClick={() => onRemove(toast.id)}
-          className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 p-1 hover:bg-gray-100 rounded"
+          className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 p-1 hover:bg-white/50 rounded-lg"
         >
           <X size={16} />
         </button>
       </div>
+      
+      {/* Progress bar for auto-dismiss */}
+      {toast.duration && toast.duration > 0 && (
+        <div className="mt-3 w-full bg-white/30 rounded-full h-1 overflow-hidden">
+          <div 
+            className={`h-full transition-all ease-linear ${
+              toast.type === 'success' ? 'bg-green-500' :
+              toast.type === 'error' ? 'bg-red-500' :
+              toast.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`}
+            style={{
+              animation: `shrink ${toast.duration}ms linear forwards`
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };
