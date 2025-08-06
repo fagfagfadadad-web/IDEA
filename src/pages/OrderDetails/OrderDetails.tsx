@@ -89,7 +89,7 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
           console.log(`✅ Found balance for ${tokenId}:`, {
             raw: response.data.balance,
             decimals: tokenDecimals,
-            formatted: balance
+            formatted: balance,
           });
         } else {
           console.log(`❌ No balance for ${tokenId}`);
@@ -107,14 +107,14 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
       tokenId,
       balance,
       requiredAmount: effectiveAmount,
-      hasEnoughFunds: balance >= effectiveAmount
+      hasEnoughFunds: balance >= effectiveAmount,
     });
 
     return {
       hasEnoughFunds: balance >= effectiveAmount,
       balance,
       required: effectiveAmount,
-      error: null
+      error: null,
     };
   } catch (error) {
     console.error('💥 Error checking balance:', error);
@@ -122,7 +122,7 @@ const checkWalletBalance = async (walletAddress: string, requiredAmount: number,
       hasEnoughFunds: false,
       balance: 0,
       required: requiredAmount,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 };
@@ -142,7 +142,7 @@ const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
         status: txData.status,
         nonce: txData.nonce,
         round: txData.round,
-        timestamp: txData.timestamp
+        timestamp: txData.timestamp,
       });
 
       if (['success', 'executed'].includes(txData.status)) {
@@ -186,7 +186,7 @@ const OrderDetails = () => {
   const { network } = useGetNetworkConfig();
   const { user } = useAuth();
   const { success, error: showError } = useToast();
-  
+
   const { data: order, isLoading, error } = useOrderById(id || '');
 
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
@@ -197,31 +197,29 @@ const OrderDetails = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [providerAddressError, setProviderAddressError] = useState<string | null>(null);
 
-  const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
-
   const fetchProviderAddress = async (gigId: string): Promise<string | null> => {
     try {
       console.log('Fetching provider address for gig:', { gigId });
       const { data, error } = await supabase
         .from('gigs')
-        .select('provider_id, provider:users!provider_id(wallet_address)')
+        .select('provider_id, provider:users!gigs_provider_id_fkey(wallet_address)')
         .eq('id', gigId)
         .single();
-      
+
       if (error) {
         console.error('Supabase error fetching provider address:', error);
         return null;
       }
-      
-      const walletAddress = data?.provider?.[0]?.wallet_address;
-        
+
+      const walletAddress = data?.provider?.wallet_address;
+
       console.log('Fetched provider data:', { data, walletAddress });
-      
+
       if (!isValidAddress(walletAddress)) {
         console.error('Invalid provider address from database:', walletAddress);
         return null;
       }
-      
+
       return walletAddress;
     } catch (error) {
       console.error('Error fetching provider address:', error);
@@ -229,30 +227,26 @@ const OrderDetails = () => {
     }
   };
 
-  // Helper function to get display token name
   const getTokenDisplayName = (paymentToken: string) => {
     if (paymentToken === 'EGLD') return 'EGLD';
     if (paymentToken === 'IDA-f9bc1d') return 'IDA';
-    return paymentToken; // fallback for other tokens
+    return paymentToken;
   };
 
-  // Helper function to calculate fees
   const calculateFees = (amount: number, paymentToken: string) => {
     if (paymentToken === 'EGLD') {
-      // For EGLD: client pays full amount, provider gets 90%, platform gets 10%
       return {
         clientPays: amount,
         providerGets: amount * 0.9,
         platformFee: amount * 0.1,
-        feePercentage: 10
+        feePercentage: 10,
       };
     } else {
-      // For IDA: no fees, client pays amount, provider gets full amount
       return {
         clientPays: amount,
         providerGets: amount,
         platformFee: 0,
-        feePercentage: 0
+        feePercentage: 0,
       };
     }
   };
@@ -264,7 +258,6 @@ const OrderDetails = () => {
       return;
     }
 
-    // Check if payment was already made
     if (order.payment_status !== 'pending') {
       alert('Payment has already been processed or is in another status');
       return;
@@ -272,12 +265,11 @@ const OrderDetails = () => {
 
     const paymentToken = order.payment_token;
     const tokenDisplayName = getTokenDisplayName(paymentToken);
-    
+
     try {
       setIsPaymentLoading(true);
       console.log('Creating transaction...', { orderData: JSON.stringify(order, null, 2) });
 
-      // Validate client address
       if (!isValidAddress(address)) {
         throw new Error('Invalid client address');
       }
@@ -289,8 +281,7 @@ const OrderDetails = () => {
         if (!providerAddress || !isValidAddress(providerAddress)) {
           throw new Error('Failed to fetch a valid provider address from the database. Please check the gig details.');
         }
-        
-        // Update the order with provider address before creating transaction
+
         const { error: updateError } = await supabase
           .from('orders')
           .update({ provider_address: providerAddress })
@@ -304,12 +295,11 @@ const OrderDetails = () => {
         throw new Error('Invalid or missing provider address. Please check the order details.');
       }
 
-      // Update client address in order before payment
       const { error: clientUpdateError } = await supabase
         .from('orders')
         .update({ client_address: address })
         .eq('id', order.id);
-      
+
       if (clientUpdateError) {
         console.error('Error updating client_address:', clientUpdateError);
         throw new Error(`Failed to update client_address: ${clientUpdateError.message}`);
@@ -339,12 +329,11 @@ const OrderDetails = () => {
         deadline,
         deadlineHex,
         paymentToken,
-        amount: order.amount
+        amount: order.amount,
       });
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        // For EGLD: client pays the full amount, 10% fee is deducted on smart contract side
         const amount = BigInt(Math.round(order.amount * 1e18));
         const data = `deposit@${hexOrderId}@${clientAddressHex}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
@@ -353,11 +342,21 @@ const OrderDetails = () => {
           receiver: new Address(ESCROW_ADDRESS),
           gasLimit: BigInt(20000000),
           sender: new Address(address),
-          chainID: network.chainId
+          chainID: network.chainId,
         });
-        console.log('Creating EGLD transaction:', { orderId: order.id, hexOrderId, clientAddressHex, providerAddress, providerAddressHex, deadline, deadlineHex, amount: amount.toString(), data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Creating EGLD transaction:', {
+          orderId: order.id,
+          hexOrderId,
+          clientAddressHex,
+          providerAddress,
+          providerAddressHex,
+          deadline,
+          deadlineHex,
+          amount: amount.toString(),
+          data,
+          escrowAddress: ESCROW_ADDRESS,
+        });
       } else {
-        // For IDA: no fees, client pays exact amount
         const value = BigInt(Math.round(order.amount * 1e18));
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
         const amountHex = value.toString(16);
@@ -370,9 +369,21 @@ const OrderDetails = () => {
           receiver: new Address(ESCROW_ADDRESS),
           gasLimit: BigInt(20000000),
           sender: new Address(address),
-          chainID: network.chainId
+          chainID: network.chainId,
         });
-        console.log('Creating ESDT transaction:', { orderId: order.id, hexOrderId, providerAddress, providerAddressHex, deadline, deadlineHex, tokenId: paymentToken, tokenIdHex, paddedAmountHex, data, escrowAddress: ESCROW_ADDRESS });
+        console.log('Creating ESDT transaction:', {
+          orderId: order.id,
+          hexOrderId,
+          providerAddress,
+          providerAddressHex,
+          deadline,
+          deadlineHex,
+          tokenId: paymentToken,
+          tokenIdHex,
+          paddedAmountHex,
+          data,
+          escrowAddress: ESCROW_ADDRESS,
+        });
       }
 
       console.log('Calling signAndSendTransactions...');
@@ -381,9 +392,9 @@ const OrderDetails = () => {
         transactionsDisplayInfo: {
           processingMessage: `Processing ${tokenDisplayName} payment...`,
           errorMessage: `${tokenDisplayName} payment failed`,
-          successMessage: `${tokenDisplayName} payment successful`
+          successMessage: `${tokenDisplayName} payment successful`,
         },
-        timeout: 300000
+        timeout: 300000,
       });
 
       console.log(`${tokenDisplayName} payment successful, session ID:`, sessionId);
@@ -401,7 +412,7 @@ const OrderDetails = () => {
           status_updated_at: new Date().toISOString(),
           provider_address: providerAddress,
           client_address: address,
-          transaction_hash: sessionId
+          transaction_hash: sessionId,
         })
         .eq('id', order.id);
 
@@ -447,7 +458,7 @@ const OrderDetails = () => {
         receiver: new Address(ESCROW_ADDRESS),
         gasLimit: BigInt(20000000),
         sender: new Address(address),
-        chainID: network.chainId
+        chainID: network.chainId,
       });
 
       console.log('Creating release transaction:', { orderId: order.id, hexOrderId, escrowAddress: ESCROW_ADDRESS });
@@ -457,9 +468,9 @@ const OrderDetails = () => {
         transactionsDisplayInfo: {
           processingMessage: 'Releasing payment...',
           errorMessage: 'Release failed',
-          successMessage: 'Payment successfully released'
+          successMessage: 'Payment successfully released',
         },
-        timeout: 120000
+        timeout: 120000,
       });
 
       console.log('Payment released, session ID:', sessionId);
@@ -474,7 +485,7 @@ const OrderDetails = () => {
           payment_status: 'released',
           status: 'completed',
           status_updated_at: new Date().toISOString(),
-          work_status: 'completed'
+          work_status: 'completed',
         })
         .eq('id', order.id);
 
@@ -483,22 +494,19 @@ const OrderDetails = () => {
         throw new Error(`Database update failed: ${error.message}`);
       }
 
-      // Send notification to provider
       try {
         await supabase.from('notifications').insert({
-          user_id: order.gig?.provider?.id || order.gig?.users?.id,
+          user_id: order.gig?.provider?.id || order.gig?.provider_id,
           type: 'payment_released',
           title: 'Payment Released',
           content: `Payment for order "${order.gig?.title || 'Custom Project'}" has been successfully released.`,
           data: { order_id: order.id },
-          read: false
+          read: false,
         });
       } catch (notificationError) {
         console.error('Error sending notification:', notificationError);
-        // Don't fail the whole process if notification fails
       }
 
-      // Add system message to chat
       try {
         await supabase.from('messages').insert({
           order_id: order.id,
@@ -511,10 +519,8 @@ const OrderDetails = () => {
         });
       } catch (messageError) {
         console.error('Error adding system message:', messageError);
-        // Don't fail the whole process if message fails
       }
 
-      // Force refresh the order data
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -540,7 +546,7 @@ const OrderDetails = () => {
         receiver: new Address(ESCROW_ADDRESS),
         gasLimit: BigInt(20000000),
         sender: new Address(address),
-        chainID: network.chainId
+        chainID: network.chainId,
       });
 
       console.log('Creating dispute transaction:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
@@ -550,9 +556,9 @@ const OrderDetails = () => {
         transactionsDisplayInfo: {
           processingMessage: 'Creating dispute...',
           errorMessage: 'Dispute creation failed',
-          successMessage: 'Dispute successfully created'
+          successMessage: 'Dispute successfully created',
         },
-        timeout: 120000
+        timeout: 120000,
       });
 
       console.log('Dispute created, session ID:', sessionId);
@@ -565,7 +571,7 @@ const OrderDetails = () => {
         .from('orders')
         .update({
           payment_status: 'disputed',
-          status_updated_at: new Date().toISOString()
+          status_updated_at: new Date().toISOString(),
         })
         .eq('id', order.id);
 
@@ -605,7 +611,7 @@ const OrderDetails = () => {
         .update({
           work_status: 'submitted',
           status: 'delivered',
-          status_updated_at: new Date().toISOString()
+          status_updated_at: new Date().toISOString(),
         })
         .eq('id', order.id);
 
@@ -619,7 +625,7 @@ const OrderDetails = () => {
         title: 'Work Delivered',
         content: 'The provider has delivered the work for your order. Please review and release the payment if you are satisfied.',
         data: { order_id: order.id },
-        read: false
+        read: false,
       });
 
       await supabase.from('messages').insert({
@@ -702,21 +708,29 @@ const OrderDetails = () => {
   };
 
   const isClient = user?.id === order?.client?.id;
-  const isProvider = user?.id === order?.gig?.provider_id || 
-                    user?.id === order?.gig?.provider?.id ||
-                    (user?.wallet_address && order?.provider_address && user.wallet_address === order.provider_address) ||
-                    (user?.wallet_address && order?.gig?.provider?.wallet_address && user.wallet_address === order.gig.provider.wallet_address);
+  const isProvider =
+    user?.id === order?.gig?.provider_id ||
+    user?.id === order?.gig?.provider?.id ||
+    (user?.wallet_address && order?.provider_address && user.wallet_address === order.provider_address) ||
+    (user?.wallet_address && order?.gig?.provider?.wallet_address && user.wallet_address === order.gig.provider.wallet_address);
 
-  const canPay = isClient && 
-                 (order?.status === 'pending_approval' || order?.status === 'in_progress') && 
-                 order?.payment_status === 'pending' && 
-                 !providerAddressError;
+  const canPay =
+    isClient &&
+    (order?.status === 'pending_approval' || order?.status === 'in_progress') &&
+    order?.payment_status === 'pending' &&
+    !providerAddressError;
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
-  const canSubmitWork = isProvider && 
-                        order?.status === 'in_progress' && 
-                        order?.payment_status === 'escrowed' && 
-                        order?.work_status !== 'submitted';
-  const canDispute = (isClient || isProvider) && order?.payment_status === 'escrowed' && order?.status !== 'completed' && order?.status !== 'cancelled' && order?.payment_status !== 'disputed';
+  const canSubmitWork =
+    isProvider &&
+    order?.status === 'in_progress' &&
+    order?.payment_status === 'escrowed' &&
+    order?.work_status !== 'submitted';
+  const canDispute =
+    (isClient || isProvider) &&
+    order?.payment_status === 'escrowed' &&
+    order?.status !== 'completed' &&
+    order?.status !== 'cancelled' &&
+    order?.payment_status !== 'disputed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
@@ -733,11 +747,11 @@ const OrderDetails = () => {
       canSubmitWork,
       orderStatus: order?.status,
       paymentStatus: order?.payment_status,
-      workStatus: order?.work_status
+      workStatus: order?.work_status,
     });
-    
+
     if (order && !isLoading) {
-      const providerAddress = order.provider_address || order.gig?.users?.wallet_address;
+      const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
         fetchProviderAddress(order.gig_id).then((address) => {
           if (!address) {
@@ -784,26 +798,39 @@ const OrderDetails = () => {
             <div className="flex justify-between items-center flex-wrap gap-4">
               <h1 className="text-2xl font-bold text-white">{order.gig?.title || 'Custom Project'}</h1>
               <div className="flex gap-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  getStatusColor(order.status) === 'green' ? 'bg-green-100 text-green-800' :
-                  getStatusColor(order.status) === 'blue' ? 'bg-blue-100 text-blue-800' :
-                  getStatusColor(order.status) === 'red' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    getStatusColor(order.status) === 'green'
+                      ? 'bg-green-100 text-green-800'
+                      : getStatusColor(order.status) === 'blue'
+                      ? 'bg-blue-100 text-blue-800'
+                      : getStatusColor(order.status) === 'red'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  getPaymentStatusColor(order.payment_status) === 'green' ? 'bg-green-100 text-green-800' :
-                  getPaymentStatusColor(order.payment_status) === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                  getPaymentStatusColor(order.payment_status) === 'red' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  Payment: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)} ({tokenDisplayName})
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    getPaymentStatusColor(order.payment_status) === 'green'
+                      ? 'bg-green-100 text-green-800'
+                      : getPaymentStatusColor(order.payment_status) === 'yellow'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : getPaymentStatusColor(order.payment_status) === 'red'
+                      ? 'bg-red-100 text-red-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  Payment: {order.payment_status.charAt(0).toUpperCase() + order.payment_status.slice(1)} (
+                  {tokenDisplayName})
                 </span>
                 {wasDisputed && (
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
-                    isDisputeResolved ? 'bg-purple-100 text-purple-800' : 'bg-red-100 text-red-800'
-                  }`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${
+                      isDisputeResolved ? 'bg-purple-100 text-purple-800' : 'bg-red-100 text-red-800'
+                    }`}
+                  >
                     {isDisputeResolved ? (
                       <>
                         <Shield size={14} />
@@ -826,11 +853,10 @@ const OrderDetails = () => {
                   <Shield size={24} className="text-purple-400" />
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">
-                  🏛️ Dispute Resolved by Administration
-                </h3>
+                <h3 className="text-lg font-bold text-white mb-2">🏛️ Dispute Resolved by Administration</h3>
                 <p className="text-gray-300 max-w-sm mx-auto">
-                  This dispute has been officially resolved by the platform administration. The decision is final, and funds have been distributed.
+                  This dispute has been officially resolved by the platform administration. The decision is final, and
+                  funds have been distributed.
                 </p>
               </div>
             )}
@@ -935,17 +961,18 @@ const OrderDetails = () => {
             <div>
               <div className="flex justify-between mb-2">
                 <span className="text-gray-400">Order Progress</span>
-                {order.status === 'in_progress' && (
-                  <span className="text-blue-400">{getRemainingTime()}</span>
-                )}
+                {order.status === 'in_progress' && <span className="text-blue-400">{getRemainingTime()}</span>}
               </div>
               <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    getStatusColor(order.status) === 'green' ? 'bg-green-500' :
-                    getStatusColor(order.status) === 'blue' ? 'bg-blue-500' :
-                    getStatusColor(order.status) === 'red' ? 'bg-red-500' :
-                    'bg-yellow-500'
+                    getStatusColor(order.status) === 'green'
+                      ? 'bg-green-500'
+                      : getStatusColor(order.status) === 'blue'
+                      ? 'bg-blue-500'
+                      : getStatusColor(order.status) === 'red'
+                      ? 'bg-red-500'
+                      : 'bg-yellow-500'
                   }`}
                   style={{ width: `${getProgressValue(order.status)}%` }}
                 ></div>
@@ -962,9 +989,7 @@ const OrderDetails = () => {
 
             <div>
               <p className="text-gray-400 mb-2">Order Requirements:</p>
-              <p className="text-grey">
-                {order.requirements?.description || 'No specific requirements'}
-              </p>
+              <p className="text-grey">{order.requirements?.description || 'No specific requirements'}</p>
             </div>
 
             <hr className="border-gray-600" />
@@ -978,7 +1003,7 @@ const OrderDetails = () => {
                       <>
                         <img
                           src={order.client.avatar_url}
-                          alt={order.client.username || "Client"}
+                          alt={order.client.username || 'Client'}
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -990,20 +1015,20 @@ const OrderDetails = () => {
                             }
                           }}
                         />
-                        <div 
+                        <div
                           className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white absolute inset-0"
                           style={{ display: 'none' }}
                         >
-                          {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                          {order.client?.username?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                       </>
                     ) : (
                       <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white">
-                        {order.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                        {order.client?.username?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                     )}
                   </div>
-                  <span className="text-grey">{order.client?.username || "Unknown"}</span>
+                  <span className="text-grey">{order.client?.username || 'Unknown'}</span>
                 </div>
               </div>
               <div>
@@ -1012,15 +1037,9 @@ const OrderDetails = () => {
                   {order.amount} {tokenDisplayName}
                 </p>
                 {paymentToken === 'EGLD' && (
-                  <p className="text-gray-400 text-sm">
-                    Provider will receive: {feeInfo.providerGets} EGLD
-                  </p>
+                  <p className="text-gray-400 text-sm">Provider will receive: {feeInfo.providerGets} EGLD</p>
                 )}
-                {isDisputeResolved && (
-                  <p className="text-purple-300 text-sm mt-1">
-                    ✅ Resolved by Admin
-                  </p>
-                )}
+                {isDisputeResolved && <p className="text-purple-300 text-sm mt-1">✅ Resolved by Admin</p>}
               </div>
             </div>
           </div>
@@ -1059,7 +1078,9 @@ const OrderDetails = () => {
                   <div className="flex justify-between">
                     <span className="text-gray-400">Service fee:</span>
                     <span className="text-white">
-                      {feeInfo.platformFee > 0 ? `${feeInfo.platformFee.toFixed(2)} ${tokenDisplayName} (${feeInfo.feePercentage}%)` : `0 ${tokenDisplayName} (0%)`}
+                      {feeInfo.platformFee > 0
+                        ? `${feeInfo.platformFee.toFixed(2)} ${tokenDisplayName} (${feeInfo.feePercentage}%)`
+                        : `0 ${tokenDisplayName} (0%)`}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -1098,7 +1119,6 @@ const OrderDetails = () => {
         </div>
       )}
 
-      {/* Dispute Modal */}
       <DisputeModal
         isOpen={showDisputeModal}
         onClose={() => setShowDisputeModal(false)}
@@ -1108,7 +1128,6 @@ const OrderDetails = () => {
           window.location.reload();
         }}
       />
-
     </div>
   );
 };
