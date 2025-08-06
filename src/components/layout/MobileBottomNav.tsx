@@ -4,11 +4,11 @@ import { Home, Search, Plus, User, Grid3X3, LogOut, Settings, Wallet, FileText, 
 import { Button } from 'components';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { useProfile } from '../../hooks/useProfile';
+import { useAuth } from '../../context/AuthContext';
 
 export const MobileBottomNav = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { data: profile } = useProfile();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
