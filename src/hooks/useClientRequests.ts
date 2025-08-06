@@ -187,7 +187,7 @@ export const useClientRequestById = (id: string) => {
               avatar_url,
               created_at
             ),
-            proposals(
+            proposals!proposals_request_id_fkey(
               *,
               provider:users!proposals_provider_id_fkey(
                 id,
