@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch } from 'lucide-react';
 import { Button } from 'components';
 import { NotificationsDropdown } from '../NotificationsMenu';
-import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
+import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useProfile } from '../../hooks/useProfile';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -11,6 +11,7 @@ import { useWindowSize } from '../../hooks/useWindowSize';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
+  const { address } = useGetAccount();
   const { data: profile } = useProfile();
   const { data: notifications } = useNotifications();
   const navigate = useNavigate();
