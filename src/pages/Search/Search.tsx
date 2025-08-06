@@ -313,8 +313,62 @@ export const Search = () => {
                           className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors"
                           onClick={(e) => handleProfileClick(e, gig.provider.id)}
                         >
-                          <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                            {gig.provider.username.charAt(0).toUpperCase()}
+                          <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
+                            {gig.provider?.avatar_url ? (
+                              <>
+                                <img
+                                  src={gig.provider.avatar_url}
+                                  alt={gig.provider.username || "Provider"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                      if (fallback) fallback.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                                <div 
+                                  className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                                  style={{ display: 'none' }}
+                                >
+                                  {gig.provider.username.charAt(0).toUpperCase()}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                                {gig.provider.username.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                              <>
+                                <img
+                                  src={gig.provider.avatar_url}
+                                  alt={gig.provider.username || "Provider"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                      if (fallback) fallback.style.display = 'flex';
+                                    }
+                                  }}
+                                />
+                                <div 
+                                  className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                                  style={{ display: 'none' }}
+                                >
+                                  {gig.provider.username.charAt(0).toUpperCase()}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                                {gig.provider.username.charAt(0).toUpperCase()}
+                              </div>
+                            )}
                           </div>
                           <span className="text-gray-600 text-sm">
                             by {gig.provider.username}

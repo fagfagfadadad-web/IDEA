@@ -257,8 +257,35 @@ export const AdminUsers: React.FC = () => {
                   <tr key={user.id} className="border-b border-gray-700">
                     <td className="p-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-xs text-white">
-                          {user.username?.charAt(0)?.toUpperCase() || "?"}
+                        <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-600">
+                          {user.avatar_url ? (
+                            <>
+                              <img
+                                src={user.avatar_url}
+                                alt={user.username || "User"}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }
+                                }}
+                              />
+                              <div 
+                                className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white absolute inset-0"
+                                style={{ display: 'none' }}
+                              >
+                                {user.username?.charAt(0)?.toUpperCase() || "?"}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white">
+                              {user.username?.charAt(0)?.toUpperCase() || "?"}
+                            </div>
+                          )}
                         </div>
                         <div>
                           <p className="text-white font-medium">{user.username}</p>
