@@ -342,33 +342,6 @@ export const Search = () => {
                                 {gig.provider.username.charAt(0).toUpperCase()}
                               </div>
                             )}
-                              <>
-                                <img
-                                  src={gig.provider.avatar_url}
-                                  alt={gig.provider.username || "Provider"}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    const target = e.target as HTMLImageElement;
-                                    target.style.display = 'none';
-                                    const parent = target.parentElement;
-                                    if (parent) {
-                                      const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                      if (fallback) fallback.style.display = 'flex';
-                                    }
-                                  }}
-                                />
-                                <div 
-                                  className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
-                                  style={{ display: 'none' }}
-                                >
-                                  {gig.provider.username.charAt(0).toUpperCase()}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
-                                {gig.provider.username.charAt(0).toUpperCase()}
-                              </div>
-                            )}
                           </div>
                           <span className="text-gray-600 text-sm">
                             by {gig.provider.username}

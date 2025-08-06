@@ -759,97 +759,98 @@ export const Home = () => {
                         }}
                         aria-label={`View bid: ${request.title}`}
                       >
-                        <div
-                          className="py-2 px-3 border-b border-gray-200"
-                          style={{ backgroundColor: `${categoryColor}20` }}
-                        >
-                          <div className="flex justify-between items-center">
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
-                                {request.client?.avatar_url ? (
-                                  <>
-                                    <img
-                                      src={request.client.avatar_url}
-                                      alt={request.client.username || "Client"}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.style.display = 'none';
-                                        const parent = target.parentElement;
-                                        if (parent) {
-                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                          if (fallback) fallback.style.display = 'flex';
-                                        }
-                                      }}
-                                    />
-                                    <div 
-                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
-                                      style={{ display: 'none' }}
-                                    >
+                        <>
+                          <div
+                            className="py-2 px-3 border-b border-gray-200"
+                            style={{ backgroundColor: `${categoryColor}20` }}
+                          >
+                            <div className="flex justify-between items-center">
+                              <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                                  {request.client?.avatar_url ? (
+                                    <>
+                                      <img
+                                        src={request.client.avatar_url}
+                                        alt={request.client.username || "Client"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.target as HTMLImageElement;
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                            if (fallback) fallback.style.display = 'flex';
+                                          }
+                                        }}
+                                      />
+                                      <div 
+                                        className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
+                                        style={{ display: 'none' }}
+                                      >
+                                        {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
                                       {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
                                     </div>
-                                  </>
-                                ) : (
-                                  <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
-                                    {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
-                                  </div>
-                                )}
+                                  )}
+                                </div>
+                                <span className="text-xs text-gray-600 truncate max-w-[80px]">
+                                  {request.client?.username}
+                                </span>
                               </div>
-                              </div>
-                              <span className="text-xs text-gray-600 truncate max-w-[80px]">
-                                {request.client?.username}
+                            </div>
+                          </div>
+
+                          <div className="p-3 space-y-2">
+                            <h3 className="text-sm font-bold text-gray-800">
+                              {request.title.length > 40 
+                                ? `${request.title.substring(0, 40)}...` 
+                                : request.title}
+                            </h3>
+                            <p className="text-xs text-gray-600">
+                              {request.description.length > 60 
+                                ? `${request.description.substring(0, 60)}...` 
+                                : request.description}
+                            </p>
+                            
+                            <div className="flex gap-1 flex-wrap">
+                              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1">
+                                <FileSearch size={10} />
+                                {request.category.substring(0, 8)}...
+                              </span>
+                            </div>
+                            
+                            <div className="flex gap-1 flex-wrap">
+                              {(request.budget_min || request.budget_max) && (
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs flex items-center gap-1">
+                                  <DollarSign size={10} />
+                                  {request.budget_min && request.budget_max
+                                    ? `${request.budget_min}-${request.budget_max}`
+                                    : request.budget_min
+                                    ? `From ${request.budget_min}`
+                                    : `Up to ${request.budget_max}`}
+                                </span>
+                              )}
+                              
+                              <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs flex items-center gap-1">
+                                <Briefcase size={10} />
+                                {proposalsCount}
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-1 pt-1">
+                              <Clock size={12} className="text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                Expires {new Date(request.expires_at).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="p-3 space-y-2">
-                          <h3 className="text-sm font-bold text-gray-800">
-                            {request.title.length > 40 
-                              ? `${request.title.substring(0, 40)}...` 
-                              : request.title}
-                          </h3>
-                          <p className="text-xs text-gray-600">
-                            {request.description.length > 60 
-                              ? `${request.description.substring(0, 60)}...` 
-                              : request.description}
-                          </p>
-                          
-                          <div className="flex gap-1 flex-wrap">
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs flex items-center gap-1">
-                              <FileSearch size={10} />
-                              {request.category.substring(0, 8)}...
-                            </span>
-                          </div>
-                          
-                          <div className="flex gap-1 flex-wrap">
-                            {(request.budget_min || request.budget_max) && (
-                              <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs flex items-center gap-1">
-                                <DollarSign size={10} />
-                                {request.budget_min && request.budget_max
-                                  ? `${request.budget_min}-${request.budget_max}`
-                                  : request.budget_min
-                                  ? `From ${request.budget_min}`
-                                  : `Up to ${request.budget_max}`}
-                              </span>
-                            )}
-                            
-                            <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs flex items-center gap-1">
-                              <Briefcase size={10} />
-                              {proposalsCount}
-                            </span>
-                          </div>
-                          
-                          <div className="flex items-center gap-1 pt-1">
-                            <Clock size={12} className="text-gray-400" />
-                            <span className="text-xs text-gray-500">
-                              Expires {new Date(request.expires_at).toLocaleDateString()}
-                            </span>
-                          </div>
-                        </div>
+                        </>
                       </div>
                     );
                   })}
@@ -907,7 +908,6 @@ export const Home = () => {
                                     {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
                                   </div>
                                 )}
-                              </div>
                               </div>
                               <span className="text-sm text-gray-600">
                                 {request.client?.username}
