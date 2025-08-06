@@ -12,13 +12,14 @@ import {
   Home, 
   MyRequests, 
   OrderDetails, 
-  Profile, 
   ProposalDetail, 
   Search, 
   Unlock
 } from 'pages';
 import { RouteType } from 'types';
+import React from 'react';
 
+const Profile = React.lazy(() => import('pages/Profile'));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
