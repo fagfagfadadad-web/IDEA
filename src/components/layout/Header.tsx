@@ -133,45 +133,17 @@ export const Header = () => {
               {isLoggedIn ? (
                 <div className="flex items-center space-x-3">
                   {/* Notifications */}
-                  <div className="relative">
-                    <button 
-                      onClick={() => setShowNotificationsModal(!showNotificationsModal)}
-                      className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
-                          {unreadCount}
-                        </span>
-                      )}
-                    </button>
-                    
-                    {/* Notifications Dropdown */}
-                    {showNotificationsModal && (
-                      <>
-                        <div 
-                          className="fixed inset-0 z-10" 
-                          onClick={() => setShowNotificationsModal(false)}
-                        />
-                        <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-20 max-h-96 overflow-hidden">
-                          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                            <h3 className="text-lg font-semibold text-gray-800">
-                              Notifications {unreadCount > 0 && `(${unreadCount} new)`}
-                            </h3>
-                            <button
-                              onClick={() => setShowNotificationsModal(false)}
-                              className="text-gray-400 hover:text-gray-600 p-1"
-                            >
-                              <X size={20} />
-                            </button>
-                          </div>
-                          <div className="overflow-y-auto max-h-80">
-                            <NotificationsMenu />
-                          </div>
-                        </div>
-                      </>
+                  <button 
+                    onClick={() => setShowNotificationsModal(true)}
+                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                        {unreadCount}
+                      </span>
                     )}
-                  </div>
+                  </button>
                   
                   {/* Profile Menu */}
                   <div className="relative">
@@ -436,6 +408,26 @@ export const Header = () => {
       )}
 
       {/* Notifications Modal */}
+      {showNotificationsModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg w-full max-w-md max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Notifications {unreadCount > 0 && `(${unreadCount} new)`}
+              </h3>
+              <button
+                onClick={() => setShowNotificationsModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              <NotificationsMenu />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

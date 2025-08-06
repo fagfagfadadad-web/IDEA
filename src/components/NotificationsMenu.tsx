@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from 'components';
 import { useNotifications, useMarkNotificationAsRead, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
-import { useToast } from '../context/ToastContext';
 
 export const NotificationsMenu = () => {
   const { data: notifications, isLoading, refetch } = useNotifications();
   const markAsRead = useMarkNotificationAsRead();
   const markAllAsRead = useMarkAllNotificationsAsRead();
-  const { success, error: showError } = useToast();
   const [showMenu, setShowMenu] = useState(false);
 
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
@@ -38,7 +36,7 @@ export const NotificationsMenu = () => {
       setShowMenu(false);
     } catch (error) {
       console.error('Error handling notification click:', error);
-      showError('Error processing notification');
+      alert('Error processing notification');
     }
   };
 
@@ -47,16 +45,16 @@ export const NotificationsMenu = () => {
       console.log('Marking all notifications as read...');
       
       if (unreadCount === 0) {
-        showError('All notifications are already read');
+        alert('All notifications are already read');
         return;
       }
 
       await markAllAsRead.mutateAsync();
       refetch(); // Refresh notifications
-      success('All notifications marked as read');
+      alert('All notifications marked as read');
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
-      showError('Error marking notifications as read');
+      alert('Error marking notifications as read');
     }
   };
 
