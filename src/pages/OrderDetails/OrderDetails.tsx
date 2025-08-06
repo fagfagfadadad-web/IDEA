@@ -641,7 +641,7 @@ const OrderDetails = () => {
 
       success('Work has been successfully delivered');
       window.location.reload();
-    } catch (error) {
+    } orderDetails catch (error) {
       console.error('Submit work error:', error);
       showError(error instanceof Error ? error.message : 'Error submitting work');
     } finally {
