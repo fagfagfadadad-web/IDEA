@@ -18,6 +18,7 @@ interface GigWithProviderWallet {
 
 interface Order {
   id: string;
+  gig_id: string;
   gig: GigWithProviderWallet;
   client: {
     id?: string;
@@ -120,7 +121,9 @@ export const useOrders = () => {
         .select(`
           *,
           gig:gigs(
+            id,
             title,
+            payment_token,
             provider:users!gigs_provider_id_fkey(id, username, avatar_url, wallet_address)
           ),
           client:users!orders_client_id_fkey(id, username, avatar_url, wallet_address, email, full_name),
@@ -190,6 +193,7 @@ export const useCreateOrder = () => {
       const { data: gig, error: gigError } = await supabase
         .from('gigs')
         .select(`
+          id,
           provider_id,
           payment_token,
           provider:users!gigs_provider_id_fkey(id, username, avatar_url, wallet_address)
@@ -230,7 +234,7 @@ export const useCreateOrder = () => {
         })
         .select(`
           *,
-          gig:gigs(title),
+          gig:gigs(id, title, payment_token),
           client:users!orders_client_id_fkey(id, username, email, avatar_url, full_name)
         `)
         .single();
@@ -277,10 +281,11 @@ export const useOrderById = (orderId: string) => {
           .from('orders')
           .select(`
             *,
-            client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
+            client:users!orders_client_id_fkey(id, username, avatar_url, full_name, wallet_address),
             gig:gigs!orders_gig_id_fkey(
               id,
               title,
+              payment_token,
               provider_id,
               provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name, wallet_address)
             )
