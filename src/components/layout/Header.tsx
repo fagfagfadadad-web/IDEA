@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch } from 'lucide-react';
 import { Button } from 'components';
 import { NotificationsDropdown } from '../NotificationsMenu';
-import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
+import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useProfile } from '../../hooks/useProfile';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -11,7 +11,6 @@ import { useWindowSize } from '../../hooks/useWindowSize';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { address } = useGetAccount();
   const { data: profile } = useProfile();
   const { data: notifications } = useNotifications();
   const navigate = useNavigate();
@@ -29,12 +28,11 @@ export const Header = () => {
   useEffect(() => {
     console.log('🔔 Header: Notifications state:', {
       isLoggedIn,
-      address,
       notificationsCount: notifications?.length || 0,
       unreadCount,
       notifications: notifications?.slice(0, 3) // Log first 3 for debugging
     });
-  }, [notifications, unreadCount, isLoggedIn, address]);
+  }, [notifications, unreadCount, isLoggedIn]);
 
   useEffect(() => {
     const searchParam = searchParams.get('search');
@@ -148,11 +146,11 @@ export const Header = () => {
                   {/* Notifications */}
                   <button 
                     onClick={() => setShowNotificationsModal(true)}
-                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
                   >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
                     )}
@@ -279,7 +277,7 @@ export const Header = () => {
                 <Link to="/profile?tab=notifications" className="relative p-2">
                   <Bell size={20} className="text-gray-600" />
                   {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg">
                       {unreadCount}
                     </span>
                   )}

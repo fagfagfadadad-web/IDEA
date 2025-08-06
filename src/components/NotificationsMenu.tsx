@@ -63,6 +63,8 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ on
   const handleNotificationClick = async (notification: any) => {
     try {
       console.log('Notification clicked:', notification.id, 'Read status:', notification.read);
+      console.log('Notification data:', notification.data);
+      console.log('Notification type:', notification.type);
       
       // Mark as read first if it's unread
       if (!notification.read) {
@@ -73,14 +75,34 @@ export const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({ on
       }
       
       // Then navigate
+      console.log('Navigating based on notification type...');
+      
       if (notification.type === 'message' && notification.data?.order_id) {
+        console.log('Navigating to order:', notification.data.order_id);
         window.location.href = `/orders/${notification.data.order_id}`;
       } else if (notification.type === 'proposal_message' && notification.data?.proposal_id) {
+        console.log('Navigating to proposal:', notification.data.proposal_id);
         window.location.href = `/proposals/${notification.data.proposal_id}`;
       } else if (notification.type === 'proposal_accepted' && notification.data?.proposal_id) {
+        console.log('Navigating to proposal:', notification.data.proposal_id);
         window.location.href = `/proposals/${notification.data.proposal_id}`;
-      } else if (notification.data?.order_id) {
+      } else if (notification.type === 'order_created' && notification.data?.order_id) {
+        console.log('Navigating to order:', notification.data.order_id);
         window.location.href = `/orders/${notification.data.order_id}`;
+      } else if (notification.type === 'work_delivered' && notification.data?.order_id) {
+        console.log('Navigating to order:', notification.data.order_id);
+        window.location.href = `/orders/${notification.data.order_id}`;
+      } else if (notification.type === 'payment_released' && notification.data?.order_id) {
+        console.log('Navigating to order:', notification.data.order_id);
+        window.location.href = `/orders/${notification.data.order_id}`;
+      } else if (notification.type === 'dispute_created' && notification.data?.order_id) {
+        console.log('Navigating to order:', notification.data.order_id);
+        window.location.href = `/orders/${notification.data.order_id}`;
+      } else if (notification.data?.order_id) {
+        console.log('Navigating to order (fallback):', notification.data.order_id);
+        window.location.href = `/orders/${notification.data.order_id}`;
+      } else {
+        console.log('No navigation target found for notification');
       }
       
       if (onClose) onClose();
