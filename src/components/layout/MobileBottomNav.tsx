@@ -75,11 +75,11 @@ export const MobileBottomNav = () => {
             active ? 'bg-gradient-to-r from-indigo-100 to-pink-100 text-indigo-600' : 'text-gray-500'
           }`}>
             <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-800">
-              {profile?.avatar_url ? (
+             {user?.user_metadata?.avatar_url || user?.avatar_url ? (
                 <>
                   <img
-                    src={profile.avatar_url}
-                    alt={profile.username || "Profile"}
+                   src={user?.user_metadata?.avatar_url || user?.avatar_url}
+                   alt={user?.username || "Profile"}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -95,12 +95,12 @@ export const MobileBottomNav = () => {
                     className="fallback-avatar w-full h-full bg-gray-800 flex items-center justify-center text-xs text-white absolute inset-0"
                     style={{ display: 'none' }}
                   >
-                    {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                   {user?.username?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                 </>
               ) : (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xs text-white">
-                  {profile?.username?.charAt(0)?.toUpperCase() || "U"}
+                 {user?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
               )}
             </div>
