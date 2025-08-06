@@ -581,7 +581,7 @@ const OrderDetails = () => {
       }
 
       await supabase.from('notifications').insert({
-        user_id: order.client_id,
+        user_id: order.client?.id,
         type: 'dispute_created',
         title: 'Order Disputed',
         content: `A dispute has been created for order ${order.id}. Reason: ${reason}`,
@@ -620,7 +620,7 @@ const OrderDetails = () => {
       }
 
       await supabase.from('notifications').insert({
-        user_id: order.client_id,
+        user_id: order.client?.id,
         type: 'work_delivered',
         title: 'Work Delivered',
         content: 'The provider has delivered the work for your order. Please review and release the payment if you are satisfied.',
@@ -630,7 +630,7 @@ const OrderDetails = () => {
 
       await supabase.from('messages').insert({
         order_id: order.id,
-        sender_id: user?.id || order.client_id,
+        sender_id: user?.id || order.client?.id,
         content: JSON.stringify({
           type: 'work_delivered',
           message: '✅ Work has been delivered! The client can now review and release the payment.',
@@ -729,8 +729,7 @@ const OrderDetails = () => {
     (isClient || isProvider) &&
     order?.payment_status === 'escrowed' &&
     order?.status !== 'completed' &&
-    order?.status !== 'cancelled' &&
-    order?.payment_status !== 'disputed';
+    order?.status !== 'cancelled';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
