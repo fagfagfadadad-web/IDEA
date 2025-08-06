@@ -123,15 +123,16 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="p-6 max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto" title="Review Modal" reference="#">
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div className="space-y-3">
-              <h3 className="text-lg font-bold text-white">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl w-full max-w-sm sm:max-w-md md:max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="p-4 sm:p-6">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex justify-between items-center">
+              <div className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                 {existingReview ? 'Update Your Review' : 'Rate Your Experience'}
               </h3>
-              <p className="text-sm text-gray-400">
+                <p className="text-sm text-gray-600">
                 {existingReview 
                   ? 'You can update your review for this order' 
                   : 'How was your experience with this order?'}
@@ -139,39 +140,39 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             </div>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              ✕
+              <X size={20} />
             </button>
           </div>
 
           {/* Order Info */}
-          <Card className="p-4" title="Order Info" reference="#">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <div className="space-y-3">
-              <p className="text-white font-bold mb-2">
+              <p className="text-gray-800 font-bold mb-2">
                 Order: {orderTitle}
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs">
+                <div className="w-8 h-8 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white">
                   {providerInfo.username.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-white text-sm font-medium">
+                  <p className="text-gray-800 text-sm font-medium">
                     {providerInfo.username}
                   </p>
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-gray-600 text-xs">
                     Service Provider
                   </p>
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
 
-          <hr className="border-gray-600" />
+          <hr className="border-gray-200" />
 
           {/* Star Rating */}
           <div className="space-y-4 text-center">
-            <p className="text-white font-medium">
+            <p className="text-gray-800 font-medium">
               Rate the service quality
             </p>
             <div className="flex justify-center gap-2">
@@ -184,7 +185,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                   onMouseLeave={() => setHoveredRating(0)}
                 >
                   <Star
-                    size={32}
+                    size={28}
                     fill={
                       star <= (hoveredRating || rating)
                         ? '#FFD700'
@@ -199,7 +200,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
                 </button>
               ))}
             </div>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-600 text-sm">
               {rating === 0 && 'Click to rate'}
               {rating === 1 && '⭐ Poor'}
               {rating === 2 && '⭐⭐ Fair'}
@@ -209,36 +210,36 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             </p>
           </div>
 
-          <hr className="border-gray-600" />
+          <hr className="border-gray-200" />
 
           {/* Comment */}
           <div className="space-y-3">
-            <p className="text-white font-medium">
+            <p className="text-gray-800 font-medium">
               Share your experience
             </p>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Tell others about your experience with this service provider..."
-              rows={5}
-              className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+              rows={4}
+              className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
             />
-            <p className="text-gray-400 text-xs">
+            <p className="text-gray-600 text-xs">
               {comment.length}/500 characters
             </p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Button
               onClick={handleClose}
-              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+              className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 sm:py-3 px-4 rounded-lg order-2 sm:order-1"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={createReview.isLoading || rating === 0 || !comment.trim()}
-              className="flex-2 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg disabled:opacity-50"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 px-4 rounded-lg disabled:opacity-50 order-1 sm:order-2"
             >
               {createReview.isLoading 
                 ? 'Submitting...' 
@@ -246,7 +247,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
             </Button>
           </div>
         </div>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
