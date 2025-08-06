@@ -62,7 +62,7 @@ export const AdminGigs: React.FC = () => {
 
   const handleUpdateGigStatus = async (gigId: string, status: string) => {
     try {
-      await updateGigStatus.mutateAsync({ gigId, status });
+      await updateGigStatus.mutateAsync({ id: gigId, status });
       showSuccessToast(`Gig status updated to ${status}`);
       setShowMenu(null);
     } catch (error) {
