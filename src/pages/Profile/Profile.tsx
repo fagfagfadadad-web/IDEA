@@ -951,11 +951,13 @@ export const Profile = () => {
 
               {/* Notifications */}
               <div className="gradient-card p-6">
+                <div className="flex justify-between items-center mb-4">
                   {profile?.received_reviews?.length > 0 && (
                   <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
+                  )}
                   {unreadCount > 0 && (
                     <Button
-                        reviews={profile.received_reviews}
+                      onClick={handleMarkAllAsRead}
                       variant="outline"
                       size="sm"
                     >
