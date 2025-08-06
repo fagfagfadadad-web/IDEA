@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export type Notification = {
   id: string;
@@ -18,34 +19,48 @@ export const useNotifications = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const isLoggedIn = useGetIsLoggedIn();
-  const { address } = useGetAccount();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchNotifications();
-  }, [address, isLoggedIn]);
+  }, [user?.id, isLoggedIn]);
 
+  // Real-time subscription for notifications
+  useEffect(() => {
+    if (!user?.id) return;
+
+    console.log('🔔 Setting up real-time notifications subscription for user:', user.id);
+    
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('🔔 Real-time notification update:', payload);
+          fetchNotifications(); // Refresh notifications when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('🔔 Cleaning up notifications subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
       
-      if (!isLoggedIn || !address) {
+      if (!isLoggedIn || !user?.id) {
         console.log('🔔 useNotifications: Not logged in or no address, clearing notifications');
         setData([]);
         setIsLoading(false);
-        return;
-      }
-
-      // Get current user by wallet address
-      const { data: user } = await supabase
-        .from('users')
-        .select('id')
-        .eq('wallet_address', address)
-        .maybeSingle();
-
-      if (!user) {
-        console.log('🔔 useNotifications: User profile not found, no notifications available');
-        setData([]);
-        setError(null);
         return;
       }
 
