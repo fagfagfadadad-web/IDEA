@@ -288,7 +288,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data: existingUserByWallet, error: fetchWalletError } = await supabase
         .from('users')
-        .select('id, username, wallet_address, email, is_admin')
+        .select('id, username, full_name, avatar_url, wallet_address, email, is_admin')
         .eq('wallet_address', walletAddress)
         .maybeSingle();
 
@@ -302,7 +302,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Enhance auth user with profile data
         const enhancedUser = {
           ...authUser,
-          is_admin: existingUserByWallet.is_admin
+          is_admin: existingUserByWallet.is_admin,
+          username: existingUserByWallet.username,
+          full_name: existingUserByWallet.full_name,
+          avatar_url: existingUserByWallet.avatar_url
         };
         
         setUser(enhancedUser);
@@ -313,7 +316,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { data: existingUserById, error: fetchIdError } = await supabase
         .from('users')
-        .select('id, wallet_address, is_admin')
+        .select('id, username, full_name, avatar_url, wallet_address, is_admin')
         .eq('id', authUser.id)
         .maybeSingle();
 
@@ -336,7 +339,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const enhancedUser = {
           ...authUser,
           is_admin: existingUserById.is_admin,
-          wallet_address: walletAddress
+          wallet_address: walletAddress,
+          username: existingUserById.username,
+          full_name: existingUserById.full_name,
+          avatar_url: existingUserById.avatar_url
         };
         
         setUser(enhancedUser);
@@ -398,8 +404,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         ...authUser,
         is_admin: profile.is_admin,
         wallet_address: walletAddress,
-        username: profile.username || authUser.username,
-        avatar_url: profile.avatar_url || authUser.user_metadata?.avatar_url
+        username: profile.username,
+        full_name: profile.full_name,
+        avatar_url: profile.avatar_url
       };
       
       setUser(enhancedUser);
