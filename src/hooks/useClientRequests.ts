@@ -215,7 +215,44 @@ export const useClientRequestById = (id: string) => {
   }, [id]);
 
   const refetch = async () => {
-    // Refetch logic here
+    if (!id) return;
+
+    try {
+      setIsLoading(true);
+      
+      const { data: request, error } = await supabase
+        .from('client_requests')
+        .select(`
+          *,
+          client:users!client_requests_client_id_fkey(
+            id,
+            username,
+            full_name,
+            avatar_url,
+            created_at
+          ),
+          proposals!proposals_request_id_fkey(
+            *,
+            provider:users!proposals_provider_id_fkey(
+              id,
+              username,
+              full_name,
+              avatar_url
+            )
+          )
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+
+      setData(request);
+    } catch (err) {
+      console.error('Error refetching client request:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {
@@ -287,5 +324,68 @@ export const useSelectProposal = () => {
     mutateAsync,
     isLoading,
     variables
+  };
+};
+
+export const useCreateProposal = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { address } = useGetAccount();
+
+  const mutateAsync = async (proposalData: {
+    request_id: string;
+    title: string;
+    description: string;
+    proposed_amount: number;
+    proposed_duration: number;
+    payment_token: string;
+    deliverables: string[];
+  }) => {
+    setIsLoading(true);
+    try {
+      if (!address) {
+        throw new Error('Please connect your wallet first');
+      }
+
+      // Get current user by wallet address
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('wallet_address', address)
+        .maybeSingle();
+
+      if (!user) {
+        throw new Error('User not found. Please complete your profile first.');
+      }
+
+      const { data: proposal, error } = await supabase
+        .from('proposals')
+        .insert({
+          request_id: proposalData.request_id,
+          provider_id: user.id,
+          title: proposalData.title,
+          description: proposalData.description,
+          proposed_amount: proposalData.proposed_amount,
+          proposed_duration: proposalData.proposed_duration,
+          payment_token: proposalData.payment_token,
+          deliverables: proposalData.deliverables,
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return proposal;
+    } catch (error) {
+      console.error('Error creating proposal:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutateAsync,
+    isLoading
   };
 };
