@@ -70,7 +70,7 @@ export const useOrderReview = (orderId: string) => {
         .from('reviews')
         .select('*')
         .eq('order_id', orderId)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
