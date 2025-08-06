@@ -3,7 +3,8 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { Check, Star, MessageCircle, DollarSign, Coins, AlertTriangle, Calendar, Clock, Send, FileText, CheckCheck, X } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-import { useClientRequestById, useCreateProposal } from '../../hooks/useClientRequests';
+import { useClientRequestById } from '../../hooks/useClientRequests';
+import { useCreateProposal } from '../../hooks/useProposals';
 import { useAuth } from '../../context/AuthContext';
 import { errorParse } from 'utils/errorParse';
 
