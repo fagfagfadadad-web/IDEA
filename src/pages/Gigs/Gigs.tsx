@@ -424,6 +424,12 @@ export const Gigs = () => {
                               <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
                                 {gig.provider.username.charAt(0).toUpperCase()}
                               </div>
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-800">
+                            {gig.provider.username}
+                          </span>
+                        </div>
                         <div className="flex items-center gap-1">
                           {tokenIcon}
                           <span className="text-base font-bold" style={{ color: statusColor }}>
