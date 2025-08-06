@@ -62,7 +62,7 @@ export const useProfile = (id?: string) => {
         .select(`
           *,
           gigs(*),
-          orders:orders!orders_client_id_fkey(
+          client_orders:orders!orders_client_id_fkey(
             *,
             gig:gigs(title, provider_id),
             client:users!orders_client_id_fkey(username, avatar_url),
@@ -81,7 +81,44 @@ export const useProfile = (id?: string) => {
         }
         throw error;
       }
-      setData(profile);
+      
+      // Fetch provider orders separately
+      const { data: providerOrders, error: providerOrdersError } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          gig:gigs(title, provider_id),
+          client:users!orders_client_id_fkey(username, avatar_url),
+          reviews(*)
+        `)
+        .eq('provider_address', user.wallet_address || '')
+        .order('created_at', { ascending: false });
+
+      if (providerOrdersError) {
+        console.error('Error fetching provider orders:', providerOrdersError);
+      }
+
+      // Combine all orders and remove duplicates
+      const allOrders = [
+        ...(profile?.client_orders || []),
+        ...(providerOrders || [])
+      ];
+      
+      // Remove duplicates based on order ID
+      const uniqueOrders = allOrders.filter((order, index, self) => 
+        index === self.findIndex(o => o.id === order.id)
+      );
+      
+      // Sort by created_at descending
+      uniqueOrders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      
+      // Add combined orders to profile
+      const enhancedProfile = {
+        ...profile,
+        orders: uniqueOrders
+      };
+      
+      setData(enhancedProfile);
     } catch (err) {
       console.error('Error fetching profile:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));
