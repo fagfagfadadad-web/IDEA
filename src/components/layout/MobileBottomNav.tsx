@@ -75,10 +75,10 @@ export const MobileBottomNav = () => {
             active ? 'bg-gradient-to-r from-indigo-100 to-pink-100 text-indigo-600' : 'text-gray-500'
           }`}>
             <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-800">
-             {user?.user_metadata?.avatar_url || user?.avatar_url ? (
+             {user?.avatar_url ? (
                 <>
                   <img
-                   src={user?.user_metadata?.avatar_url || user?.avatar_url}
+                   src={user.avatar_url}
                    alt={user?.username || "Profile"}
                     className="w-full h-full object-cover"
                     onError={(e) => {

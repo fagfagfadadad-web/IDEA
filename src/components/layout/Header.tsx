@@ -165,9 +165,9 @@ export const Header = () => {
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200"
                     >
-                     {user?.user_metadata?.avatar_url || user?.avatar_url ? (
+                     {user?.avatar_url ? (
                         <img
-                         src={user?.user_metadata?.avatar_url || user?.avatar_url}
+                         src={user.avatar_url}
                           alt={user.username || "Profile"}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -185,7 +185,7 @@ export const Header = () => {
                           {user?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
-                     {(user?.user_metadata?.avatar_url || user?.avatar_url) && (
+                     {user?.avatar_url && (
                         <div 
                           className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                           style={{ display: 'none' }}
