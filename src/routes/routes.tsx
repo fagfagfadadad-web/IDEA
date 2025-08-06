@@ -19,7 +19,7 @@ import {
 import { RouteType } from 'types';
 import React from 'react';
 
-const Profile = React.lazy(() => import('pages/Profile'));
+const Profile = React.lazy(() => import('../pages/Profile/Profile'));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
