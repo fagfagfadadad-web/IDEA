@@ -11,6 +11,10 @@ export const AdminDisputes: React.FC = () => {
   const { user } = useAuth();
   const { success: showSuccessToast, error: showErrorToast } = useToast();
   const { data: disputes, isLoading, error, refetch } = useDisputes();
+  const resolveDispute = useResolveDispute();
+  const [selectedDispute, setSelectedDispute] = useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [refundToClient, setRefundToClient] = useState(true);
 
   const handleResolve = async () => {
     if (!selectedDispute) return;
@@ -21,11 +25,11 @@ export const AdminDisputes: React.FC = () => {
         orderId: selectedDispute.order.id,
         refundToClient,
       });
-      
+
       showSuccessToast('Dispute resolved successfully');
       setShowModal(false);
       setSelectedDispute(null);
-      refetch(); // Refresh disputes list
+      refetch();
     } catch (error) {
       console.error('Error resolving dispute:', error);
       showErrorToast('Error resolving dispute. Please try again.');
@@ -77,12 +81,10 @@ export const AdminDisputes: React.FC = () => {
       <Card className="p-8" title="Dispute Management" reference="#">
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-white">Admin - Dispute Management</h2>
-          
+
           {disputes?.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-gray-400 text-lg">
-                No pending disputes at the moment.
-              </p>
+              <p className="text-gray-400 text-lg">No pending disputes at the moment.</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -105,24 +107,18 @@ export const AdminDisputes: React.FC = () => {
 
                     <div className="space-y-3">
                       <div>
-                        <p className="text-white font-bold mb-2">
-                          Order Details:
-                        </p>
+                        <p className="text-white font-bold mb-2">Order Details:</p>
                         <p className="text-white">
                           Gig: {dispute.order?.gig?.title || 'Custom Project'}
                         </p>
                         <p className="text-white">
-                          Amount: {dispute.order?.amount} {selectedDispute?.order?.payment_token || 'EGLD'}
+                          Amount: {dispute.order?.amount} {dispute.order?.payment_token || 'EGLD'}
                         </p>
-                        <p className="text-gray-400 text-sm">
-                          Order ID: {dispute.order?.id}
-                        </p>
+                        <p className="text-gray-400 text-sm">Order ID: {dispute.order?.id}</p>
                       </div>
 
                       <div>
-                        <p className="text-white font-bold mb-2">
-                          Parties Involved:
-                        </p>
+                        <p className="text-white font-bold mb-2">Parties Involved:</p>
                         <div className="flex gap-4">
                           <div className="space-y-1 text-center">
                             <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 mx-auto">
@@ -130,28 +126,30 @@ export const AdminDisputes: React.FC = () => {
                                 <>
                                   <img
                                     src={dispute.order.client.avatar_url}
-                                    alt={dispute.order.client.username || "Client"}
+                                    alt={dispute.order.client.username || 'Client'}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       target.style.display = 'none';
                                       const parent = target.parentElement;
                                       if (parent) {
-                                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                        const fallback = parent.querySelector(
+                                          '.fallback-avatar'
+                                        ) as HTMLElement;
                                         if (fallback) fallback.style.display = 'flex';
                                       }
                                     }}
                                   />
-                                  <div 
+                                  <div
                                     className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                                     style={{ display: 'none' }}
                                   >
-                                    {dispute.order?.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                    {dispute.order?.client?.username?.charAt(0)?.toUpperCase() || 'C'}
                                   </div>
                                 </>
                               ) : (
                                 <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
-                                  {dispute.order?.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                                  {dispute.order?.client?.username?.charAt(0)?.toUpperCase() || 'C'}
                                 </div>
                               )}
                             </div>
@@ -165,28 +163,32 @@ export const AdminDisputes: React.FC = () => {
                                 <>
                                   <img
                                     src={dispute.order.gig.provider.avatar_url}
-                                    alt={dispute.order.gig.provider.username || "Provider"}
+                                    alt={dispute.order.gig.provider.username || 'Provider'}
                                     className="w-full h-full object-cover"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       target.style.display = 'none';
                                       const parent = target.parentElement;
                                       if (parent) {
-                                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                        const fallback = parent.querySelector(
+                                          '.fallback-avatar'
+                                        ) as HTMLElement;
                                         if (fallback) fallback.style.display = 'flex';
                                       }
                                     }}
                                   />
-                                  <div 
+                                  <div
                                     className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                                     style={{ display: 'none' }}
                                   >
-                                    {dispute.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                    {dispute.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() ||
+                                      'P'}
                                   </div>
                                 </>
                               ) : (
                                 <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
-                                  {dispute.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                                  {dispute.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() ||
+                                    'P'}
                                 </div>
                               )}
                             </div>
@@ -198,46 +200,44 @@ export const AdminDisputes: React.FC = () => {
                       </div>
 
                       <div>
-                        <p className="text-white font-bold mb-2">
-                          Dispute Reason:
-                        </p>
+                        <p className="text-white font-bold mb-2">Dispute Reason:</p>
                         <div className="bg-gray-700 p-3 rounded-md">
                           <p className="text-white">{dispute.reason || 'No reason provided'}</p>
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-white font-bold mb-2">
-                          Reported by:
-                        </p>
+                        <p className="text-white font-bold mb-2">Reported by:</p>
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
                             {dispute.created_by_user?.avatar_url ? (
                               <>
                                 <img
                                   src={dispute.created_by_user.avatar_url}
-                                  alt={dispute.created_by_user.username || "User"}
+                                  alt={dispute.created_by_user.username || 'User'}
                                   className="w-full h-full object-cover"
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
                                     target.style.display = 'none';
                                     const parent = target.parentElement;
                                     if (parent) {
-                                      const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                      const fallback = parent.querySelector(
+                                        '.fallback-avatar'
+                                      ) as HTMLElement;
                                       if (fallback) fallback.style.display = 'flex';
                                     }
                                   }}
                                 />
-                                <div 
+                                <div
                                   className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white absolute inset-0"
                                   style={{ display: 'none' }}
                                 >
-                                  {dispute.created_by_user?.username?.charAt(0)?.toUpperCase() || "U"}
+                                  {dispute.created_by_user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                 </div>
                               </>
                             ) : (
                               <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white">
-                                {dispute.created_by_user?.username?.charAt(0)?.toUpperCase() || "U"}
+                                {dispute.created_by_user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                             )}
                           </div>
@@ -295,10 +295,13 @@ export const AdminDisputes: React.FC = () => {
                 <h4 className="text-gray-800 font-bold">Order Details:</h4>
                 <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                   <p className="text-gray-800">
-                    <span className="font-medium">Gig:</span> {selectedDispute?.order?.gig?.title || 'Custom Project'}
+                    <span className="font-medium">Gig:</span>{' '}
+                    {selectedDispute?.order?.gig?.title || 'Custom Project'}
                   </p>
                   <p className="text-gray-800">
-                    <span className="font-medium">Amount:</span> {selectedDispute?.order?.amount || 'N/A'} {selectedDispute?.order?.payment_token || \'EGLD'}
+                    <span className="font-medium">Amount:</span>{' '}
+                    {selectedDispute?.order?.amount || 'N/A'}{' '}
+                    {selectedDispute?.order?.payment_token || 'EGLD'}
                   </p>
                   <p className="text-gray-600 text-sm">
                     Order ID: {selectedDispute?.order?.id}
@@ -315,76 +318,86 @@ export const AdminDisputes: React.FC = () => {
                         <>
                           <img
                             src={selectedDispute.order.client.avatar_url}
-                            alt={selectedDispute.order.client.username || "Client"}
+                            alt={selectedDispute.order.client.username || 'Client'}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                const fallback = parent.querySelector(
+                                  '.fallback-avatar'
+                                ) as HTMLElement;
                                 if (fallback) fallback.style.display = 'flex';
                               }
                             }}
                           />
-                          <div 
+                          <div
                             className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
                             style={{ display: 'none' }}
                           >
-                            {selectedDispute?.order?.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                            {selectedDispute?.order?.client?.username?.charAt(0)?.toUpperCase() ||
+                              'C'}
                           </div>
                         </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
-                          {selectedDispute?.order?.client?.username?.charAt(0)?.toUpperCase() || "C"}
+                          {selectedDispute?.order?.client?.username?.charAt(0)?.toUpperCase() ||
+                            'C'}
                         </div>
                       )}
                     </div>
                     <p className="text-gray-800 font-medium text-sm">Client</p>
-                    <p className="text-gray-600 text-xs">{selectedDispute?.order?.client?.username || 'Unknown'}</p>
+                    <p className="text-gray-600 text-xs">
+                      {selectedDispute?.order?.client?.username || 'Unknown'}
+                    </p>
                   </div>
-                  
+
                   <div className="bg-gray-50 p-3 rounded-lg text-center">
                     <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 mx-auto mb-2">
                       {selectedDispute?.order?.gig?.provider?.avatar_url ? (
                         <>
                           <img
                             src={selectedDispute.order.gig.provider.avatar_url}
-                            alt={selectedDispute.order.gig.provider.username || "Provider"}
+                            alt={selectedDispute.order.gig.provider.username || 'Provider'}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                const fallback = parent.querySelector(
+                                  '.fallback-avatar'
+                                ) as HTMLElement;
                                 if (fallback) fallback.style.display = 'flex';
                               }
                             }}
                           />
-                          <div 
+                          <div
                             className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
                             style={{ display: 'none' }}
                           >
-                            {selectedDispute?.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                            {selectedDispute?.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() ||
+                              'P'}
                           </div>
                         </>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
-                          {selectedDispute?.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() || "P"}
+                          {selectedDispute?.order?.gig?.provider?.username?.charAt(0)?.toUpperCase() ||
+                            'P'}
                         </div>
                       )}
                     </div>
                     <p className="text-gray-800 font-medium text-sm">Provider</p>
-                    <p className="text-gray-600 text-xs">{selectedDispute?.order?.gig?.provider?.username || 'Unknown'}</p>
+                    <p className="text-gray-600 text-xs">
+                      {selectedDispute?.order?.gig?.provider?.username || 'Unknown'}
+                    </p>
                   </div>
-                </p>
+                </div>
               </div>
 
               <div>
-                <h4 className="text-gray-800 font-bold mb-2">
-                  Dispute Reason:
-                </h4>
+                <h4 className="text-gray-800 font-bold mb-2">Dispute Reason:</h4>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-gray-800">{selectedDispute?.reason || 'No reason provided'}</p>
                 </div>
@@ -392,29 +405,28 @@ export const AdminDisputes: React.FC = () => {
 
               <div>
                 <h4 className="text-gray-800 font-bold mb-3">
-                Choose resolution (this will trigger smart contract):
+                  Choose resolution (this will trigger smart contract):
                 </h4>
-
                 <div className="space-y-3">
                   <button
-                  onClick={() => setRefundToClient(true)}
+                    onClick={() => setRefundToClient(true)}
                     className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                    refundToClient 
-                        ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-600' 
+                      refundToClient
+                        ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-600'
                         : 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                   >
-                  🔄 Refund to Client (Smart Contract)
+                    🔄 Refund to Client (Smart Contract)
                   </button>
                   <button
-                  onClick={() => setRefundToClient(false)}
+                    onClick={() => setRefundToClient(false)}
                     className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                    !refundToClient 
-                        ? 'bg-green-600 hover:bg-green-700 text-white border-2 border-green-600' 
+                      !refundToClient
+                        ? 'bg-green-600 hover:bg-green-700 text-white border-2 border-green-600'
                         : 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                   >
-                  💰 Release to Provider (Smart Contract)
+                    💰 Release to Provider (Smart Contract)
                   </button>
                 </div>
               </div>
@@ -425,24 +437,25 @@ export const AdminDisputes: React.FC = () => {
                   <span className="text-orange-800 font-medium">Important Notice</span>
                 </div>
                 <p className="text-orange-700 text-sm">
-                    You will need to sign this transaction with your admin wallet. Make sure you have enough EGLD for gas fees.
+                  You will need to sign this transaction with your admin wallet. Make sure you have
+                  enough EGLD for gas fees.
                 </p>
               </div>
-            
+
               <div className="flex gap-3 pt-4">
-              <Button
-                onClick={() => setShowModal(false)}
+                <Button
+                  onClick={() => setShowModal(false)}
                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleResolve}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleResolve}
                   className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg"
-                disabled={resolveDispute.isLoading}
-              >
+                  disabled={resolveDispute.isLoading}
+                >
                   {resolveDispute.isLoading ? 'Executing...' : 'Execute Resolution'}
-              </Button>
+                </Button>
               </div>
             </div>
           </div>
