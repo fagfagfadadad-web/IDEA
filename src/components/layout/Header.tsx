@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch } from 'lucide-react';
-import { Button, NotificationsMenu } from 'components';
+import { Button } from 'components';
+import { NotificationsDropdown } from '../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useProfile } from '../../hooks/useProfile';

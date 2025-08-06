@@ -13,13 +13,13 @@ import {
   MyRequests, 
   OrderDetails, 
   ProposalDetail, 
-  Search, 
   Unlock
 } from 'pages';
 import { RouteType } from 'types';
 import React from 'react';
 
 const Profile = React.lazy(() => import('pages/Profile'));
+const Search = React.lazy(() => import('pages/Search'));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
