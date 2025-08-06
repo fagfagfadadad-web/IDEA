@@ -397,7 +397,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const enhancedUser = {
         ...authUser,
         is_admin: profile.is_admin,
-        wallet_address: walletAddress
+        wallet_address: walletAddress,
+        username: profile.username || authUser.username,
+        avatar_url: profile.avatar_url || authUser.user_metadata?.avatar_url
       };
       
       setUser(enhancedUser);
