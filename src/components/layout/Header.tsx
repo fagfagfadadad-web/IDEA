@@ -226,14 +226,16 @@ export const Header = () => {
                             <Plus size={16} />
                             Create Gig
                           </Link>
-                          <Link
-                            to="/token-sale"
+                          <a
+                            href="https://ideagigs.store/token-sale"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Coins size={16} />
                             Token Sale
-                          </Link>
+                          </a>
                           <Link
                             to="/profile?tab=settings"
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
