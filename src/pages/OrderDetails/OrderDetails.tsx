@@ -277,10 +277,11 @@ const OrderDetails = () => {
       let providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {
         console.log('Provider address not found in order, fetching from database...', { gigId: order.gig_id });
-        providerAddress = await fetchProviderAddress(order.gig_id);
-        if (!providerAddress || !isValidAddress(providerAddress)) {
+        const fetchedAddress = await fetchProviderAddress(order.gig_id);
+        if (!fetchedAddress || !isValidAddress(fetchedAddress)) {
           throw new Error('Failed to fetch a valid provider address from the database. Please check the gig details.');
         }
+        providerAddress = fetchedAddress;
 
         const { error: updateError } = await supabase
           .from('orders')
@@ -291,7 +292,7 @@ const OrderDetails = () => {
           throw new Error(`Failed to update provider_address: ${updateError.message}`);
         }
       }
-      if (!isValidAddress(providerAddress)) {
+      if (!providerAddress || !isValidAddress(providerAddress)) {
         throw new Error('Invalid or missing provider address. Please check the order details.');
       }
 
@@ -849,7 +850,7 @@ const OrderDetails = () => {
             {isDisputeResolved && (
               <div className="bg-gradient-to-r from-purple-900 to-blue-900 border-2 border-purple-400 rounded-xl p-6 text-center">
                 <div className="flex justify-center gap-3 mb-3">
-                  <Shield size={24} className="text-purple-400" />
+                  <Shield size=24 className="text-purple-400" />
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">🏛️ Dispute Resolved by Administration</h3>
