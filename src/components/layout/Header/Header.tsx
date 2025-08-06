@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Button, MxLink } from 'components';
 import { environment } from '../../../config/config.mainnet';
-import { getAccountProvider, useGetIsLoggedIn } from 'lib';
+import { getAccountProvider, useGetIsLoggedIn, useGetAccount } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import MultiversXLogo from '../../../assets/img/multiversx-logo.svg?react';
 import { NotificationsButton } from './components/NotificationsButton';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
+  const { address } = useGetAccount();
   const navigate = useNavigate();
   const provider = getAccountProvider();
 
