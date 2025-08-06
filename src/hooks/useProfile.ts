@@ -106,9 +106,10 @@ export const useProfile = (id?: string) => {
       const { data: providerOrders, error: providerOrdersError } = await supabase
         .from('orders')
         .select(`
-          *,
+          id,
+          created_at,
           gig:gigs(title, provider_id),
-          client:users!orders_client_id_fkey(username, avatar_url),
+          client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
           reviews(*)
         `)
         .eq('provider_address', user.wallet_address || '')
@@ -131,6 +132,31 @@ export const useProfile = (id?: string) => {
         });
       });
 
+      // Extract reviews received by this user (as provider)
+      const receivedReviews = (providerOrders || [])
+        .flatMap(order => (order.reviews || []).map(review => ({
+          ...review,
+          order: {
+            id: order.id,
+            client: order.client,
+            gig: order.gig
+          }
+        })))
+        .filter(review => review.order.client); // Only include reviews with valid client data
+
+      console.log('🔍 useProfile: Extracted received reviews:', receivedReviews);
+      console.log('🔍 useProfile: Received reviews count:', receivedReviews.length);
+      receivedReviews.forEach((review, index) => {
+        console.log(`🔍 Received Review ${index}:`, {
+          reviewId: review.id,
+          clientData: review.order.client,
+          hasClient: !!review.order.client,
+          clientUsername: review.order.client?.username,
+          clientFullName: review.order.client?.full_name,
+          gigTitle: review.order.gig?.title
+        });
+      });
+
       // Combine all orders and remove duplicates
       const allOrders = [
         ...(profile?.client_orders || []),
@@ -148,7 +174,8 @@ export const useProfile = (id?: string) => {
       // Add combined orders to profile
       const enhancedProfile = {
         ...profile,
-        orders: uniqueOrders
+        orders: uniqueOrders,
+        received_reviews: receivedReviews // Reviews received as provider
       };
       
       setData(enhancedProfile);
