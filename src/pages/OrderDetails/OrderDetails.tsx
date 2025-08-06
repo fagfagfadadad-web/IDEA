@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
+import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle, Star } from 'lucide-react';
 import { Button, Card, OrderChat, DisputeModal, ReviewModal } from 'components';
 import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
