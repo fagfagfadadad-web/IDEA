@@ -3,13 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-import { useProfile, useUpdateProfile } from '../hooks/useProfile';
+import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
 import { useAuth } from '../context/AuthContext';
-import { useGigs, useDeleteGig, useUpdateGigStatus } from '../hooks/useGigs';
-import { useOrders } from '../hooks/useOrders';
+import { useGigs, useDeleteGig, useUpdateGigStatus } from '../../hooks/useGigs';
+import { useOrders } from '../../hooks/useOrders';
 import { GigViewsStats } from '../components/GigViewsStats';
-import { useNotifications, useMarkAllNotificationsAsRead } from '../hooks/useNotifications';
-import { useReviewsForProvider } from '../hooks/useReviews';
+import { useNotifications, useMarkAllNotificationsAsRead } from '../../hooks/useNotifications';
+import { useReviewsForProvider } from '../../hooks/useReviews';
 
 // Helper function to calculate earnings from orders
 const calculateEarnings = (orders: any[]) => {
