@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle } from 'lucide-react';
 import { Button, Card, OrderChat, DisputeModal } from 'components';
-import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address, parseAmount } from 'lib';
+import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
@@ -344,11 +344,9 @@ const OrderDetails = () => {
 
       let transaction;
       if (paymentToken === 'EGLD') {
-        const amount = parseAmount(String(order.amount), 18);
-        const data = `deposit@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
+        const amount = BigInt(Math.round(order.amount * 1e18));
+        const data = `deposit@${hexOrderId}@${clientAddressHex}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
-          version: 1,
-          options: 0,
           value: amount,
           data: Buffer.from(data),
           receiver: new Address(ESCROW_ADDRESS),
@@ -359,6 +357,7 @@ const OrderDetails = () => {
         console.log('Creating EGLD transaction:', {
           orderId: order.id,
           hexOrderId,
+          clientAddressHex,
           providerAddress,
           providerAddressHex,
           deadline,
@@ -368,16 +367,13 @@ const OrderDetails = () => {
           escrowAddress: ESCROW_ADDRESS,
         });
       } else {
-        const value = parseAmount(String(order.amount), 18);
+        const value = BigInt(Math.round(order.amount * 1e18));
         const tokenIdHex = Buffer.from(paymentToken, 'utf8').toString('hex');
         const amountHex = value.toString(16);
-        // Ensure even number of hex characters for proper encoding
         const paddedAmountHex = amountHex.length % 2 === 0 ? amountHex : '0' + amountHex;
         const functionNameHex = Buffer.from('depositEsdt', 'utf8').toString('hex');
         const data = `ESDTTransfer@${tokenIdHex}@${paddedAmountHex}@${functionNameHex}@${hexOrderId}@${providerAddressHex}@${deadlineHex}`;
         transaction = new Transaction({
-          version: 1,
-          options: 0,
           value: BigInt(0),
           data: Buffer.from(data),
           receiver: new Address(ESCROW_ADDRESS),
@@ -394,7 +390,7 @@ const OrderDetails = () => {
           deadlineHex,
           tokenId: paymentToken,
           tokenIdHex,
-          amountHex: paddedAmountHex,
+          paddedAmountHex,
           data,
           escrowAddress: ESCROW_ADDRESS,
         });
@@ -467,8 +463,6 @@ const OrderDetails = () => {
 
       const hexOrderId = uuidToHex(order.id);
       const transaction = new Transaction({
-        version: 1,
-        options: 0,
         value: BigInt(0),
         data: Buffer.from(`release@${hexOrderId}`),
         receiver: new Address(ESCROW_ADDRESS),
@@ -557,8 +551,6 @@ const OrderDetails = () => {
 
       const hexOrderId = uuidToHex(order.id);
       const transaction = new Transaction({
-        version: 1,
-        options: 0,
         value: BigInt(0),
         data: Buffer.from(`dispute@${hexOrderId}`),
         receiver: new Address(ESCROW_ADDRESS),
