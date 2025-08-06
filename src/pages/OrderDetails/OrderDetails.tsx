@@ -12,7 +12,7 @@ import axios from 'axios';
 
 const ESCROW_ADDRESS = 'erd1qqqqqqqqqqqqqpgqvesht6c8ard8zzj5n02fmfae0kuy2z4vpmuqw5q9v0';
 
-const isValidAddress = (addr: string | undefined): boolean => {
+const isValidAddress = (addr: string | null | undefined): boolean => {
   if (!addr) return false;
   try {
     new Address(addr);
