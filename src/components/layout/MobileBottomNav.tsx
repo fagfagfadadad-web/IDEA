@@ -74,12 +74,12 @@ export const MobileBottomNav = () => {
           <div className={`p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 ${
             active ? 'bg-gradient-to-r from-indigo-100 to-pink-100 text-indigo-600' : 'text-gray-500'
           }`}>
-            <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-800">
-             {user?.avatar_url ? (
+            <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-500">
+              {user?.avatar_url ? (
                 <>
                   <img
-                   src={user.avatar_url}
-                   alt={user?.username || "Profile"}
+                    src={user.avatar_url}
+                    alt={user?.username || "Profile"}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -92,15 +92,15 @@ export const MobileBottomNav = () => {
                     }}
                   />
                   <div 
-                    className="fallback-avatar w-full h-full bg-gray-800 flex items-center justify-center text-xs text-white absolute inset-0"
+                    className="fallback-avatar w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white absolute inset-0"
                     style={{ display: 'none' }}
                   >
-                   {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                    {user?.username?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                 </>
               ) : (
-                <div className="w-full h-full bg-gray-800 flex items-center justify-center text-xs text-white">
-                 {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                <div className="w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white">
+                  {user?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
               )}
             </div>
