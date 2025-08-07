@@ -344,16 +344,16 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-white">
       {/* Chat Messages */}
-      <div className="bg-gray-700 p-4 h-96 overflow-y-auto rounded-lg border border-gray-600">
+      <div className="bg-gray-50 border border-gray-200 p-4 h-96 overflow-y-auto rounded-lg">
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
           </div>
         ) : messages?.length === 0 ? (
           <div className="flex justify-center items-center h-full">
-            <p className="text-gray-400">
+            <p className="text-gray-600">
               No messages yet. Start the conversation!
             </p>
           </div>
@@ -362,9 +362,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             {groupMessagesByDate().map(([date, dateMessages]) => (
               <div key={date}>
                 <div className="flex items-center my-4">
-                  <div className="flex-1 border-t border-gray-300"></div>
-                  <span className="px-2 text-xs text-gray-500">{date}</span>
-                  <div className="flex-1 border-t border-gray-300"></div>
+                  <div className="flex-1 border-t border-gray-200"></div>
+                  <span className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600 font-medium">{date}</span>
+                  <div className="flex-1 border-t border-gray-200"></div>
                 </div>
                 {dateMessages.map((message, index) => renderMessage(message, index))}
               </div>
@@ -376,23 +376,23 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
 
       {/* Attached Files Preview */}
       {attachedFiles.length > 0 && (
-        <div className="bg-gray-700 p-2 rounded-lg border border-gray-600">
+        <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg">
           <div className="flex gap-2 flex-wrap">
             {attachedFiles.map((file, index) => (
               <div 
                 key={index} 
-                className="bg-gray-600 px-2 py-1 rounded flex items-center text-xs text-white"
+                className="bg-white border border-gray-200 px-3 py-2 rounded-lg flex items-center text-sm text-gray-800"
               >
-                <Paperclip size={12} className="mr-1" />
+                <Paperclip size={14} className="mr-2 text-gray-600" />
                 <span className="truncate max-w-32">{file.name}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     removeFile(index);
                   }}
-                  className="ml-1 text-red-400 hover:text-red-300"
+                  className="ml-2 text-red-500 hover:text-red-700"
                 >
-                  <X size={12} />
+                  <X size={14} />
                 </button>
               </div>
             ))}
@@ -408,12 +408,12 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
-            className="flex-1 p-3 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="flex-1 p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
             onClick={() => document.getElementById('file-input')?.click()}
             disabled={attachedFiles.length >= 5}
-            className="p-3 text-gray-400 hover:text-blue-400 disabled:opacity-50 md:block"
+            className="p-3 text-gray-600 hover:text-indigo-600 disabled:opacity-50 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Paperclip size={20} />
           </button>
@@ -433,7 +433,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
         <Button
           onClick={handleSendMessage}
           disabled={sendMessage.isLoading || isUploading}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md flex items-center justify-center gap-2 w-full md:w-auto"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 w-full md:w-auto font-medium"
         >
           <Send size={16} />
           {isUploading ? 'Uploading...' : 'Send'}
