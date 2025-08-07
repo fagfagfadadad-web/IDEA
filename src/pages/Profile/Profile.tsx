@@ -8,7 +8,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
 import { useOrders } from 'hooks';
-import { GigViewsStats } from '../../components/GigViewsStats';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
 import { useReviewsForProvider } from 'hooks';
 
@@ -845,6 +844,8 @@ export const Profile = () => {
                                 <p className="text-gray-600 text-sm">
                                   {order.amount} {order.payment_token || 'EGLD'} • {order.status}
                                 </p>
+                                {/* Zobrazenie skráteného ID objednávky malým písmom */}
+                                <p className="text-gray-500 text-xs mt-1">Order ID: {order.id.slice(0, 8)}...</p>
                               </div>
                               <span className="text-gray-600 text-sm">
                                 {new Date(order.created_at).toLocaleDateString()}
