@@ -94,10 +94,6 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
             key={review.id}
             className="bg-white p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
           >
-            {console.log('🔍 ReviewsList: Rendering review:', review)}
-            {console.log('🔍 ReviewsList: Review client info:', review.order?.client)}
-            {console.log('🔍 ReviewsList: Client username:', review.order?.client?.username)}
-            {console.log('🔍 ReviewsList: Client full_name:', review.order?.client?.full_name)}
             <div className="space-y-3">
               {/* Review Header */}
               <div className="flex justify-between items-start">
