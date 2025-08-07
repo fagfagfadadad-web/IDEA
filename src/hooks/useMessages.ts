@@ -145,12 +145,21 @@ export const useSendMessage = () => {
           .eq('id', orderId)
           .single();
 
+        console.log('DEBUG: Order details fetched:', orderDetails);
+
         if (orderDetails) {
           // Determine recipient (if sender is client, notify provider and vice versa)
           const isClientSender = orderDetails.client_id === user.id;
           const recipient = isClientSender ? orderDetails.gig?.provider : orderDetails.client;
           
+          console.log('DEBUG: Is client sender:', isClientSender);
+          console.log('DEBUG: Recipient object:', recipient);
+          console.log('DEBUG: Recipient email:', recipient?.email);
+          console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
+          console.log('DEBUG: Will send email?', !!(recipient?.email && recipient?.email_notifications_enabled));
+
           if (recipient?.email && recipient?.email_notifications_enabled) {
+            console.log('DEBUG: Attempting to send email notification...');
             await sendNotification({
               user_id: recipient.id,
               type: 'message_received',
@@ -160,6 +169,11 @@ export const useSendMessage = () => {
               sendEmail: true,
               userEmail: recipient.email
             });
+            console.log('DEBUG: Email notification sent successfully');
+          } else {
+            console.log('DEBUG: Email notification NOT sent - conditions not met');
+            console.log('DEBUG: Missing email?', !recipient?.email);
+            console.log('DEBUG: Notifications disabled?', !recipient?.email_notifications_enabled);
           }
         }
       } catch (notificationError) {

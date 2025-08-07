@@ -65,6 +65,15 @@ export const sendNotification = async ({
   userEmail?: string;
 }) => {
   try {
+    console.log('DEBUG: sendNotification called with:', {
+      user_id,
+      type,
+      title,
+      sendEmail,
+      userEmail,
+      hasUserEmail: !!userEmail
+    });
+
     const { error } = await supabase
       .from('notifications')
       .insert({
@@ -81,6 +90,7 @@ export const sendNotification = async ({
 
     // Send email notification if requested and email is provided
     if (sendEmail && userEmail) {
+      console.log('DEBUG: Conditions met for email sending, calling Supabase function...');
       try {
         const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-email', {
           body: {
@@ -102,12 +112,21 @@ export const sendNotification = async ({
 
         if (emailError) {
           console.error('Error sending email notification:', emailError);
+          console.log('DEBUG: Email error details:', emailError);
         } else {
           console.log('Email notification sent successfully:', emailResult);
+          console.log('DEBUG: Email success details:', emailResult);
         }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError);
+        console.log('DEBUG: Email exception details:', emailError);
       }
+    } else {
+      console.log('DEBUG: Email NOT sent - conditions not met:', {
+        sendEmail,
+        hasUserEmail: !!userEmail,
+        userEmail
+      });
     }
   } catch (error) {
     console.error('Error sending notification:', error);
