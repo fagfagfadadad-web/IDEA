@@ -338,7 +338,7 @@ export const AdminDisputes: React.FC = () => {
                 </button>
               </div>
             </div>
-            <div className="p-6 max-h-[70vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto">
               <OrderChat orderId={selectedOrderForChat.id} />
             </div>
           </div>

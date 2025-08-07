@@ -413,7 +413,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
           <button
             onClick={() => document.getElementById('file-input')?.click()}
             disabled={attachedFiles.length >= 5}
-            className="p-3 text-gray-600 hover:text-indigo-600 disabled:opacity-50 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="p-3 text-gray-600 hover:text-indigo-600 disabled:opacity-50 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex-shrink-0"
           >
             <Paperclip size={20} />
           </button>

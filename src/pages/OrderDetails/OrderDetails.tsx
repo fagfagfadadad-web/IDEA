@@ -1088,7 +1088,7 @@ const OrderDetails = () => {
         </Card>
 
         <div className="bg-gray-800 p-8 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-6">Communication</h2>
+          <h2 className="text-xl font-bold text-white mb-6 p-4 sm:p-8">Communication</h2>
           <OrderChat orderId={order.id} />
         </div>
       </div>
