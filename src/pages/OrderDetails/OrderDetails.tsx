@@ -612,7 +612,15 @@ const OrderDetails = () => {
 
       // Check and reconnect provider session before transaction
       const validatedProvider = await checkAndReconnectProvider();
+      
+      // Validate order data before creating transaction
+      if (!order.id) {
+        throw new Error('Order ID is missing');
+      }
+      
       const hexOrderId = uuidToHex(order.id);
+      
+      // Create transaction with proper nonce handling
       const transaction = new Transaction({
         value: BigInt(0),
         data: Buffer.from(`dispute@${hexOrderId}`),
@@ -620,6 +628,7 @@ const OrderDetails = () => {
         gasLimit: BigInt(20000000),
         sender: new Address(address),
         chainID: network.chainId,
+        version: 1
       });
 
       console.log('Creating dispute transaction:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
