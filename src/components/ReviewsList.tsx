@@ -144,8 +144,13 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
                       })}
                     </p>
                   </div>
-                  Review for: <span className="font-medium">{review.order?.gig?.title || 'Unknown Gig'}</span>
-                <StarRating rating={review.rating} />
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <p className="text-gray-600 text-xs">
+                    Review for: <span className="font-medium">{review.order?.gig?.title || 'Unknown Gig'}</span>
+                  </p>
+                  <StarRating rating={review.rating} />
+                </div>
               </div>
 
               {/* Review Content */}
