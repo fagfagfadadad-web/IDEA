@@ -456,8 +456,8 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
                 />
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)]">
-                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto overscroll-contain">
+                <div className="absolute bottom-full right-0 sm:right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)] left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none">
+                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto" style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}>
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
