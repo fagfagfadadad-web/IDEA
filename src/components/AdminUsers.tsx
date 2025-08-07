@@ -114,257 +114,250 @@ export const AdminUsers: React.FC = () => {
 
   if (!user?.is_admin) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Access Denied" reference="#">
-          <div className="bg-red-900 border border-red-500 rounded-md p-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">⚠️</span>
-              <span className="text-white">Access denied. Admin privileges required.</span>
-            </div>
-          </div>
-        </Card>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <span className="text-red-500 mr-2">⚠️</span>
+          <span className="text-red-700 font-medium">Access denied. Admin privileges required.</span>
+        </div>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Users" reference="#">
-          <div className="flex justify-center py-8">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Loading users...</p>
-            </div>
-          </div>
-        </Card>
+      <div className="flex justify-center py-8">
+        <div className="space-y-4 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="text-gray-700">Loading users...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Error Loading Users" reference="#">
-          <div className="bg-red-900 border border-red-500 rounded-md p-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">⚠️</span>
-              <span className="text-white">Error loading users: {(error as Error)?.message}</span>
-            </div>
-          </div>
-        </Card>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center">
+          <span className="text-red-500 mr-2">⚠️</span>
+          <span className="text-red-700 font-medium">Error loading users: {(error as Error)?.message}</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-7xl px-6 py-8">
-      <Card className="p-8" title="User Management" reference="#">
-        <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-white">Admin - User Management</h2>
-          
-          {/* Search */}
-          <form onSubmit={handleSearch} className="w-full">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={18} className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search by username, wallet address, or name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </form>
-          
-          {/* Users Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-800">
-                <tr>
-                  <th className="text-left p-3 text-gray-400">User</th>
-                  <th className="text-left p-3 text-gray-400">Wallet Address</th>
-                  <th className="text-left p-3 text-gray-400">Email</th>
-                  <th className="text-left p-3 text-gray-400">Joined</th>
-                  <th className="text-left p-3 text-gray-400">Admin</th>
-                  <th className="text-left p-3 text-gray-400">Status</th>
-                  <th className="text-left p-3 text-gray-400">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {usersData?.data.map((user) => (
-                  <tr key={user.id} className="border-b border-gray-700">
-                    <td className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gray-600">
-                          {user.avatar_url ? (
-                            <>
-                              <img
-                                src={user.avatar_url}
-                                alt={user.username || "User"}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }
-                                }}
-                              />
-                              <div 
-                                className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white absolute inset-0"
-                                style={{ display: 'none' }}
-                              >
-                                {user.username?.charAt(0)?.toUpperCase() || "?"}
-                              </div>
-                            </>
-                          ) : (
-                            <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xs text-white">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2">
+          <span className="text-indigo-800 font-medium">
+            {usersData?.count || 0} total users
+          </span>
+        </div>
+      </div>
+      
+      {/* Search */}
+      <form onSubmit={handleSearch} className="w-full">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search size={18} className="text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search by username, wallet address, or name"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+        </div>
+      </form>
+      
+      {/* Users Table */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="text-left p-4 text-gray-700 font-medium">User</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Wallet Address</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Email</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Joined</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Admin</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Status</th>
+                <th className="text-left p-4 text-gray-700 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usersData?.data.map((user) => (
+                <tr key={user.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                        {user.avatar_url ? (
+                          <>
+                            <img
+                              src={user.avatar_url}
+                              alt={user.username || "User"}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <div 
+                              className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm font-bold text-white absolute inset-0"
+                              style={{ display: 'none' }}
+                            >
                               {user.username?.charAt(0)?.toUpperCase() || "?"}
                             </div>
-                          )}
-                        </div>
-                        <div>
-                          <p className="text-white font-medium">{user.username}</p>
-                          {user.full_name && (
-                            <p className="text-gray-400 text-sm">{user.full_name}</p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <span className="text-gray-400 text-sm">
-                        {user.wallet_address ? (
-                          <span title={user.wallet_address}>
-                            {user.wallet_address.substring(0, 8)}...{user.wallet_address.substring(user.wallet_address.length - 4)}
-                          </span>
+                          </>
                         ) : (
-                          'N/A'
-                        )}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <span className="text-gray-400 text-sm">
-                        {user.email || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <span className="text-gray-400 text-sm">
-                        {new Date(user.created_at).toLocaleDateString()}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={user.is_admin}
-                          onChange={() => handleToggleAdmin(user.id, !user.is_admin)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
-                      </label>
-                    </td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 rounded text-xs ${
-                        user.is_banned ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {user.is_banned ? 'Banned' : 'Active'}
-                      </span>
-                    </td>
-                    <td className="p-3">
-                      <div className="relative">
-                        <button
-                          onClick={() => setShowMenu(showMenu === user.id ? null : user.id)}
-                          className="p-1 hover:bg-gray-700 rounded"
-                        >
-                          <MoreVertical size={16} className="text-gray-400" />
-                        </button>
-                        
-                        {showMenu === user.id && (
-                          <div className="absolute right-0 top-8 bg-gray-800 border border-gray-600 rounded-md shadow-lg z-10 min-w-48">
-                            <button
-                              onClick={() => handleEditUser(user)}
-                              className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 flex items-center gap-2"
-                            >
-                              <Edit size={16} />
-                              Edit User
-                            </button>
-                            <button
-                              onClick={() => confirmBanUser(user)}
-                              className={`w-full text-left px-4 py-2 hover:bg-gray-700 flex items-center gap-2 ${
-                                user.is_banned ? 'text-green-400' : 'text-red-400'
-                              }`}
-                            >
-                              {user.is_banned ? <CheckCircle size={16} /> : <Ban size={16} />}
-                              {user.is_banned ? 'Unban User' : 'Ban User'}
-                            </button>
-                            <button
-                              onClick={() => handleToggleAdmin(user.id, !user.is_admin)}
-                              className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 flex items-center gap-2"
-                            >
-                              {user.is_admin ? <User size={16} /> : <Shield size={16} />}
-                              {user.is_admin ? 'Remove Admin' : 'Make Admin'}
-                            </button>
+                          <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm font-bold text-white">
+                            {user.username?.charAt(0)?.toUpperCase() || "?"}
                           </div>
                         )}
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-4">
-              <div className="flex items-center gap-4">
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  Previous
-                </Button>
-                <span className="text-white">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <Button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
+                      <div>
+                        <p className="text-gray-800 font-medium">{user.username}</p>
+                        {user.full_name && (
+                          <p className="text-gray-600 text-sm">{user.full_name}</p>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <span className="text-gray-700 text-sm font-mono">
+                      {user.wallet_address ? (
+                        <span title={user.wallet_address}>
+                          {user.wallet_address.substring(0, 8)}...{user.wallet_address.substring(user.wallet_address.length - 4)}
+                        </span>
+                      ) : (
+                        'N/A'
+                      )}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <span className="text-gray-700 text-sm">
+                      {user.email || 'N/A'}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <span className="text-gray-700 text-sm">
+                      {new Date(user.created_at).toLocaleDateString()}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={user.is_admin}
+                        onChange={() => handleToggleAdmin(user.id, !user.is_admin)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      user.is_banned ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                    }`}>
+                      {user.is_banned ? 'Banned' : 'Active'}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowMenu(showMenu === user.id ? null : user.id)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <MoreVertical size={16} className="text-gray-600" />
+                      </button>
+                      
+                      {showMenu === user.id && (
+                        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48">
+                          <button
+                            onClick={() => handleEditUser(user)}
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
+                          >
+                            <Edit size={16} />
+                            Edit User
+                          </button>
+                          <button
+                            onClick={() => confirmBanUser(user)}
+                            className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 ${
+                              user.is_banned ? 'text-green-600' : 'text-red-600'
+                            }`}
+                          >
+                            {user.is_banned ? <CheckCircle size={16} /> : <Ban size={16} />}
+                            {user.is_banned ? 'Unban User' : 'Ban User'}
+                          </button>
+                          <button
+                            onClick={() => handleToggleAdmin(user.id, !user.is_admin)}
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-b-lg"
+                          >
+                            {user.is_admin ? <User size={16} /> : <Shield size={16} />}
+                            {user.is_admin ? 'Remove Admin' : 'Make Admin'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </Card>
+      </div>
+      
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              Previous
+            </Button>
+            <span className="text-gray-800 font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Ban/Unban Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 max-w-md w-full mx-4" title="Confirm Action" reference="#">
-            <h3 className="text-xl font-bold text-white mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
               {selectedUser?.is_banned ? 'Unban User' : 'Ban User'}
             </h3>
-            <p className="text-gray-400 mb-4">
+            <p className="text-gray-700 mb-4">
               Are you sure you want to {selectedUser?.is_banned ? 'unban' : 'ban'} {selectedUser?.username}?
             </p>
             {!selectedUser?.is_banned && (
-              <p className="text-red-300 mb-4 text-sm">
+              <p className="text-red-600 mb-4 text-sm">
                 This will prevent the user from accessing the platform.
               </p>
             )}
             <div className="flex gap-3">
               <Button
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
               >
                 Cancel
               </Button>
@@ -379,41 +372,41 @@ export const AdminUsers: React.FC = () => {
                 {selectedUser?.is_banned ? 'Unban' : 'Ban'}
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
       {/* Edit User Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="p-6 max-w-md w-full mx-4" title="Edit User" reference="#">
-            <h3 className="text-xl font-bold text-white mb-4">Edit User</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Edit User</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-white text-sm font-medium mb-2">Username</label>
+                <label className="block text-gray-800 text-sm font-medium mb-2">Username</label>
                 <input
                   type="text"
                   value={editForm.username}
                   onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-white text-sm font-medium mb-2">Full Name</label>
+                <label className="block text-gray-800 text-sm font-medium mb-2">Full Name</label>
                 <input
                   type="text"
                   value={editForm.full_name}
                   onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-white text-sm font-medium mb-2">Email</label>
+                <label className="block text-gray-800 text-sm font-medium mb-2">Email</label>
                 <input
                   type="email"
                   value={editForm.email}
                   onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               <div className="flex items-center gap-3">
@@ -424,27 +417,27 @@ export const AdminUsers: React.FC = () => {
                     onChange={(e) => setEditForm({...editForm, is_admin: e.target.checked})}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                  <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                 </label>
-                <span className="text-white">Admin Privileges</span>
+                <span className="text-gray-800 font-medium">Admin Privileges</span>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
               <Button
                 onClick={() => setShowEditModal(false)}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveEdit}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg"
                 disabled={updateUser.isLoading}
               >
                 {updateUser.isLoading ? 'Saving...' : 'Save Changes'}
               </Button>
             </div>
-          </Card>
+          </div>
         </div>
       )}
 
