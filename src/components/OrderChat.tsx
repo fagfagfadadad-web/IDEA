@@ -401,50 +401,54 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
       )}
 
       {/* Message Input */}
-      <div className="space-y-3">
-        {/* Main input row */}
-        <div className="flex gap-2">
+      <div className="space-y-3 w-full">
+        {/* Input field - full width on mobile */}
+        <div className="w-full">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
-            className="flex-1 p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
-          {/* Send button - full width on mobile, inline on desktop */}
-          <Button
-            onClick={handleSendMessage}
-            disabled={sendMessage.isLoading || isUploading}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium flex-shrink-0"
-          >
-            <Send size={16} />
-            {isUploading ? 'Uploading...' : 'Send'}
-          </Button>
         </div>
         
-        {/* File attachment button - separate row on mobile */}
-        <div className="flex justify-center">
+        {/* Buttons row - stacked on mobile, side by side on desktop */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+          {/* File attachment button */}
           <button
             onClick={() => document.getElementById('file-input')?.click()}
             disabled={attachedFiles.length >= 5}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-indigo-600 disabled:opacity-50 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-3 text-gray-600 hover:text-indigo-600 disabled:opacity-50 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors w-full sm:flex-1"
           >
             <Paperclip size={16} />
             <span className="text-sm">
               Attach Files ({attachedFiles.length}/5)
             </span>
           </button>
-          <input
-            id="file-input"
-            type="file"
-            multiple
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              onDrop(files);
-            }}
-            className="hidden"
-          />
+          
+          {/* Send button */}
+          <Button
+            onClick={handleSendMessage}
+            disabled={sendMessage.isLoading || isUploading}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium w-full sm:flex-1"
+          >
+            <Send size={16} />
+            {isUploading ? 'Uploading...' : 'Send'}
+          </Button>
         </div>
+        
+        {/* Hidden file input */}
+        <input
+          id="file-input"
+          type="file"
+          multiple
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            onDrop(files);
+          }}
+          className="hidden"
+        />
       </div>
     </div>
   );
