@@ -207,52 +207,22 @@ export const useReviewsForProvider = (providerId: string) => {
     try {
       setIsLoading(true);
       
-      // First get all gig IDs for this provider
-      const { data: gigs, error: gigsError } = await supabase
-        .from('gigs')
-        .select('id')
-        .eq('provider_id', providerId);
-
-      if (gigsError) throw gigsError;
-
-      if (!gigs || gigs.length === 0) {
-        console.log('🔍 useReviewsForProvider: No orders found for provider:', providerId);
-        setData([]);
-        return;
-      }
-
-      const gigIds = gigs.map(gig => gig.id);
-      console.log('🔍 useReviewsForProvider: Found gig IDs for provider:', gigIds);
-
-      // Then get all orders for these gigs
-      const { data: orders, error: ordersError } = await supabase
-        .from('orders')
-        .select('id')
-        .in('gig_id', gigIds);
-
-      if (ordersError) throw ordersError;
-
-      if (!orders || orders.length === 0) {
-        console.log('🔍 useReviewsForProvider: No orders found for gigs:', gigIds);
-        setData([]);
-        return;
-      }
-
-      const orderIds = orders.map(order => order.id);
-      console.log('🔍 useReviewsForProvider: Found order IDs for provider:', orderIds);
-
-      // Then get reviews for those orders
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
           *,
           order:orders!reviews_order_id_fkey(
             id,
+            gig_id,
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
-            gig:gigs(title, provider:users!gigs_provider_id_fkey(username, full_name))
+            gig:gigs!orders_gig_id_fkey(
+              id,
+              title,
+              provider_id
+            )
           )
         `)
-        .in('order_id', orderIds)
+        .in('order.gig.provider_id', [providerId])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -268,7 +238,7 @@ export const useReviewsForProvider = (providerId: string) => {
           clientUsername: review.order?.client?.username,
           clientFullName: review.order?.client?.full_name,
           gigTitle: review.order?.gig?.title,
-          providerUsername: review.order?.gig?.provider?.username
+          providerId: review.order?.gig?.provider_id
         });
       });
 
