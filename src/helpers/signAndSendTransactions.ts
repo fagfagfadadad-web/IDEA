@@ -104,7 +104,7 @@ export const signAndSendTransactions = async ({
     
     console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
 
-    const transactionHashes = sentTransactions.map((tx: any) => tx.hash || tx.transactionHash);
+    const transactionHashes = (sentTransactions as any[]).map((tx: any) => tx.hash || tx.transactionHash);
     console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
     if (!transactionHashes || transactionHashes.length === 0) {
       throw new Error('Failed to get transaction hashes from sent transactions');
