@@ -524,12 +524,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticating.current = true; // Prevent new auth attempts during logout
       
       await handleSupabaseSignOut();
-      const provider = getAccountProvider();
-      await provider.logout();
       setUser(null);
       setIsProfileReady(false);
       setLastAddress(null);
       setAuthMessage('Successfully logged out');
+      
+      // Refresh the page to reset the DApp state without closing xPortal
+      window.location.reload();
     } catch (error: any) {
       console.error('❌ AuthContext: Logout error:', error);
       // Even if logout fails, clear local state
@@ -537,6 +538,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsProfileReady(false);
       setLastAddress(null);
       setAuthMessage('Logged out (with some cleanup issues)');
+      
+      // Still refresh the page even if there were errors
+      window.location.reload();
     } finally {
       isAuthenticating.current = false;
     }
