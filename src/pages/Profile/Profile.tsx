@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check } from 'lucide-react';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
@@ -78,6 +78,9 @@ export const Profile = () => {
 
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showGigMenu, setShowGigMenu] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedGig, setSelectedGig] = useState<any>(null);
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
@@ -129,26 +132,45 @@ export const Profile = () => {
     }
   };
 
-  const handleDeleteGig = async (gigId: string) => {
-    if (!confirm('Are you sure you want to delete this gig?')) return;
+  const handleEditGig = (gigId: string) => {
+    navigate(`/create-gig?edit=${gigId}`);
+    setShowGigMenu(null);
+  };
+
+  const handleDeleteGig = async () => {
+    if (!selectedGig) return;
     
     try {
-      // Mock delete - replace with real implementation
-      console.log('Deleting gig:', gigId);
-      success('Gig deleted successfully');
+      await deleteGig.mutateAsync(selectedGig.id, {
+        onSuccess: () => {
+          success('Gig deleted successfully');
+          refetchGigs();
+        }
+      });
+      setShowDeleteModal(false);
+      setSelectedGig(null);
     } catch (error) {
-      showErrorToast('Error deleting gig');
+      console.error('Failed to delete gig:', error);
+      showErrorToast('Failed to delete gig');
     }
   };
 
   const handleUpdateGigStatus = async (gigId: string, status: string) => {
     try {
-      // Mock update - replace with real implementation
-      console.log('Updating gig status:', { gigId, status });
-      success(`Gig status updated to ${status}`);
+      await updateGigStatus.mutateAsync({ id: gigId, status });
+      success(`Gig ${status === 'active' ? 'activated' : status === 'paused' ? 'paused' : 'deactivated'} successfully`);
+      refetchGigs();
+      setShowGigMenu(null);
     } catch (error) {
-      showErrorToast('Error updating gig status');
+      console.error('Failed to update gig status:', error);
+      showErrorToast('Failed to update gig status');
     }
+  };
+
+  const confirmDeleteGig = (gig: any) => {
+    setSelectedGig(gig);
+    setShowDeleteModal(true);
+    setShowGigMenu(null);
   };
 
   const handleMarkAllAsRead = async () => {
@@ -568,9 +590,66 @@ export const Profile = () => {
                         {/* Gig Actions Menu */}
                         <div className="absolute top-2 right-2 z-10">
                           <div className="relative">
-                            <button className="p-1 bg-white bg-opacity-75 hover:bg-opacity-100 rounded text-gray-600 hover:text-gray-800 transition-colors shadow-sm">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowGigMenu(showGigMenu === gig.id ? null : gig.id);
+                              }}
+                              className="p-1 bg-white bg-opacity-75 hover:bg-opacity-100 rounded text-gray-600 hover:text-gray-800 transition-colors shadow-sm"
+                            >
                               <MoreVertical size={16} />
                             </button>
+                            
+                            {showGigMenu === gig.id && (
+                              <>
+                                <div 
+                                  className="fixed inset-0 z-10" 
+                                  onClick={() => setShowGigMenu(null)}
+                                />
+                                <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-48">
+                                  <button
+                                    onClick={() => handleEditGig(gig.id)}
+                                    className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
+                                  >
+                                    <Edit size={16} />
+                                    Edit Gig
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/gigs/${gig.id}`)}
+                                    className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2"
+                                  >
+                                    <Eye size={16} />
+                                    View Gig
+                                  </button>
+                                  <hr className="border-gray-200" />
+                                  {gig.status !== 'active' && (
+                                    <button
+                                      onClick={() => handleUpdateGigStatus(gig.id, 'active')}
+                                      className="w-full text-left px-4 py-2 text-green-600 hover:bg-green-50 flex items-center gap-2"
+                                    >
+                                      <Play size={16} />
+                                      Activate
+                                    </button>
+                                  )}
+                                  {gig.status !== 'paused' && (
+                                    <button
+                                      onClick={() => handleUpdateGigStatus(gig.id, 'paused')}
+                                      className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 flex items-center gap-2"
+                                    >
+                                      <Pause size={16} />
+                                      Pause
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => confirmDeleteGig(gig)}
+                                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
+                                  >
+                                    <Trash2 size={16} />
+                                    Delete
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         </div>
 
@@ -1180,6 +1259,36 @@ export const Profile = () => {
                   {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete "{selectedGig?.title}"?
+            </p>
+            <p className="text-red-600 mb-4 text-sm">
+              This action cannot be undone. All related orders and messages will also be deleted.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteGig}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                disabled={deleteGig.isLoading}
+              >
+                {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
+              </Button>
             </div>
           </div>
         </div>
