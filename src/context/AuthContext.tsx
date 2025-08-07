@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
+import { getStore } from '@multiversx/sdk-dapp/out/store/store';
+import { clearLoginInfo } from '@multiversx/sdk-dapp/out/store/actions';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -523,6 +525,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('👋 AuthContext: Logging out...');
       isAuthenticating.current = true; // Prevent new auth attempts during logout
       
+      // Clear MultiversX SDK internal state first
+      try {
+        const store = getStore();
+        store.dispatch(clearLoginInfo());
+        console.log('✅ AuthContext: SDK internal state cleared');
+      } catch (sdkError) {
+        console.error('⚠️ AuthContext: Error clearing SDK state:', sdkError);
+        // Continue with logout even if SDK clearing fails
+      }
+      
       await handleSupabaseSignOut();
       setUser(null);
       setIsProfileReady(false);
@@ -579,6 +591,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔄 AuthContext: Force reconnecting wallet...');
       isAuthenticating.current = true; // Prevent new auth attempts during reconnect
       
+       // Clear MultiversX SDK internal state first
+       try {
+         const store = getStore();
+         store.dispatch(clearLoginInfo());
+         console.log('✅ AuthContext: SDK internal state cleared for reconnect');
+       } catch (sdkError) {
+         console.error('⚠️ AuthContext: Error clearing SDK state for reconnect:', sdkError);
+         // Continue with reconnect even if SDK clearing fails
+       }
+       
       // Clear all local state first
       setUser(null);
       setIsProfileReady(false);
