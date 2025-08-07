@@ -98,6 +98,7 @@ export const useSendMessage = () => {
       size: number;
     }>;
   }) => {
+    console.log('DEBUG: mutateAsync in useSendMessage called for orderId:', orderId);
     setIsLoading(true);
     try {
      console.log('DEBUG: mutateAsync in useSendMessage called for orderId:', orderId);
@@ -162,12 +163,21 @@ export const useSendMessage = () => {
 
           if (recipient?.email && recipient?.email_notifications_enabled) {
             console.log('DEBUG: Attempting to send email notification...');
+            
+            // Prepare structured data for email template
+            const templateData = {
+              senderName: user.username || user.full_name || 'A user',
+              gigTitle: orderDetails.gig?.title || 'Custom Project',
+              messagePreview: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+              orderId: orderId
+            };
+            
             await sendNotification({
               user_id: recipient.id,
               type: 'message_received',
-              title: `New message - ${orderDetails.gig?.title || 'Custom Project'}`,
-              content: `You have received a new message: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`,
-              data: { order_id: orderId, sender_id: user.id },
+              title: `New message - ${templateData.gigTitle}`,
+              content: `You have received a new message: ${templateData.messagePreview}`,
+              data: templateData,
               sendEmail: true,
               userEmail: recipient.email
             });

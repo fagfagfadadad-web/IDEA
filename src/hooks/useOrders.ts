@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
-import { useSendEmailNotification, useEmailTemplates } from './useEmailNotifications';
+import { useEmailTemplates } from './useEmailNotifications';
 
 // Define the provider type explicitly
 interface Provider {
@@ -101,21 +101,72 @@ export const sendNotification = async ({
       console.log('DEBUG: Conditions met for email sending, calling Supabase function...');
       console.log('DEBUG: Conditions met for email sending, calling Supabase function...');
       try {
+        // Get email templates
+        const { getOrderCreatedTemplate, getMessageReceivedTemplate, getPaymentReleasedTemplate } = useEmailTemplates();
+        
+        let emailSubject = title;
+        let emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #333;">${title}</h2>
+            <p style="color: #666; line-height: 1.6;">${content}</p>
+            <hr style="border: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #999; font-size: 12px;">
+              This is an automated notification from IDEA Platform.<br>
+              Visit <a href="https://xidea.app">xidea.app</a> to manage your account.
+            </p>
+          </div>
+        `;
+
+        // Use specific template based on notification type
+        switch (type) {
+          case 'order_created':
+            if (data?.clientName && data?.gigTitle && data?.amount && data?.paymentToken && data?.orderId) {
+              const template = getOrderCreatedTemplate({
+                clientName: data.clientName,
+                gigTitle: data.gigTitle,
+                amount: data.amount,
+                paymentToken: data.paymentToken,
+                orderId: data.orderId
+              });
+              emailSubject = template.subject;
+              emailHtml = template.html;
+            }
+            break;
+          case 'message_received':
+            if (data?.senderName && data?.gigTitle && data?.messagePreview && data?.orderId) {
+              const template = getMessageReceivedTemplate({
+                senderName: data.senderName,
+                gigTitle: data.gigTitle,
+                messagePreview: data.messagePreview,
+                orderId: data.orderId
+              });
+              emailSubject = template.subject;
+              emailHtml = template.html;
+            }
+            break;
+          case 'payment_released':
+            if (data?.providerName && data?.gigTitle && data?.amount && data?.paymentToken && data?.orderId) {
+              const template = getPaymentReleasedTemplate({
+                providerName: data.providerName,
+                gigTitle: data.gigTitle,
+                amount: data.amount,
+                paymentToken: data.paymentToken,
+                orderId: data.orderId
+              });
+              emailSubject = template.subject;
+              emailHtml = template.html;
+            }
+            break;
+          default:
+            // Use default template for other notification types
+            break;
+        }
+
         const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-email', {
           body: {
             to: userEmail,
-            subject: title,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2 style="color: #333;">${title}</h2>
-                <p style="color: #666; line-height: 1.6;">${content}</p>
-                <hr style="border: 1px solid #eee; margin: 20px 0;">
-                <p style="color: #999; font-size: 12px;">
-                  This is an automated notification from IDEA Platform.<br>
-                  Visit <a href="https://xidea.app">xidea.app</a> to manage your account.
-                </p>
-              </div>
-            `
+            subject: emailSubject,
+            html: emailHtml
           }
         });
 
