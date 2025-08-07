@@ -813,7 +813,7 @@ const OrderDetails = () => {
         <Card className="p-8" title="Order Details" reference="#">
           <div className="space-y-6">
             <div className="flex justify-between items-center flex-wrap gap-4">
-              <h1 className="text-2xl font-bold text-white">{order.gig?.title || 'Custom Project'}</h1>
+              <h1 className="text-2xl font-bold text-grey">{order.gig?.title || 'Custom Project'}</h1>
               <div className="flex gap-3">
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${
