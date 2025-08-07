@@ -26,13 +26,13 @@ export const signAndSendTransactions = async ({
     };
 
     // Check if provider is WalletConnect and handle session
-    if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
+    if (provider && typeof provider.isConnected === 'function') {
       try {
-        const isConnected = await (provider as any).isConnected();
+        const isConnected = await provider.isConnected();
         if (!isConnected) {
           console.log('🔄 WalletConnect session expired, attempting to reconnect...');
-          if ('reconnect' in provider && typeof (provider as any).reconnect === 'function') {
-            await (provider as any).reconnect();
+          if (typeof provider.reconnect === 'function') {
+            await provider.reconnect();
             console.log('✅ WalletConnect session restored');
           } else {
             throw new Error('WALLET_PROVIDER_DISCONNECTED');
@@ -113,13 +113,12 @@ export const signAndSendTransactions = async ({
     console.log('🔄 signAndSendTransactions: Sending transactions...');
     let sentTransactions;
     try {
-      const sentResult = await Promise.race([
+      sentTransactions = await Promise.race([
         txManager.send(signedTransactions as Transaction[]),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Transaction sending timeout - network may be congested')), timeout)
         )
       ]);
-      sentTransactions = sentResult as SignedTransactionType[];
     } catch (sendError) {
       console.error('🔄 signAndSendTransactions: Sending failed:', sendError);
       throw new Error(`Transaction sending failed: ${sendError instanceof Error ? sendError.message : 'Unknown error'}`);
@@ -127,7 +126,7 @@ export const signAndSendTransactions = async ({
     
     console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
 
-    const transactionHashes = (sentTransactions as any[]).map((tx: any) => tx.hash || tx.transactionHash);
+    const transactionHashes = sentTransactions.map((tx: any) => tx.hash || tx.transactionHash);
     console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
     if (!transactionHashes || transactionHashes.length === 0) {
       throw new Error('Failed to get transaction hashes from sent transactions');
@@ -135,7 +134,7 @@ export const signAndSendTransactions = async ({
 
     console.log('🔄 signAndSendTransactions: Tracking transactions...');
     try {
-      await txManager.track(sentTransactions as SignedTransactionType[], { transactionsDisplayInfo });
+      await txManager.track(sentTransactions, { transactionsDisplayInfo });
     } catch (trackError) {
       console.error('🔄 signAndSendTransactions: Tracking failed:', trackError);
       // Don't fail the whole process if tracking fails, just log it

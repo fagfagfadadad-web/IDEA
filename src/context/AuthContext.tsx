@@ -203,8 +203,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const storedToken = localStorage.getItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
         if (storedToken) {
           const tokenData = JSON.parse(storedToken);
-          if (tokenData.expires_at && new Date(tokenData.expires_at * 1000) < new Date()) {
-            console.log('🧹 AuthContext: Clearing expired token');
+          // Check if token is expired or invalid
+          if (!tokenData.refresh_token || !tokenData.access_token) {
+            console.log('🧹 AuthContext: Clearing invalid stored token');
             Object.keys(localStorage).forEach(key => {
               if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
                 localStorage.removeItem(key);

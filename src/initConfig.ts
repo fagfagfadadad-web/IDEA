@@ -30,10 +30,11 @@ export const config: InitAppType = {
   dAppConfig: {
     nativeAuth: true,
     environment: environment,
+    successfulToastLifetime: 5000,
+    walletConnectDeepLink: 'https://xportal.com/',
     providers: {
       walletConnect: {
-        walletConnectV2ProjectId,
-        walletConnectDeepLink: 'https://xportal.com/'
+        walletConnectV2ProjectId
       }
     },
     onSuccess: (sessionId: string, tx: any) => {
