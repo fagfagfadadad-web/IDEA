@@ -203,13 +203,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const storedToken = localStorage.getItem('sb-xumzvxrjfqwewbyaqcxa-auth-token');
         if (storedToken) {
           const tokenData = JSON.parse(storedToken);
-        if ('isConnected' in provider && typeof (provider as any).isConnected === 'function') {
-          const isConnected = await (provider as any).isConnected();
+          if (tokenData.expires_at && new Date(tokenData.expires_at * 1000) < new Date()) {
+            console.log('🧹 AuthContext: Clearing expired token');
             Object.keys(localStorage).forEach(key => {
               if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
-          if (!isConnected && 'reconnect' in provider && typeof (provider as any).reconnect === 'function') {
+                localStorage.removeItem(key);
               }
-            await (provider as any).reconnect();
+            });
             await supabase.auth.signOut({ scope: 'local' });
           }
         }
