@@ -757,14 +757,9 @@ export const Profile = () => {
                           >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h4 className="text-lg font-bold text-gray-800">
-                                    {order.gig?.title || 'Custom Project'}
-                                  </h4>
-                                  <span className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
-                                    ID: {order.id.substring(0, 8)}
-                                  </span>
-                                </div>
+                                <h4 className="text-gray-800 font-medium mb-1">
+                                  {order.gig?.title || 'Custom Project'}
+                                </h4>
                                 <p className="text-gray-600 text-sm">
                                   {order.amount} {order.payment_token || 'EGLD'} • {order.status}
                                 </p>
