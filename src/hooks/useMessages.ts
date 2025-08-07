@@ -155,7 +155,7 @@ export const useSendMessage = () => {
           // Determine recipient (if sender is client, notify provider and vice versa)
           const isClientSender = orderDetails.client_id === user.id;
           const recipient = isClientSender ? 
-            (Array.isArray(orderDetails.gig) ? orderDetails.gig[0]?.provider : orderDetails.gig?.provider) : 
+            (Array.isArray(orderDetails.gig) ? (orderDetails.gig as any)[0]?.provider : (orderDetails.gig as any)?.provider) : 
             orderDetails.client;
           
           console.log('DEBUG: Is client sender:', isClientSender);
@@ -170,7 +170,7 @@ export const useSendMessage = () => {
             // Prepare structured data for email template
             const templateData = {
               senderName: user.username || user.full_name || 'A user',
-              gigTitle: (Array.isArray(orderDetails.gig) ? orderDetails.gig[0]?.title : orderDetails.gig?.title) || 'Custom Project',
+              gigTitle: (Array.isArray(orderDetails.gig) ? (orderDetails.gig as any)[0]?.title : (orderDetails.gig as any)?.title) || 'Custom Project',
               messagePreview: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
               orderId: orderId
             };
