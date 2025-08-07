@@ -444,7 +444,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             <button
               type="button"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors"
             >
               <Smile size={20} />
             </button>
