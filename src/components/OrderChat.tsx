@@ -258,8 +258,6 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                       {formatTimestamp(message.created_at)}
                     </span>
                   </>
-                    </span>
-                  </>
                 </div>
                 
                 {/* Display the actual message content, not the JSON */}
