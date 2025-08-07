@@ -204,13 +204,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (storedToken) {
           const tokenData = JSON.parse(storedToken);
           // Check if token is expired or invalid
-        if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
-          const isConnected = await (provider as any).isConnected();
+          if (tokenData && tokenData.expires_at && new Date(tokenData.expires_at) < new Date()) {
             Object.keys(localStorage).forEach(key => {
               if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
-          if (!isConnected && 'reconnect' in provider && typeof (provider as any).reconnect === 'function') {
+                localStorage.removeItem(key);
               }
-            await (provider as any).reconnect();
+            });
             await supabase.auth.signOut({ scope: 'local' });
           }
         }
