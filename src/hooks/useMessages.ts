@@ -156,6 +156,9 @@ export const useSendMessage = () => {
           console.log('DEBUG: Recipient object:', recipient);
           console.log('DEBUG: Recipient email:', recipient?.email);
           console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
+          console.log('DEBUG: Recipient object:', recipient);
+          console.log('DEBUG: Recipient email:', recipient?.email);
+          console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
           console.log('DEBUG: Will send email?', !!(recipient?.email && recipient?.email_notifications_enabled));
 
           if (recipient?.email && recipient?.email_notifications_enabled) {
