@@ -333,20 +333,21 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   Package Details
                 </label>
                 <div className="space-y-4">
-                  <div className="flex gap-2">
+                  <div className="flex flex-col md:flex-row gap-2">
                     <input
                       type="text"
                       value={newDetail}
                       onChange={(e) => setNewDetail(e.target.value)}
                       placeholder="e.g., Source code, Smart Contract, Logo files..."
-                      className="flex-1 p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full md:flex-1 p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                     <Button
                       type="button"
                       onClick={addPackageDetail}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg"
+                      className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg"
                     >
                       <Plus size={16} />
+                      <span className="md:hidden ml-2">Add Detail</span>
                     </Button>
                   </div>
                   
