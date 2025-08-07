@@ -108,33 +108,62 @@ export const Admin: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
                   <p className="text-gray-600 text-sm font-medium">Total Users</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.totalUsers || 0}</p>
+                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_users || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Registered users</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
                   <p className="text-gray-600 text-sm font-medium">Total Gigs</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.totalGigs || 0}</p>
+                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_gigs || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Active gigs</p>
                 </div>
 
                 <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
                   <p className="text-gray-600 text-sm font-medium">Total Orders</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.totalOrders || 0}</p>
+                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_orders || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">All orders</p>
                 </div>
 
                 <div className="bg-white border border-red-200 p-6 rounded-xl shadow-sm">
                   <p className="text-gray-600 text-sm font-medium">Pending Disputes</p>
-                  <p className="text-red-600 text-3xl font-bold">{stats?.pendingDisputes || 0}</p>
+                  <p className="text-red-600 text-3xl font-bold">{stats?.pending_disputes || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Need attention</p>
                 </div>
 
                 <div className="bg-white border border-green-200 p-6 rounded-xl shadow-sm">
                   <p className="text-gray-600 text-sm font-medium">Completed Orders</p>
-                  <p className="text-green-600 text-3xl font-bold">{stats?.completedOrders || 0}</p>
+                  <p className="text-green-600 text-3xl font-bold">{stats?.completed_orders || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Successful orders</p>
                 </div>
+
+                {/* Additional stats from the new view */}
+                <div className="bg-white border border-blue-200 p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-sm font-medium">Active Orders</p>
+                  <p className="text-blue-600 text-3xl font-bold">{stats?.active_orders || 0}</p>
+                  <p className="text-gray-500 text-xs mt-1">In progress</p>
+                </div>
+
+                <div className="bg-white border border-purple-200 p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-sm font-medium">New Users (30d)</p>
+                  <p className="text-purple-600 text-3xl font-bold">{stats?.new_users_this_month || 0}</p>
+                  <p className="text-gray-500 text-xs mt-1">This month</p>
+                </div>
+
+                <div className="bg-white border border-orange-200 p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-sm font-medium">New Orders (30d)</p>
+                  <p className="text-orange-600 text-3xl font-bold">{stats?.new_orders_this_month || 0}</p>
+                  <p className="text-gray-500 text-xs mt-1">This month</p>
+                </div>
+              </div>
+            )}
+            
+            {/* Debug info for development */}
+            {process.env.NODE_ENV === 'development' && stats && (
+              <div className="mt-6 bg-gray-100 border border-gray-300 rounded-lg p-4">
+                <h3 className="text-gray-800 font-bold mb-2">Debug Info (Development Only)</h3>
+                <pre className="text-xs text-gray-600 overflow-auto">
+                  {JSON.stringify(stats, null, 2)}
+                </pre>
               </div>
             )}
           </div>
