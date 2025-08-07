@@ -22,10 +22,10 @@ export const MobileBottomNav = () => {
     try {
       const provider = getAccountProvider();
       await provider.logout();
-      navigate(RouteNamesEnum.home);
+      window.location.reload();
     } catch (error) {
       console.error('Logout error:', error);
-      navigate(RouteNamesEnum.home);
+      window.location.reload();
     }
   };
 
