@@ -192,6 +192,7 @@ export const useUpdateProfile = () => {
     full_name?: string;
     avatar_url?: string;
     bio?: string;
+    email?: string;
     email_notifications_enabled?: boolean;
     twitter_url?: string;
     github_url?: string;
