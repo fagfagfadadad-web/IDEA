@@ -185,7 +185,7 @@ const OrderDetails = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
   const { network } = useGetNetworkConfig();
-  const { user } = useAuth();
+  const { user, forceReconnect } = useAuth();
   const { success, error: showError } = useToast();
 
   const { data: order, isLoading, error } = useOrderById(id || '');

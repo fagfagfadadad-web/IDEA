@@ -20,9 +20,7 @@ export const signAndSendTransactions = async ({
     // Helper function to validate provider
     const isProviderValid = (p: any) => {
       return p && 
-             p.provider && 
-             typeof p.provider.signTransactions === 'function' && 
-             typeof p.provider.getAccount === 'function';
+             typeof p.signTransactions === 'function';
     };
 
     // If provider is invalid, try to reinitialize it
@@ -114,7 +112,7 @@ export const signAndSendTransactions = async ({
 
     console.log('🔄 signAndSendTransactions: Tracking transactions...');
     try {
-      await txManager.track(sentTransactions, { transactionsDisplayInfo });
+      await txManager.track(sentTransactions as any, { transactionsDisplayInfo });
     } catch (trackError) {
       console.error('🔄 signAndSendTransactions: Tracking failed:', trackError);
       // Don't fail the whole process if tracking fails, just log it
