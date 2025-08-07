@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const provider = getAccountProvider();
       
       // Check if provider exists and has required methods
-      if (!provider || typeof provider.getAccount !== 'function' || typeof provider.signTransactions !== 'function') {
+      if (!provider || typeof provider.signTransactions !== 'function') {
         console.log('⚠️ AuthContext: Provider is invalid, attempting reinitialization...');
         
         // Try to reinitialize UnlockPanelManager which should restore provider state
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           // Check if provider is now valid
           const newProvider = getAccountProvider();
-          if (newProvider && typeof newProvider.getAccount === 'function' && typeof newProvider.signTransactions === 'function') {
+          if (newProvider && typeof newProvider.signTransactions === 'function') {
             console.log('✅ AuthContext: Provider successfully reinitialized');
             return true;
           } else {
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       } else {
         // Provider seems valid, test if getAccount actually works
         try {
-          const account = await provider.getAccount();
+          const account = await provider.provider?.getAccount?.();
           if (account && account.address) {
             console.log('✅ AuthContext: Provider is valid and functional');
             return true;
