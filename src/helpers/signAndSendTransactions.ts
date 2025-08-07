@@ -18,7 +18,7 @@ export const signAndSendTransactions = async ({
     console.log('🔄 signAndSendTransactions: Got provider:', provider);
     
     // Check if provider is in a valid state
-    if (!provider || typeof provider.signTransactions !== 'function') {
+    if (!provider || typeof provider.signTransactions !== 'function' || typeof provider.getAccount !== 'function') {
       throw new Error('Wallet provider is not properly initialized. Please reconnect your wallet.');
     }
     
