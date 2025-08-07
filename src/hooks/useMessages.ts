@@ -100,6 +100,7 @@ export const useSendMessage = () => {
   }) => {
     setIsLoading(true);
     try {
+     console.log('DEBUG: mutateAsync in useSendMessage called for orderId:', orderId);
       if (!user?.id) {
         throw new Error('Please connect your wallet first');
       }
@@ -129,6 +130,7 @@ export const useSendMessage = () => {
 
       // Send email notification to the recipient if they have email notifications enabled
       try {
+       console.log('DEBUG: Starting email notification process...');
         // Get order details to determine the recipient
         const { data: orderDetails } = await supabase
           .from('orders')
@@ -153,9 +155,6 @@ export const useSendMessage = () => {
           const recipient = isClientSender ? orderDetails.gig?.provider : orderDetails.client;
           
           console.log('DEBUG: Is client sender:', isClientSender);
-          console.log('DEBUG: Recipient object:', recipient);
-          console.log('DEBUG: Recipient email:', recipient?.email);
-          console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
           console.log('DEBUG: Recipient object:', recipient);
           console.log('DEBUG: Recipient email:', recipient?.email);
           console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
