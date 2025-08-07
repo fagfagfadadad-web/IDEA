@@ -1,5 +1,4 @@
-import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider } from 'lib';
-import { UnlockPanelManager, useGetAccount } from 'lib';
+import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider, UnlockPanelManager } from 'lib';
 
 interface SignAndSendTransactionsProps {
   transactions: Transaction[];
@@ -13,6 +12,7 @@ export const signAndSendTransactions = async ({
   timeout = 120000
 }: SignAndSendTransactionsProps) => {
   console.log('🔄 signAndSendTransactions: Starting with transactions:', transactions);
+  
   try {
     let provider = getAccountProvider();
     console.log('🔄 signAndSendTransactions: Got provider:', provider);
@@ -20,53 +20,20 @@ export const signAndSendTransactions = async ({
     // Helper function to validate provider
     const isProviderValid = (p: any) => {
       return p && 
-             typeof p.signTransactions === 'function' && 
-             typeof p.getAccount === 'function' &&
-             typeof p.init === 'function';
+             p.provider && 
+             typeof p.provider.signTransactions === 'function' && 
+             typeof p.provider.getAccount === 'function';
     };
 
-    // If provider is invalid, try to get a fresh one
+    // If provider is invalid, force user to reconnect instead of trying to fix it
     if (!isProviderValid(provider)) {
-      console.log('🔧 signAndSendTransactions: Provider invalid, attempting to get fresh provider...');
+      console.log('❌ signAndSendTransactions: Provider is completely invalid, forcing reconnect');
       
-      // Wait a bit and try again
-      await new Promise(resolve => setTimeout(resolve, 100));
-      provider = getAccountProvider();
-      
-      if (!isProviderValid(provider)) {
-        console.log('🔧 signAndSendTransactions: Still invalid, trying provider init...');
-        try {
-          if (provider && typeof provider.init === 'function') {
-            await provider.init();
-            console.log('✅ signAndSendTransactions: Provider init successful');
-          }
-        } catch (initError) {
-          console.log('⚠️ signAndSendTransactions: Provider init failed:', initError);
-        }
-        
-        // Get provider again after init
-        provider = getAccountProvider();
-        
-        if (!isProviderValid(provider)) {
-          console.log('❌ signAndSendTransactions: Provider still invalid after init');
-          throw new Error('Wallet connection lost. Please refresh the page and reconnect your wallet.');
-        }
-      }
+      // Show user-friendly error that suggests reconnection
+      throw new Error('Your wallet connection has expired. Please use the "Reconnect Wallet" button in the profile menu to restore the connection.');
     }
     
-    console.log('🔄 signAndSendTransactions: Provider validation passed, checking account...');
-    
-    // Test provider functionality
-    try {
-      const account = await provider.getAccount();
-      console.log('✅ signAndSendTransactions: Provider account check successful:', !!account?.address);
-      
-      if (!account || !account.address) {
-        console.log('⚠️ signAndSendTransactions: No account found, but continuing...');
-      }
-    } catch (accountError) {
-      console.log('⚠️ signAndSendTransactions: Account check failed, but continuing:', accountError);
-    }
+    console.log('✅ signAndSendTransactions: Provider validation passed');
     
     const txManager = TransactionManager.getInstance();
     console.log('🔄 signAndSendTransactions: Got transaction manager');
@@ -78,23 +45,22 @@ export const signAndSendTransactions = async ({
       signedTransactions = await Promise.race([
         provider.signTransactions(transactions),
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Transaction signing timeout after 60 seconds - please reconnect your wallet and try again')), 60000)
+          setTimeout(() => reject(new Error('Transaction signing timeout - please try again')), 60000)
         )
       ]);
     } catch (signError) {
       console.error('🔄 signAndSendTransactions: Signing failed:', signError);
       
-      // If signing fails, it might be due to wallet state issues
       if (signError instanceof Error) {
         if (signError.message.includes('timeout')) {
-          throw new Error('Transaction signing timed out. Your wallet may have lost connection. Please reconnect your wallet and try again.');
+          throw new Error('Transaction signing timed out. Please try again.');
         } else if (signError.message.includes('User rejected') || signError.message.includes('cancelled')) {
-          throw signError; // Re-throw timeout and user rejection errors as-is
+          throw signError; // Re-throw user rejection errors as-is
         } else {
-          throw new Error(`Transaction signing failed: ${signError.message}. Try reconnecting your wallet.`);
+          throw new Error(`Transaction signing failed: ${signError.message}. If this persists, please use "Reconnect Wallet" in the profile menu.`);
         }
       }
-      throw new Error('Transaction signing failed. Please reconnect your wallet and try again.');
+      throw new Error('Transaction signing failed. Please try reconnecting your wallet.');
     }
     
     console.log('🔄 signAndSendTransactions: Transactions signed successfully:', signedTransactions);
