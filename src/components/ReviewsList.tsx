@@ -158,7 +158,7 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
               {review.order && (
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <p className="text-gray-500 text-xs">
-                    Review for provider: <span className="font-medium">{review.provider?.username || 'Unknown Provider'}</span>
+                    Review for provider: <span className="font-medium">{review.order?.gig?.provider?.username || 'Unknown Provider'}</span>
                     {review.order.gig_id && (
                       <span className="text-gray-400"> • Order #{review.order.id?.substring(0, 8)}</span>
                     )}
