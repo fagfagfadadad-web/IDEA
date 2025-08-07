@@ -8,7 +8,10 @@ export type GigInput = {
   price: number;
   duration: number;
   category: string;
-  media_urls?: any;
+  media_urls?: {
+    images?: string[];
+    video?: string;
+  };
   payment_token?: string;
   status?: string;
 };
@@ -169,6 +172,7 @@ export const useUpdateGig = () => {
           price: input.price,
           duration: input.duration,
           category: input.category,
+          media_urls: input.media_urls || { images: [], video: undefined },
           payment_token: input.payment_token || 'EGLD',
           status: input.status || 'active'
         })

@@ -103,6 +103,14 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       });
 
       setPackageDetails(details);
+      
+      // Load existing media URLs
+      if (gig.media_urls) {
+        setExistingMediaUrls({
+          images: gig.media_urls.images || [],
+          video: gig.media_urls.video
+        });
+      }
     }
   }, [isEditMode, gig]);
 
@@ -377,6 +385,53 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 <label className="block text-grey text-sm font-medium mb-2">
                   Media
                 </label>
+                
+                {/* Existing Images */}
+                {existingMediaUrls.images.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-gray-800 font-medium mb-2">Current Images</h4>
+                    <div className="flex gap-4 overflow-x-auto pb-2">
+                      {existingMediaUrls.images.map((imageUrl, index) => (
+                        <div key={index} className="relative min-w-36">
+                          <img
+                            src={imageUrl}
+                            alt={`Current ${index}`}
+                            className="w-36 h-24 object-cover rounded-md"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => removeExistingImage(index)}
+                            className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                          >
+                            <X size={12} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Existing Video */}
+                {existingMediaUrls.video && (
+                  <div className="mb-4">
+                    <h4 className="text-gray-800 font-medium mb-2">Current Video</h4>
+                    <div className="relative">
+                      <video
+                        src={existingMediaUrls.video}
+                        controls
+                        className="w-full max-w-md h-48 rounded-md"
+                      />
+                      <Button
+                        type="button"
+                        onClick={removeExistingVideo}
+                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full"
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors bg-gray-50"
                   onClick={() => document.getElementById('file-input')?.click()}
@@ -393,20 +448,32 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                     className="hidden"
                   />
                   <p className="text-gray-600">
-                    Drag & drop images/video here, or click to select files
+                    {isUploading ? 'Uploading files...' : 'Drag & drop images/video here, or click to select files'}
                   </p>
+                  {isUploading && (
+                    <div className="mt-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Uploading... {Math.round(uploadProgress)}%</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {/* New Images Preview */}
               {media.images.length > 0 && (
                 <div>
-                  <h3 className="text-gray-800 font-medium mb-4">Images</h3>
+                  <h4 className="text-gray-800 font-medium mb-2">New Images to Upload</h4>
                   <div className="flex gap-4 overflow-x-auto pb-2">
                     {media.images.map((image, index) => (
                       <div key={index} className="relative min-w-36">
                         <img
                           src={image.preview}
-                          alt={`Preview ${index}`}
+                          alt={`New Preview ${index}`}
                           className="w-36 h-24 object-cover rounded-md"
                         />
                         <Button
@@ -422,9 +489,10 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 </div>
               )}
 
+              {/* New Video Preview */}
               {media.video && (
                 <div>
-                  <h3 className="text-gray-800 font-medium mb-4">Video</h3>
+                  <h4 className="text-gray-800 font-medium mb-2">New Video to Upload</h4>
                   <div className="relative">
                     <video
                       src={media.video.preview}
@@ -633,9 +701,11 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   variant="gradient"
                   size="lg"
                   fullWidth
-                  disabled={createGig.isLoading || updateGig.isLoading}
+                  disabled={createGig.isLoading || updateGig.isLoading || isUploading}
                 >
-                  {createGig.isLoading || updateGig.isLoading 
+                  {isUploading
+                    ? 'Uploading files...'
+                    : createGig.isLoading || updateGig.isLoading 
                     ? (isEditMode ? 'Updating...' : 'Creating...') 
                     : (isEditMode ? 'Update Gig' : 'Create Gig')
                   }

@@ -14,3 +14,4 @@ export * from './useCustomToast';
 export * from './useGigViews';
 export * from './useDisputes';
 export * from './useUsers';
+export * from './useFileUpload';
