@@ -453,7 +453,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             
             {/* Emoji Picker */}
             {showEmojiPicker && (
-              <>
+              <div>
                 <div 
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
@@ -477,7 +477,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
