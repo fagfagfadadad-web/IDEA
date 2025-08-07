@@ -1,20 +1,22 @@
-import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider, UnlockPanelManager } from 'lib';
+import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider, UnlockPanelManager, SignedTransactionType } from 'lib';
 
 interface SignAndSendTransactionsProps {
   transactions: Transaction[];
   transactionsDisplayInfo?: TransactionsDisplayInfoType;
   timeout?: number;
+  provider?: any;
 }
 
 export const signAndSendTransactions = async ({
   transactions,
   transactionsDisplayInfo,
-  timeout = 120000
+  timeout = 120000,
+  provider: providedProvider
 }: SignAndSendTransactionsProps) => {
   console.log('🔄 signAndSendTransactions: Starting with transactions:', transactions);
   
   try {
-    let provider = getAccountProvider();
+    let provider = providedProvider || getAccountProvider();
     console.log('🔄 signAndSendTransactions: Got provider:', provider);
     
     // Helper function to validate provider
@@ -23,6 +25,26 @@ export const signAndSendTransactions = async ({
              typeof p.signTransactions === 'function';
     };
 
+    // Check if provider is WalletConnect and handle session
+    if (provider && typeof provider.isConnected === 'function') {
+      try {
+        const isConnected = await provider.isConnected();
+        if (!isConnected) {
+          console.log('🔄 WalletConnect session expired, attempting to reconnect...');
+          if (typeof provider.reconnect === 'function') {
+            await provider.reconnect();
+            console.log('✅ WalletConnect session restored');
+          } else {
+            throw new Error('WALLET_PROVIDER_DISCONNECTED');
+          }
+        } else {
+          console.log('✅ WalletConnect session is active');
+        }
+      } catch (sessionError) {
+        console.error('❌ WalletConnect session error:', sessionError);
+        throw new Error('WALLET_PROVIDER_DISCONNECTED');
+      }
+    }
     // If provider is invalid, try to reinitialize it
     if (!isProviderValid(provider)) {
       console.log('🔧 signAndSendTransactions: Provider invalid, attempting to get fresh provider...');
@@ -104,7 +126,7 @@ export const signAndSendTransactions = async ({
     
     console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
 
-    const transactionHashes = (sentTransactions as any[]).map((tx: any) => tx.hash || tx.transactionHash);
+    const transactionHashes = sentTransactions.map((tx: any) => tx.hash || tx.transactionHash);
     console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
     if (!transactionHashes || transactionHashes.length === 0) {
       throw new Error('Failed to get transaction hashes from sent transactions');
@@ -112,7 +134,7 @@ export const signAndSendTransactions = async ({
 
     console.log('🔄 signAndSendTransactions: Tracking transactions...');
     try {
-      await txManager.track(sentTransactions as any, { transactionsDisplayInfo });
+      await txManager.track(sentTransactions, { transactionsDisplayInfo });
     } catch (trackError) {
       console.error('🔄 signAndSendTransactions: Tracking failed:', trackError);
       // Don't fail the whole process if tracking fails, just log it

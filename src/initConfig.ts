@@ -23,17 +23,25 @@ if (typeof window !== 'undefined') {
 
 import { environment } from './config/config.mainnet'; // Opravená cesta
 import { walletConnectV2ProjectId } from './config/sharedConfig';
-import { InitAppType } from './lib';
+import { InitAppType, TransactionManager } from './lib';
 
 export const config: InitAppType = {
   storage: { getStorageCallback: () => localStorage },
   dAppConfig: {
     nativeAuth: true,
     environment: environment,
+    successfulToastLifetime: 5000,
+    walletConnectDeepLink: 'https://xportal.com/',
     providers: {
       walletConnect: {
         walletConnectV2ProjectId
       }
+    },
+    onSuccess: (sessionId: string, tx: any) => {
+      console.log('✅ Transaction successful:', { sessionId, tx });
+    },
+    onFail: (sessionId: string, error: any) => {
+      console.error('❌ Transaction failed:', { sessionId, error });
     }
   }
 };

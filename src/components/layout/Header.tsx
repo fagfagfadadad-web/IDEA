@@ -46,10 +46,18 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
+      const provider = getAccountProvider();
+      await provider.logout();
       await authLogout();
       navigate(RouteNamesEnum.home);
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if provider logout fails, continue with auth logout
+      try {
+        await authLogout();
+      } catch (authError) {
+        console.error('Auth logout also failed:', authError);
+      }
       navigate(RouteNamesEnum.home);
     }
     setIsProfileMenuOpen(false);
@@ -57,9 +65,19 @@ export const Header = () => {
 
   const handleForceReconnect = async () => {
     try {
+      // First logout from provider
+      const provider = getAccountProvider();
+      await provider.logout();
+      // Then force reconnect through auth context
       await forceReconnect();
     } catch (error) {
       console.error('Force reconnect error:', error);
+      // If provider logout fails, still attempt auth reconnect
+      try {
+        await forceReconnect();
+      } catch (authError) {
+        console.error('Auth force reconnect also failed:', authError);
+      }
     }
     setIsProfileMenuOpen(false);
   };

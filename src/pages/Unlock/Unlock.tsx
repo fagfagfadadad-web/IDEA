@@ -16,27 +16,44 @@ export const Unlock = () => {
   console.log('Current URL:', window.location.href);
   console.log('Current pathname:', window.location.pathname);
 
+  // Initialize UnlockPanelManager with proper callbacks
+  const unlockPanelManager = UnlockPanelManager.init({
+    loginHandler: () => {
+      console.log('✅ Login successful, navigating to home');
+      navigate(RouteNamesEnum.home);
+    },
+    onClose: () => {
+      console.log('🔒 Unlock panel closed, navigating to home');
+      navigate(RouteNamesEnum.home);
+    }
+  });
   const handleOpenUnlockPanel = async () => {
     console.log('=== HANDLE OPEN UNLOCK PANEL CALLED ===');
     setIsLoading(true);
     try {
-      const unlockPanelManager = UnlockPanelManager.init({
-        loginHandler: () => {
-          console.log('Login successful, navigating to home');
-          navigate(RouteNamesEnum.home);
-        },
-        onClose: () => {
-          console.log('Unlock panel closed, navigating to home');
-          navigate(RouteNamesEnum.home);
-        }
-      });
-      
       console.log('Opening unlock panel...');
       await unlockPanelManager.openUnlockPanel();
       console.log('Unlock panel opened successfully');
     } catch (error) {
       console.error('Error opening unlock panel:', error);
-      alert('Error opening wallet panel: ' + (error as Error).message);
+      console.log('Retrying unlock panel initialization...');
+      // Retry with a fresh manager instance
+      try {
+        const retryManager = UnlockPanelManager.init({
+          loginHandler: () => {
+            console.log('✅ Login successful (retry), navigating to home');
+            navigate(RouteNamesEnum.home);
+          },
+          onClose: () => {
+            console.log('🔒 Unlock panel closed (retry), navigating to home');
+            navigate(RouteNamesEnum.home);
+          }
+        });
+        await retryManager.openUnlockPanel();
+      } catch (retryError) {
+        console.error('Retry also failed:', retryError);
+        alert('Error opening wallet panel: ' + (retryError as Error).message);
+      }
     } finally {
       setIsLoading(false);
     }
