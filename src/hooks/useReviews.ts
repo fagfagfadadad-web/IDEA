@@ -198,12 +198,7 @@ export const useReviewsForProvider = (providerId: string) => {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!providerId || typeof providerId !== 'string') {
-      console.log('🔍 useReviewsForProvider: Invalid providerId:', providerId);
-      setData([]);
-      setIsLoading(false);
-      return;
-    }
+    if (!providerId) return;
 
     fetchProviderReviews();
   }, [providerId]);
@@ -212,13 +207,11 @@ export const useReviewsForProvider = (providerId: string) => {
     try {
       setIsLoading(true);
       
-      console.log('🔍 useReviewsForProvider: Starting with providerId:', providerId, 'type:', typeof providerId);
-      
       // First get all orders for this provider
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id')
-        .in('gig_id', 
+        .eq('gig_id', 
           supabase
             .from('gigs')
             .select('id')
