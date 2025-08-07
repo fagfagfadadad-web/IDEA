@@ -35,8 +35,8 @@ import { useGigs } from 'hooks/useGigs';
 import { useOrders } from 'hooks/useOrders';
 import { useReviewsForProvider } from 'hooks/useReviews';
 import { useNotifications } from 'hooks/useNotifications';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 
 export const Profile = () => {
   const { id } = useParams();
