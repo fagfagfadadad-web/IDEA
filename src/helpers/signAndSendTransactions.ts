@@ -27,7 +27,7 @@ export const signAndSendTransactions = async ({
 
     console.log('🔄 signAndSendTransactions: Sending transactions...');
     const sentTransactions = await txManager.send(signedTransactions as Transaction[]);
-    console.log('🔄 signAndSendTransactions: Transactions sent:', JSON.stringify(sentTransactions, null, 2));
+    console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
 
     const transactionHashes = sentTransactions.map((tx: any) => tx.hash || tx.transactionHash);
     console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
