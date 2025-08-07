@@ -36,7 +36,7 @@ export const signAndSendTransactions = async ({
             console.log('🔧 signAndSendTransactions: Provider reinitialized via login handler');
           },
           onClose: () => {
-            throw new Error(\`Transaction signing failed: ${signError.message}`);
+            throw new Error(`Transaction signing failed: ${signError.message}`);
           }
         });
         // Don't actually open the panel, just initialize the manager
