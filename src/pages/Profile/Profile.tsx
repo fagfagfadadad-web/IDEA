@@ -30,11 +30,11 @@ import {
 } from 'lucide-react';
 import { Button, Card, ReviewsList, EmailNotificationsToggle, GigViewsStats } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-import { useProfile, useUpdateProfile } from '../hooks/useProfile';
-import { useGigs } from '../hooks/useGigs';
-import { useOrders } from '../hooks/useOrders';
-import { useReviewsForProvider } from '../hooks/useReviews';
-import { useNotifications } from '../hooks/useNotifications';
+import { useProfile, useUpdateProfile } from 'hooks/useProfile';
+import { useGigs } from 'hooks/useGigs';
+import { useOrders } from 'hooks/useOrders';
+import { useReviewsForProvider } from 'hooks/useReviews';
+import { useNotifications } from 'hooks/useNotifications';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 
