@@ -9,6 +9,7 @@ interface AuthContextType {
   isProfileReady: boolean;
   authMessage: string;
   logout: () => Promise<void>;
+  forceReconnect: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType>({
   isProfileReady: false,
   authMessage: '',
   logout: async () => {},
+  forceReconnect: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -470,6 +472,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const forceReconnect = async () => {
+    try {
+      console.log('🔄 AuthContext: Force reconnecting wallet...');
+      isAuthenticating.current = true; // Prevent new auth attempts during reconnect
+      
+      // Clear all local state first
+      setUser(null);
+      setIsProfileReady(false);
+      setLastAddress(null);
+      setAuthMessage('Reconnecting wallet...');
+      
+      // Clear Supabase session
+      await handleSupabaseSignOut();
+      
+      // Force logout from wallet provider
+      try {
+        const provider = getAccountProvider();
+        await provider.logout();
+        console.log('✅ AuthContext: Wallet provider logout successful');
+      } catch (providerError: any) {
+        console.log('⚠️ AuthContext: Wallet provider logout failed, continuing anyway:', providerError.message);
+      }
+      
+      // Clear any cached wallet state in localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('wallet') || key.includes('provider') || key.includes('dapp')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      setAuthMessage('Wallet disconnected. Redirecting to connection page...');
+      
+      // Small delay to ensure cleanup is complete
+      setTimeout(() => {
+        window.location.href = '/unlock';
+      }, 1000);
+      
+    } catch (error: any) {
+      console.error('❌ AuthContext: Force reconnect error:', error);
+      setAuthMessage('Reconnection failed. Please try refreshing the page.');
+    } finally {
+      isAuthenticating.current = false;
+    }
+  };
+
   const value = {
     isAuthenticated: isLoggedIn && !!user && isProfileReady,
     user,
@@ -477,6 +524,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isProfileReady,
     authMessage,
     logout,
+    forceReconnect,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

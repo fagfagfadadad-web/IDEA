@@ -11,7 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
+  const { user, logout: authLogout, forceReconnect } = useAuth();
   const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -46,12 +46,20 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const provider = getAccountProvider();
-      await provider.logout();
-      navigate(RouteNamesEnum.unlock);
+      await authLogout();
+      navigate(RouteNamesEnum.home);
     } catch (error) {
       console.error('Logout error:', error);
-      navigate(RouteNamesEnum.unlock);
+      navigate(RouteNamesEnum.home);
+    }
+    setIsProfileMenuOpen(false);
+  };
+
+  const handleForceReconnect = async () => {
+    try {
+      await forceReconnect();
+    } catch (error) {
+      console.error('Force reconnect error:', error);
     }
     setIsProfileMenuOpen(false);
   };
@@ -245,6 +253,13 @@ export const Header = () => {
                             Settings
                           </Link>
                           <button
+                            onClick={handleForceReconnect}
+                            className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 w-full text-left"
+                          >
+                            <Wallet size={16} />
+                            Reconnect Wallet
+                          </Link>
+                          <button
                             onClick={handleLogout}
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-b-lg w-full text-left transition-all duration-200"
                           >
@@ -396,6 +411,16 @@ export const Header = () => {
                     <Settings size={18} />
                     Settings
                   </Link>
+                  <button
+                    onClick={() => {
+                      handleForceReconnect();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 rounded-lg transition-all duration-200 w-full text-left"
+                  >
+                    <Wallet size={18} />
+                    Reconnect Wallet
+                  </button>
                   <button
                     onClick={() => {
                       handleLogout();
