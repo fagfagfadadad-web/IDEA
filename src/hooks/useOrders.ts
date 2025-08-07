@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
-import { useEmailTemplates } from './useEmailNotifications';
+import { useEmailTemplates, useSendEmailNotification } from './useEmailNotifications';
 
 // Define the provider type explicitly
 interface Provider {
@@ -287,6 +287,7 @@ export const useOrders = () => {
 export const useCreateOrder = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { address } = useGetAccount();
+  const { getOrderCreatedTemplate } = useEmailTemplates();
 
   const mutateAsync = async (orderData: {
     gig_id: string;
@@ -367,6 +368,53 @@ export const useCreateOrder = () => {
         .single();
 
       if (error) throw error;
+
+      // Send email notification to provider if they have email notifications enabled
+      try {
+        console.log('DEBUG: Sending order created notification to provider...');
+        
+        // Get provider details including email settings
+        const { data: providerData, error: providerError } = await supabase
+          .from('users')
+          .select('id, username, email, email_notifications_enabled, full_name')
+          .eq('id', gig.provider_id)
+          .single();
+
+        if (!providerError && providerData?.email && providerData?.email_notifications_enabled) {
+          console.log('DEBUG: Provider has email notifications enabled, sending email...');
+          
+          // Prepare template data for order created email
+          const templateData = {
+            clientName: order.client?.username || order.client?.full_name || 'A client',
+            gigTitle: order.gig?.title || 'Custom Project',
+            amount: orderData.amount,
+            paymentToken: gig?.payment_token || orderData.payment_token || 'EGLD',
+            orderId: order.id
+          };
+          
+          await sendNotification({
+            user_id: providerData.id,
+            type: 'order_created',
+            title: `New Order - ${templateData.gigTitle}`,
+            content: `You have received a new order from ${templateData.clientName} for ${templateData.amount} ${templateData.paymentToken}.`,
+            data: templateData,
+            sendEmail: true,
+            userEmail: providerData.email
+          });
+          
+          console.log('DEBUG: Order created email notification sent successfully');
+        } else {
+          console.log('DEBUG: Provider email notification NOT sent:', {
+            hasProvider: !!providerData,
+            hasEmail: !!providerData?.email,
+            emailEnabled: providerData?.email_notifications_enabled,
+            providerError: providerError?.message
+          });
+        }
+      } catch (notificationError) {
+        console.error('Error sending order created notification:', notificationError);
+        // Don't fail the order creation if notification fails
+      }
 
       return order;
     } catch (err) {
@@ -455,6 +503,7 @@ export const useOrderById = (orderId: string) => {
 
 export const useUpdateOrderStatus = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const { getPaymentReleasedTemplate } = useEmailTemplates();
 
   const mutateAsync = async ({ orderId, status, amount }: { orderId: string; status: string; amount?: number }) => {
     setIsLoading(true);
@@ -476,6 +525,144 @@ export const useUpdateOrderStatus = () => {
         .single();
 
       if (error) throw error;
+
+      // Send email notifications based on status change
+      try {
+        console.log('DEBUG: Sending status change notification for status:', status);
+        
+        // Get order details with client and provider information
+        const { data: orderDetails, error: orderError } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            amount,
+            payment_token,
+            client_id,
+            gig:gigs(
+              id,
+              title,
+              provider_id,
+              provider:users!gigs_provider_id_fkey(id, username, email, email_notifications_enabled, full_name)
+            ),
+            client:users!orders_client_id_fkey(id, username, email, email_notifications_enabled, full_name)
+          `)
+          .eq('id', orderId)
+          .single();
+
+        if (orderError) {
+          console.error('Error fetching order details for notification:', orderError);
+          return order;
+        }
+
+        // Handle different status changes
+        switch (status) {
+          case 'delivered':
+            // Notify client that work has been delivered
+            if (orderDetails.client?.email && orderDetails.client?.email_notifications_enabled) {
+              await sendNotification({
+                user_id: orderDetails.client.id,
+                type: 'work_delivered',
+                title: `Work Delivered - ${orderDetails.gig?.title || 'Custom Project'}`,
+                content: `The provider has delivered the work for your order. Please review and release the payment if you are satisfied.`,
+                data: {
+                  orderId: orderId,
+                  gigTitle: orderDetails.gig?.title || 'Custom Project',
+                  providerName: orderDetails.gig?.provider?.username || orderDetails.gig?.provider?.full_name || 'Provider'
+                },
+                sendEmail: true,
+                userEmail: orderDetails.client.email
+              });
+              console.log('DEBUG: Work delivered email sent to client');
+            }
+            break;
+            
+          case 'completed':
+            // Notify both parties that order is completed
+            const gigProvider = Array.isArray(orderDetails.gig) ? 
+              (orderDetails.gig as any)[0]?.provider : 
+              (orderDetails.gig as any)?.provider;
+            
+            // Notify provider about completion
+            if (gigProvider?.email && gigProvider?.email_notifications_enabled) {
+              const paymentTemplate = getPaymentReleasedTemplate({
+                providerName: gigProvider.username || gigProvider.full_name || 'Provider',
+                gigTitle: orderDetails.gig?.title || 'Custom Project',
+                amount: orderDetails.amount,
+                paymentToken: orderDetails.payment_token || 'EGLD',
+                orderId: orderId
+              });
+              
+              await sendNotification({
+                user_id: gigProvider.id,
+                type: 'payment_released',
+                title: paymentTemplate.subject,
+                content: `Payment for order "${orderDetails.gig?.title || 'Custom Project'}" has been successfully released.`,
+                data: {
+                  providerName: gigProvider.username || gigProvider.full_name || 'Provider',
+                  gigTitle: orderDetails.gig?.title || 'Custom Project',
+                  amount: orderDetails.amount,
+                  paymentToken: orderDetails.payment_token || 'EGLD',
+                  orderId: orderId
+                },
+                sendEmail: true,
+                userEmail: gigProvider.email
+              });
+              console.log('DEBUG: Payment released email sent to provider');
+            }
+            
+            // Notify client about completion
+            if (orderDetails.client?.email && orderDetails.client?.email_notifications_enabled) {
+              await sendNotification({
+                user_id: orderDetails.client.id,
+                type: 'order_completed',
+                title: `Order Completed - ${orderDetails.gig?.title || 'Custom Project'}`,
+                content: `Your order has been completed successfully. You can now leave a review for the provider.`,
+                data: {
+                  orderId: orderId,
+                  gigTitle: orderDetails.gig?.title || 'Custom Project',
+                  providerName: gigProvider?.username || gigProvider?.full_name || 'Provider'
+                },
+                sendEmail: true,
+                userEmail: orderDetails.client.email
+              });
+              console.log('DEBUG: Order completed email sent to client');
+            }
+            break;
+            
+          case 'in_progress':
+            // Notify provider that payment has been made and work can start
+            const provider = Array.isArray(orderDetails.gig) ? 
+              (orderDetails.gig as any)[0]?.provider : 
+              (orderDetails.gig as any)?.provider;
+            
+            if (provider?.email && provider?.email_notifications_enabled) {
+              await sendNotification({
+                user_id: provider.id,
+                type: 'order_started',
+                title: `Order Started - ${orderDetails.gig?.title || 'Custom Project'}`,
+                content: `Payment has been received and escrowed. You can now start working on the order.`,
+                data: {
+                  orderId: orderId,
+                  gigTitle: orderDetails.gig?.title || 'Custom Project',
+                  clientName: orderDetails.client?.username || orderDetails.client?.full_name || 'Client',
+                  amount: orderDetails.amount,
+                  paymentToken: orderDetails.payment_token || 'EGLD'
+                },
+                sendEmail: true,
+                userEmail: provider.email
+              });
+              console.log('DEBUG: Order started email sent to provider');
+            }
+            break;
+            
+          default:
+            console.log('DEBUG: No email notification configured for status:', status);
+            break;
+        }
+      } catch (notificationError) {
+        console.error('Error sending status change notification:', notificationError);
+        // Don't fail the status update if notification fails
+      }
 
       return order;
     } catch (error) {
