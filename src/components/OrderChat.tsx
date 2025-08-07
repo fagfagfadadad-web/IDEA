@@ -220,42 +220,44 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   : 'bg-gray-200 text-gray-800'
               }`}>
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
-                    {message.sender?.avatar_url ? (
-                      <>
-                        <img
-                          src={message.sender.avatar_url}
-                          alt={message.sender.username || "User"}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const parent = target.parentElement;
-                            if (parent) {
-                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
-                            }
-                          }}
-                        />
-                        <div 
-                          className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
-                          style={{ display: 'none' }}
-                        >
+                  <>
+                    <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
+                      {message.sender?.avatar_url ? (
+                        <>
+                          <img
+                            src={message.sender.avatar_url}
+                            alt={message.sender.username || "User"}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                          <div 
+                            className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                            style={{ display: 'none' }}
+                          >
+                            {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
                           {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
                         </div>
-                      </>
-                    ) : (
-                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
-                        {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
-                      </div>
-                    )}
-                  </div>
-                  <span className="font-medium text-sm">
-                    {message.sender?.username}
-                  </span>
-                  <span className={`text-xs ${isCurrentUser ? 'text-blue-200' : 'text-gray-500'}`}>
-                    {formatTimestamp(message.created_at)}
-                  </span>
+                      )}
+                    </div>
+                    <span className="font-medium text-sm">
+                      {message.sender?.username}
+                    </span>
+                    <span className={`text-xs ${isCurrentUser ? 'text-blue-200' : 'text-gray-500'}`}>
+                      {formatTimestamp(message.created_at)}
+                    </span>
+                  </>
                 </div>
                 
                 {/* Display the actual message content, not the JSON */}
