@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { useGetIsLoggedIn, useGetAccount, getAccountProvider } from 'lib';
+import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
 
 interface AuthContextType {
@@ -33,6 +33,65 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   
   // CRITICAL: Add refs to prevent multiple auth attempts
   const isAuthenticating = useRef(false);
+
+  // Helper function to validate and reinitialize provider if needed
+  const validateAndReinitializeProvider = async () => {
+    try {
+      console.log('🔧 AuthContext: Validating wallet provider...');
+      const provider = getAccountProvider();
+      
+      // Check if provider exists and has required methods
+      if (!provider || typeof provider.getAccount !== 'function' || typeof provider.signTransactions !== 'function') {
+        console.log('⚠️ AuthContext: Provider is invalid, attempting reinitialization...');
+        
+        // Try to reinitialize UnlockPanelManager which should restore provider state
+        try {
+          const unlockPanelManager = UnlockPanelManager.init({
+            loginHandler: () => {
+              console.log('🔧 AuthContext: Provider reinitialized via login handler');
+            },
+            onClose: () => {
+              console.log('🔧 AuthContext: Provider reinitialization closed');
+            }
+          });
+          
+          // Don't actually open the panel, just initialize the manager
+          console.log('✅ AuthContext: UnlockPanelManager reinitialized');
+          
+          // Check if provider is now valid
+          const newProvider = getAccountProvider();
+          if (newProvider && typeof newProvider.getAccount === 'function' && typeof newProvider.signTransactions === 'function') {
+            console.log('✅ AuthContext: Provider successfully reinitialized');
+            return true;
+          } else {
+            console.log('❌ AuthContext: Provider still invalid after reinitialization');
+            return false;
+          }
+        } catch (reinitError) {
+          console.error('❌ AuthContext: Provider reinitialization failed:', reinitError);
+          return false;
+        }
+      } else {
+        // Provider seems valid, test if getAccount actually works
+        try {
+          const account = await provider.getAccount();
+          if (account && account.address) {
+            console.log('✅ AuthContext: Provider is valid and functional');
+            return true;
+          } else {
+            console.log('⚠️ AuthContext: Provider getAccount returned invalid data');
+            return false;
+          }
+        } catch (accountError) {
+          console.error('⚠️ AuthContext: Provider getAccount failed:', accountError);
+          return false;
+        }
+      }
+    } catch (error) {
+      console.error('❌ AuthContext: Provider validation failed:', error);
+      return false;
+    }
+  };
 
   // Generate a valid email from MultiversX address using first 6 characters
   const generateValidEmail = (address: string) => {
@@ -112,6 +171,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔄 AuthContext: Starting auth sync...');
       console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
       console.log('📍 AuthContext: address:', address);
+
+      // CRITICAL: Validate wallet provider state when user is logged in
+      if (isLoggedIn && address) {
+        const isProviderValid = await validateAndReinitializeProvider();
+        if (!isProviderValid) {
+          console.log('❌ AuthContext: Provider validation failed, forcing logout');
+          setAuthMessage('Wallet connection lost. Please reconnect your wallet.');
+          await handleSupabaseSignOut();
+          const provider = getAccountProvider();
+          try {
+            await provider.logout();
+          } catch (logoutError) {
+            console.log('⚠️ AuthContext: Provider logout failed during cleanup:', logoutError);
+          }
+          setUser(null);
+          setIsProfileReady(false);
+          setLastAddress(null);
+          return;
+        }
+      }
 
       // CRITICAL: Detect desynchronized state and clear Supabase session
       if (isLoggedIn && !user && address && address === lastAddress) {
