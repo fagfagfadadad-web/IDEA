@@ -870,7 +870,7 @@ const OrderDetails = () => {
                   <Shield size={24} className="text-purple-400" />
                   <CheckCircle size={24} className="text-green-400" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">🏛️ Dispute Resolved by Administration</h3>
+                <h3 className="text-lg font-bold text-grey mb-2">🏛️ Dispute Resolved by Administration</h3>
                 <p className="text-gray-300 max-w-sm mx-auto">
                   This dispute has been officially resolved by the platform administration. The decision is final, and
                   funds have been distributed.
