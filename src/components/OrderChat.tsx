@@ -147,6 +147,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             >
               <div className="bg-blue-800 text-white rounded-lg px-4 py-2 text-center max-w-[90%]">
                 <p className="text-sm">🎉 New order created!</p>
+                <div className="text-xs text-gray-500 font-mono">
+                  Order ID: {order.id.substring(0, 8)}...
+                </div>
               </div>
             </div>
           );
@@ -161,6 +164,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             >
               <div className="bg-green-800 text-white rounded-lg px-4 py-2 text-center max-w-[90%]">
                 <p className="text-sm">{content.message}</p>
+                <div className="text-xs text-gray-500 font-mono">
+                  Order ID: {order.id.substring(0, 8)}...
+                </div>
               </div>
             </div>
           );
@@ -175,6 +181,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             >
               <div className="bg-purple-800 text-white rounded-lg px-4 py-2 text-center max-w-[90%]">
                 <p className="text-sm">{content.message}</p>
+                <div className="text-xs text-gray-500 font-mono">
+                  Order ID: {order.id.substring(0, 8)}...
+                </div>
               </div>
             </div>
           );
@@ -266,6 +275,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
           >
             <div className="bg-gray-700 text-white rounded-lg px-4 py-2 text-center max-w-[90%]">
               <p className="text-sm">{content.message || JSON.stringify(content)}</p>
+              <div className="text-xs text-gray-500 font-mono">
+                Order ID: {order.id.substring(0, 8)}...
+              </div>
             </div>
           </div>
         );

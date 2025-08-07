@@ -136,8 +136,8 @@ export const AdminDisputes: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-gray-600 text-sm">Order ID</p>
-                      <p className="text-gray-800 font-mono text-xs">
-                        {dispute.order?.id}
+                      <p className="text-gray-800 font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                        {dispute.order?.id?.substring(0, 8)}...
                       </p>
                     </div>
                     <div>

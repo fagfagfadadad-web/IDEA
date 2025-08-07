@@ -137,9 +137,9 @@ export const useOrders = () => {
 
       console.log('🔍 useOrders: Query result:', { orders, error });
       console.log('🔍 useOrders: Orders count:', orders?.length || 0);
-      console.log('🔍 useOrders: First few orders:', orders?.slice(0, 3));
+      console.log('🔍 useOrders: First few orders with IDs:', orders?.slice(0, 3)?.map(o => ({ id: o.id.substring(0, 8), title: o.gig?.title })));
       orders?.forEach(order => {
-        console.log(`🔍 useOrders: Order ID: ${order.id}, Gig Provider ID: ${order.gig?.provider?.id}, Current User ID: ${user.id}`);
+        console.log(`🔍 useOrders: Order ID: ${order.id.substring(0, 8)}..., Gig Provider ID: ${order.gig?.provider?.id}, Current User ID: ${user.id}`);
       });
 
       if (error) throw error;
