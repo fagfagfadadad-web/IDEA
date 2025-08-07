@@ -5,6 +5,7 @@ import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useCreateGig, useUpdateGig, useGigById } from '../../hooks/useGigs';
 import { useProfile } from '../../hooks/useProfile';
+import { supabase } from '../../lib/supabase';
 
 const categories = [
   'Programming & Tech',
@@ -49,6 +50,12 @@ interface CreateGigProps {
   isEditing?: boolean;
 }
 
+// Define interface for media URLs
+interface MediaUrls {
+  images: string[];
+  video: string | null;
+}
+
 export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   const { id: paramId } = useParams();
   const navigate = useNavigate();
@@ -84,6 +91,31 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
     video: undefined,
   });
 
+  // Define state for existing media URLs
+  const [existingMediaUrls, setExistingMediaUrls] = useState<MediaUrls>({
+    images: [],
+    video: null,
+  });
+
+  // Define state for upload status
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Define functions to remove existing media
+  const removeExistingImage = (index: number) => {
+    setExistingMediaUrls((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const removeExistingVideo = () => {
+    setExistingMediaUrls((prev) => ({
+      ...prev,
+      video: null,
+    }));
+  };
+
   // Load gig data when editing
   useEffect(() => {
     if (isEditMode && gig) {
@@ -103,50 +135,85 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       });
 
       setPackageDetails(details);
-      
+
       // Load existing media URLs
       if (gig.media_urls) {
         setExistingMediaUrls({
           images: gig.media_urls.images || [],
-          video: gig.media_urls.video
+          video: gig.media_urls.video || null,
         });
       }
     }
   }, [isEditMode, gig]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    acceptedFiles.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        setMedia(prev => ({
-          ...prev,
-          images: [...prev.images, {
-            file,
-            preview: URL.createObjectURL(file)
-          }]
-        }));
-      } else if (file.type.startsWith('video/')) {
-        setMedia(prev => ({
-          ...prev,
-          video: {
-            file,
-            preview: URL.createObjectURL(file)
-          }
-        }));
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    acceptedFiles.forEach(async (file) => {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+
+        // Simulate upload progress
+        for (let progress = 0; progress <= 100; progress += 10) {
+          setUploadProgress(progress);
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+
+        // Upload to Supabase storage
+        const { data, error } = await supabase.storage
+          .from('gig-media')
+          .upload(`public/${fileName}`, file);
+
+        if (error) {
+          throw new Error(`Failed to upload ${fileType}: ${error.message}`);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('gig-media')
+          .getPublicUrl(`public/${fileName}`);
+
+        if (fileType === 'image') {
+          setMedia((prev) => ({
+            ...prev,
+            images: [...prev.images, { file, preview: publicUrlData.publicUrl }],
+          }));
+          setExistingMediaUrls((prev) => ({
+            ...prev,
+            images: [...prev.images, publicUrlData.publicUrl],
+          }));
+        } else {
+          setMedia((prev) => ({
+            ...prev,
+            video: { file, preview: publicUrlData.publicUrl },
+          }));
+          setExistingMediaUrls((prev) => ({
+            ...prev,
+            video: publicUrlData.publicUrl,
+          }));
+        }
+      } catch (error) {
+        console.error('File upload error:', error);
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
       }
     });
   }, []);
 
   const removeImage = (index: number) => {
-    setMedia(prev => ({
+    setMedia((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
   const removeVideo = () => {
-    setMedia(prev => ({
+    setMedia((prev) => ({
       ...prev,
-      video: undefined
+      video: undefined,
     }));
   };
 
@@ -212,6 +279,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
         category: formData.category,
         payment_token: formData.payment_token,
         status: formData.status,
+        media_urls: existingMediaUrls, // Include media URLs
       };
 
       if (isEditMode && editGigId) {
@@ -219,7 +287,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       } else {
         await createGig.mutateAsync(gigData);
       }
-      
+
       navigate('/profile');
     } catch (error) {
       console.error('Error creating/updating gig:', error);
@@ -230,10 +298,10 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const selectedToken = paymentTokens.find(token => token.id === formData.payment_token);
+  const selectedToken = paymentTokens.find((token) => token.id === formData.payment_token);
 
   if (isEditMode && isGigLoading) {
     return (
@@ -313,7 +381,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   required
                 >
                   <option value="">Select category</option>
-                  {categories.map(category => (
+                  {categories.map((category) => (
                     <option key={category} value={category}>
                       {category}
                     </option>
@@ -358,7 +426,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                       <span className="md:hidden ml-2">Add Detail</span>
                     </Button>
                   </div>
-                  
+
                   <ul className="space-y-2">
                     {packageDetails.map((detail, index) => (
                       <li key={index} className="flex items-center justify-between bg-gray-50 border border-gray-200 p-3 rounded-lg">
@@ -385,13 +453,13 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 <label className="block text-grey text-sm font-medium mb-2">
                   Media
                 </label>
-                
+
                 {/* Existing Images */}
                 {existingMediaUrls.images.length > 0 && (
                   <div className="mb-4">
                     <h4 className="text-gray-800 font-medium mb-2">Current Images</h4>
                     <div className="flex gap-4 overflow-x-auto pb-2">
-                      {existingMediaUrls.images.map((imageUrl, index) => (
+                      {existingMediaUrls.images.map((imageUrl: string, index: number) => (
                         <div key={index} className="relative min-w-36">
                           <img
                             src={imageUrl}
@@ -453,7 +521,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   {isUploading && (
                     <div className="mt-2">
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                           style={{ width: `${uploadProgress}%` }}
                         ></div>
@@ -526,7 +594,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-300 bg-white'
                       }`}
-                      onClick={() => setFormData(prev => ({ ...prev, status: option.value }))}
+                      onClick={() => setFormData((prev) => ({ ...prev, status: option.value }))}
                     >
                       <div className="flex items-center">
                         <input
@@ -539,25 +607,26 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-800 font-bold">
-                              {option.label}
-                            </span>
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              option.value === 'active' ? 'bg-green-100 text-green-800' :
-                              option.value === 'paused' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
-                            }`}>
+                            <span className="text-gray-800 font-bold">{option.label}</span>
+                            <span
+                              className={`px-2 py-1 rounded text-xs font-medium ${
+                                option.value === 'active'
+                                  ? 'bg-green-100 text-green-800'
+                                  : option.value === 'paused'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-red-100 text-red-800'
+                              }`}
+                            >
                               {option.value === 'active' ? 'Public' : 'Hidden'}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-sm mt-1">
-                            {option.description}
-                          </p>
+                          <p className="text-gray-600 text-sm mt-1">{option.description}</p>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                
+
                 {formData.status !== 'active' && (
                   <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div className="flex items-start">
@@ -587,7 +656,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                           ? 'border-indigo-500 bg-indigo-50'
                           : 'border-gray-300 bg-white'
                       }`}
-                      onClick={() => setFormData(prev => ({ ...prev, payment_token: token.id }))}
+                      onClick={() => setFormData((prev) => ({ ...prev, payment_token: token.id }))}
                     >
                       <div className="flex items-center">
                         <input
@@ -599,30 +668,32 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                           className="mr-3"
                         />
                         <div className="flex items-center gap-3">
-                          <div className={formData.payment_token === token.id ? "text-indigo-600" : "text-gray-600"}>
+                          <div
+                            className={formData.payment_token === token.id ? 'text-indigo-600' : 'text-gray-600'}
+                          >
                             {token.icon}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-gray-800 font-bold">
-                                {token.name}
-                              </span>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                token.id === 'EGLD' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
-                              }`}>
+                              <span className="text-gray-800 font-bold">{token.name}</span>
+                              <span
+                                className={`px-2 py-1 rounded text-xs font-medium ${
+                                  token.id === 'EGLD'
+                                    ? 'bg-orange-100 text-orange-800'
+                                    : 'bg-green-100 text-green-800'
+                                }`}
+                              >
                                 {token.fee} fee
                               </span>
                             </div>
-                            <p className="text-gray-600 text-sm">
-                              {token.description}
-                            </p>
+                            <p className="text-gray-600 text-sm">{token.description}</p>
                           </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
-                
+
                 {/* Fee Information Alert */}
                 {formData.payment_token === 'EGLD' && (
                   <div className="mt-4 bg-orange-50 border border-orange-200 rounded-lg p-3">
@@ -631,14 +702,13 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                       <div>
                         <p className="text-orange-800 font-medium">EGLD Payment Fee</p>
                         <p className="text-orange-700 text-sm">
-                          10% platform fee will be deducted from EGLD payments. 
-                          Use IDA tokens for zero fees!
+                          10% platform fee will be deducted from EGLD payments. Use IDA tokens for zero fees!
                         </p>
                       </div>
                     </div>
                   </div>
                 )}
-                
+
                 {formData.payment_token === 'IDA-f9bc1d' && (
                   <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="flex items-start">
@@ -705,10 +775,13 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 >
                   {isUploading
                     ? 'Uploading files...'
-                    : createGig.isLoading || updateGig.isLoading 
-                    ? (isEditMode ? 'Updating...' : 'Creating...') 
-                    : (isEditMode ? 'Update Gig' : 'Create Gig')
-                  }
+                    : createGig.isLoading || updateGig.isLoading
+                    ? isEditMode
+                      ? 'Updating...'
+                      : 'Creating...'
+                    : isEditMode
+                    ? 'Update Gig'
+                    : 'Create Gig'}
                 </Button>
               </div>
             </div>
