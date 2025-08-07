@@ -91,50 +91,57 @@ export const Home = () => {
   const { width } = useWindowSize();
   const isMobile = width < 768;
   const [currentGigIndex, setCurrentGigIndex] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Auto-scroll effect for mobile carousel
   useEffect(() => {
-    if (!isMobile || isUserInteracting || !carouselRef.current) {
-      console.log('Carousel auto-scroll skipped:', {
-        isMobile,
-        isUserInteracting,
-        hasCarouselRef: !!carouselRef.current,
-      });
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    if (!isMobile || isUserInteracting) {
       return;
     }
 
-    const element = carouselRef.current;
     const scrollAmount = 2;
     const itemWidth = 120;
     const gap = 8;
     const totalWidth = serviceCategories.length * (itemWidth + gap);
 
     const scroll = () => {
-      if (!carouselRef.current) {
-        console.warn('Carousel ref is null in scroll function');
+      const currentRef = carouselRef.current;
+      if (!currentRef) {
+        // Stop the interval if ref becomes null
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
         return;
       }
 
-      let scrollPosition = carouselRef.current.scrollLeft + scrollAmount;
-      if (scrollPosition >= totalWidth - carouselRef.current.clientWidth) {
+      let scrollPosition = currentRef.scrollLeft + scrollAmount;
+      if (scrollPosition >= totalWidth - currentRef.clientWidth) {
         scrollPosition = 0;
       }
-      carouselRef.current.scrollLeft = scrollPosition;
+      currentRef.scrollLeft = scrollPosition;
     };
 
     // Delay the start of scrolling to ensure DOM is fully mounted
     const timeoutId = setTimeout(() => {
-      console.log('Starting carousel auto-scroll');
-      const intervalId = setInterval(scroll, 50);
-      return () => {
-        console.log('Cleaning up carousel auto-scroll');
-        clearInterval(intervalId);
-      };
-    }, 300); // 300ms delay to ensure mount
+      // Check if ref is still valid before starting interval
+      if (carouselRef.current) {
+        intervalRef.current = setInterval(scroll, 50);
+      }
+    }, 300);
 
     return () => {
-      console.log('Cleaning up carousel timeout');
       clearTimeout(timeoutId);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
   }, [isMobile, isUserInteracting]);
 
