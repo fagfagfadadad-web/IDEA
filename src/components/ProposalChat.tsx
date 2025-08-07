@@ -296,6 +296,7 @@ export const ProposalChat: React.FC<ProposalChatProps> = ({
         <button
           onClick={() => document.getElementById('proposal-file-input')?.click()}
           disabled={attachedFiles.length >= 5}
+          className="p-3 text-gray-500 hover:text-blue-600 disabled:opacity-50"
           className="p-3 text-gray-500 hover:text-blue-600 disabled:opacity-50 flex-shrink-0"
         >
           <Paperclip size={20} />

@@ -1,31 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, MoreVertical, Clock, DollarSign, CheckCircle, AlertTriangle, Paperclip, X, Smile } from 'lucide-react';
+import { Send, MoreVertical, Clock, DollarSign, CheckCircle, AlertTriangle, Paperclip, X } from 'lucide-react';
 import { useMessages, useSendMessage } from '../hooks/useMessages';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { useOrderById } from '../hooks/useOrders';
 import { useAuth } from '../context/AuthContext';
 import { Button, Card } from 'components';
-
-// Common emojis for quick access
-const commonEmojis = [
-  '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
-  '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
-  '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩',
-  '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣',
-  '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬',
-  '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗',
-  '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯',
-  '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐',
-  '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈',
-  '👍', '👎', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙',
-  '👈', '👉', '👆', '🖕', '👇', '☝️', '👋', '🤚', '🖐️', '✋',
-  '🖖', '👏', '🙌', '🤝', '🙏', '✍️', '💪', '🦾', '🦿', '🦵',
-  '🎉', '🎊', '🎈', '🎁', '🏆', '🥇', '🥈', '🥉', '⭐', '🌟',
-  '💯', '💥', '💫', '💦', '💨', '🔥', '⚡', '☀️', '🌙', '⭐',
-  '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔',
-  '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️',
-  '✅', '❌', '⚠️', '🚫', '💯', '💢', '💬', '💭', '🗯️', '💤'
-];
 
 interface OrderChatProps {
   orderId: string;
@@ -40,7 +19,6 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of messages
@@ -124,11 +102,6 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
       console.error('Error sending message:', error);
       alert('Error sending message. Please try again later.');
     }
-  };
-
-  const handleEmojiClick = (emoji: string) => {
-    setNewMessage(prev => prev + emoji);
-    setShowEmojiPicker(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -431,72 +404,13 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
       <div className="space-y-3 w-full">
         {/* Input field - full width on mobile */}
         <div className="w-full">
-          <div className="relative">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message here..."
-              className="w-full p-3 pr-12 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
-            
-            {/* Emoji button inside input */}
-            <button
-              type="button"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors"
-            >
-              <Smile size={20} />
-            </button>
-            
-            {/* Emoji Picker */}
-            {showEmojiPicker && (
-              <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setShowEmojiPicker(false)}
-                />
-                <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:transform sm:-translate-x-1/2 mb-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-20 w-80 max-w-[calc(100vw-2rem)]">
-                  {/* Header */}
-                  <div className="p-3 border-b border-gray-600 bg-gray-750 rounded-t-xl">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-white font-medium text-sm">Choose an emoji</h3>
-                      <button
-                        onClick={() => setShowEmojiPicker(false)}
-                        className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-gray-700 rounded"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Emoji Grid */}
-                  <div className="p-3">
-                    <div 
-                      className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
-                      style={{ scrollbarWidth: 'thin' }}
-                    >
-                    {commonEmojis.map((emoji, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleEmojiClick(emoji)}
-                          className="text-xl hover:bg-gray-700 rounded-lg p-2 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center h-10 w-10"
-                          title={emoji}
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Footer */}
-                  <div className="p-2 border-t border-gray-600 bg-gray-750 rounded-b-xl">
-                    <p className="text-gray-400 text-xs text-center">Click an emoji to add it to your message</p>
-                  </div>
-                </div>
-                </div>
-              </>
-            )}
-          </div>
         </div>
         
         {/* Buttons row - stacked on mobile, side by side on desktop */}
@@ -505,7 +419,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
           <button
             onClick={() => document.getElementById('file-input')?.click()}
             disabled={attachedFiles.length >= 5}
-            className="flex items-center justify-center gap-2 px-4 py-3 text-gray-300 hover:text-blue-400 disabled:opacity-50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors w-full sm:flex-1 bg-gray-800 flex-shrink-0"
+            className="flex items-center justify-center gap-2 px-4 py-3 text-gray-300 hover:text-blue-400 disabled:opacity-50 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors w-full sm:flex-1 bg-gray-800"
           >
             <Paperclip size={16} />
             <span className="text-sm">
@@ -517,7 +431,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
           <Button
             onClick={handleSendMessage}
             disabled={sendMessage.isLoading || isUploading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium w-full sm:flex-1 flex-shrink-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium w-full sm:flex-1"
           >
             <Send size={16} />
             {isUploading ? 'Uploading...' : 'Send'}
