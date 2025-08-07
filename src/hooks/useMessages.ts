@@ -3,6 +3,7 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 
 import { useAuth } from '../context/AuthContext';
+import { sendNotification } from './useOrders';
 
 export type Message = {
   id: string;
@@ -125,6 +126,46 @@ export const useSendMessage = () => {
         .single();
 
       if (error) throw error;
+
+      // Send email notification to the recipient if they have email notifications enabled
+      try {
+        // Get order details to determine the recipient
+        const { data: orderDetails } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            client_id,
+            gig:gigs(
+              title,
+              provider_id,
+              provider:users!gigs_provider_id_fkey(id, username, email, email_notifications_enabled)
+            ),
+            client:users!orders_client_id_fkey(id, username, email, email_notifications_enabled)
+          `)
+          .eq('id', orderId)
+          .single();
+
+        if (orderDetails) {
+          // Determine recipient (if sender is client, notify provider and vice versa)
+          const isClientSender = orderDetails.client_id === user.id;
+          const recipient = isClientSender ? orderDetails.gig?.provider : orderDetails.client;
+          
+          if (recipient?.email && recipient?.email_notifications_enabled) {
+            await sendNotification({
+              user_id: recipient.id,
+              type: 'message_received',
+              title: `New message - ${orderDetails.gig?.title || 'Custom Project'}`,
+              content: `You have received a new message: ${content.substring(0, 100)}${content.length > 100 ? '...' : ''}`,
+              data: { order_id: orderId, sender_id: user.id },
+              sendEmail: true,
+              userEmail: recipient.email
+            });
+          }
+        }
+      } catch (notificationError) {
+        console.error('Error sending message notification:', notificationError);
+        // Don't fail the message sending if notification fails
+      }
 
       return message;
     } catch (error) {

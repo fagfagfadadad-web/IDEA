@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
 import { Address } from '@multiversx/sdk-core';
+import { useSendEmailNotification, useEmailTemplates } from './useEmailNotifications';
 
 // Define the provider type explicitly
 interface Provider {
@@ -52,12 +53,16 @@ export const sendNotification = async ({
   title,
   content,
   data,
+  sendEmail = false,
+  userEmail,
 }: {
   user_id: string;
   type: string;
   title: string;
   content: string;
   data?: any;
+  sendEmail?: boolean;
+  userEmail?: string;
 }) => {
   try {
     const { error } = await supabase
@@ -73,6 +78,37 @@ export const sendNotification = async ({
 
     if (error) throw error;
     console.log('Notification sent successfully');
+
+    // Send email notification if requested and email is provided
+    if (sendEmail && userEmail) {
+      try {
+        const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-email', {
+          body: {
+            to: userEmail,
+            subject: title,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">${title}</h2>
+                <p style="color: #666; line-height: 1.6;">${content}</p>
+                <hr style="border: 1px solid #eee; margin: 20px 0;">
+                <p style="color: #999; font-size: 12px;">
+                  This is an automated notification from IDEA Platform.<br>
+                  Visit <a href="https://xidea.app">xidea.app</a> to manage your account.
+                </p>
+              </div>
+            `
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending email notification:', emailError);
+        } else {
+          console.log('Email notification sent successfully:', emailResult);
+        }
+      } catch (emailError) {
+        console.error('Failed to send email notification:', emailError);
+      }
+    }
   } catch (error) {
     console.error('Error sending notification:', error);
     throw error;
