@@ -1,7 +1,20 @@
 import './styles/globals.css';
 
 // Fix for TypeError: t._onTimeout is not a function
-if (typeof globalThis !== 'undefined') {
+if (typeof window !== 'undefined') {
+  // Browser environment
+  globalThis.setTimeout = window.setTimeout.bind(window);
+  globalThis.setInterval = window.setInterval.bind(window);
+  globalThis.clearTimeout = window.clearTimeout.bind(window);
+  globalThis.clearInterval = window.clearInterval.bind(window);
+} else if (typeof global !== 'undefined') {
+  // Node.js environment
+  globalThis.setTimeout = global.setTimeout.bind(global);
+  globalThis.setInterval = global.setInterval.bind(global);
+  globalThis.clearTimeout = global.clearTimeout.bind(global);
+  globalThis.clearInterval = global.clearInterval.bind(global);
+} else if (typeof globalThis !== 'undefined') {
+  // Fallback to globalThis
   globalThis.setTimeout = globalThis.setTimeout.bind(globalThis);
   globalThis.setInterval = globalThis.setInterval.bind(globalThis);
   globalThis.clearTimeout = globalThis.clearTimeout.bind(globalThis);
