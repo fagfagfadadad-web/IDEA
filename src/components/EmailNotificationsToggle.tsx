@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check } from 'lucide-react';
-import { Button } from 'components';
+import { Button } from './Button';
 
 interface EmailNotificationsToggleProps {
   enabled: boolean;
