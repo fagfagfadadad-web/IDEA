@@ -456,17 +456,23 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
                 />
-                <div className="absolute bottom-full right-0 sm:right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)] left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none">
-                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto" style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}>
+                <div className="absolute bottom-full right-0 sm:right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none">
+                  <div className="w-72 sm:w-80">
+                    <div className="p-3 border-b border-gray-600">
+                      <h4 className="text-white text-sm font-medium text-center">Choose Emoji</h4>
+                    </div>
+                    <div className="p-3 h-48 overflow-y-auto overflow-x-hidden">
+                      <div className="grid grid-cols-8 gap-1">
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
-                        onClick={() => handleEmojiClick(emoji)}
+                            className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
                         className="text-xl hover:bg-gray-700 rounded p-2 transition-colors"
                       >
                         {emoji}
                       </button>
                     ))}
+                  </div>
                   </div>
                 </div>
               </>
