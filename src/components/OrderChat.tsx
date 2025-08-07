@@ -466,8 +466,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
-                            className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
-                            className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
+                        onClick={() => handleEmojiClick(emoji)}
+                        className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
+                      >
                         {emoji}
                       </button>
                     ))}
