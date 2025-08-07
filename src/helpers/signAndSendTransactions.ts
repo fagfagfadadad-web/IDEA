@@ -1,5 +1,5 @@
 import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider } from 'lib';
-import { UnlockPanelManager } from 'lib';
+import { UnlockPanelManager, useGetAccount } from 'lib';
 
 interface SignAndSendTransactionsProps {
   transactions: Transaction[];
@@ -14,38 +14,58 @@ export const signAndSendTransactions = async ({
 }: SignAndSendTransactionsProps) => {
   console.log('🔄 signAndSendTransactions: Starting with transactions:', transactions);
   try {
-    const provider = getAccountProvider();
+    let provider = getAccountProvider();
     console.log('🔄 signAndSendTransactions: Got provider:', provider);
     
-    // Check if provider is in a valid state
-    if (!provider || typeof provider.signTransactions !== 'function' || typeof provider.getAccount !== 'function') {
-      throw new Error('Wallet provider is not properly initialized. Please reconnect your wallet.');
-    }
-    
-    // Additional check for provider state - try to get account to verify connection
-    try {
-      const account = await provider.getAccount();
-      console.log('🔄 signAndSendTransactions: Provider account check:', !!account);
+    // Helper function to validate provider
+    const isProviderValid = (p: any) => {
+      return p && 
+             typeof p.signTransactions === 'function' && 
+             typeof p.getAccount === 'function' &&
+             typeof p.init === 'function';
+    };
+
+    // If provider is invalid, try to get a fresh one
+    if (!isProviderValid(provider)) {
+      console.log('🔧 signAndSendTransactions: Provider invalid, attempting to get fresh provider...');
       
-      if (!account || !account.address) {
-        console.log('🔄 signAndSendTransactions: Provider account invalid, attempting reinitialization...');
-        
-        // Try to reinitialize the provider
+      // Wait a bit and try again
+      await new Promise(resolve => setTimeout(resolve, 100));
+      provider = getAccountProvider();
+      
+      if (!isProviderValid(provider)) {
+        console.log('🔧 signAndSendTransactions: Still invalid, trying provider init...');
         try {
-          await provider.init();
-          const recheckAccount = await provider.getAccount();
-          if (!recheckAccount || !recheckAccount.address) {
-            throw new Error('Provider reinitialization failed');
+          if (provider && typeof provider.init === 'function') {
+            await provider.init();
+            console.log('✅ signAndSendTransactions: Provider init successful');
           }
-          console.log('🔄 signAndSendTransactions: Provider successfully reinitialized');
-        } catch (reinitError) {
-          console.error('🔄 signAndSendTransactions: Provider reinitialization failed:', reinitError);
-          throw new Error('Wallet connection lost. Please reconnect your wallet and try again.');
+        } catch (initError) {
+          console.log('⚠️ signAndSendTransactions: Provider init failed:', initError);
+        }
+        
+        // Get provider again after init
+        provider = getAccountProvider();
+        
+        if (!isProviderValid(provider)) {
+          console.log('❌ signAndSendTransactions: Provider still invalid after init');
+          throw new Error('Wallet connection lost. Please refresh the page and reconnect your wallet.');
         }
       }
+    }
+    
+    console.log('🔄 signAndSendTransactions: Provider validation passed, checking account...');
+    
+    // Test provider functionality
+    try {
+      const account = await provider.getAccount();
+      console.log('✅ signAndSendTransactions: Provider account check successful:', !!account?.address);
+      
+      if (!account || !account.address) {
+        console.log('⚠️ signAndSendTransactions: No account found, but continuing...');
+      }
     } catch (accountError) {
-      console.error('🔄 signAndSendTransactions: Provider account check failed:', accountError);
-      throw new Error('Wallet connection unstable. Please reconnect your wallet and try again.');
+      console.log('⚠️ signAndSendTransactions: Account check failed, but continuing:', accountError);
     }
     
     const txManager = TransactionManager.getInstance();
