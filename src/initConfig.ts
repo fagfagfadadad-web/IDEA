@@ -21,11 +21,20 @@ if (typeof window !== 'undefined') {
   globalThis.clearInterval = globalThis.clearInterval.bind(globalThis);
 }
 
-import { environment } from './config/config.mainnet'; // Opravená cesta
+import { environment } from './config/config.mainnet';
 import { walletConnectV2ProjectId } from './config/sharedConfig';
+import { InitAppType } from 'lib';
 
 export const config: InitAppType = {
   storage: { getStorageCallback: () => localStorage },
   dAppConfig: {
+    nativeAuth: true,
+    environment: environment,
+    providers: {
+      walletConnect: {
+        walletConnectV2ProjectId: walletConnectV2ProjectId,
+        walletConnectDeepLink: 'https://maiar.page.link/?apn=com.elrond.maiar.wallet&isi=1519405832&ibi=com.elrond.maiar.wallet&link=https://maiar.com/'
+      }
+    }
   }
 };
