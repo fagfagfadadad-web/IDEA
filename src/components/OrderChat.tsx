@@ -444,7 +444,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             <button
               type="button"
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors"
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-yellow-400 transition-colors"
             >
               <Smile size={20} />
             </button>
@@ -456,8 +456,8 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
                 />
-                <div className="absolute bottom-full right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)]">
-                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto">
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)]">
+                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto overscroll-contain">
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
