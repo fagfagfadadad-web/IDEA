@@ -1,4 +1,5 @@
 import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider } from 'lib';
+import { UnlockPanelManager } from 'lib';
 
 interface SignAndSendTransactionsProps {
   transactions: Transaction[];
@@ -21,6 +22,32 @@ export const signAndSendTransactions = async ({
       throw new Error('Wallet provider is not properly initialized. Please reconnect your wallet.');
     }
     
+    // Additional check for provider state - try to get account to verify connection
+    try {
+      const account = await provider.getAccount();
+      console.log('🔄 signAndSendTransactions: Provider account check:', !!account);
+      
+      if (!account || !account.address) {
+        console.log('🔄 signAndSendTransactions: Provider account invalid, attempting reinitialization...');
+        
+        // Try to reinitialize the provider
+        try {
+          await provider.init();
+          const recheckAccount = await provider.getAccount();
+          if (!recheckAccount || !recheckAccount.address) {
+            throw new Error('Provider reinitialization failed');
+          }
+          console.log('🔄 signAndSendTransactions: Provider successfully reinitialized');
+        } catch (reinitError) {
+          console.error('🔄 signAndSendTransactions: Provider reinitialization failed:', reinitError);
+          throw new Error('Wallet connection lost. Please reconnect your wallet and try again.');
+        }
+      }
+    } catch (accountError) {
+      console.error('🔄 signAndSendTransactions: Provider account check failed:', accountError);
+      throw new Error('Wallet connection unstable. Please reconnect your wallet and try again.');
+    }
+    
     const txManager = TransactionManager.getInstance();
     console.log('🔄 signAndSendTransactions: Got transaction manager');
 
@@ -31,7 +58,7 @@ export const signAndSendTransactions = async ({
       signedTransactions = await Promise.race([
         provider.signTransactions(transactions),
         new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Transaction signing timeout - please reconnect your wallet and try again')), timeout)
+          setTimeout(() => reject(new Error('Transaction signing timeout after 60 seconds - please reconnect your wallet and try again')), 60000)
         )
       ]);
     } catch (signError) {
@@ -39,7 +66,9 @@ export const signAndSendTransactions = async ({
       
       // If signing fails, it might be due to wallet state issues
       if (signError instanceof Error) {
-        if (signError.message.includes('timeout') || signError.message.includes('User rejected')) {
+        if (signError.message.includes('timeout')) {
+          throw new Error('Transaction signing timed out. Your wallet may have lost connection. Please reconnect your wallet and try again.');
+        } else if (signError.message.includes('User rejected') || signError.message.includes('cancelled')) {
           throw signError; // Re-throw timeout and user rejection errors as-is
         } else {
           throw new Error(`Transaction signing failed: ${signError.message}. Try reconnecting your wallet.`);
