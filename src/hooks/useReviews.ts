@@ -18,23 +18,7 @@ export const useReviewsByGig = (gigId: string) => {
     try {
       setIsLoading(true);
       
-      // Get provider_id for this gig first
-      const { data: gig, error: gigError } = await supabase
-        .from('gigs')
-        .select('provider_id')
-        .eq('id', gigId)
-        .single();
-
-      if (gigError) throw gigError;
-      if (!gig) {
-        console.log('🔍 useReviewsByGig: Gig not found:', gigId);
-        setData([]);
-        return;
-      }
-
-      console.log('🔍 useReviewsByGig: Found gig provider_id:', gig.provider_id);
-
-      // Get reviews for this provider from orders related to this gig
+      // Get reviews for orders related to this gig
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
@@ -42,12 +26,22 @@ export const useReviewsByGig = (gigId: string) => {
           order:orders(
             id,
             gig_id,
+            gig:gigs(
+              id,
+              title,
+              provider_id,
+              provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name)
+            ),
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name)
-          ),
-          provider:users!reviews_provider_id_fkey(id, username, avatar_url, full_name)
+          )
         `)
-        .eq('provider_id', gig.provider_id)
-        .eq('order.gig_id', gigId)
+        .in('order_id', 
+          await supabase
+            .from('orders')
+            .select('id')
+            .eq('gig_id', gigId)
+            .then(({ data }) => data?.map(o => o.id) || [])
+        )
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -62,8 +56,8 @@ export const useReviewsByGig = (gigId: string) => {
           hasClient: !!review.order?.client,
           clientUsername: review.order?.client?.username,
           clientFullName: review.order?.client?.full_name,
-          providerId: review.provider_id,
-          providerUsername: review.provider?.username
+          providerId: review.order?.gig?.provider_id,
+          providerUsername: review.order?.gig?.provider?.username
         });
       });
 
@@ -156,9 +150,6 @@ export const useCreateReview = () => {
       if (!order) throw new Error('Order not found');
       if (order.client_id !== user.id) throw new Error('Only the client can review this order');
 
-      const providerId = order.gig?.provider_id;
-      if (!providerId) throw new Error('Provider not found for this order');
-
       // Check if review already exists
       const { data: existingReview } = await supabase
         .from('reviews')
@@ -173,8 +164,7 @@ export const useCreateReview = () => {
           .from('reviews')
           .update({
             rating: reviewData.rating,
-            comment: reviewData.comment,
-            provider_id: providerId
+            comment: reviewData.comment
           })
           .eq('order_id', reviewData.order_id)
           .select()
@@ -189,8 +179,7 @@ export const useCreateReview = () => {
           .insert({
             order_id: reviewData.order_id,
             rating: reviewData.rating,
-            comment: reviewData.comment,
-            provider_id: providerId
+            comment: reviewData.comment
           })
           .select()
           .single();
@@ -231,6 +220,27 @@ export const useReviewsForProvider = (providerId: string) => {
       
       console.log('🔍 useReviewsForProvider: Fetching reviews for provider:', providerId);
 
+      // First get all orders where this user is the provider
+      const { data: providerOrders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id')
+        .in('gig_id', 
+          await supabase
+            .from('gigs')
+            .select('id')
+            .eq('provider_id', providerId)
+            .then(({ data }) => data?.map(g => g.id) || [])
+        );
+
+      if (ordersError) throw ordersError;
+      
+      const orderIds = providerOrders?.map(o => o.id) || [];
+      if (orderIds.length === 0) {
+        setData([]);
+        return;
+      }
+
+      // Then get reviews for those orders
       const { data: reviews, error } = await supabase
         .from('reviews')
         .select(`
@@ -238,11 +248,16 @@ export const useReviewsForProvider = (providerId: string) => {
           order:orders(
             id,
             gig_id,
+            gig:gigs(
+              id,
+              title,
+              provider_id,
+              provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name)
+            ),
             client:users!orders_client_id_fkey(id, username, avatar_url, full_name)
-          ),
-          provider:users!reviews_provider_id_fkey(id, username, avatar_url, full_name)
+          )
         `)
-        .eq('provider_id', providerId)
+        .in('order_id', orderIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -257,8 +272,8 @@ export const useReviewsForProvider = (providerId: string) => {
           hasClient: !!review.order?.client,
           clientUsername: review.order?.client?.username,
           clientFullName: review.order?.client?.full_name,
-          providerId: review.provider_id,
-          providerUsername: review.provider?.username
+          providerId: review.order?.gig?.provider_id,
+          providerUsername: review.order?.gig?.provider?.username
         });
       });
 

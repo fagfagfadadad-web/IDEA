@@ -80,25 +80,52 @@ export const useProfile = (id?: string) => {
       console.log('🔍 useProfile: Fetched user profile:', profile);
 
       // Fetch reviews received by this user as a provider
-      const { data: receivedReviews, error: reviewsError } = await supabase
-        .from('reviews')
+      // First get all orders where this user is the provider
+      const { data: providerOrders, error: ordersError } = await supabase
+        .from('orders')
         .select(`
-          *,
-          order:orders(
+          id,
+          gig_id,
+          client:users!orders_client_id_fkey(id, username, avatar_url, full_name),
+          gig:gigs(
             id,
-            gig_id,
-            client:users!orders_client_id_fkey(id, username, avatar_url, full_name)
+            title,
+            provider_id,
+            provider:users!gigs_provider_id_fkey(id, username, avatar_url, full_name)
           ),
-          provider:users!reviews_provider_id_fkey(id, username, avatar_url, full_name)
+          reviews(*)
         `)
-        .eq('provider_id', user.id)
+        .in('gig_id', 
+          await supabase
+            .from('gigs')
+            .select('id')
+            .eq('provider_id', user.id)
+            .then(({ data }) => data?.map(g => g.id) || [])
+        )
         .order('created_at', { ascending: false });
 
-      if (reviewsError) {
-        console.error('Error fetching received reviews:', reviewsError);
+      if (ordersError) {
+        console.error('Error fetching provider orders:', ordersError);
       }
 
-      console.log('🔍 useProfile: Fetched received reviews:', receivedReviews);
+      console.log('🔍 useProfile: Fetched provider orders:', providerOrders);
+      
+      // Extract reviews from provider orders
+      const receivedReviews = (providerOrders || [])
+        .filter(order => order.reviews && order.reviews.length > 0)
+        .flatMap(order => 
+          order.reviews.map(review => ({
+            ...review,
+            order: {
+              id: order.id,
+              gig_id: order.gig_id,
+              client: order.client,
+              gig: order.gig
+            }
+          }))
+        );
+
+      console.log('🔍 useProfile: Extracted received reviews:', receivedReviews);
       console.log('🔍 useProfile: Received reviews count:', receivedReviews?.length || 0);
       receivedReviews?.forEach((review, index) => {
         console.log(`🔍 Received Review ${index}:`, {
@@ -108,8 +135,8 @@ export const useProfile = (id?: string) => {
           hasClient: !!review.order?.client,
           clientUsername: review.order?.client?.username,
           clientFullName: review.order?.client?.full_name,
-          providerId: review.provider_id,
-          providerUsername: review.provider?.username
+          providerId: review.order?.gig?.provider_id,
+          providerUsername: review.order?.gig?.provider?.username
         });
       });
 

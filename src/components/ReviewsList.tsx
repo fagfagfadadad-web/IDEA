@@ -144,7 +144,7 @@ export const ReviewsList: React.FC<ReviewsListProps> = ({
                       })}
                     </p>
                   </div>
-                </div>
+                  Review for: <span className="font-medium">{review.order?.gig?.title || 'Unknown Gig'}</span>
                 <StarRating rating={review.rating} />
               </div>
 
