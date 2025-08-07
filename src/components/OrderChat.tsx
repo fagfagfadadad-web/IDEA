@@ -432,13 +432,13 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
         {/* Input field - full width on mobile */}
         <div className="w-full">
           <div className="relative">
-          <input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your message here..."
+            <input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message here..."
               className="w-full p-3 pr-12 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+            />
             
             {/* Emoji button inside input */}
             <button
