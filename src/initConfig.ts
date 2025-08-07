@@ -28,6 +28,5 @@ export const config: InitAppType = {
   storage: { getStorageCallback: () => localStorage },
   dAppConfig: {
     nativeAuth: true,
-    },
   },
 };
