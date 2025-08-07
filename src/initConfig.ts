@@ -35,12 +35,6 @@ export const config: InitAppType = {
         walletConnectV2ProjectId,
         walletConnectDeepLink: 'https://xportal.com/'
       }
-    },
-    onSuccess: (sessionId: string, tx: any) => {
-      console.log('✅ Transaction successful:', { sessionId, tx });
-    },
-    onFail: (sessionId: string, error: any) => {
-      console.error('❌ Transaction failed:', { sessionId, error });
     }
   }
 };
