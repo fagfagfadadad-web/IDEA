@@ -1077,7 +1077,7 @@ export const Profile = () => {
                 )}
               </div>
             </div>
-          )}
+          )
         </div>
       </div>
       </div>
@@ -1124,7 +1124,7 @@ export const Profile = () => {
                       ) : (
                         <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
                       )}
-                    </div>
+                    )
                     
                     {/* URL input */}
                     <div className="flex-1">
