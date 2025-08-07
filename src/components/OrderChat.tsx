@@ -220,44 +220,42 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   : 'bg-gray-200 text-gray-800'
               }`}>
                 <div className="flex items-center gap-2 mb-1">
-                  <>
-                    <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
-                      {message.sender?.avatar_url ? (
-                        <>
-                          <img
-                            src={message.sender.avatar_url}
-                            alt={message.sender.username || "User"}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div 
-                            className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
-                            style={{ display: 'none' }}
-                          >
-                            {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                  <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gray-300">
+                    {message.sender?.avatar_url ? (
+                      <>
+                        <img
+                          src={message.sender.avatar_url}
+                          alt={message.sender.username || "User"}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const parent = target.parentElement;
+                            if (parent) {
+                              const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div 
+                          className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                          style={{ display: 'none' }}
+                        >
                           {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
                         </div>
-                      )}
-                    </div>
-                    <span className="font-medium text-sm">
-                      {message.sender?.username}
-                    </span>
-                    <span className={`text-xs ${isCurrentUser ? 'text-blue-200' : 'text-gray-500'}`}>
-                      {formatTimestamp(message.created_at)}
-                    </span>
-                  </>
+                      </>
+                    ) : (
+                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                        {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
+                      </div>
+                    )}
+                  </div>
+                  <span className="font-medium text-sm">
+                    {message.sender?.username}
+                  </span>
+                  <span className={`text-xs ${isCurrentUser ? 'text-blue-200' : 'text-gray-500'}`}>
+                    {formatTimestamp(message.created_at)}
+                  </span>
                 </div>
                 
                 {/* Display the actual message content, not the JSON */}
@@ -453,31 +451,25 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             
             {/* Emoji Picker */}
             {showEmojiPicker && (
-              <div>
+              <>
                 <div 
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
                 />
-                <div className="absolute bottom-full right-0 sm:right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none">
-                  <div className="w-72 sm:w-80">
-                    <div className="p-3 border-b border-gray-600">
-                      <h4 className="text-white text-sm font-medium text-center">Choose Emoji</h4>
-                    </div>
-                    <div className="p-3 h-48 overflow-y-auto overflow-x-hidden">
-                      <div className="grid grid-cols-8 gap-1">
+                <div className="absolute bottom-full right-0 sm:right-0 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)] left-1/2 transform -translate-x-1/2 sm:left-auto sm:transform-none">
+                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto" style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}>
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
                         onClick={() => handleEmojiClick(emoji)}
-                        className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
+                        className="text-xl hover:bg-gray-700 rounded p-2 transition-colors"
                       >
                         {emoji}
                       </button>
                     ))}
                   </div>
-                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>
