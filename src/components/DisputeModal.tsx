@@ -58,15 +58,14 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
       // Convert order ID to hex format for smart contract
       const hexOrderId = uuidToHex(order.id);
       
-      // Create dispute transaction with proper configuration
+      // Create dispute transaction similar to payment/release
       const transaction = new Transaction({
         value: BigInt(0),
         data: Buffer.from(`dispute@${hexOrderId}`),
         receiver: new Address(ESCROW_ADDRESS),
         gasLimit: BigInt(20000000),
         sender: new Address(address),
-        chainID: network.chainId,
-        version: 1
+        chainID: network.chainId
       });
 
       console.log('Creating dispute transaction:', { 
@@ -83,8 +82,7 @@ export const DisputeModal: React.FC<DisputeModalProps> = ({
           processingMessage: 'Creating dispute...',
           errorMessage: 'Dispute creation failed',
           successMessage: 'Dispute successfully created'
-        },
-        timeout: 120000
+        }
       });
 
       console.log('Dispute created, session ID:', sessionId);

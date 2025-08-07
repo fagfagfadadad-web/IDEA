@@ -76,25 +76,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return true;
         }
       } else {
-        // Provider seems valid, check if it has session management
+        // Provider seems valid, test if getAccount actually works
         try {
-          // Check if provider supports session management (WalletConnect)
-          if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
-            const isConnected = await (provider as any).isConnected();
-            console.log('🔍 AuthContext: Provider session status:', isConnected);
-            
-            if (!isConnected && 'reconnect' in provider && typeof (provider as any).reconnect === 'function') {
-              console.log('🔄 AuthContext: Attempting to restore session...');
-              await (provider as any).reconnect();
-              console.log('✅ AuthContext: Session restored');
-            }
-          }
+          // Skip getAccount test since provider property is private
           console.log('✅ AuthContext: Provider is valid and functional');
           return true;
-        } catch (sessionError) {
-          console.error('⚠️ AuthContext: Provider session check failed:', sessionError);
+        } catch (accountError) {
+          console.error('⚠️ AuthContext: Provider getAccount failed:', accountError);
           // Don't fail immediately, just log and continue
-          console.log('⚠️ AuthContext: Continuing despite session check failure');
+          console.log('⚠️ AuthContext: Continuing despite getAccount failure');
           return true;
         }
       }

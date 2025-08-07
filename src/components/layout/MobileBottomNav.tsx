@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const MobileBottomNav = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { user, forceReconnect } = useAuth();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -29,13 +29,6 @@ export const MobileBottomNav = () => {
     }
   };
 
-  const handleForceReconnect = async () => {
-    try {
-      await forceReconnect();
-    } catch (error) {
-      console.error('Force reconnect error:', error);
-    }
-  };
   const handleConnect = () => {
     navigate('/unlock');
   };
@@ -148,13 +141,6 @@ export const MobileBottomNav = () => {
               <Settings size={16} />
               Settings
             </Link>
-            <button
-              onClick={handleForceReconnect}
-              className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 w-full text-left"
-            >
-              <Wallet size={16} />
-              Reconnect Wallet
-            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-b-lg w-full text-left transition-all duration-200"

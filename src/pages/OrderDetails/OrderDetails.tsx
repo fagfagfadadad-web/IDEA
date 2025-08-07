@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Shield, CheckCircle, AlertTriangle, DollarSign, Clock, Check, FileText, XCircle, Star } from 'lucide-react';
 import { Button, Card, OrderChat, DisputeModal, ReviewModal } from 'components';
-import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address, getAccountProvider } from 'lib';
+import { useGetIsLoggedIn, useGetAccount, useGetNetworkConfig, Transaction, Address } from 'lib';
 import { signAndSendTransactions } from '../../helpers/signAndSendTransactions';
 import { useOrderById } from '../../hooks/useOrders';
 import { useOrderReview } from '../../hooks/useReviews';
@@ -146,47 +146,37 @@ const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
         timestamp: txData.timestamp,
       });
 
-      if (['success', 'executed', 'successful'].includes(txData.status)) {
+      if (['success', 'executed'].includes(txData.status)) {
         console.log('Transaction confirmed as successful:', txHash);
         return { success: true, data: txData };
       } else if (['fail', 'invalid', 'not_executed'].includes(txData.status)) {
         console.error('Transaction failed:', txHash, txData.status);
         return { success: false, error: `Transaction failed with status: ${txData.status}` };
-      } else if (txData.status === 'pending') {
+      } else {
         console.log(`Transaction still ${txData.status}, waiting...`);
         await new Promise((resolve) => setTimeout(resolve, 6000));
         continue;
-      } else {
-        // Unknown status - treat as success if we have a valid transaction
-        console.log(`Unknown transaction status: ${txData.status}, treating as success`);
-        return { success: true, data: txData };
       }
     } catch (error) {
       console.log(`Attempt ${attempt} failed:`, error instanceof Error ? error.message : error);
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
-          console.log('Transaction not yet found on blockchain, waiting...');
-          // For 404 errors, wait longer as transaction might still be processing
-          await new Promise((resolve) => setTimeout(resolve, 8000));
+          console.log('Transaction not yet found, waiting...');
         } else if (error.response?.status === 429) {
           const delay = Math.pow(2, attempt) * 1000;
           console.log(`Rate limit exceeded, waiting ${delay}ms...`);
           await new Promise((resolve) => setTimeout(resolve, delay));
         } else {
           console.error('Axios error:', error.response?.status, error.response?.data);
-          await new Promise((resolve) => setTimeout(resolve, 6000));
         }
       }
       if (attempt === maxAttempts) {
-        // Don't fail completely - the transaction might still be successful
-        console.log(`Transaction monitoring timeout after ${maxAttempts} attempts, but transaction might still be successful`);
-        return { success: true, data: { status: 'timeout_but_likely_successful' } };
+        throw new Error(`Transaction monitoring failed after ${maxAttempts} attempts`);
       }
+      await new Promise((resolve) => setTimeout(resolve, 6000));
     }
   }
-  // If we reach here, assume success (transaction was sent successfully)
-  console.log('Transaction monitoring completed, assuming success');
-  return { success: true, data: { status: 'monitoring_completed' } };
+  throw new Error('Transaction monitoring timeout');
 };
 
 const OrderDetails = () => {
@@ -211,44 +201,6 @@ const OrderDetails = () => {
   // Add review hook
   const { data: existingReview, refetch: refetchReview } = useOrderReview(order?.id || '');
 
-  // Function to check and reconnect WalletConnect session
-  const checkAndReconnectProvider = async () => {
-    // Get fresh provider instance each time
-    const provider = getAccountProvider();
-    
-    if (!provider) {
-      console.log('🔄 Provider not initialized, forcing reconnect...');
-      await forceReconnect();
-      throw new Error('Wallet provider not initialized. Please reconnect your wallet.');
-    }
-    
-    // Check if provider has WalletConnect session management
-    if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
-      try {
-        const isConnected = await (provider as any).isConnected();
-        if (!isConnected) {
-          console.log('🔄 WalletConnect session expired, attempting to reconnect...');
-          if ('reconnect' in provider && typeof (provider as any).reconnect === 'function') {
-            await (provider as any).reconnect();
-            console.log('✅ WalletConnect session restored');
-          } else {
-            console.log('🔄 Provider does not support reconnect, forcing full reconnect...');
-            await forceReconnect();
-            throw new Error('Session expired. Please reconnect your wallet.');
-          }
-        } else {
-          console.log('✅ WalletConnect session is active');
-        }
-      } catch (sessionError) {
-        console.error('❌ WalletConnect session error:', sessionError);
-        await forceReconnect();
-        throw new Error('Failed to restore wallet session. Please reconnect your wallet.');
-      }
-    }
-    
-    // Return the validated provider
-    return provider;
-  };
   // Define the provider type explicitly
   interface Provider {
     id?: string;
@@ -331,8 +283,6 @@ const OrderDetails = () => {
       setIsPaymentLoading(true);
       console.log('Creating transaction...', { orderData: JSON.stringify(order, null, 2) });
 
-      // Check and reconnect provider session before transaction
-      const validatedProvider = await checkAndReconnectProvider();
       if (!isValidAddress(address)) {
         throw new Error('Invalid client address');
       }
@@ -459,15 +409,13 @@ const OrderDetails = () => {
           successMessage: `${tokenDisplayName} payment successful`,
         },
         timeout: 300000,
-        provider: validatedProvider, // Pass the validated provider
       });
 
       console.log(`${tokenDisplayName} payment successful, session ID:`, sessionId);
 
       const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
-        console.warn('Transaction verification failed, but continuing with database update:', verification.error);
-        // Don't throw error - the transaction might still be successful
+        throw new Error(verification.error || 'Transaction failed during verification');
       }
 
       const { error: updateError } = await supabase
@@ -501,14 +449,9 @@ const OrderDetails = () => {
           ? 'Insufficient funds in the wallet.'
           : error.message.includes('fail')
           ? 'Transaction failed on the smart contract. There may already be a payment for this order or invalid parameters.'
-          : error.message.includes('WALLET_PROVIDER_DISCONNECTED')
-          ? 'Wallet connection lost. Please reconnect your wallet and try again.'
-          : error.message.includes('Session expired')
-          ? 'Wallet session expired. Please reconnect your wallet and try again.'
           : `${tokenDisplayName} payment failed: ${error.message}`
         : `${tokenDisplayName} payment failed: Unknown error`;
       setProviderAddressError(errorMessage);
-      showError(errorMessage);
     } finally {
       setIsPaymentLoading(false);
     }
@@ -518,12 +461,10 @@ const OrderDetails = () => {
     try {
       setIsReleaseLoading(true);
       if (!address || !order) {
-        showError('Please connect your wallet');
+        alert('Please connect your wallet');
         return;
       }
 
-      // Check and reconnect provider session before transaction
-      const validatedProvider = await checkAndReconnectProvider();
       const hexOrderId = uuidToHex(order.id);
       const transaction = new Transaction({
         value: BigInt(0),
@@ -544,14 +485,12 @@ const OrderDetails = () => {
           successMessage: 'Payment successfully released',
         },
         timeout: 120000,
-        provider: validatedProvider, // Pass the validated provider
       });
 
       console.log('Payment released, session ID:', sessionId);
       const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
-        console.warn('Release verification failed, but continuing with database update:', verification.error);
-        // Don't throw error - the transaction might still be successful
+        throw new Error(verification.error || 'Release failed during verification');
       }
 
       const { error } = await supabase
@@ -601,14 +540,6 @@ const OrderDetails = () => {
       }, 1000);
     } catch (error) {
       console.error('Release error:', error);
-      const errorMessage = error instanceof Error
-        ? error.message.includes('WALLET_PROVIDER_DISCONNECTED')
-          ? 'Wallet connection lost. Please reconnect your wallet and try again.'
-          : error.message.includes('Session expired')
-          ? 'Wallet session expired. Please reconnect your wallet and try again.'
-          : `Release failed: ${error.message}`
-        : 'Release failed: Unknown error';
-      showError(errorMessage);
     } finally {
       setIsReleaseLoading(false);
     }
@@ -618,21 +549,11 @@ const OrderDetails = () => {
     try {
       setIsPaymentLoading(true);
       if (!address || !order) {
-        showError('Please connect your wallet');
+        alert('Please connect your wallet');
         return;
       }
 
-      // Check and reconnect provider session before transaction
-      const validatedProvider = await checkAndReconnectProvider();
-      
-      // Validate order data before creating transaction
-      if (!order.id) {
-        throw new Error('Order ID is missing');
-      }
-      
       const hexOrderId = uuidToHex(order.id);
-      
-      // Create transaction with proper nonce handling
       const transaction = new Transaction({
         value: BigInt(0),
         data: Buffer.from(`dispute@${hexOrderId}`),
@@ -640,7 +561,6 @@ const OrderDetails = () => {
         gasLimit: BigInt(20000000),
         sender: new Address(address),
         chainID: network.chainId,
-        version: 1
       });
 
       console.log('Creating dispute transaction:', { orderId: order.id, hexOrderId, reason, escrowAddress: ESCROW_ADDRESS });
@@ -653,14 +573,12 @@ const OrderDetails = () => {
           successMessage: 'Dispute successfully created',
         },
         timeout: 120000,
-        provider: validatedProvider, // Pass the validated provider
       });
 
       console.log('Dispute created, session ID:', sessionId);
       const verification = await monitorTransactionStatus(sessionId);
       if (!verification.success) {
-        console.warn('Dispute verification failed, but continuing with database update:', verification.error);
-        // Don't throw error - the transaction might still be successful
+        throw new Error(verification.error || 'Dispute creation failed during verification');
       }
 
       const { error } = await supabase
@@ -690,14 +608,21 @@ const OrderDetails = () => {
     } catch (error) {
       console.error('Dispute error:', error);
       
-      const errorMessage = error instanceof Error
-        ? error.message.includes('WALLET_PROVIDER_DISCONNECTED')
-          ? 'Wallet connection lost. Please reconnect your wallet and try again.'
-          : error.message.includes('Session expired')
-          ? 'Wallet session expired. Please reconnect your wallet and try again.'
-          : `Error creating dispute: ${error.message}`
-        : 'Error creating dispute: Unknown error';
-      showError(errorMessage);
+      // Handle wallet provider disconnection
+      if (error instanceof Error && error.message.includes('WALLET_PROVIDER_DISCONNECTED')) {
+        console.log('🔄 OrderDetails: Wallet provider disconnected during dispute, forcing reconnect...');
+        try {
+          await forceReconnect();
+          return; // Exit early, user will be redirected to reconnect
+        } catch (reconnectError) {
+          console.error('Failed to force reconnect:', reconnectError);
+          showError('Wallet connection lost. Please refresh the page and reconnect your wallet.');
+          return;
+        }
+      }
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError(`Error creating dispute: ${errorMessage}`);
     } finally {
       setIsPaymentLoading(false);
     }
