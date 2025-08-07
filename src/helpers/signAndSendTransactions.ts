@@ -113,8 +113,8 @@ export const signAndSendTransactions = async ({
     console.log('🔄 signAndSendTransactions: Sending transactions...');
     let sentTransactions;
     try {
-      sentTransactions = await txManager.send(signedTransactions as SignedTransactionType[]);
-        txManager.send(signedTransactions as Transaction[]),
+      sentTransactions = await Promise.race([
+        txManager.send(signedTransactions as SignedTransactionType[]),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Transaction sending timeout - network may be congested')), timeout)
         )
