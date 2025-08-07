@@ -36,7 +36,7 @@ export const signAndSendTransactions = async ({
             console.log('🔧 signAndSendTransactions: Provider reinitialized via login handler');
           },
           onClose: () => {
-            throw new Error(`Transaction signing failed: ${signError.message}`);
+            throw new Error(\`Transaction signing failed: ${signError.message}`);
           }
         });
         // Don't actually open the panel, just initialize the manager
@@ -83,7 +83,7 @@ export const signAndSendTransactions = async ({
           // Specific error for provider not being able to sign
           throw new Error('WALLET_PROVIDER_DISCONNECTED');
         } else {
-          throw new Error(\`Transaction signing failed: ${signError.message}`);
+          throw new Error(`Transaction signing failed: ${signError.message}`);
         }
       }
       throw new Error('Transaction signing failed. Unknown error.');
@@ -102,7 +102,7 @@ export const signAndSendTransactions = async ({
       ]);
     } catch (sendError) {
       console.error('🔄 signAndSendTransactions: Sending failed:', sendError);
-      throw new Error(\`Transaction sending failed: ${sendError instanceof Error ? sendError.message : 'Unknown error'}`);
+      throw new Error(`Transaction sending failed: ${sendError instanceof Error ? sendError.message : 'Unknown error'}`);
     }
     
     console.log('🔄 signAndSendTransactions: Transactions sent:', sentTransactions);
