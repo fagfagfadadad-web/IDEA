@@ -141,7 +141,7 @@ export const useProfile = (id?: string) => {
       });
 
       // Fetch all orders for this user (both as client and provider)
-      const { data: allOrders, error: ordersError } = await supabase
+      const { data: allOrders, error: allOrdersError } = await supabase
         .from('orders')
         .select(`
           *,
@@ -153,8 +153,8 @@ export const useProfile = (id?: string) => {
         .or(`client_id.eq.${user.id},provider_address.eq.${user.wallet_address || ''}`)
         .order('created_at', { ascending: false });
 
-      if (ordersError) {
-        console.error('Error fetching orders:', ordersError);
+      if (allOrdersError) {
+        console.error('Error fetching orders:', allOrdersError);
       }
 
       // Add combined orders to profile
