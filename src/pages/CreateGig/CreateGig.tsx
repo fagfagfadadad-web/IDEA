@@ -205,7 +205,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       };
 
       if (isEditMode && id) {
-        await updateGig.mutateAsync({ ...gigData, id });
+        await updateGig.mutateAsync({ ...gigData, id: gigId });
       } else {
         await createGig.mutateAsync(gigData);
       }
