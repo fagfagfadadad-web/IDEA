@@ -236,20 +236,22 @@ export const CreateClientRequest = () => {
                 <label className="block text-grey text-sm font-medium mb-2">
                   Required Skills
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col md:flex-row gap-2">
                   <input
                     type="text"
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="e.g., React, Solidity, UI Design"
-                    className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full md:flex-1 p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   <Button
                     type="button"
                     onClick={handleAddSkill}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md"
+                    className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md"
                   >
+                    <span className="md:hidden">Add Skill</span>
+                    <span className="hidden md:inline">Add</span>
                     Add
                   </Button>
                 </div>
