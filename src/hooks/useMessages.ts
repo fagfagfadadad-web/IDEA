@@ -138,7 +138,8 @@ export const useSendMessage = () => {
           .select(`
             id,
             client_id,
-            gig:gigs(
+            gig:gigs!orders_gig_id_fkey(
+              id,
               title,
               provider_id,
               provider:users!gigs_provider_id_fkey(id, username, email, email_notifications_enabled)
@@ -153,9 +154,7 @@ export const useSendMessage = () => {
         if (orderDetails) {
           // Determine recipient (if sender is client, notify provider and vice versa)
           const isClientSender = orderDetails.client_id === user.id;
-          const recipient = isClientSender ? 
-            (Array.isArray(orderDetails.gig?.provider) ? orderDetails.gig.provider[0] : orderDetails.gig?.provider) : 
-            orderDetails.client;
+          const recipient = isClientSender ? orderDetails.gig?.provider : orderDetails.client;
           
           console.log('DEBUG: Is client sender:', isClientSender);
           console.log('DEBUG: Recipient object:', recipient);
@@ -169,7 +168,7 @@ export const useSendMessage = () => {
             // Prepare structured data for email template
             const templateData = {
               senderName: user.username || user.full_name || 'A user',
-              gigTitle: (Array.isArray(orderDetails.gig) ? orderDetails.gig[0]?.title : orderDetails.gig?.title) || 'Custom Project',
+              gigTitle: orderDetails.gig?.title || 'Custom Project',
               messagePreview: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
               orderId: orderId
             };
