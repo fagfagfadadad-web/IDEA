@@ -53,7 +53,7 @@ interface CreateGigProps {
 // Define interface for media URLs
 interface MediaUrls {
   images: string[];
-  video: string | null;
+  video: string | undefined; // Changed from 'string | null' to match GigInput
 }
 
 export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
@@ -94,7 +94,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   // Define state for existing media URLs
   const [existingMediaUrls, setExistingMediaUrls] = useState<MediaUrls>({
     images: [],
-    video: null,
+    video: undefined, // Changed from 'null' to 'undefined'
   });
 
   // Define state for upload status
@@ -112,7 +112,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   const removeExistingVideo = () => {
     setExistingMediaUrls((prev) => ({
       ...prev,
-      video: null,
+      video: undefined, // Changed from 'null' to 'undefined'
     }));
   };
 
@@ -140,7 +140,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
       if (gig.media_urls) {
         setExistingMediaUrls({
           images: gig.media_urls.images || [],
-          video: gig.media_urls.video || null,
+          video: gig.media_urls.video || undefined, // Changed from 'null' to 'undefined'
         });
       }
     }
@@ -279,7 +279,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
         category: formData.category,
         payment_token: formData.payment_token,
         status: formData.status,
-        media_urls: existingMediaUrls, // Include media URLs
+        media_urls: existingMediaUrls, // media_urls.video is now string | undefined
       };
 
       if (isEditMode && editGigId) {
