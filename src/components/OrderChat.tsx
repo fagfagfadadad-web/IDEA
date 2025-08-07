@@ -467,8 +467,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                       <button
                         key={index}
                             className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
-                        className="text-xl hover:bg-gray-700 rounded p-2 transition-colors"
-                      >
+                            className="text-lg hover:bg-gray-700 rounded p-1.5 transition-colors flex items-center justify-center w-8 h-8"
                         {emoji}
                       </button>
                     ))}
