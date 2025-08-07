@@ -274,7 +274,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 Editing: {gig.title}
               </p>
             )}
-          </div></parameter>
+          </div>
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
