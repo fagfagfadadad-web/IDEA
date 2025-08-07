@@ -456,17 +456,41 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                   className="fixed inset-0 z-10" 
                   onClick={() => setShowEmojiPicker(false)}
                 />
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-gray-800 border border-gray-600 rounded-lg shadow-xl z-20 p-3 w-80 max-w-[calc(100vw-2rem)]">
-                  <div className="grid grid-cols-8 gap-2 max-h-48 overflow-y-auto overscroll-contain">
+                <div className="absolute bottom-full right-0 sm:right-auto sm:left-1/2 sm:transform sm:-translate-x-1/2 mb-2 bg-gray-800 border border-gray-600 rounded-xl shadow-2xl z-20 w-80 max-w-[calc(100vw-2rem)]">
+                  {/* Header */}
+                  <div className="p-3 border-b border-gray-600 bg-gray-750 rounded-t-xl">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-white font-medium text-sm">Choose an emoji</h3>
+                      <button
+                        onClick={() => setShowEmojiPicker(false)}
+                        className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-gray-700 rounded"
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Emoji Grid */}
+                  <div className="p-3">
+                    <div 
+                      className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto overscroll-contain scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+                      style={{ scrollbarWidth: 'thin' }}
+                    >
                     {commonEmojis.map((emoji, index) => (
                       <button
                         key={index}
-                        onClick={() => handleEmojiClick(emoji)}
+                          className="text-xl hover:bg-gray-700 rounded-lg p-2 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center h-10 w-10"
+                          title={emoji}
                         className="text-xl hover:bg-gray-700 rounded p-2 transition-colors"
                       >
                         {emoji}
                       </button>
                     ))}
+                  </div>
+                  
+                  {/* Footer */}
+                  <div className="p-2 border-t border-gray-600 bg-gray-750 rounded-b-xl">
+                    <p className="text-gray-400 text-xs text-center">Click an emoji to add it to your message</p>
                   </div>
                 </div>
               </>
