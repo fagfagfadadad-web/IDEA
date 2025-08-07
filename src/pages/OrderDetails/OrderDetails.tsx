@@ -213,13 +213,13 @@ const OrderDetails = () => {
     }
     
     // Check if provider has WalletConnect session management
-    if (provider && typeof provider.isConnected === 'function') {
+    if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
       try {
-        const isConnected = await provider.isConnected();
+        const isConnected = await (provider as any).isConnected();
         if (!isConnected) {
           console.log('🔄 WalletConnect session expired, attempting to reconnect...');
-          if (typeof provider.reconnect === 'function') {
-            await provider.reconnect();
+          if ('reconnect' in provider && typeof (provider as any).reconnect === 'function') {
+            await (provider as any).reconnect();
             console.log('✅ WalletConnect session restored');
           } else {
             console.log('🔄 Provider does not support reconnect, forcing full reconnect...');

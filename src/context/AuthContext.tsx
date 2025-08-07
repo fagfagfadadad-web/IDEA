@@ -79,13 +79,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Provider seems valid, check if it has session management
         try {
           // Check if provider supports session management (WalletConnect)
-          if (typeof provider.isConnected === 'function') {
-            const isConnected = await provider.isConnected();
+          if (provider && 'isConnected' in provider && typeof (provider as any).isConnected === 'function') {
+            const isConnected = await (provider as any).isConnected();
             console.log('🔍 AuthContext: Provider session status:', isConnected);
             
-            if (!isConnected && typeof provider.reconnect === 'function') {
+            if (!isConnected && 'reconnect' in provider && typeof (provider as any).reconnect === 'function') {
               console.log('🔄 AuthContext: Attempting to restore session...');
-              await provider.reconnect();
+              await (provider as any).reconnect();
               console.log('✅ AuthContext: Session restored');
             }
           }
