@@ -493,6 +493,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
                     <p className="text-gray-400 text-xs text-center">Click an emoji to add it to your message</p>
                   </div>
                 </div>
+                </div>
               </>
             )}
           </div>
