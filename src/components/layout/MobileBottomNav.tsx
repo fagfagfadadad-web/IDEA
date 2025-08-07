@@ -2,13 +2,13 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, Plus, User, Grid3X3, LogOut, Settings, Wallet, FileText, Briefcase } from 'lucide-react';
 import { Button } from 'components';
-import { useGetIsLoggedIn, getAccountProvider } from 'lib';
+import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useAuth } from '../../context/AuthContext';
 
 export const MobileBottomNav = () => {
   const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -20,12 +20,9 @@ export const MobileBottomNav = () => {
 
   const handleLogout = async () => {
     try {
-      const provider = getAccountProvider();
-      await provider.logout();
-      window.location.reload();
+      await logout();
     } catch (error) {
       console.error('Logout error:', error);
-      window.location.reload();
     }
   };
 
