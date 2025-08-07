@@ -1,8 +1,6 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
-import { getStore } from '@multiversx/sdk-dapp/out/store/store';
-import { clearLoginInfo } from '@multiversx/sdk-dapp/out/store/actions';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -525,14 +523,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('👋 AuthContext: Logging out...');
       isAuthenticating.current = true; // Prevent new auth attempts during logout
       
-      // Clear MultiversX SDK internal state first
+      // Clear MultiversX SDK state by calling provider logout
       try {
-        const store = getStore();
-        store.dispatch(clearLoginInfo());
-        console.log('✅ AuthContext: SDK internal state cleared');
+        const provider = getAccountProvider();
+        if (provider && typeof provider.logout === 'function') {
+          await provider.logout();
+          console.log('✅ AuthContext: Provider logout successful');
+        }
       } catch (sdkError) {
-        console.error('⚠️ AuthContext: Error clearing SDK state:', sdkError);
-        // Continue with logout even if SDK clearing fails
+        console.error('⚠️ AuthContext: Error calling provider logout:', sdkError);
+        // Continue with logout even if provider logout fails
       }
       
       await handleSupabaseSignOut();
@@ -591,14 +591,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔄 AuthContext: Force reconnecting wallet...');
       isAuthenticating.current = true; // Prevent new auth attempts during reconnect
       
-       // Clear MultiversX SDK internal state first
+       // Clear MultiversX SDK state by calling provider logout
        try {
-         const store = getStore();
-         store.dispatch(clearLoginInfo());
-         console.log('✅ AuthContext: SDK internal state cleared for reconnect');
+         const provider = getAccountProvider();
+         if (provider && typeof provider.logout === 'function') {
+           await provider.logout();
+           console.log('✅ AuthContext: Provider logout successful for reconnect');
+         }
        } catch (sdkError) {
-         console.error('⚠️ AuthContext: Error clearing SDK state for reconnect:', sdkError);
-         // Continue with reconnect even if SDK clearing fails
+         console.error('⚠️ AuthContext: Error calling provider logout for reconnect:', sdkError);
+         // Continue with reconnect even if provider logout fails
        }
        
       // Clear all local state first
