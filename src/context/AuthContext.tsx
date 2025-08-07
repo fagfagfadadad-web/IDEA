@@ -305,6 +305,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const enhancedUser = {
           ...authUser,
           is_admin: existingUserByWallet.is_admin,
+          wallet_address: existingUserByWallet.wallet_address,
           username: existingUserByWallet.username,
           full_name: existingUserByWallet.full_name,
           avatar_url: existingUserByWallet.avatar_url
