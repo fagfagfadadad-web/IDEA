@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { X, Plus, Check, DollarSign, Coins } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useGetIsLoggedIn } from 'lib';
@@ -50,13 +50,15 @@ interface CreateGigProps {
 }
 
 export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
-  const { id } = useParams();
+  const { id: paramId } = useParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
-  const isEditMode = isEditing || window.location.pathname.includes('/edit');
+  const [searchParams] = useSearchParams();
+  const editGigId = searchParams.get('edit') || paramId;
+  const isEditMode = isEditing || !!editGigId;
 
   // Real hooks
-  const { data: gig, isLoading: isGigLoading } = useGigById(isEditMode && id ? id : '');
+  const { data: gig, isLoading: isGigLoading } = useGigById(editGigId || '');
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const createGig = useCreateGig();
   const updateGig = useUpdateGig();
@@ -204,8 +206,8 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
         status: formData.status,
       };
 
-      if (isEditMode && id) {
-        await updateGig.mutateAsync({ ...gigData, id: gigId });
+      if (isEditMode && editGigId) {
+        await updateGig.mutateAsync({ ...gigData, id: editGigId });
       } else {
         await createGig.mutateAsync(gigData);
       }
@@ -228,9 +230,14 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   if (isEditMode && isGigLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Gig" reference="#">
-          <p className="text-white">Loading...</p>
-        </Card>
+        <div className="gradient-card p-8">
+          <div className="flex justify-center">
+            <div className="space-y-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="text-gray-700">Loading gig for editing...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -238,9 +245,14 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
   if (isProfileLoading) {
     return (
       <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Profile" reference="#">
-          <p className="text-white">Loading...</p>
-        </Card>
+        <div className="gradient-card p-8">
+          <div className="flex justify-center">
+            <div className="space-y-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+              <p className="text-gray-700">Loading profile...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -251,9 +263,18 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
   return (
     <div className="container mx-auto max-w-7xl px-6 py-8">
-      <Card className="p-8" title="Create Gig" reference="#">
+      <div className="gradient-card p-8">
         <div className="space-y-8">
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-bold gradient-text mb-2">{isEditMode ? 'Edit Gig' : 'Create a New Gig'}</h1>
+          <div>
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold gradient-text mb-2">
+              {isEditMode ? 'Edit Gig' : 'Create a New Gig'}
+            </h1>
+            {isEditMode && gig && (
+              <p className="text-gray-600">
+                Editing: {gig.title}
+              </p>
+            )}
+          </div></parameter>
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-6">
@@ -267,7 +288,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="e.g., Professional Web Development"
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
               </div>
@@ -280,7 +301,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
                   <option value="">Select category</option>
@@ -302,7 +323,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   onChange={handleChange}
                   placeholder="Describe your gig in detail..."
                   rows={8}
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
               </div>
@@ -318,12 +339,12 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                       value={newDetail}
                       onChange={(e) => setNewDetail(e.target.value)}
                       placeholder="e.g., Source code, Smart Contract, Logo files..."
-                      className="flex-1 p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="flex-1 p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                     <Button
                       type="button"
                       onClick={addPackageDetail}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg"
                     >
                       <Plus size={16} />
                     </Button>
@@ -331,15 +352,15 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   
                   <ul className="space-y-2">
                     {packageDetails.map((detail, index) => (
-                      <li key={index} className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
+                      <li key={index} className="flex items-center justify-between bg-gray-50 border border-gray-200 p-3 rounded-lg">
                         <div className="flex items-center">
-                          <Check className="text-blue-400 mr-3" size={16} />
-                          <span className="text-white">{detail}</span>
+                          <Check className="text-green-600 mr-3" size={16} />
+                          <span className="text-gray-800">{detail}</span>
                         </div>
                         <Button
                           type="button"
                           onClick={() => removePackageDetail(index)}
-                          className="text-red-400 hover:text-red-300 bg-transparent border-none p-1"
+                          className="text-red-600 hover:text-red-700 bg-transparent border-none p-1"
                         >
                           <X size={16} />
                         </Button>
@@ -356,7 +377,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   Media
                 </label>
                 <div
-                  className="border-2 border-dashed border-gray-600 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 transition-colors"
+                  className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors bg-gray-50"
                   onClick={() => document.getElementById('file-input')?.click()}
                 >
                   <input
@@ -370,7 +391,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                     }}
                     className="hidden"
                   />
-                  <p className="text-gray-400">
+                  <p className="text-gray-600">
                     Drag & drop images/video here, or click to select files
                   </p>
                 </div>
@@ -378,7 +399,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
               {media.images.length > 0 && (
                 <div>
-                  <h3 className="text-grey font-medium mb-4">Images</h3>
+                  <h3 className="text-gray-800 font-medium mb-4">Images</h3>
                   <div className="flex gap-4 overflow-x-auto pb-2">
                     {media.images.map((image, index) => (
                       <div key={index} className="relative min-w-36">
@@ -402,7 +423,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
 
               {media.video && (
                 <div>
-                  <h3 className="text-white font-medium mb-4">Video</h3>
+                  <h3 className="text-gray-800 font-medium mb-4">Video</h3>
                   <div className="relative">
                     <video
                       src={media.video.preview}
@@ -433,8 +454,8 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                       key={option.value}
                       className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
                         formData.status === option.value
-                          ? 'border-blue-500 bg-blue-900 bg-opacity-20'
-                          : 'border-gray-600 bg-gray-800'
+                          ? 'border-indigo-500 bg-indigo-50'
+                          : 'border-gray-300 bg-white'
                       }`}
                       onClick={() => setFormData(prev => ({ ...prev, status: option.value }))}
                     >
@@ -449,7 +470,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                         />
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-white font-bold">
+                            <span className="text-gray-800 font-bold">
                               {option.label}
                             </span>
                             <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -459,7 +480,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                               {option.value === 'active' ? 'Public' : 'Hidden'}
                             </span>
                           </div>
-                          <p className="text-gray-400 text-sm mt-1">
+                          <p className="text-gray-600 text-sm mt-1">
                             {option.description}
                           </p>
                         </div>
@@ -469,12 +490,12 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 </div>
                 
                 {formData.status !== 'active' && (
-                  <div className="mt-4 bg-blue-900 border border-blue-500 rounded-md p-3">
+                  <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div className="flex items-start">
-                      <div className="text-blue-400 mr-2 mt-0.5">ℹ️</div>
+                      <div className="text-blue-600 mr-2 mt-0.5">ℹ️</div>
                       <div>
-                        <p className="text-white font-medium">Visibility Notice</p>
-                        <p className="text-blue-200 text-sm">
+                        <p className="text-blue-800 font-medium">Visibility Notice</p>
+                        <p className="text-blue-700 text-sm">
                           This gig will not be visible in public listings. Existing orders will not be affected.
                         </p>
                       </div>
@@ -494,8 +515,8 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                       key={token.id}
                       className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
                         formData.payment_token === token.id
-                          ? 'border-blue-500 bg-blue-900 bg-opacity-20'
-                          : 'border-gray-600 bg-gray-800'
+                          ? 'border-indigo-500 bg-indigo-50'
+                          : 'border-gray-300 bg-white'
                       }`}
                       onClick={() => setFormData(prev => ({ ...prev, payment_token: token.id }))}
                     >
@@ -509,12 +530,12 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                           className="mr-3"
                         />
                         <div className="flex items-center gap-3">
-                          <div className={formData.payment_token === token.id ? "text-blue-400" : "text-white"}>
+                          <div className={formData.payment_token === token.id ? "text-indigo-600" : "text-gray-600"}>
                             {token.icon}
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-white font-bold">
+                              <span className="text-gray-800 font-bold">
                                 {token.name}
                               </span>
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -523,7 +544,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                                 {token.fee} fee
                               </span>
                             </div>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-gray-600 text-sm">
                               {token.description}
                             </p>
                           </div>
@@ -535,12 +556,12 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 
                 {/* Fee Information Alert */}
                 {formData.payment_token === 'EGLD' && (
-                  <div className="mt-4 bg-orange-900 border border-orange-500 rounded-md p-3">
+                  <div className="mt-4 bg-orange-50 border border-orange-200 rounded-lg p-3">
                     <div className="flex items-start">
-                      <div className="text-orange-400 mr-2 mt-0.5">ℹ️</div>
+                      <div className="text-orange-600 mr-2 mt-0.5">ℹ️</div>
                       <div>
-                        <p className="text-white font-medium">EGLD Payment Fee</p>
-                        <p className="text-orange-200 text-sm">
+                        <p className="text-orange-800 font-medium">EGLD Payment Fee</p>
+                        <p className="text-orange-700 text-sm">
                           10% platform fee will be deducted from EGLD payments. 
                           Use IDA tokens for zero fees!
                         </p>
@@ -550,12 +571,12 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                 )}
                 
                 {formData.payment_token === 'IDA-f9bc1d' && (
-                  <div className="mt-4 bg-green-900 border border-green-500 rounded-md p-3">
+                  <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-3">
                     <div className="flex items-start">
-                      <div className="text-green-400 mr-2 mt-0.5">✅</div>
+                      <div className="text-green-600 mr-2 mt-0.5">✅</div>
                       <div>
-                        <p className="text-white font-medium">IDA Token Benefits</p>
-                        <p className="text-green-200 text-sm">
+                        <p className="text-green-800 font-medium">IDA Token Benefits</p>
+                        <p className="text-green-700 text-sm">
                           No platform fees! Keep 100% of your earnings with IDA tokens.
                         </p>
                       </div>
@@ -576,11 +597,11 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   value={formData.price}
                   onChange={handleChange}
                   placeholder="100"
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
                 {formData.payment_token === 'EGLD' && formData.price && (
-                  <p className="text-orange-300 text-sm mt-2">
+                  <p className="text-orange-600 text-sm mt-2">
                     💡 You'll receive: {(Number(formData.price) * 0.9).toFixed(2)} EGLD (after 10% fee)
                   </p>
                 )}
@@ -597,10 +618,10 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
                   value={formData.duration}
                   onChange={handleChange}
                   placeholder="7"
-                  className="w-full p-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-gray-600 text-sm mt-1">
                   How many days it will take you to complete this gig
                 </p>
               </div>
@@ -608,7 +629,9 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
               <div className="pt-6">
                 <Button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium text-lg"
+                  variant="gradient"
+                  size="lg"
+                  fullWidth
                   disabled={createGig.isLoading || updateGig.isLoading}
                 >
                   {createGig.isLoading || updateGig.isLoading 
@@ -620,7 +643,7 @@ export const CreateGig: React.FC<CreateGigProps> = ({ isEditing = false }) => {
             </div>
           </form>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
