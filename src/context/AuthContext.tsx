@@ -529,6 +529,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLastAddress(null);
       setAuthMessage('Successfully logged out');
       
+      // Clear MultiversX SDK state from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sdk-dapp-') || 
+            key.startsWith('dapp-') || 
+            key.includes('multiversx') || 
+            key.includes('elrond') ||
+            key.includes('wallet') ||
+            key.includes('provider') ||
+            key.includes('account') ||
+            key.includes('login')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Also clear sessionStorage
+      Object.keys(sessionStorage).forEach(key => {
+        if (key.startsWith('sdk-dapp-') || 
+            key.startsWith('dapp-') || 
+            key.includes('multiversx') || 
+            key.includes('elrond') ||
+            key.includes('wallet') ||
+            key.includes('provider') ||
+            key.includes('account') ||
+            key.includes('login')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+      
       // Refresh the page to reset the DApp state without closing xPortal
       window.location.reload();
     } catch (error: any) {
