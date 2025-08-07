@@ -1,3 +1,4 @@
+```typescript
 import { Transaction, TransactionManager, TransactionsDisplayInfoType, getAccountProvider, UnlockPanelManager } from 'lib';
 
 interface SignAndSendTransactionsProps {
@@ -25,12 +26,34 @@ export const signAndSendTransactions = async ({
              typeof p.provider.getAccount === 'function';
     };
 
-    // If provider is invalid, force user to reconnect instead of trying to fix it
+    // If provider is invalid, try to reinitialize it
     if (!isProviderValid(provider)) {
-      console.log('❌ signAndSendTransactions: Provider is completely invalid, forcing reconnect');
-      
-      // Show user-friendly error that suggests reconnection
-      throw new Error('Your wallet connection has expired. Please use the "Reconnect Wallet" button in the profile menu to restore the connection.');
+      console.log('🔧 signAndSendTransactions: Provider invalid, attempting to get fresh provider...');
+      try {
+        // Attempt to reinitialize UnlockPanelManager which should restore provider state
+        const unlockPanelManager = UnlockPanelManager.init({
+          loginHandler: () => {
+            console.log('🔧 signAndSendTransactions: Provider reinitialized via login handler');
+          },
+          onClose: () => {
+            console.log('🔧 signAndSendTransactions: Provider reinitialization closed');
+          }
+        });
+        // Don't actually open the panel, just initialize the manager
+        await unlockPanelManager.init();
+        console.log('✅ signAndSendTransactions: UnlockPanelManager reinitialized');
+        
+        // Get the fresh provider instance
+        provider = getAccountProvider();
+        if (!isProviderValid(provider)) {
+          console.log('❌ signAndSendTransactions: Provider still invalid after reinitialization attempt.');
+          throw new Error('WALLET_PROVIDER_DISCONNECTED');
+        }
+        console.log('✅ signAndSendTransactions: Provider successfully reinitialized.');
+      } catch (reinitError) {
+        console.error('❌ signAndSendTransactions: Provider reinitialization failed:', reinitError);
+        throw new Error('WALLET_PROVIDER_DISCONNECTED');
+      }
     }
     
     console.log('✅ signAndSendTransactions: Provider validation passed');
@@ -56,11 +79,14 @@ export const signAndSendTransactions = async ({
           throw new Error('Transaction signing timed out. Please try again.');
         } else if (signError.message.includes('User rejected') || signError.message.includes('cancelled')) {
           throw signError; // Re-throw user rejection errors as-is
+        } else if (signError.message.includes('Unable to sign transactions')) {
+          // Specific error for provider not being able to sign
+          throw new Error('WALLET_PROVIDER_DISCONNECTED');
         } else {
-          throw new Error(`Transaction signing failed: ${signError.message}. If this persists, please use "Reconnect Wallet" in the profile menu.`);
+          throw new Error(`Transaction signing failed: ${signError.message}`);
         }
       }
-      throw new Error('Transaction signing failed. Please try reconnecting your wallet.');
+      throw new Error('Transaction signing failed. Unknown error.');
     }
     
     console.log('🔄 signAndSendTransactions: Transactions signed successfully:', signedTransactions);
@@ -102,3 +128,4 @@ export const signAndSendTransactions = async ({
     throw error;
   }
 };
+```
