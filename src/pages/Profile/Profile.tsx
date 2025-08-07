@@ -556,104 +556,6 @@ export const Profile = () => {
                 </div>
               )}
 
-              {/* My Orders - Only for own profile */}
-              {isOwnProfile && (
-                <div className="gradient-card p-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-6">Recent Orders</h3>
-                  
-                  {orders?.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-600 mb-4">No orders yet.</p>
-                      <Button
-                        onClick={() => navigate('/gigs')}
-                        variant="gradient"
-                      >
-                        Browse Gigs
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {orders?.map((order) => {
-                        // Calculate if 3 days have passed since completion
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
-                        
-                        // Format countdown
-                        const formatCountdown = (ms: number) => {
-                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                          
-                          if (days > 0) return `${days}d ${hours}h`;
-                          if (hours > 0) return `${hours}h ${minutes}m`;
-                          return `${minutes}m`;
-                        };
-                        
-                        return (
-                          <div
-                            key={order.id}
-                            className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="text-gray-800 font-medium mb-1">
-                                  {order.gig?.title || 'Custom Project'}
-                                </h4>
-                                <p className="text-gray-600 text-sm">
-                                  {order.amount} {order.payment_token || 'EGLD'} • {order.status}
-                                </p>
-                              </div>
-                              <span className="text-gray-600 text-sm">
-                                {new Date(order.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                            
-                            {/* Claim Payment Section for Completed Orders */}
-                            {isCompleted && (
-                              <div className="mt-4 pt-4 border-t border-gray-200">
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-800">
-                                      {canClaim ? '💰 Ready to claim payment' : '⏳ Payment claim available in:'}
-                                    </p>
-                                    {!canClaim && (
-                                      <p className="text-xs text-gray-600">
-                                        {formatCountdown(timeUntilClaim)}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (canClaim) {
-                                        handleClaimPayment(order.id);
-                                      }
-                                    }}
-                                    disabled={!canClaim}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                      canClaim 
-                                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }`}
-                                  >
-                                    {canClaim ? 'Claim Payment' : `Wait ${formatCountdown(timeUntilClaim)}`}
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* My Gigs - Only for own profile */}
               {isOwnProfile && (
                 <div className="gradient-card p-6">
@@ -800,6 +702,191 @@ export const Profile = () => {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* My Orders - Only for own profile */}
+              {isOwnProfile && (
+                <div className="gradient-card p-6">
+                  {/* Orders Waiting for Claim */}
+                  <h3 className="text-lg font-bold text-gray-800 mb-6">Orders Waiting for Claim</h3>
+                  {orders?.filter(order => {
+                    const isCompleted = order.status === 'completed';
+                    const completionDate = new Date(order.status_updated_at);
+                    const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                    const now = new Date();
+                    const canClaim = isCompleted && now >= threeDaysLater;
+                    return isCompleted && canClaim;
+                  }).length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">No orders ready to claim.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {orders?.filter(order => {
+                        const isCompleted = order.status === 'completed';
+                        const completionDate = new Date(order.status_updated_at);
+                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                        const now = new Date();
+                        const canClaim = isCompleted && now >= threeDaysLater;
+                        return isCompleted && canClaim;
+                      }).map((order) => {
+                        // Calculate claim status (already filtered, but included for consistency)
+                        const isCompleted = order.status === 'completed';
+                        const completionDate = new Date(order.status_updated_at);
+                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                        const now = new Date();
+                        const canClaim = isCompleted && now >= threeDaysLater;
+                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
+                        
+                        // Format countdown (not used here but kept for consistency)
+                        const formatCountdown = (ms: number) => {
+                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                          return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+                        };
+                        
+                        return (
+                          <div
+                            key={order.id}
+                            className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <h4 className="text-gray-800 font-medium mb-1">
+                                  {order.gig?.title || 'Custom Project'}
+                                </h4>
+                                <p className="text-gray-600 text-sm">
+                                  {order.amount} {order.payment_token || 'EGLD'} • {order.status}
+                                </p>
+                              </div>
+                              <span className="text-gray-600 text-sm">
+                                {new Date(order.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="text-sm font-medium text-gray-800">
+                                    💰 Ready to claim payment
+                                  </p>
+                                </div>
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (canClaim) {
+                                      handleClaimPayment(order.id);
+                                    }
+                                  }}
+                                  disabled={!canClaim}
+                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                    canClaim 
+                                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                  }`}
+                                >
+                                  Claim Payment
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Recent Orders */}
+                  <h3 className="text-lg font-bold text-gray-800 mb-6 mt-8">Recent Orders</h3>
+                  {orders?.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-gray-600 mb-4">No orders yet.</p>
+                      <Button
+                        onClick={() => navigate('/gigs')}
+                        variant="gradient"
+                      >
+                        Browse Gigs
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {orders?.map((order) => {
+                        // Calculate if 3 days have passed since completion
+                        const isCompleted = order.status === 'completed';
+                        const completionDate = new Date(order.status_updated_at);
+                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+                        const now = new Date();
+                        const canClaim = isCompleted && now >= threeDaysLater;
+                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
+                        
+                        // Format countdown
+                        const formatCountdown = (ms: number) => {
+                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                          return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+                        };
+                        
+                        return (
+                          <div
+                            key={order.id}
+                            className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                          >
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <h4 className="text-gray-800 font-medium mb-1">
+                                  {order.gig?.title || 'Custom Project'}
+                                </h4>
+                                <p className="text-gray-600 text-sm">
+                                  {order.amount} {order.payment_token || 'EGLD'} • {order.status}
+                                </p>
+                              </div>
+                              <span className="text-gray-600 text-sm">
+                                {new Date(order.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                            
+                            {/* Claim Payment Section for Completed Orders */}
+                            {isCompleted && (
+                              <div className="mt-4 pt-4 border-t border-gray-200">
+                                <div className="flex justify-between items-center">
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-800">
+                                      {canClaim ? '💰 Ready to claim payment' : '⏳ Payment claim available in:'}
+                                    </p>
+                                    {!canClaim && (
+                                      <p className="text-xs text-gray-600">
+                                        {formatCountdown(timeUntilClaim)}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (canClaim) {
+                                        handleClaimPayment(order.id);
+                                      }
+                                    }}
+                                    disabled={!canClaim}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                      canClaim 
+                                        ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    }`}
+                                  >
+                                    {canClaim ? 'Claim Payment' : `Wait ${formatCountdown(timeUntilClaim)}`}
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
