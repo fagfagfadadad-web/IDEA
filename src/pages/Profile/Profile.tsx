@@ -1099,7 +1099,7 @@ export const Profile = () => {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                     Profile Picture URL
                   </label>
                   <div className="flex flex-col md:flex-row gap-4">
