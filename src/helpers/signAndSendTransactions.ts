@@ -83,7 +83,7 @@ export const signAndSendTransactions = async ({
           // Specific error for provider not being able to sign
           throw new Error('WALLET_PROVIDER_DISCONNECTED');
         } else {
-          throw new Error(\`Transaction signing failed: ${signError.message}`);
+          throw new Error(`Transaction signing failed: ${signError.message}`);
         }
       }
       throw new Error('Transaction signing failed. Unknown error.');
