@@ -607,6 +607,22 @@ const OrderDetails = () => {
       window.location.reload();
     } catch (error) {
       console.error('Dispute error:', error);
+      
+      // Handle wallet provider disconnection
+      if (error instanceof Error && error.message.includes('WALLET_PROVIDER_DISCONNECTED')) {
+        console.log('🔄 OrderDetails: Wallet provider disconnected during dispute, forcing reconnect...');
+        try {
+          await forceReconnect();
+          return; // Exit early, user will be redirected to reconnect
+        } catch (reconnectError) {
+          console.error('Failed to force reconnect:', reconnectError);
+          showError('Wallet connection lost. Please refresh the page and reconnect your wallet.');
+          return;
+        }
+      }
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      showError(`Error creating dispute: ${errorMessage}`);
     } finally {
       setIsPaymentLoading(false);
     }
