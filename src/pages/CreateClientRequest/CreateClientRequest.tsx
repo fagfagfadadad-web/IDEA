@@ -114,7 +114,7 @@ export const CreateClientRequest = () => {
 
   return (
     <div className="container mx-auto max-w-7xl px-6 py-8">
-      <Card className="p-8" title="Create Project Request" reference="#">
+      <div className="gradient-card p-8">
         <div className="space-y-8">
           <div>
             <h1 className="text-xl md:text-2xl lg:text-3xl font-bold gradient-text mb-2">Create a Project Request</h1>
@@ -306,7 +306,7 @@ export const CreateClientRequest = () => {
             </div>
           </form>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
