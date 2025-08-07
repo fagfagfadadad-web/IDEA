@@ -160,33 +160,10 @@ export const signAndSendTransactions = async ({
     if (!transactionHashes || transactionHashes.length === 0 || !transactionHashes[0]) {
       throw new Error('Failed to get valid transaction hashes from sent transactions');
     }
-    } else {
-      transactionHashes = [(sentTransactions as any).hash || (sentTransactions as any).transactionHash];
-    }
-    
-    console.log('🔄 signAndSendTransactions: Transaction hashes:', transactionHashes);
-    if (!transactionHashes || transactionHashes.length === 0) {
-      throw new Error('Failed to get transaction hashes from sent transactions');
-    }
 
     console.log('🔄 signAndSendTransactions: Tracking transactions...');
     try {
       // Type-safe tracking with proper casting
-      await txManager.track(sentTransactions as any, { transactionsDisplayInfo });
-    } catch (trackError) {
-      console.error('🔄 signAndSendTransactions: Tracking failed:', trackError);
-      // Don't fail the whole process if tracking fails, just log it
-      console.log('🔄 signAndSendTransactions: Continuing despite tracking error');
-    }
-    
-    return transactionHashes[0]; // Return hash of first transaction
-  } catch (error) {
-    console.error('❌ signAndSendTransactions: Error occurred:', error);
-    throw error;
-  }
-};
-    console.log('🔄 signAndSendTransactions: Tracking transactions...');
-    try {
       await txManager.track(sentTransactions as any, { transactionsDisplayInfo });
     } catch (trackError) {
       console.error('🔄 signAndSendTransactions: Tracking failed:', trackError);
