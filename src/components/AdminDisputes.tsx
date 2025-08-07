@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Shield, CheckCircle, DollarSign, Clock, User, MessageSquare, Eye } from 'lucide-react';
+import { AlertTriangle, Shield, CheckCircle, DollarSign, Clock, User, MessageSquare, Eye, X } from 'lucide-react';
 import { Button, Card } from 'components';
 import { OrderChat } from './OrderChat';
 import { useGetIsLoggedIn } from 'lib';
