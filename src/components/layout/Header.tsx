@@ -258,7 +258,7 @@ export const Header = () => {
                           >
                             <Wallet size={16} />
                             Reconnect Wallet
-                          </Link>
+                          </button>
                           <button
                             onClick={handleLogout}
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-b-lg w-full text-left transition-all duration-200"
