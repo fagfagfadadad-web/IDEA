@@ -50,7 +50,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
     
     try {
       // Upload files to Supabase Storage
-      const uploadedUrls = await uploadMultipleFiles(attachedFiles, 'message-attachments', 'files');
+      const uploadedUrls = await uploadMultipleFiles(attachedFiles, 'gig-media', 'message-attachments');
       
       // Return formatted attachment objects
       return attachedFiles.map((file, index) => ({
