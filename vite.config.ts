@@ -46,7 +46,14 @@ export default defineConfig({
     tsconfigPaths(),
     svgrPlugin(),
     nodePolyfills({
-      globals: { Buffer: true, global: true, process: true },
+      globals: { 
+        Buffer: true, 
+        global: true, 
+        process: true 
+      },
+      // Disable timer polyfills to prevent conflicts
+      include: ['buffer', 'process'],
+      exclude: ['timers']
     }),
   ],
 });

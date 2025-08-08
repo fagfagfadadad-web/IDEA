@@ -1,6 +1,5 @@
-import './styles/globals.css';
-
 // Fix for TypeError: t._onTimeout is not a function
+// This must be executed BEFORE any other imports
 if (typeof window !== 'undefined') {
   // Browser environment
   globalThis.setTimeout = window.setTimeout.bind(window);
@@ -20,6 +19,8 @@ if (typeof window !== 'undefined') {
   globalThis.clearTimeout = globalThis.clearTimeout.bind(globalThis);
   globalThis.clearInterval = globalThis.clearInterval.bind(globalThis);
 }
+
+import './styles/globals.css';
 
 import { environment } from './config/config.mainnet'; // Opravená cesta
 import { walletConnectV2ProjectId } from './config/sharedConfig';
