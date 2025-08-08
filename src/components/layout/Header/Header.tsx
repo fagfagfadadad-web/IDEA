@@ -25,6 +25,7 @@ export const Header = () => {
   };
 
   const handleTokenSaleClick = (e) => {
+  }
   const handleTokenSaleClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Zabránime akémukoľvek spracovaniu React Routerom
     window.location.href = 'https://ideagigs.store/token-sale'; // Presmerovanie na externú URL
