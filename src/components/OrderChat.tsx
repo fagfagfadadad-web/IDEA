@@ -5,6 +5,7 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { useOrderById } from '../hooks/useOrders';
 import { useAuth } from '../context/AuthContext';
 import { Button, Card } from 'components';
+import { useFileUpload } from '../hooks/useFileUpload';
 
 interface OrderChatProps {
   orderId: string;
@@ -16,9 +17,9 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
   const sendMessage = useSendMessage();
+  const { uploadMultipleFiles, isUploading: isFileUploading } = useFileUpload();
   const [newMessage, setNewMessage] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom of messages
@@ -47,29 +48,20 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
   const uploadFiles = async () => {
     if (attachedFiles.length === 0) return [];
     
-    setIsUploading(true);
-    const uploadedFiles = [];
-    
     try {
-      for (const file of attachedFiles) {
-        // Mock file upload - replace with real implementation
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        uploadedFiles.push({
-          name: file.name,
-          url: `https://example.com/files/${file.name}`,
-          type: file.type,
-          size: file.size,
-        });
-      }
+      // Upload files to Supabase Storage
+      const uploadedUrls = await uploadMultipleFiles(attachedFiles, 'message-attachments', 'files');
       
-      return uploadedFiles;
+      // Return formatted attachment objects
+      return attachedFiles.map((file, index) => ({
+        name: file.name,
+        url: uploadedUrls[index],
+        type: file.type,
+        size: file.size,
+      }));
     } catch (error) {
       console.error('Error uploading files:', error);
-      alert('Error uploading files. Please try again later.');
-      return [];
-    } finally {
-      setIsUploading(false);
+      throw new Error('Error uploading files. Please try again later.');
     }
   };
 
@@ -100,7 +92,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
       }
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Error sending message. Please try again later.');
+      alert(error instanceof Error ? error.message : 'Error sending message. Please try again later.');
     }
   };
 
@@ -430,11 +422,11 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
           {/* Send button */}
           <Button
             onClick={handleSendMessage}
-            disabled={sendMessage.isLoading || isUploading}
+            disabled={sendMessage.isLoading || isFileUploading}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 font-medium w-full sm:flex-1"
           >
             <Send size={16} />
-            {isUploading ? 'Uploading...' : 'Send'}
+            {isFileUploading ? 'Uploading...' : 'Send'}
           </Button>
         </div>
         
