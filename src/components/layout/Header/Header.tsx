@@ -24,6 +24,12 @@ export const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleTokenSaleClick = (e) => {
+    e.preventDefault(); // Zabránime akémukoľvek spracovaniu React Routerom
+    window.location.href = 'https://ideagigs.store/token-sale'; // Presmerovanie na externú URL
+    setIsMenuOpen(false); // Zatvoríme menu
+  };
+
   return (
     <header className='flex flex-row align-center justify-between pl-6 pr-6 pt-6'>
       <MxLink
@@ -61,15 +67,12 @@ export const Header = () => {
           </div>
 
           {/* Odkaz na Token Sale */}
-          <a
-            href='https://ideagigs.store/token-sale'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
-            onClick={() => setIsMenuOpen(false)}
+          <span
+            className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 cursor-pointer'
+            onClick={handleTokenSaleClick}
           >
             Token Sale
-          </a>
+          </span>
 
           {isLoggedIn && (
             <>
