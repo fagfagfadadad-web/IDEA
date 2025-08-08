@@ -72,7 +72,7 @@ export const Profile = () => {
 
   // Real hooks for data fetching
   const { data: gigs, refetch: refetchGigs } = useGigs();
-  const { data: orders } = useOrders();
+  const { data: orders, refetch: refetchOrders } = useOrders();
   const { data: notifications } = useNotifications(user?.id);
   const { data: providerReviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(profile?.id || '');
 
@@ -199,11 +199,9 @@ export const Profile = () => {
     try {
       await claimPayment(orderId);
       
-      // Refresh orders after successful claim
-      if (orders) {
-        // Force refresh by navigating to the order details
-        navigate(`/orders/${orderId}`);
-      }
+      // Refresh orders data to remove from waiting list
+      await refetchOrders();
+      success('Payment claimed successfully');
     } catch (error) {
       console.error('Error claiming payment:', error);
       showErrorToast(`Error claiming payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
