@@ -33,6 +33,14 @@ export const Header = () => {
             <p className='text-gray-600'>{environment}</p>
           </div>
 
+          {/* Token Sale Link */}
+          <a
+            href='https://ideagigs.store/token-sale'
+            className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
+          >
+            Token Sale
+          </a>
+
           {isLoggedIn && (
             <>
               <NotificationsButton />
