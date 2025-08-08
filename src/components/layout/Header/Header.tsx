@@ -1,4 +1,4 @@
-import { useState } from 'react'; // Added for hamburger menu toggle
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, MxLink } from 'components';
 import { environment } from '../../../config/config.mainnet';
@@ -12,12 +12,12 @@ export const Header = () => {
   const { address } = useGetAccount();
   const navigate = useNavigate();
   const provider = getAccountProvider();
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for hamburger menu toggle
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await provider.logout();
     navigate(RouteNamesEnum.home);
-    setIsMenuOpen(false); // Close menu on logout
+    setIsMenuOpen(false);
   };
 
   const toggleMenu = () => {
@@ -33,11 +33,11 @@ export const Header = () => {
         <MultiversXLogo className='w-full h-6' />
       </MxLink>
 
-      {/* Hamburger Menu Toggle Button */}
+      {/* Tlačidlo hamburger menu */}
       <button
         className='sm:hidden text-gray-600 focus:outline-none'
         onClick={toggleMenu}
-        aria-label='Toggle menu'
+        aria-label='Otvoriť/zatvoriť menu'
       >
         <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
           <path
@@ -52,19 +52,21 @@ export const Header = () => {
       <nav
         className={`${
           isMenuOpen ? 'block' : 'hidden'
-        } sm:block h-full w-full text-sm sm:relative sm:left-auto sm:top-auto sm:flex sm:w-auto sm:flex-row sm:justify-end sm:bg-transparent`}
+        } sm:block h-full w-full text-sm sm:relative sm:left-auto sm:top-auto sm:flex sm:w-auto sm:flex-row sm:justify-end sm:bg-transparent absolute top-16 left-0 bg-white sm:bg-transparent w-full sm:w-auto z-10`}
       >
-        <div className='flex flex-col sm:flex-row justify-end container mx-auto items-center gap-2'>
+        <div className='flex flex-col sm:flex-row justify-end container mx-auto items-center gap-2 p-4 sm:p-0'>
           <div className='flex gap-1 items-center'>
             <div className='w-2 h-2 rounded-full bg-green-500' />
             <p className='text-gray-600'>{environment}</p>
           </div>
 
-          {/* Token Sale Link */}
+          {/* Odkaz na Token Sale */}
           <a
             href='https://ideagigs.store/token-sale'
+            target='_blank'
+            rel='noopener noreferrer'
             className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
-            onClick={() => setIsMenuOpen(false)} // Close menu on click
+            onClick={() => setIsMenuOpen(false)}
           >
             Token Sale
           </a>
@@ -76,7 +78,7 @@ export const Header = () => {
                 onClick={handleLogout}
                 className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
               >
-                Close
+                Odhlásiť
               </Button>
             </>
           )}
@@ -85,11 +87,11 @@ export const Header = () => {
             <Button
               onClick={() => {
                 navigate(RouteNamesEnum.unlock);
-                setIsMenuOpen(false); // Close menu on click
+                setIsMenuOpen(false);
               }}
               className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
             >
-              Connect
+              Pripojiť
             </Button>
           )}
         </div>
