@@ -10,6 +10,7 @@ import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
 import { useOrders } from 'hooks';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
 import { useReviewsForProvider } from 'hooks';
+import { usePayments } from 'hooks';
 
 // Helper function to calculate earnings from orders
 const calculateEarnings = (orders: any[]) => {
@@ -95,6 +96,7 @@ export const Profile = () => {
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
+  const { claimPayment } = usePayments();
 
   // Initialize edit form when profile loads
   useEffect(() => {
@@ -195,10 +197,6 @@ export const Profile = () => {
 
   const handleClaimPayment = async (orderId: string) => {
     try {
-      // Import the payment hook
-      const { usePayments } = await import('../../hooks/usePayments');
-      const { claimPayment } = usePayments();
-      
       await claimPayment(orderId);
       
       // Refresh orders after successful claim
