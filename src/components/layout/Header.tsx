@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch } from 'lucide-react';
+import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch, Gift } from 'lucide-react';
 import { Button } from 'components';
 import { NotificationsDropdown } from '../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
@@ -117,6 +117,10 @@ export const Header = () => {
               <Link to="/token-sale" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
                 <Coins size={16} />
                 Token Sale
+              </Link>
+              <Link to="/rewards" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+                <Gift size={16} />
+                Rewards
               </Link>
               {isLoggedIn && (
                 <>
@@ -362,6 +366,14 @@ export const Header = () => {
               >
                 <Coins size={18} />
                 Token Sale
+              </Link>
+              <Link
+                to="/rewards"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Gift size={18} />
+                Rewards
               </Link>
               {isLoggedIn && (
                 <>
