@@ -231,15 +231,19 @@ const PhaseCard: React.FC<{
           <div className="relative">
             <div className="w-full bg-gray-800 rounded-full h-6 overflow-hidden shadow-inner border border-gray-600">
               <div 
-                className="h-full transition-all duration-1000 bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg"
-                style={{ width: `${Math.min(progress, 100)}%` }}
+                className="h-full transition-all duration-1000 shadow-lg"
+                style={{ 
+                  width: `${Math.min(progress, 100)}%`,
+                  background: 'linear-gradient(to right, #6366f1, #ec4899)',
+                  boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+                }}
               />
             </div>
             <div className="flex justify-between mt-3 text-sm">
-              <span className="text-indigo-200 font-medium">
+              <span className="text-gray-300 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-indigo-200 font-medium">
+              <span className="text-gray-300 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
@@ -961,4 +965,3 @@ export const TokenSale: React.FC = () => {
     </div>
   );
 };
-                
