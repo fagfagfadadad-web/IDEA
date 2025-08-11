@@ -355,16 +355,14 @@ export const Header = () => {
                 <FileSearch size={18} />
                 Open Bids
               </Link>
-              <a
-                href="https://ideagigs.store/token-sale"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/token-sale"
                 className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Coins size={18} />
                 Token Sale
-              </a>
+              </Link>
               {isLoggedIn && (
                 <>
                   <Link
