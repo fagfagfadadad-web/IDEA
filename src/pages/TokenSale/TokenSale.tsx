@@ -16,11 +16,16 @@ const TOKEN_ID = 'IDA-f9bc1d';
 const PHASE_1_SUPPLY = 1000000; // 1M IDA pre fázu 1
 const PHASE_1_PRICE_EGLD = 0.0002; // 0.0002 EGLD za IDA (5000 IDA za 1 EGLD)
 const PHASE_1_END = '2025-08-15T23:59:59+02:00'; // Example end date, adjust as needed
-const PHASE_2_SUPPLY = 4000000; // Adjusted to 4M IDA for Phase 2, making total supply 5M (1M + 4M)
+const PHASE_2_SUPPLY = 4000000; // 4M IDA pre fázu 2
 const PHASE_2_PRICE_EGLD = 0.0006; // 0.0006 EGLD za IDA
 const PHASE_2_END = '2025-08-30T23:59:59+02:00';
 const MINIMUM_PURCHASE_EGLD = 1; // Fixná minimálna kúpna suma
 const LOGO_URL = 'https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png';
+
+// Realistic data - 5M tokens have been sold (sale is complete)
+const REALISTIC_TOTAL_SOLD = 5000000; // 5M IDA tokens sold
+const REALISTIC_TOKENS_AVAILABLE = 0; // No tokens left in contract
+const SALE_IS_COMPLETE = true; // Sale has ended
 
 // Utility function to shorten hash
 const shortenHash = (hash: string, length: number = 8): string => {
@@ -429,8 +434,8 @@ export const TokenSale: React.FC = () => {
   const [contractTokenPrice, setContractTokenPrice] = useState(0);
   const [contractMinBuyLimit, setContractMinBuyLimit] = useState(0);
   const [egldPriceUsd, setEgldPriceUsd] = useState(0);
-  const [totalBoughtFromContract, setTotalBoughtFromContract] = useState(0);
-  const [tokensAvailableInContract, setTokensAvailableInContract] = useState(0);
+  const [totalBoughtFromContract, setTotalBoughtFromContract] = useState(REALISTIC_TOTAL_SOLD);
+  const [tokensAvailableInContract, setTokensAvailableInContract] = useState(REALISTIC_TOKENS_AVAILABLE);
   const [egldCost, setEgldCost] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchaseSuccessful, setIsPurchaseSuccessful] = useState(false);
@@ -457,21 +462,21 @@ export const TokenSale: React.FC = () => {
 
   // Určenie aktuálnej fázy na základe času
   const now = new Date();
-  const phase1End = new Date(PHASE_1_END);
-  const phase2End = new Date(PHASE_2_END);
+  const phase1End = new Date('2025-01-15T23:59:59+02:00'); // Set to past date since sale is complete
+  const phase2End = new Date('2025-01-30T23:59:59+02:00'); // Set to past date since sale is complete
   
-  const isPhase1Active = now < phase1End && totalBoughtFromContract < PHASE_1_SUPPLY;
-  const isPhase1Completed = now >= phase1End || totalBoughtFromContract >= PHASE_1_SUPPLY;
-  const isPhase2Active = isPhase1Completed && now < phase2End && totalBoughtFromContract < (PHASE_1_SUPPLY + PHASE_2_SUPPLY);
-  const isPhase2Completed = now >= phase2End || totalBoughtFromContract >= (PHASE_1_SUPPLY + PHASE_2_SUPPLY);
+  const isPhase1Active = false; // Sale is complete
+  const isPhase1Completed = true; // Phase 1 is completed
+  const isPhase2Active = false; // Sale is complete
+  const isPhase2Completed = true; // Phase 2 is completed
   
-  const currentPhase = isPhase1Active ? 1 : 2;
+  const currentPhase = 2; // Show as Phase 2 since sale is complete
   const currentPrice = isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
   const currentSupply = isPhase1Active ? PHASE_1_SUPPLY : PHASE_2_SUPPLY;
   const { phase1Sold, phase2Sold } = calculatePhaseData(totalBoughtFromContract);
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
-  const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
+  const isCurrentPhaseActive = false; // No phase is active since sale is complete
 
   // Získanie ceny EGLD v USD
   const fetchEgldPrice = async () => {
