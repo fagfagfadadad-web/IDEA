@@ -576,7 +576,7 @@ export const TokenSale: React.FC = () => {
           }
         );
 
-        if (totalBoughtResponse.firstResult?.asBigUint) {
+        if (totalBoughtResponse.firstResult && totalBoughtResponse.firstResult.asBigUint) {
           const totalBoughtWei = totalBoughtResponse.firstResult.asBigUint.toString();
           const totalBoughtTokens = Number(totalBoughtWei) / 1e18;
           console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
