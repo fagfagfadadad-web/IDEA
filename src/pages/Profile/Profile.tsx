@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, MapPin, Twitter, Github, Linkedin, Globe, MessageSquare, Edit, Save, X, ArrowLeft, BarChart3, Coins, Briefcase } from 'lucide-react';
+import { User, Settings, Star, Calendar, MapPin, Twitter, Github, Linkedin, Globe, MessageSquare, Edit, Save, X, ArrowLeft, BarChart3, Coins, Briefcase, DollarSign } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
