@@ -524,11 +524,14 @@ export const TokenSale: React.FC = () => {
           }
         );
 
-        if (priceResponse.firstResult) {
+        if (priceResponse.firstResult?.asBigUint) {
           const priceWei = priceResponse.firstResult.asBigUint.toString();
           const priceEgld = Number(priceWei) / 1e18;
           console.log('Contract token price:', priceEgld, 'EGLD');
           setContractTokenPrice(priceEgld);
+        } else {
+          console.log('No token price data returned from contract');
+          setContractTokenPrice(0);
         }
       } catch (error) {
         console.error('Error querying token price:', error);
@@ -547,11 +550,14 @@ export const TokenSale: React.FC = () => {
           }
         );
 
-        if (minBuyResponse.firstResult) {
+        if (minBuyResponse.firstResult?.asBigUint) {
           const minBuyWei = minBuyResponse.firstResult.asBigUint.toString();
           const minBuyEgld = Number(minBuyWei) / 1e18;
           console.log('Contract minimum buy limit:', minBuyEgld, 'EGLD');
           setContractMinBuyLimit(minBuyEgld);
+        } else {
+          console.log('No minimum buy limit data returned from contract');
+          setContractMinBuyLimit(0);
         }
       } catch (error) {
         console.error('Error querying minimum buy limit:', error);
@@ -570,11 +576,14 @@ export const TokenSale: React.FC = () => {
           }
         );
 
-        if (totalBoughtResponse.firstResult) {
+        if (totalBoughtResponse.firstResult?.asBigUint) {
           const totalBoughtWei = totalBoughtResponse.firstResult.asBigUint.toString();
           const totalBoughtTokens = Number(totalBoughtWei) / 1e18;
           console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
           setTotalBoughtFromContract(totalBoughtTokens);
+        } else {
+          console.log('No total bought amount data returned from contract');
+          setTotalBoughtFromContract(0);
         }
       } catch (error) {
         console.error('Error querying total bought amount:', error);
