@@ -718,73 +718,73 @@ export const TokenSale: React.FC = () => {
           {/* Hero Section */}
           <div className="gradient-card p-8 text-center">
             <div className="space-y-8">
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4">
                 <img
                   src={LOGO_URL}
                   alt="IDA Logo"
-                  className="w-20 h-20 object-contain drop-shadow-lg"
+                  className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg"
                 />
                 <div>
-                  <h1 className="text-5xl md:text-6xl font-bold gradient-text">
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold gradient-text">
                     IDA Token Sale
                   </h1>
-                  <p className="text-gray-600 text-base font-medium">
+                  <p className="text-gray-600 text-sm md:text-base font-medium">
                     Join the future of Web3 services marketplace
                   </p>
                 </div>
               </div>
 
               {/* Stats Overview */}
-              <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <TrendingUp size={24} className="text-white" />
+                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
+                      <TrendingUp size={isMobile ? 16 : 24} className="text-white" />
                     </div>
-                    <p className="text-indigo-300 text-sm font-medium uppercase tracking-wide">Total Raised</p>
-                    <p className="text-3xl font-bold text-white mt-2">
+                    <p className="text-indigo-300 text-xs md:text-sm font-medium uppercase tracking-wide">Total Raised</p>
+                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
                       {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
                     </p>
-                    <p className="text-gray-300 text-sm mt-1">
+                    <p className="text-gray-300 text-xs md:text-sm mt-1">
                       ≈ ${((((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)) * egldPriceUsd).toFixed(0)).toLocaleString()} USD
                     </p>
                   </div>
                   
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Coins size={24} className="text-white" />
+                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
+                      <Coins size={isMobile ? 16 : 24} className="text-white" />
                     </div>
-                    <p className="text-green-300 text-sm font-medium uppercase tracking-wide">Tokens Sold</p>
-                    <p className="text-3xl font-bold text-white mt-2">
+                    <p className="text-green-300 text-xs md:text-sm font-medium uppercase tracking-wide">Tokens Sold</p>
+                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
                       {(phase1Sold + phase2Sold).toLocaleString()}
                     </p>
-                    <p className="text-gray-300 text-sm mt-1">
+                    <p className="text-gray-300 text-xs md:text-sm mt-1">
                       of {(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()} total
                     </p>
                   </div>
                   
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <Users size={24} className="text-white" />
+                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
+                      <Users size={isMobile ? 16 : 24} className="text-white" />
                     </div>
-                    <p className="text-blue-300 text-sm font-medium uppercase tracking-wide">Current Phase</p>
-                    <p className="text-3xl font-bold text-white mt-2">
+                    <p className="text-blue-300 text-xs md:text-sm font-medium uppercase tracking-wide">Current Phase</p>
+                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
                       Phase {currentPhase}
                     </p>
-                    <p className="text-gray-300 text-sm mt-1">
+                    <p className="text-gray-300 text-xs md:text-sm mt-1">
                       {isPhase1Active ? 'Active Now' : isPhase2Active ? 'Active Now' : 'Upcoming'}
                     </p>
                   </div>
                   
                   <div className="text-center">
-                    <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                      <DollarSign size={24} className="text-white" />
+                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
+                      <DollarSign size={isMobile ? 16 : 24} className="text-white" />
                     </div>
-                    <p className="text-orange-300 text-sm font-medium uppercase tracking-wide">EGLD Price</p>
-                    <p className="text-3xl font-bold text-white mt-2">
+                    <p className="text-orange-300 text-xs md:text-sm font-medium uppercase tracking-wide">EGLD Price</p>
+                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
                       ${egldPriceUsd.toFixed(2)}
                     </p>
-                    <p className="text-gray-300 text-sm mt-1">
+                    <p className="text-gray-300 text-xs md:text-sm mt-1">
                       Live market price
                     </p>
                   </div>
@@ -796,7 +796,7 @@ export const TokenSale: React.FC = () => {
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-4xl font-bold gradient-text mb-6">Token Sale Phases</h2>
-              <p className="text-gray-600 text-xl max-w-4xl mx-auto leading-relaxed">
+              <p className="text-gray-600 text-base md:text-xl max-w-4xl mx-auto leading-relaxed">
                 Our token sale is structured in two phases to provide early supporters with better pricing 
                 while ensuring broad public access to IDA tokens.
               </p>
@@ -810,7 +810,7 @@ export const TokenSale: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 <PhaseCard
                   phase={1}
                   title="Early Bird Phase"
@@ -838,7 +838,7 @@ export const TokenSale: React.FC = () => {
             )}
 
             {!isLoading && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
                 <BuyForm
                   currentPhase={currentPhase}
                   currentPrice={currentPrice}
@@ -859,17 +859,17 @@ export const TokenSale: React.FC = () => {
                 <div className="space-y-8">
                   {/* Transaction Status */}
                   {transactionHash && (
-                    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                    <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
                       <div className="text-center space-y-4">
-                        <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                          <BarChart3 size={24} className="text-white" />
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                          <BarChart3 size={isMobile ? 20 : 24} className="text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white">Transaction Status</h3>
+                        <h3 className="text-lg md:text-2xl font-bold text-white">Transaction Status</h3>
                         <div className="space-y-3">
                           <p className="text-gray-300">
                             Transaction Hash:
                           </p>
-                          <p className="text-indigo-400 font-mono text-sm break-all">
+                          <p className="text-indigo-400 font-mono text-xs md:text-sm break-all">
                             {shortenHash(transactionHash)}
                           </p>
                           <a
@@ -886,71 +886,71 @@ export const TokenSale: React.FC = () => {
                   )}
 
                   {/* Token Information */}
-                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                  <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
                     <div className="space-y-6">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                          <Award size={24} className="text-white" />
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Award size={isMobile ? 20 : 24} className="text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white">Token Information</h3>
+                        <h3 className="text-lg md:text-2xl font-bold text-white">Token Information</h3>
                       </div>
                       
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium">Token Symbol:</span>
-                          <span className="text-white font-bold">IDA</span>
+                      <div className="space-y-3 md:space-y-4">
+                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-sm md:text-base">Token Symbol:</span>
+                          <span className="text-white font-bold text-sm md:text-base">IDA</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium">Token ID:</span>
-                          <span className="text-white font-mono text-sm">{TOKEN_ID}</span>
+                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-sm md:text-base">Token ID:</span>
+                          <span className="text-white font-mono text-xs md:text-sm">{TOKEN_ID}</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium">Total Supply:</span>
-                          <span className="text-white font-bold">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-sm md:text-base">Total Supply:</span>
+                          <span className="text-white font-bold text-sm md:text-base">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium">Contract:</span>
-                          <span className="text-white font-mono text-sm">{shortenHash(saleContractAddress)}</span>
+                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-sm md:text-base">Contract:</span>
+                          <span className="text-white font-mono text-xs md:text-sm">{shortenHash(saleContractAddress)}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Key Features */}
-                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                  <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
                     <div className="space-y-6">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                          <Zap size={24} className="text-white" />
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Zap size={isMobile ? 20 : 24} className="text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-white">Key Features</h3>
+                        <h3 className="text-lg md:text-2xl font-bold text-white">Key Features</h3>
                       </div>
                       
-                      <div className="space-y-4">
-                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <Shield size={20} className="text-indigo-400 mt-1 flex-shrink-0" />
+                      <div className="space-y-3 md:space-y-4">
+                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <Shield size={isMobile ? 16 : 20} className="text-indigo-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold">Secure Smart Contract</h4>
-                            <p className="text-gray-300 text-sm">Built on MultiversX blockchain with audited smart contracts</p>
+                            <h4 className="text-white font-semibold text-sm md:text-base">Secure Smart Contract</h4>
+                            <p className="text-gray-300 text-xs md:text-sm">Built on MultiversX blockchain with audited smart contracts</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <DollarSign size={20} className="text-green-400 mt-1 flex-shrink-0" />
+                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <DollarSign size={isMobile ? 16 : 20} className="text-green-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold">Fair Pricing</h4>
-                            <p className="text-gray-300 text-sm">Transparent pricing with early bird discounts</p>
+                            <h4 className="text-white font-semibold text-sm md:text-base">Fair Pricing</h4>
+                            <p className="text-gray-300 text-xs md:text-sm">Transparent pricing with early bird discounts</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
-                          <Users size={20} className="text-blue-400 mt-1 flex-shrink-0" />
+                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
+                          <Users size={isMobile ? 16 : 20} className="text-blue-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold">Community Driven</h4>
-                            <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
+                            <h4 className="text-white font-semibold text-sm md:text-base">Community Driven</h4>
+                            <p className="text-gray-300 text-xs md:text-sm">Token holders participate in governance decisions</p>
                           </div>
                         </div>
                       </div>
