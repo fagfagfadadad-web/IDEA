@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Edit, Star, Calendar, DollarSign, Briefcase, Eye, Plus, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
@@ -214,7 +214,7 @@ export const Profile = () => {
     { id: 'overview', label: 'Overview', icon: <User size={16} /> },
     { id: 'gigs', label: 'My Gigs', icon: <Briefcase size={16} /> },
     { id: 'reviews', label: 'Reviews', icon: <Star size={16} /> },
-    { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={16} /> },
+    { id: 'dashboard', label: 'Workspace', icon: <BarChart3 size={16} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={16} /> }
   ];
 
@@ -337,7 +337,7 @@ export const Profile = () => {
                         className="border-purple-600 text-purple-600 hover:bg-purple-50"
                       >
                         <BarChart3 size={16} />
-                        Dashboard
+                        Workspace
                       </Button>
                     </div>
                   )}
