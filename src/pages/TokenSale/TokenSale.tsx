@@ -502,12 +502,8 @@ export const TokenSale: React.FC = () => {
 
       // Query token price
       try {
-        const queryPrice = new ContractFunction('getTokenPrice');
-        const priceResponse = await networkProvider.queryContract({
-          address: new Address(saleContractAddress),
-          func: queryPrice,
-          args: [],
-        });
+        const queryPrice = contract.createQuery({ func: new ContractFunction('getTokenPrice') });
+        const priceResponse = await networkProvider.queryContract(queryPrice);
 
         if (priceResponse && priceResponse.returnData && priceResponse.returnData.length > 0) {
           const priceWei = Buffer.from(priceResponse.returnData[0], 'base64').toString('hex');
@@ -525,12 +521,8 @@ export const TokenSale: React.FC = () => {
 
       // Query minimum buy limit
       try {
-        const queryMinBuyLimit = new ContractFunction('getMinBuyLimit');
-        const minBuyResponse = await networkProvider.queryContract({
-          address: new Address(saleContractAddress),
-          func: queryMinBuyLimit,
-          args: [],
-        });
+        const queryMinBuyLimit = contract.createQuery({ func: new ContractFunction('getMinBuyLimit') });
+        const minBuyResponse = await networkProvider.queryContract(queryMinBuyLimit);
 
         if (minBuyResponse && minBuyResponse.returnData && minBuyResponse.returnData.length > 0) {
           const minBuyWei = Buffer.from(minBuyResponse.returnData[0], 'base64').toString('hex');
@@ -548,12 +540,8 @@ export const TokenSale: React.FC = () => {
 
       // Query total bought amount
       try {
-        const queryTotalBought = new ContractFunction('getTotalBoughtAmountOfEsdt');
-        const totalBoughtResponse = await networkProvider.queryContract({
-          address: new Address(saleContractAddress),
-          func: queryTotalBought,
-          args: [],
-        });
+        const queryTotalBought = contract.createQuery({ func: new ContractFunction('getTotalBoughtAmountOfEsdt') });
+        const totalBoughtResponse = await networkProvider.queryContract(queryTotalBought);
 
         if (totalBoughtResponse && totalBoughtResponse.returnData && totalBoughtResponse.returnData.length > 0) {
           const totalBoughtWei = Buffer.from(totalBoughtResponse.returnData[0], 'base64').toString('hex');
