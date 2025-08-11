@@ -224,8 +224,8 @@ const PhaseCard: React.FC<{
 
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <span className="text-gray-300 font-bold text-lg">Sale Progress</span>
-            <span className="text-gray-300 font-bold text-xl">{progress.toFixed(1)}%</span>
+            <span className="text-gray-500 font-bold text-lg">Sale Progress</span>
+            <span className="text-gray-500 font-bold text-xl">{progress.toFixed(1)}%</span>
           </div>
           
           <div className="relative">
@@ -240,10 +240,10 @@ const PhaseCard: React.FC<{
               />
             </div>
             <div className="flex justify-between mt-3 text-sm">
-              <span className="text-gray-400 font-medium">
+              <span className="text-gray-500 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-gray-400 font-medium">
+              <span className="text-gray-500 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
