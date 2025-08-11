@@ -361,7 +361,7 @@ const DesktopPhaseCard: React.FC<{
               />
             </div>
             <div className="flex justify-between mt-3 text-sm">
-              <span className="text-gray-400 font-medium">
+              <span className="text-gray-600 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
               <span className="text-gray-400 font-medium">
