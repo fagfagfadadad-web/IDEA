@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DollarSign, BarChart3, ArrowRight, ShieldCheck, Zap, Shield, Award, Coins, Clock, TrendingUp, Users, Target } from 'lucide-react';
+import { DollarSign, BarChart3, ArrowRight, Zap, Shield, Award, Coins, Clock, TrendingUp, Users, Target } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
