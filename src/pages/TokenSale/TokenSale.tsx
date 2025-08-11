@@ -100,7 +100,7 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow-inner ${
+          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow由内 ${
             isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
@@ -792,33 +792,6 @@ export const TokenSale: React.FC = () => {
                   </p>
                 </div>
               </div>
-
-              {/* Contract Data Display */}
-              {!isLoading && (
-                <div className="mt-8 pt-6 border-t border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">Live Contract Data</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-600 text-sm">Contract Price</p>
-                      <p className="text-gray-800 font-bold">
-                        {contractTokenPrice > 0 ? `${contractTokenPrice.toFixed(6)} EGLD` : 'Loading...'}
-                      </p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-600 text-sm">Total Bought (Contract)</p>
-                      <p className="text-gray-800 font-bold">
-                        {totalBoughtFromContract.toLocaleString()} IDA
-                      </p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-gray-600 text-sm">Available in Contract</p>
-                      <p className="text-gray-800 font-bold">
-                        {tokensAvailableInContract.toLocaleString()} IDA
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
@@ -838,36 +811,35 @@ export const TokenSale: React.FC = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
                   <p className="text-gray-700">Loading sale data from smart contract...</p>
                 </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Phase 1 */}
-                <PhaseCard
-                  phase={1}
-                  title="Public Sale Phase 1"
-                  supply={PHASE_1_SUPPLY}
-                  price={PHASE_1_PRICE_EGLD}
-                  sold={phase1Sold}
-                  isActive={isPhase1Active}
-                  isCompleted={isPhase1Completed}
-                  endDate={PHASE_1_END}
-                  isMobile={isMobile}
-                />
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Phase 1 */}
+                  <PhaseCard
+                    phase={1}
+                    title="Public Sale Phase 1"
+                    supply={PHASE_1_SUPPLY}
+                    price={PHASE_1_PRICE_EGLD}
+                    sold={phase1Sold}
+                    isActive={isPhase1Active}
+                    isCompleted={isPhase1Completed}
+                    endDate={PHASE_1_END}
+                    isMobile={isMobile}
+                  />
 
-                {/* Phase 2 */}
-                <PhaseCard
-                  phase={2}
-                  title="Public Sale Phase 2"
-                  supply={PHASE_2_SUPPLY}
-                  price={PHASE_2_PRICE_EGLD}
-                  sold={phase2Sold}
-                  isActive={isPhase2Active}
-                  isCompleted={isPhase2Completed}
-                  endDate={PHASE_2_END}
-                  isMobile={isMobile}
-                />
-              </div>
-            )}
+                  {/* Phase 2 */}
+                  <PhaseCard
+                    phase={2}
+                    title="Public Sale Phase 2"
+                    supply={PHASE_2_SUPPLY}
+                    price={PHASE_2_PRICE_EGLD}
+                    sold={phase2Sold}
+                    isActive={isPhase2Active}
+                    isCompleted={isPhase2Completed}
+                    endDate={PHASE_2_END}
+                    isMobile={isMobile}
+                  />
+                </div>
+              )}
           </div>
 
           {/* Buy Form */}
