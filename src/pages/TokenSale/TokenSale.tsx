@@ -194,7 +194,7 @@ const MobilePhaseCard: React.FC<{
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
               isActive 
-                ? 'bg-gray-700 text-white border-2 border-indigo-400' 
+                ? 'bg-gray-700 text-grey border-2 border-indigo-400' 
                 : isCompleted
                 ? 'bg-gray-700 text-white border-2 border-green-400'
                 : 'bg-gray-700 text-white border-2 border-gray-400'
