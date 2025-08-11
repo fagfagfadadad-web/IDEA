@@ -607,18 +607,18 @@ export const Home = () => {
                           borderTopColor: statusColor,
                           borderTopWidth: '3px'
                         }}
-                        aria-label={`View gig: ${gig.title || "Untitled Gig"}`}
+                        aria-label={`View gig: ${String(gig.title || "Untitled Gig")}`}
                       >
                         <div className="flex justify-between items-center p-2 border-b border-gray-100">
                           <span className="text-xs text-gray-500 truncate">
-                            {gig.created_at ? new Date(gig.created_at).toLocaleDateString() : "N/A"}
+                            {gig.created_at ? new Date(String(gig.created_at)).toLocaleDateString() : "N/A"}
                           </span>
                           <div className="flex gap-1">
                             <span
                               className="px-1.5 py-0.5 rounded-full text-xs font-medium"
                               style={{ backgroundColor: `${statusColor}20`, color: statusColor }}
                             >
-                              {(gig.category || "Unknown").substring(0, 6)}...
+                              {String(gig.category || "Unknown").substring(0, 6)}...
                             </span>
                             {hasNoFees && (
                               <span className="px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -631,7 +631,7 @@ export const Home = () => {
                         <div className="relative h-32">
                           <img
                             src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                            alt={gig.title || "Gig Image"}
+                            alt={String(gig.title || "Gig Image")}
                             className="w-full h-full object-cover"
                             onError={(e) => ((e.target as HTMLImageElement).src = "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg")}
                           />
@@ -639,23 +639,23 @@ export const Home = () => {
 
                         <div className="p-2 space-y-2">
                           <h3 className="text-sm font-bold text-gray-800">
-                            {(gig.title || "Untitled Gig").length > 50 
-                              ? `${(gig.title || "Untitled Gig").substring(0, 50)}...` 
-                              : (gig.title || "Untitled Gig")}
+                            {String(gig.title || "Untitled Gig").length > 50 
+                              ? `${String(gig.title || "Untitled Gig").substring(0, 50)}...` 
+                              : String(gig.title || "Untitled Gig")}
                           </h3>
                           <p className="text-xs text-gray-600">
-                            {(gig.description || "No description available").length > 80 
-                              ? `${(gig.description || "No description available").substring(0, 80)}...` 
-                              : (gig.description || "No description available")}
+                            {String(gig.description || "No description available").length > 80 
+                              ? `${String(gig.description || "No description available").substring(0, 80)}...` 
+                              : String(gig.description || "No description available")}
                           </p>
                           <div className="flex justify-between items-center">
                             <p className="text-xs text-gray-800">
-                              Duration: {gig.duration ? `${gig.duration} days` : "N/A"}
+                              Duration: {gig.duration ? `${String(gig.duration)} days` : "N/A"}
                             </p>
                             <div className="flex items-center gap-1">
                               <Eye size={12} className="text-gray-400" />
                               <span className="text-xs text-gray-500">
-                                {gig.view_count || 0}
+                                {String(gig.view_count || 0)}
                               </span>
                             </div>
                           </div>
@@ -666,7 +666,7 @@ export const Home = () => {
                             {gig.provider?.avatar_url ? (
                               <img
                                 src={gig.provider.avatar_url}
-                                alt={gig.provider.username || "Provider"}
+                                alt={String(gig.provider.username || "Provider")}
                                 className="w-6 h-6 rounded-full object-cover border border-gray-200"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -679,18 +679,18 @@ export const Home = () => {
                             <div 
                               className={`w-6 h-6 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs font-semibold text-white ${gig.provider?.avatar_url ? 'hidden' : 'flex'}`}
                             >
-                              {gig.provider?.username?.charAt(0)?.toUpperCase() || "U"}
+                              {String(gig.provider?.username || "U").charAt(0).toUpperCase()}
                             </div>
                             <span className="text-xs text-gray-800 truncate max-w-[60px]">
-                              {(gig.provider?.username || "Unknown").length > 8 
-                                ? `${(gig.provider?.username || "Unknown").substring(0, 8)}...` 
-                                : (gig.provider?.username || "Unknown")}
+                              {String(gig.provider?.username || "Unknown").length > 8 
+                                ? `${String(gig.provider?.username || "Unknown").substring(0, 8)}...` 
+                                : String(gig.provider?.username || "Unknown")}
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             {tokenIcon}
                             <span className="text-sm font-bold" style={{ color: statusColor }}>
-                              {gig.price || "N/A"} {tokenSymbol}
+                              {String(gig.price || "N/A")} {tokenSymbol}
                             </span>
                           </div>
                         </div>
@@ -875,15 +875,15 @@ export const Home = () => {
                         className="gradient-card cursor-pointer group"
                         onClick={() => handleRequestClick(request.id)}
                         style={{ borderTopColor: categoryColor, borderTopWidth: '4px' }}
-                        aria-label={`View bid: ${request.title}`}
+                        aria-label={`View bid: ${String(request.title)}`}
                       >
                         <div
                           className="py-3 px-4 border-b border-gray-200"
-                          style={{ backgroundColor: `${categoryColor}20` }}
+                          aria-label={`View gig: ${String(gig.title || "Untitled Gig")}`}
                         >
                           <div className="flex justify-between items-center">
                             <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                              {String(request.status).charAt(0).toUpperCase() + String(request.status).slice(1)}
                             </span>
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
@@ -891,7 +891,7 @@ export const Home = () => {
                                   <>
                                     <img
                                       src={request.client.avatar_url}
-                                      alt={request.client.username || "Client"}
+                                      alt={String(request.client.username || "Client")}
                                       className="w-full h-full object-cover"
                                       onError={(e) => {
                                         const target = e.target as HTMLImageElement;
@@ -901,60 +901,60 @@ export const Home = () => {
                                           const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
                                           if (fallback) fallback.style.display = 'flex';
                                         }
-                                      }}
+                                {gig.created_at ? new Date(String(gig.created_at)).toLocaleDateString() : "N/A"}
                                     />
                                     <div 
                                       className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
                                       style={{ display: 'none' }}
                                     >
-                                      {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
-                                    </div>
+                                      {String(request.client?.username || "?").charAt(0).toUpperCase()}
+                                  {String(gig.category || "Unknown").substring(0, 8)}...
                                   </>
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
-                                    {request.client?.username?.charAt(0)?.toUpperCase() || "?"}
-                                  </div>
+                                {String(gig.title || "Untitled Gig").length > 40 
+                                    {String(request.client?.username || "?").charAt(0).toUpperCase()}
+                                  : String(gig.title || "Untitled Gig")}
                                 )}
                               </div>
-                              <span className="text-sm text-gray-600">
-                                {request.client?.username}
-                              </span>
+                                {String(gig.description || "No description available").length > 60 
+                                {String(request.client?.username || "")}
+                                  : String(gig.description || "No description available")}
                             </div>
                           </div>
-                        </div>
+                                Duration: {gig.duration ? `${String(gig.duration)} days` : "N/A"}
 
                         <div className="p-4 space-y-3">
                           <h3 className="text-lg font-bold text-gray-800">
-                            {request.title.length > 50 
-                              ? `${request.title.substring(0, 50)}...` 
-                              : request.title}
+                            {String(request.title).length > 50 
+                              ? `${String(request.title).substring(0, 50)}...` 
+                              : String(request.title)}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            {request.description.length > 120 
-                              ? `${request.description.substring(0, 120)}...` 
-                              : request.description}
+                            {String(request.description).length > 120 
+                              ? `${String(request.description).substring(0, 120)}...` 
+                              : String(request.description)}
                           </p>
                           <div className="flex gap-2">
                             <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                              {request.category}
+                              {String(request.category)}
                             </span>
                             {(request.budget_min || request.budget_max) && (
                               <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-xs flex items-center gap-1">
                                 <DollarSign size={14} />
                                 {request.budget_min && request.budget_max
-                                  ? `${request.budget_min}-${request.budget_max} EGLD`
-                                  : request.budget_min
-                                  ? `From ${request.budget_min} EGLD`
-                                  : `Up to ${request.budget_max} EGLD`}
-                              </span>
+                                  ? `${String(request.budget_min)}-${String(request.budget_max)} EGLD`
+                                  {String(gig.provider?.username || "U").charAt(0).toUpperCase()}
+                                  ? `From ${String(request.budget_min)} EGLD`
+                                  : `Up to ${String(request.budget_max)} EGLD`}
+                                  {String(gig.provider?.username || "Unknown").substring(0, 8)}
                             )}
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-500">
-                              {new Date(request.created_at).toLocaleDateString()}
-                            </span>
+                              {new Date(String(request.created_at)).toLocaleDateString()}
+                                  {String(gig.price || "N/A")} {tokenSymbol}
                             <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded text-xs">
-                              {proposalsCount} proposal{proposalsCount !== 1 ? "s" : ""}
+                              {String(proposalsCount)} proposal{proposalsCount !== 1 ? "s" : ""}
                             </span>
                           </div>
                         </div>

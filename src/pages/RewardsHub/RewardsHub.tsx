@@ -58,7 +58,7 @@ export const RewardsHub = () => {
     formatTime,
     formatCoins,
     rewardAmounts
-  } = useReferrals();
+  } = useReferrals() || {};
 
   // Admin hook
   const { isAdmin } = useAdminTasks();

@@ -187,8 +187,8 @@ export const useReferrals = () => {
   };
 
   const getReferralLink = () => {
-    if (!referralStats) return '';
-    return ReferralService.generateReferralLink(referralStats.referral_code);
+    if (!referralStats?.referral_code) return '';
+    return ReferralService.generateReferralLink(String(referralStats.referral_code));
   };
 
   const copyReferralLink = async () => {
@@ -226,7 +226,7 @@ export const useReferrals = () => {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(String(dateString)).toLocaleDateString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -236,12 +236,13 @@ export const useReferrals = () => {
   };
 
   const formatCoins = (amount: number) => {
-    if (amount >= 1000000) {
-      return (amount / 1000000).toFixed(1) + 'M';
-    } else if (amount >= 1000) {
-      return (amount / 1000).toFixed(1) + 'K';
+    const numAmount = Number(amount) || 0;
+    if (numAmount >= 1000000) {
+      return (numAmount / 1000000).toFixed(1) + 'M';
+    } else if (numAmount >= 1000) {
+      return (numAmount / 1000).toFixed(1) + 'K';
     } else {
-      return Math.round(amount * 100) / 100;
+      return String(Math.round(numAmount * 100) / 100);
     }
   };
 

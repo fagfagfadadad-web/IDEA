@@ -183,7 +183,7 @@ export class ReferralService {
   // Generate referral link
   static generateReferralLink(referralCode: string): string {
     const baseUrl = window.location.origin;
-    return `${baseUrl}?ref=${referralCode}`;
+    return `${baseUrl}?ref=${String(referralCode)}`;
   }
 
   // Check referral from URL and process signup bonus
