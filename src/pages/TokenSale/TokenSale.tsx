@@ -78,7 +78,7 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
   if (isExpired) {
     return (
       <div className="text-center">
-        <p className={`text-gray-600 ${isMobile ? 'text-base' : 'text-lg'} font-bold`}>
+        <p className={`text-purple-200 ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
           Phase Ended
         </p>
       </div>
@@ -89,49 +89,49 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
     <div className={`flex ${isMobile ? 'gap-2' : 'gap-4'} justify-center`}>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow-inner ${
-            isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
+          className={`bg-gradient-to-b from-purple-600 to-purple-800 rounded-xl shadow-2xl border border-purple-400/30 ${
+            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
           {days}
         </div>
-        <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 uppercase font-medium`}>
+        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-purple-200 uppercase font-bold tracking-wide`}>
           Days
         </p>
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow-inner ${
-            isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
+          className={`bg-gradient-to-b from-purple-600 to-purple-800 rounded-xl shadow-2xl border border-purple-400/30 ${
+            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
           {hours}
         </div>
-        <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 uppercase font-medium`}>
+        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-purple-200 uppercase font-bold tracking-wide`}>
           Hours
         </p>
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow-inner ${
-            isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
+          className={`bg-gradient-to-b from-purple-600 to-purple-800 rounded-xl shadow-2xl border border-purple-400/30 ${
+            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
           {minutes}
         </div>
-        <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 uppercase font-medium`}>
+        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-purple-200 uppercase font-bold tracking-wide`}>
           Mins
         </p>
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-purple-700 to-purple-900 rounded-md shadow-inner ${
-            isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
+          className={`bg-gradient-to-b from-indigo-600 to-indigo-800 rounded-xl shadow-2xl border border-indigo-400/30 ${
+            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
           {seconds}
         </div>
-        <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 uppercase font-medium`}>
+        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-purple-200 uppercase font-bold tracking-wide`}>
           Secs
         </p>
       </div>
@@ -155,97 +155,97 @@ const PhaseCard: React.FC<{
   const remaining = supply - sold;
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+    <div className={`relative overflow-hidden rounded-3xl border-2 transition-all duration-500 transform hover:scale-105 ${
       isActive 
-        ? 'border-purple-500 bg-gradient-to-br from-purple-50 to-indigo-50 shadow-xl shadow-purple-500/20' 
+        ? 'border-purple-400 bg-gradient-to-br from-purple-900/50 to-indigo-900/50 shadow-2xl shadow-purple-500/30 backdrop-blur-lg' 
         : isCompleted
-        ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50'
-        : 'border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50'
+        ? 'border-green-400 bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur-lg'
+        : 'border-gray-400 bg-gradient-to-br from-gray-800/30 to-slate-800/30 backdrop-blur-lg'
     }`}>
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-6 right-6">
         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
           isActive 
-            ? 'bg-purple-600 text-white animate-pulse' 
+            ? 'bg-purple-500 text-white animate-pulse shadow-lg' 
             : isCompleted
-            ? 'bg-green-600 text-white'
-            : 'bg-gray-400 text-white'
+            ? 'bg-green-500 text-white shadow-lg'
+            : 'bg-gray-500 text-white shadow-lg'
         }`}>
           {isActive ? 'LIVE NOW' : isCompleted ? 'COMPLETED' : 'UPCOMING'}
         </span>
       </div>
 
-      <div className={`p-${isMobile ? '6' : '8'} space-y-6`}>
+      <div className={`p-${isMobile ? '8' : '10'} space-y-8`}>
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
               isActive 
-                ? 'bg-purple-600 text-white' 
+                ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white' 
                 : isCompleted
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-400 text-white'
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+                : 'bg-gradient-to-r from-gray-500 to-slate-500 text-white'
             }`}>
-              <span className="text-xl font-bold">{phase}</span>
+              <span className="text-2xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-gray-800`}>
+              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-white`}>
                 {title}
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-purple-200 text-base">
                 Phase {phase} Token Sale
               </p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+        <div className="grid grid-cols-2 gap-6">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30 hover:bg-white/25 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
-              <Target size={16} className="text-purple-600" />
-              <span className="text-gray-600 text-sm font-medium">Total Supply</span>
+              <Target size={18} className="text-purple-300" />
+              <span className="text-purple-200 text-sm font-medium uppercase tracking-wide">Total Supply</span>
             </div>
-            <p className="text-gray-800 text-lg font-bold">
+            <p className="text-white text-xl font-bold">
               {supply.toLocaleString()} IDA
             </p>
           </div>
           
-          <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30 hover:bg-white/25 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
-              <DollarSign size={16} className="text-green-600" />
-              <span className="text-gray-600 text-sm font-medium">Price</span>
+              <DollarSign size={18} className="text-green-300" />
+              <span className="text-purple-200 text-sm font-medium uppercase tracking-wide">Price</span>
             </div>
-            <p className="text-gray-800 text-lg font-bold">
+            <p className="text-white text-xl font-bold">
               {price.toFixed(6)} EGLD
             </p>
-            <p className="text-gray-500 text-xs">
+            <p className="text-purple-300 text-sm">
               per IDA token
             </p>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <span className="text-gray-700 font-medium">Sale Progress</span>
-            <span className="text-gray-800 font-bold">{progress.toFixed(1)}%</span>
+            <span className="text-white font-semibold text-lg">Sale Progress</span>
+            <span className="text-white font-bold text-xl">{progress.toFixed(1)}%</span>
           </div>
           
           <div className="relative">
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-white/20 rounded-full h-4 overflow-hidden shadow-inner">
               <div 
-                className={`h-full transition-all duration-500 ${
+                className={`h-full transition-all duration-1000 ${
                   isActive 
-                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
+                    ? 'bg-gradient-to-r from-purple-400 to-indigo-400 shadow-lg' 
                     : isCompleted
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                    : 'bg-gray-400'
+                    ? 'bg-gradient-to-r from-green-400 to-emerald-400 shadow-lg'
+                    : 'bg-gradient-to-r from-gray-400 to-slate-400'
                 }`}
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
-            <div className="flex justify-between mt-2 text-sm">
-              <span className="text-gray-600">
+            <div className="flex justify-between mt-3 text-sm">
+              <span className="text-purple-200 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-gray-600">
+              <span className="text-purple-200 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
@@ -253,11 +253,11 @@ const PhaseCard: React.FC<{
         </div>
 
         {isActive && (
-          <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
-            <div className="text-center space-y-3">
+          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30">
+            <div className="text-center space-y-4">
               <div className="flex items-center justify-center gap-2">
-                <Clock size={16} className="text-purple-600" />
-                <span className="text-gray-700 font-medium">Time Remaining</span>
+                <Clock size={20} className="text-purple-300" />
+                <span className="text-white font-semibold text-lg">Time Remaining</span>
               </div>
               <FlipCountdown targetDate={endDate} isMobile={isMobile} />
             </div>
@@ -314,73 +314,73 @@ const BuyForm: React.FC<{
   const displayMinTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
+    <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-            <Coins size={20} />
+          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+            <Coins size={24} />
           </div>
           <div>
-            <h3 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
+            <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               Buy IDA Tokens
             </h3>
-            <p className="text-purple-100 text-sm">
+            <p className="text-purple-100 text-base">
               Phase {currentPhase} - {currentPrice.toFixed(6)} EGLD per IDA
             </p>
           </div>
         </div>
         
         {!isPhaseActive && (
-          <div className="bg-red-500/20 border border-red-300 rounded-lg p-3 mt-4">
-            <p className="text-white text-sm font-medium">
+          <div className="bg-red-500/30 border border-red-300 rounded-xl p-4 mt-4">
+            <p className="text-white text-base font-medium">
               ⚠️ This phase is not currently active
             </p>
           </div>
         )}
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-8 space-y-8">
         <div className="space-y-3">
-          <label className="block text-gray-800 font-medium">
+          <label className="block text-white font-semibold text-lg">
             Amount to Purchase (IDA tokens)
           </label>
           <input
             type="number"
-            placeholder={`Minimum: ${displayMinTokens.toLocaleString()} IDA`}
+            placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
-            className="w-full p-4 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+            className="w-full p-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-purple-200 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 text-lg font-medium"
             disabled={!isPhaseActive}
           />
-          <p className="text-gray-600 text-sm">
-            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({displayMinTokens.toLocaleString()} IDA)
+          <p className="text-purple-200 text-base">
+            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
           </p>
         </div>
 
-        <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 space-y-3">
-          <h4 className="text-gray-800 font-bold">Purchase Summary</h4>
-          <div className="space-y-2">
+        <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 space-y-4 border border-white/30">
+          <h4 className="text-white font-bold text-lg">Purchase Summary</h4>
+          <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600">You Pay:</span>
-              <span className="text-gray-800 font-bold">
+              <span className="text-purple-200 font-medium">You Pay:</span>
+              <span className="text-white font-bold text-lg">
                 {egldCost.toFixed(8)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">You Receive:</span>
-              <span className="text-purple-600 font-bold">
+              <span className="text-purple-200 font-medium">You Receive:</span>
+              <span className="text-purple-300 font-bold text-lg">
                 {Number(buyAmount || 0).toLocaleString()} IDA
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Price per IDA:</span>
-              <span className="text-gray-800">
+              <span className="text-purple-200 font-medium">Price per IDA:</span>
+              <span className="text-white">
                 {currentPrice.toFixed(6)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Available:</span>
-              <span className="text-gray-800">
+              <span className="text-purple-200 font-medium">Available:</span>
+              <span className="text-white font-semibold">
                 {availableTokens.toLocaleString()} IDA
               </span>
             </div>
@@ -392,16 +392,16 @@ const BuyForm: React.FC<{
           disabled={
             !isPhaseActive ||
             !buyAmount ||
-            Number(buyAmount) < displayMinTokens ||
+            Number(buyAmount) < MINIMUM_PURCHASE_IDA ||
             pending ||
-            availableTokens < displayMinTokens ||
+            availableTokens < MINIMUM_PURCHASE_IDA ||
             !isLoggedIn ||
             !isValidAddress(userAddress)
           }
-          className={`w-full py-4 text-lg font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-            isPhaseActive && !pending
-              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 token-sale-button'
-              : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+          className={`w-full py-5 text-xl font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${
+            isPhaseActive && !pending && isLoggedIn
+              ? 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transform'
+              : 'bg-gray-600 text-gray-300 cursor-not-allowed'
           }`}
         >
           {!isLoggedIn
@@ -411,11 +411,11 @@ const BuyForm: React.FC<{
             : pending
             ? 'Processing...'
             : 'BUY IDA TOKENS'}
-          {!pending && <ArrowRight size={20} />}
+          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={24} />}
         </Button>
 
         {!isLoggedIn && (
-          <p className="text-gray-600 text-sm text-center">
+          <p className="text-purple-200 text-base text-center">
             Connect your MultiversX wallet to participate in the token sale
           </p>
         )}
@@ -710,65 +710,79 @@ export const TokenSale: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
       <div className="container mx-auto max-w-7xl px-6 py-8">
         <div className="space-y-8">
-          <div className="text-center space-y-6">
+          {/* Hero Section */}
+          <div className="text-center space-y-8">
             <div className="flex items-center justify-center gap-4">
               <img
                 src={LOGO_URL}
                 alt="IDA Logo"
-                className="w-16 h-16 object-contain"
+                className="w-20 h-20 object-contain drop-shadow-lg"
               />
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold gradient-text">
+                <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white via-purple-200 to-indigo-200 bg-clip-text text-transparent">
                   IDA Token Sale
                 </h1>
-                <p className="text-gray-600 text-lg">
+                <p className="text-purple-200 text-xl font-medium mt-2">
                   Join the future of Web3 services marketplace
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+            {/* Stats Overview */}
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <TrendingUp size={24} className="text-white" />
                   </div>
-                  <p className="text-gray-600 text-sm font-medium">Total Raised</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-purple-200 text-sm font-medium uppercase tracking-wide">Total Raised</p>
+                  <p className="text-3xl font-bold text-white mt-2">
                     {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
                   </p>
+                  <p className="text-purple-300 text-sm mt-1">
+                    ≈ ${((((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)) * egldPriceUsd).toFixed(0)).toLocaleString()} USD
+                  </p>
                 </div>
                 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Coins size={24} className="text-white" />
                   </div>
-                  <p className="text-gray-600 text-sm font-medium">Tokens Sold</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-purple-200 text-sm font-medium uppercase tracking-wide">Tokens Sold</p>
+                  <p className="text-3xl font-bold text-white mt-2">
                     {(phase1Sold + phase2Sold).toLocaleString()}
                   </p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Users size={24} className="text-white" />
-                  </div>
-                  <p className="text-gray-600 text-sm font-medium">Current Phase</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    Phase {currentPhase}
+                  <p className="text-purple-300 text-sm mt-1">
+                    of {(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()} total
                   </p>
                 </div>
                 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Users size={24} className="text-white" />
+                  </div>
+                  <p className="text-purple-200 text-sm font-medium uppercase tracking-wide">Current Phase</p>
+                  <p className="text-3xl font-bold text-white mt-2">
+                    Phase {currentPhase}
+                  </p>
+                  <p className="text-purple-300 text-sm mt-1">
+                    {isPhase1Active ? 'Active Now' : isPhase2Active ? 'Active Now' : 'Upcoming'}
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <DollarSign size={24} className="text-white" />
                   </div>
-                  <p className="text-gray-600 text-sm font-medium">EGLD Price</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-purple-200 text-sm font-medium uppercase tracking-wide">EGLD Price</p>
+                  <p className="text-3xl font-bold text-white mt-2">
                     ${egldPriceUsd.toFixed(2)}
+                  </p>
+                  <p className="text-purple-300 text-sm mt-1">
+                    Live market price
                   </p>
                 </div>
               </div>
@@ -777,22 +791,22 @@ export const TokenSale: React.FC = () => {
 
           <div className="space-y-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-gray-800 mb-4">Token Sale Phases</h2>
-              <p className="text-gray-600 text-lg max-w-3xl mx-auto">
+              <h2 className="text-4xl font-bold text-white mb-6">Token Sale Phases</h2>
+              <p className="text-purple-200 text-xl max-w-4xl mx-auto leading-relaxed">
                 Our token sale is structured in two phases to provide early supporters with better pricing 
                 while ensuring broad public access to IDA tokens.
               </p>
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center py-12">
+              <div className="flex justify-center py-16">
                 <div className="space-y-4 text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-                  <p className="text-gray-700">Loading sale data from smart contract...</p>
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto"></div>
+                  <p className="text-white text-lg">Loading sale data from smart contract...</p>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <PhaseCard
                   phase={1}
                   title="Public Sale Phase 1"
@@ -821,11 +835,11 @@ export const TokenSale: React.FC = () => {
           </div>
 
           {!isLoading && (
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <BuyForm
                 currentPhase={currentPhase}
                 currentPrice={currentPrice}
-                availableTokens={0} // No tokens available since sale is complete
+                availableTokens={currentAvailable}
                 buyAmount={buyAmount}
                 setBuyAmount={setBuyAmount}
                 egldCost={egldCost}
@@ -836,101 +850,103 @@ export const TokenSale: React.FC = () => {
                 transactionHash={transactionHash}
                 isPurchaseSuccessful={isPurchaseSuccessful}
                 isMobile={isMobile}
-                isPhaseActive={false} // No phase is active since sale is complete
+                isPhaseActive={isCurrentPhaseActive}
               />
             </div>
           )}
 
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-            <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+          {/* Benefits Section */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-10">
+            <h3 className="text-3xl font-bold text-white mb-10 text-center">
               Why Choose IDA Tokens?
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center space-y-6 p-6 bg-white/10 rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
                   <Zap size={24} className="text-white" />
                 </div>
-                <h4 className="text-lg font-bold text-gray-800">Zero Fees</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-xl font-bold text-white">Zero Fees</h4>
+                <p className="text-purple-200 text-base leading-relaxed">
                   Pay no platform fees when using IDA tokens for marketplace transactions.
                 </p>
               </div>
               
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto">
+              <div className="text-center space-y-6 p-6 bg-white/10 rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
                   <Award size={24} className="text-white" />
                 </div>
-                <h4 className="text-lg font-bold text-gray-800">Premium Access</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-xl font-bold text-white">Premium Access</h4>
+                <p className="text-purple-200 text-base leading-relaxed">
                   Access exclusive features and priority support with IDA token holdings.
                 </p>
               </div>
               
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto">
+              <div className="text-center space-y-6 p-6 bg-white/10 rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
                   <Shield size={24} className="text-white" />
                 </div>
-                <h4 className="text-lg font-bold text-gray-800">Governance</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-xl font-bold text-white">Governance</h4>
+                <p className="text-purple-200 text-base leading-relaxed">
                   Participate in platform governance decisions based on your token holdings.
                 </p>
               </div>
               
-              <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto">
+              <div className="text-center space-y-6 p-6 bg-white/10 rounded-2xl border border-white/20 hover:bg-white/15 transition-all duration-300">
+                <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
                   <DollarSign size={24} className="text-white" />
                 </div>
-                <h4 className="text-lg font-bold text-gray-800">Buyback & Burn</h4>
-                <p className="text-gray-600 text-sm">
+                <h4 className="text-xl font-bold text-white">Buyback & Burn</h4>
+                <p className="text-purple-200 text-base leading-relaxed">
                   5% of EGLD fees used for token buybacks and burns to support long-term value.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-            <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
+          {/* FAQ Section */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-10">
+            <h3 className="text-3xl font-bold text-white mb-10 text-center">
               Frequently Asked Questions
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-8">
                 <div>
-                  <h4 className="text-lg font-bold text-purple-600 mb-2">
+                  <h4 className="text-xl font-bold text-purple-300 mb-3">
                     How do I participate in the token sale?
                   </h4>
-                  <p className="text-gray-700">
+                  <p className="text-purple-100 text-base leading-relaxed">
                     Connect your MultiversX wallet, select the amount of IDA tokens you want to purchase, 
-                    and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({(MINIMUM_PURCHASE_EGLD / currentPrice).toLocaleString()} IDA).
+                    and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA).
                   </p>
                 </div>
                 
                 <div>
-                  <h4 className="text-lg font-bold text-purple-600 mb-2">
+                  <h4 className="text-xl font-bold text-purple-300 mb-3">
                     When will I receive my tokens?
                   </h4>
-                  <p className="text-gray-700">
+                  <p className="text-purple-100 text-base leading-relaxed">
                     IDA tokens are transferred to your wallet immediately after your purchase 
                     transaction is confirmed on the MultiversX blockchain.
                   </p>
                 </div>
               </div>
               
-              <div className="space-y-6">
+              <div className="space-y-8">
                 <div>
-                  <h4 className="text-lg font-bold text-purple-600 mb-2">
+                  <h4 className="text-xl font-bold text-purple-300 mb-3">
                     What's the difference between phases?
                   </h4>
-                  <p className="text-gray-700">
+                  <p className="text-purple-100 text-base leading-relaxed">
                     Phase 1 offers lower pricing (0.0002 EGLD per IDA) with 1M tokens. 
-                    Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 3.78M tokens.
+                    Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 4M tokens.
                   </p>
                 </div>
                 
                 <div>
-                  <h4 className="text-lg font-bold text-purple-600 mb-2">
+                  <h4 className="text-xl font-bold text-purple-300 mb-3">
                     Can I trade my IDA tokens?
                   </h4>
-                  <p className="text-gray-700">
+                  <p className="text-purple-100 text-base leading-relaxed">
                     Yes, IDA tokens can be traded on supported MultiversX DEXes, 
                     transferred to other users, or used within the IDEA platform.
                   </p>
