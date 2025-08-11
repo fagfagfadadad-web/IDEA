@@ -190,7 +190,7 @@ const PhaseCard: React.FC<{
               <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-white`}>
                 {title}
               </h3>
-              <p className="text-white text-base">
+              <p className="text-indigo-200 text-base font-medium">
                 Phase {phase} Token Sale
               </p>
             </div>
@@ -224,28 +224,22 @@ const PhaseCard: React.FC<{
 
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <span className="text-white font-semibold text-lg">Sale Progress</span>
+            <span className="text-white font-bold text-lg bg-gradient-to-r from-indigo-400 to-pink-400 bg-clip-text text-transparent">Sale Progress</span>
             <span className="text-white font-bold text-xl">{progress.toFixed(1)}%</span>
           </div>
           
           <div className="relative">
-            <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden shadow-inner border border-gray-600">
+            <div className="w-full bg-gray-800 rounded-full h-6 overflow-hidden shadow-inner border border-gray-600">
               <div 
-                className={`h-full transition-all duration-1000 ${
-                  isActive 
-                    ? 'bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg' 
-                    : isCompleted
-                    ? 'bg-gradient-to-r from-green-400 to-emerald-400 shadow-lg'
-                    : 'bg-gradient-to-r from-gray-400 to-slate-400'
-                }`}
+                className="h-full transition-all duration-1000 bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
             <div className="flex justify-between mt-3 text-sm">
-              <span className="text-white font-medium">
+              <span className="text-indigo-200 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-white font-medium">
+              <span className="text-indigo-200 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
@@ -798,159 +792,4 @@ export const TokenSale: React.FC = () => {
                 <div className="space-y-4 text-center">
                   <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
                   <p className="text-gray-700 text-lg">Loading sale data from smart contract...</p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <PhaseCard
-                  phase={1}
-                  title="Public Sale Phase 1"
-                  supply={PHASE_1_SUPPLY}
-                  price={PHASE_1_PRICE_EGLD}
-                  sold={phase1Sold}
-                  isActive={isPhase1Active}
-                  isCompleted={isPhase1Completed}
-                  endDate={PHASE_1_END}
-                  isMobile={isMobile}
-                />
-
-                <PhaseCard
-                  phase={2}
-                  title="Public Sale Phase 2"
-                  supply={PHASE_2_SUPPLY}
-                  price={PHASE_2_PRICE_EGLD}
-                  sold={phase2Sold}
-                  isActive={isPhase2Active}
-                  isCompleted={isPhase2Completed}
-                  endDate={PHASE_2_END}
-                  isMobile={isMobile}
-                />
-              </div>
-            )}
-          </div>
-
-          {!isLoading && (
-            <div className="max-w-3xl mx-auto">
-              <BuyForm
-                currentPhase={currentPhase}
-                currentPrice={currentPrice}
-                availableTokens={currentAvailable}
-                buyAmount={buyAmount}
-                setBuyAmount={setBuyAmount}
-                egldCost={egldCost}
-                pending={pending}
-                isLoggedIn={isAuthenticated}
-                userAddress={address}
-                handleBuy={handleBuy}
-                transactionHash={transactionHash}
-                isPurchaseSuccessful={isPurchaseSuccessful}
-                isMobile={isMobile}
-                isPhaseActive={isCurrentPhaseActive}
-              />
-            </div>
-          )}
-
-          {/* Benefits Section */}
-          <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-10">
-            <h3 className="text-3xl font-bold text-white mb-10 text-center">
-              Why Choose IDA Tokens?
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center space-y-6 p-6 bg-gray-800 rounded-2xl border border-gray-600 hover:bg-gray-700 transition-all duration-300">
-                <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                  <Zap size={24} className="text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Zero Fees</h4>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  Pay no platform fees when using IDA tokens for marketplace transactions.
-                </p>
-              </div>
-              
-              <div className="text-center space-y-6 p-6 bg-gray-800 rounded-2xl border border-gray-600 hover:bg-gray-700 transition-all duration-300">
-                <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                  <Award size={24} className="text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Premium Access</h4>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  Access exclusive features and priority support with IDA token holdings.
-                </p>
-              </div>
-              
-              <div className="text-center space-y-6 p-6 bg-gray-800 rounded-2xl border border-gray-600 hover:bg-gray-700 transition-all duration-300">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                  <Shield size={24} className="text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Governance</h4>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  Participate in platform governance decisions based on your token holdings.
-                </p>
-              </div>
-              
-              <div className="text-center space-y-6 p-6 bg-gray-800 rounded-2xl border border-gray-600 hover:bg-gray-700 transition-all duration-300">
-                <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                  <DollarSign size={24} className="text-white" />
-                </div>
-                <h4 className="text-xl font-bold text-white">Buyback & Burn</h4>
-                <p className="text-gray-300 text-base leading-relaxed">
-                  5% of EGLD fees used for token buybacks and burns to support long-term value.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* FAQ Section */}
-          <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-10">
-            <h3 className="text-3xl font-bold text-white mb-10 text-center">
-              Frequently Asked Questions
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-8">
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-3">
-                    How do I participate in the token sale?
-                  </h4>
-                  <p className="text-gray-300 text-base leading-relaxed">
-                    Connect your MultiversX wallet, select the amount of IDA tokens you want to purchase, 
-                    and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA).
-                  </p>
-                </div>
                 
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-3">
-                    When will I receive my tokens?
-                  </h4>
-                  <p className="text-gray-300 text-base leading-relaxed">
-                    IDA tokens are transferred to your wallet immediately after your purchase 
-                    transaction is confirmed on the MultiversX blockchain.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-8">
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-3">
-                    What's the difference between phases?
-                  </h4>
-                  <p className="text-gray-300 text-base leading-relaxed">
-                    Phase 1 offers lower pricing (0.0002 EGLD per IDA) with 1M tokens. 
-                    Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 4M tokens.
-                  </p>
-                </div>
-                
-                <div>
-                  <h4 className="text-xl font-bold text-white mb-3">
-                    Can I trade my IDA tokens?
-                  </h4>
-                  <p className="text-gray-300 text-base leading-relaxed">
-                    Yes, IDA tokens can be traded on supported MultiversX DEXes, 
-                    transferred to other users, or used within the IDEA platform.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
