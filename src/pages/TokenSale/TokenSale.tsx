@@ -318,7 +318,7 @@ const DesktopPhaseCard: React.FC<{
               <span className="text-3xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className="text-3xl font-bold text-white">{title}</h3>
+              <h3 className="text-3xl font-bold text-grey">{title}</h3>
               <p className="text-gray-300 text-lg font-medium">Phase {phase} Token Sale</p>
             </div>
           </div>
