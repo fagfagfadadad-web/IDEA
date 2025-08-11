@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, TrendingUp, Calendar, Briefcase, Eye } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Briefcase, Eye, Plus } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { useGigs } from '../../hooks/useGigs';
 
