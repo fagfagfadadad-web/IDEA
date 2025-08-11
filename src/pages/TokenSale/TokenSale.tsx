@@ -278,32 +278,6 @@ const PhaseCard: React.FC<{
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span className="text-gray-700 text-sm">Early investor pricing</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">Limited supply - exclusive access</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">67% discount from Phase 2</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">Public access for everyone</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">Larger token allocation</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">Standard market pricing</span>
-                </div>
-              </>
-            )}
-          </div>
         </div>
       </div>
     </div>
