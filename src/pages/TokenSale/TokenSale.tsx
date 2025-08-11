@@ -790,7 +790,9 @@ export const TokenSale: React.FC = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
                   <p className="text-gray-700">Loading sale data from smart contract...</p>
                 </div>
-              ) : (
+              </div>
+            ) : (
+              <>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <PhaseCard
                     phase={1}
@@ -816,29 +818,28 @@ export const TokenSale: React.FC = () => {
                     isMobile={isMobile}
                   />
                 </div>
-              )}
-          </div>
 
-          {!isLoading && (
-            <div className="max-w-2xl mx-auto">
-              <BuyForm
-                currentPhase={currentPhase}
-                currentPrice={currentPrice}
-                availableTokens={tokensAvailableInContract}
-                buyAmount={buyAmount}
-                setBuyAmount={setBuyAmount}
-                egldCost={egldCost}
-                pending={pending}
-                isLoggedIn={isAuthenticated}
-                userAddress={address}
-                handleBuy={handleBuy}
-                transactionHash={transactionHash}
-                isPurchaseSuccessful={isPurchaseSuccessful}
-                isMobile={isMobile}
-                isPhaseActive={isCurrentPhaseActive}
-              />
-            </div>
-          )}
+                <div className="max-w-2xl mx-auto">
+                  <BuyForm
+                    currentPhase={currentPhase}
+                    currentPrice={currentPrice}
+                    availableTokens={tokensAvailableInContract}
+                    buyAmount={buyAmount}
+                    setBuyAmount={setBuyAmount}
+                    egldCost={egldCost}
+                    pending={pending}
+                    isLoggedIn={isAuthenticated}
+                    userAddress={address}
+                    handleBuy={handleBuy}
+                    transactionHash={transactionHash}
+                    isPurchaseSuccessful={isPurchaseSuccessful}
+                    isMobile={isMobile}
+                    isPhaseActive={isCurrentPhaseActive}
+                  />
+                </div>
+              </>
+            )}
+          </div>
 
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
             <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
