@@ -20,7 +20,7 @@ export const useTasks = () => {
   }, [user?.id]);
 
   const loadTasks = async () => {
-    if (!user?.id) return;
+    if (!user?.id || !user?.wallet_address) return;
 
     setIsLoading(true);
     setError(null);
@@ -52,7 +52,8 @@ export const useTasks = () => {
       }
     } catch (err) {
       console.error('Error loading tasks:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load tasks');
+      // Don't show error to user, just log it
+      setError(null);
     } finally {
       setIsLoading(false);
     }

@@ -23,7 +23,7 @@ export class ReferralService {
         .from('referral_stats')
         .select('user_id')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (existing) return;
 

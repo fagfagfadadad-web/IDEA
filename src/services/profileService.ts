@@ -66,7 +66,7 @@ export class ProfileService {
   static async initializeUserForRewards(address: string): Promise<UserProfile> {
     try {
       // Check if user exists
-      let { data: user, error } = await supabase
+      const { data: user, error } = await supabase
         .from('users')
         .select(`
           id,
@@ -81,14 +81,17 @@ export class ProfileService {
           created_at
         `)
         .eq('wallet_address', address)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code === 'PGRST116') {
+      if (error) {
+        console.error('Error fetching user:', error);
+        throw new Error('Failed to fetch user profile');
+      }
+
+      if (!user) {
         // User doesn't exist, this shouldn't happen in our system
         throw new Error('User not found. Please complete profile setup first.');
       }
-
-      if (error) throw error;
 
       // Initialize IDA balance and stats if they don't exist
       if (user.ida_balance === null || user.ida_balance === undefined) {
@@ -113,10 +116,10 @@ export class ProfileService {
             bio,
             created_at
           `)
-          .single();
+          .maybeSingle();
 
         if (updateError) throw updateError;
-        user = updatedUser;
+        return updatedUser || user;
       }
 
       return user;
