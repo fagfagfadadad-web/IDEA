@@ -673,7 +673,7 @@ export const TokenSale: React.FC = () => {
   // Calculate EGLD cost
   useEffect(() => {
     const idaAmount = Number(buyAmount);
-    const priceToUse = contractPrice > 0 ? contractPrice : currentPrice;
+    const priceToUse = contractTokenPrice > 0 ? contractTokenPrice : currentPrice;
     
     if (!isNaN(idaAmount) && idaAmount > 0 && priceToUse > 0) {
       const cost = idaAmount * priceToUse;
@@ -681,7 +681,7 @@ export const TokenSale: React.FC = () => {
     } else {
       setEgldCost(0);
     }
-  }, [buyAmount, contractPrice, currentPrice]);
+  }, [buyAmount, contractTokenPrice, currentPrice]);
 
   // Handle token purchase
   const handleBuy = async () => {
