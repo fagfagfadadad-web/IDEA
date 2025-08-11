@@ -323,13 +323,23 @@ export const Profile = () => {
                   </div>
                   
                   {isOwnProfile && (
-                    <Button
-                      onClick={() => setIsEditModalOpen(true)}
-                      variant="gradient"
-                    >
-                      <Edit size={16} />
-                      Edit Profile
-                    </Button>
+                    <div className="flex gap-3">
+                      <Button
+                        onClick={() => setIsEditModalOpen(true)}
+                        variant="gradient"
+                      >
+                        <Edit size={16} />
+                        Edit Profile
+                      </Button>
+                      <Button
+                        onClick={() => setActiveTab('dashboard')}
+                        variant="outline"
+                        className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                      >
+                        <BarChart3 size={16} />
+                        Dashboard
+                      </Button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -337,7 +347,26 @@ export const Profile = () => {
           </div>
 
           {/* Profile Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {activeTab === 'dashboard' ? (
+            <div className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Task Manager */}
+                <TaskManager />
+                
+                {/* Calendar Widget */}
+                <CalendarWidget />
+              </div>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Financial Overview */}
+                <FinancialOverview />
+                
+                {/* External Tools */}
+                <ExternalToolsWidget />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-8">
               {/* About Me */}
@@ -1221,6 +1250,7 @@ export const Profile = () => {
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Edit Profile Modal */}
