@@ -198,7 +198,7 @@ const PhaseCard: React.FC<{
         </div>
 
         <div className="grid grid-cols-2 gap-6">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:bg-gray-700/50 transition-all duration-300">
+          <div className="bg-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
               <Target size={18} className="text-purple-300" />
               <span className="text-purple-200 text-sm font-medium uppercase tracking-wide">Total Supply</span>
@@ -208,7 +208,7 @@ const PhaseCard: React.FC<{
             </p>
           </div>
           
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50 hover:bg-gray-700/50 transition-all duration-300">
+          <div className="bg-gray-900 backdrop-blur-sm rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={18} className="text-green-300" />
               <span className="text-purple-200 text-sm font-medium uppercase tracking-wide">Price</span>
@@ -253,7 +253,7 @@ const PhaseCard: React.FC<{
         </div>
 
         {isActive && (
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30">
+          <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center gap-2">
                 <Clock size={20} className="text-purple-300" />
@@ -314,7 +314,7 @@ const BuyForm: React.FC<{
   const displayMinTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+    <div className="bg-gray-900/30 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-700/30 overflow-hidden">
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
@@ -349,7 +349,7 @@ const BuyForm: React.FC<{
             placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
-            className="w-full p-4 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 text-lg font-medium"
+            className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 text-lg font-medium"
             disabled={!isPhaseActive}
           />
           <p className="text-gray-600 text-base">
@@ -357,30 +357,30 @@ const BuyForm: React.FC<{
           </p>
         </div>
 
-        <div className="bg-gray-100 rounded-xl p-6 space-y-4 border border-gray-300">
-          <h4 className="text-gray-800 font-bold text-lg">Purchase Summary</h4>
+        <div className="bg-gray-800 rounded-xl p-6 space-y-4 border border-gray-600">
+          <h4 className="text-white font-bold text-lg">Purchase Summary</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-gray-600 font-medium">You Pay:</span>
-              <span className="text-gray-800 font-bold text-lg">
+              <span className="text-gray-400 font-medium">You Pay:</span>
+              <span className="text-white font-bold text-lg">
                 {egldCost.toFixed(8)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 font-medium">You Receive:</span>
+              <span className="text-gray-400 font-medium">You Receive:</span>
               <span className="text-purple-600 font-bold text-lg">
                 {Number(buyAmount || 0).toLocaleString()} IDA
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 font-medium">Price per IDA:</span>
-              <span className="text-gray-800">
+              <span className="text-gray-400 font-medium">Price per IDA:</span>
+              <span className="text-white">
                 {currentPrice.toFixed(6)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600 font-medium">Available:</span>
-              <span className="text-gray-800 font-semibold">
+              <span className="text-gray-400 font-medium">Available:</span>
+              <span className="text-white font-semibold">
                 {availableTokens.toLocaleString()} IDA
               </span>
             </div>
@@ -415,7 +415,7 @@ const BuyForm: React.FC<{
         </Button>
 
         {!isLoggedIn && (
-          <p className="text-gray-600 text-base text-center">
+          <p className="text-gray-300 text-base text-center">
             Connect your MultiversX wallet to participate in the token sale
           </p>
         )}
@@ -859,7 +859,7 @@ export const TokenSale: React.FC = () => {
           )}
 
           {/* Benefits Section */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-10">
+          <div className="bg-gray-900/30 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-700/30 p-10">
             <h3 className="text-3xl font-bold text-white mb-10 text-center">
               Why Choose IDA Tokens?
             </h3>
@@ -907,7 +907,7 @@ export const TokenSale: React.FC = () => {
           </div>
 
           {/* FAQ Section */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/20 p-10">
+          <div className="bg-gray-900/30 backdrop-blur-lg rounded-3xl shadow-2xl border border-gray-700/30 p-10">
             <h3 className="text-3xl font-bold text-white mb-10 text-center">
               Frequently Asked Questions
             </h3>
