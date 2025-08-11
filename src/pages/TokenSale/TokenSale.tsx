@@ -19,7 +19,8 @@ const PHASE_1_END = '2025-08-15T23:59:59+02:00'; // Example end date, adjust as 
 const PHASE_2_SUPPLY = 4000000; // 4M IDA pre fázu 2
 const PHASE_2_PRICE_EGLD = 0.0006; // 0.0006 EGLD za IDA
 const PHASE_2_END = '2025-08-30T23:59:59+02:00';
-const MINIMUM_PURCHASE_EGLD = 1; // Fixná minimálna kúpna suma
+const MINIMUM_PURCHASE_EGLD = 1; // Fixná minimálna kúpna suma - 1 EGLD = 5000 IDA
+const MINIMUM_PURCHASE_IDA = 5000; // 5000 IDA za 1 EGLD
 const LOGO_URL = 'https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png';
 
 // Realistic data - 5M tokens have been sold (sale is complete)
@@ -462,21 +463,20 @@ export const TokenSale: React.FC = () => {
 
   // Určenie aktuálnej fázy na základe času
   const now = new Date();
-  const phase1End = new Date('2025-01-15T23:59:59+02:00'); // Set to past date since sale is complete
-  const phase2End = new Date('2025-01-30T23:59:59+02:00'); // Set to past date since sale is complete
+  const phase1End = new Date('2025-08-15T23:59:59+02:00'); // Phase 1 end date
+  const phase2End = new Date('2025-08-30T23:59:59+02:00'); // Phase 2 end date
   
-  const isPhase1Active = false; // Sale is complete
-  const isPhase1Completed = true; // Phase 1 is completed
-  const isPhase2Active = false; // Sale is complete
-  const isPhase2Completed = true; // Phase 2 is completed
+  const isPhase1Active = now < phase1End; // Phase 1 is still active
+  const isPhase1Completed = now > phase1End; // Phase 1 is completed
+  const isPhase2Active = now > phase1End && now < phase2End; // Phase 2 is active after Phase 1
+  const isPhase2Completed = now > phase2End; // Phase 2 is completed
   
-  const currentPhase = 2; // Show as Phase 2 since sale is complete
+  const currentPhase = isPhase1Active ? 1 : 2; // Current phase based on time
   const currentPrice = isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
   const currentSupply = isPhase1Active ? PHASE_1_SUPPLY : PHASE_2_SUPPLY;
   const { phase1Sold, phase2Sold } = calculatePhaseData(totalBoughtFromContract);
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
-  const isCurrentPhaseActive = false; // No phase is active since sale is complete
 
   // Získanie ceny EGLD v USD
   const fetchEgldPrice = async () => {
