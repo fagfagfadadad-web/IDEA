@@ -364,7 +364,7 @@ const DesktopPhaseCard: React.FC<{
               <span className="text-gray-600 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-gray-400 font-medium">
+              <span className="text-gray-600 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
