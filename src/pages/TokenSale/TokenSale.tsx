@@ -165,7 +165,7 @@ const PhaseCard: React.FC<{
       <div className="absolute top-6 right-6">
         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
           isActive 
-            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white animate-pulse shadow-lg' 
+            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-grey animate-pulse shadow-lg' 
             : isCompleted
             ? 'bg-green-500 text-white shadow-lg'
             : 'bg-gray-500 text-white shadow-lg'
