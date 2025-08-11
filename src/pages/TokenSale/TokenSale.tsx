@@ -190,7 +190,7 @@ const PhaseCard: React.FC<{
               <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-grey`}>
                 {title}
               </h3>
-              <p className="text-indigo-200 text-base font-medium">
+              <p className="text-grey-600 text-base font-medium">
                 Phase {phase} Token Sale
               </p>
             </div>
