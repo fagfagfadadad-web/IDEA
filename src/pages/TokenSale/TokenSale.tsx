@@ -125,7 +125,7 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
+          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-grey ${
             isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
