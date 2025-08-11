@@ -190,7 +190,7 @@ const PhaseCard: React.FC<{
               <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-white`}>
                 {title}
               </h3>
-              <p className="text-purple-200 text-base">
+              <p className="text-gray-800 text-base">
                 Phase {phase} Token Sale
               </p>
             </div>
@@ -341,7 +341,7 @@ const BuyForm: React.FC<{
 
       <div className="p-8 space-y-8">
         <div className="space-y-3">
-          <label className="block text-white font-semibold text-lg">
+          <label className="block text-gray-800 font-semibold text-lg">
             Amount to Purchase (IDA tokens)
           </label>
           <input
@@ -349,38 +349,38 @@ const BuyForm: React.FC<{
             placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
-            className="w-full p-4 bg-gray-800/80 backdrop-blur-sm border border-purple-400/50 rounded-xl text-white placeholder-purple-300 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 text-lg font-medium"
+            className="w-full p-4 bg-white border border-gray-300 rounded-xl text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-purple-400 focus:border-purple-400 transition-all duration-300 text-lg font-medium"
             disabled={!isPhaseActive}
           />
-          <p className="text-purple-300 text-base">
+          <p className="text-gray-600 text-base">
             Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
           </p>
         </div>
 
-        <div className="bg-gray-800/60 backdrop-blur-sm rounded-xl p-6 space-y-4 border border-purple-400/30">
-          <h4 className="text-white font-bold text-lg">Purchase Summary</h4>
+        <div className="bg-gray-100 rounded-xl p-6 space-y-4 border border-gray-300">
+          <h4 className="text-gray-800 font-bold text-lg">Purchase Summary</h4>
           <div className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-purple-300 font-medium">You Pay:</span>
-              <span className="text-white font-bold text-lg">
+              <span className="text-gray-600 font-medium">You Pay:</span>
+              <span className="text-gray-800 font-bold text-lg">
                 {egldCost.toFixed(8)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-purple-300 font-medium">You Receive:</span>
-              <span className="text-purple-200 font-bold text-lg">
+              <span className="text-gray-600 font-medium">You Receive:</span>
+              <span className="text-purple-600 font-bold text-lg">
                 {Number(buyAmount || 0).toLocaleString()} IDA
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-purple-300 font-medium">Price per IDA:</span>
-              <span className="text-white">
+              <span className="text-gray-600 font-medium">Price per IDA:</span>
+              <span className="text-gray-800">
                 {currentPrice.toFixed(6)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-purple-300 font-medium">Available:</span>
-              <span className="text-white font-semibold">
+              <span className="text-gray-600 font-medium">Available:</span>
+              <span className="text-gray-800 font-semibold">
                 {availableTokens.toLocaleString()} IDA
               </span>
             </div>
@@ -415,7 +415,7 @@ const BuyForm: React.FC<{
         </Button>
 
         {!isLoggedIn && (
-          <p className="text-purple-300 text-base text-center">
+          <p className="text-gray-600 text-base text-center">
             Connect your MultiversX wallet to participate in the token sale
           </p>
         )}
@@ -795,7 +795,7 @@ export const TokenSale: React.FC = () => {
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-4xl font-bold text-white mb-6">Token Sale Phases</h2>
-              <p className="text-purple-100 text-xl max-w-4xl mx-auto leading-relaxed">
+              <p className="text-gray-200 text-xl max-w-4xl mx-auto leading-relaxed">
                 Our token sale is structured in two phases to provide early supporters with better pricing 
                 while ensuring broad public access to IDA tokens.
               </p>
@@ -869,7 +869,7 @@ export const TokenSale: React.FC = () => {
                   <Zap size={24} className="text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-white">Zero Fees</h4>
-                <p className="text-purple-100 text-base leading-relaxed">
+                <p className="text-gray-200 text-base leading-relaxed">
                   Pay no platform fees when using IDA tokens for marketplace transactions.
                 </p>
               </div>
@@ -879,7 +879,7 @@ export const TokenSale: React.FC = () => {
                   <Award size={24} className="text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-white">Premium Access</h4>
-                <p className="text-purple-100 text-base leading-relaxed">
+                <p className="text-gray-200 text-base leading-relaxed">
                   Access exclusive features and priority support with IDA token holdings.
                 </p>
               </div>
@@ -889,7 +889,7 @@ export const TokenSale: React.FC = () => {
                   <Shield size={24} className="text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-white">Governance</h4>
-                <p className="text-purple-100 text-base leading-relaxed">
+                <p className="text-gray-200 text-base leading-relaxed">
                   Participate in platform governance decisions based on your token holdings.
                 </p>
               </div>
@@ -899,7 +899,7 @@ export const TokenSale: React.FC = () => {
                   <DollarSign size={24} className="text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-white">Buyback & Burn</h4>
-                <p className="text-purple-100 text-base leading-relaxed">
+                <p className="text-gray-200 text-base leading-relaxed">
                   5% of EGLD fees used for token buybacks and burns to support long-term value.
                 </p>
               </div>
@@ -914,20 +914,20 @@ export const TokenSale: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-8">
                 <div>
-                  <h4 className="text-xl font-bold text-purple-300 mb-3">
+                  <h4 className="text-xl font-bold text-white mb-3">
                     How do I participate in the token sale?
                   </h4>
-                  <p className="text-purple-200 text-base leading-relaxed">
+                  <p className="text-gray-200 text-base leading-relaxed">
                     Connect your MultiversX wallet, select the amount of IDA tokens you want to purchase, 
                     and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA).
                   </p>
                 </div>
                 
                 <div>
-                  <h4 className="text-xl font-bold text-purple-300 mb-3">
+                  <h4 className="text-xl font-bold text-white mb-3">
                     When will I receive my tokens?
                   </h4>
-                  <p className="text-purple-200 text-base leading-relaxed">
+                  <p className="text-gray-200 text-base leading-relaxed">
                     IDA tokens are transferred to your wallet immediately after your purchase 
                     transaction is confirmed on the MultiversX blockchain.
                   </p>
@@ -936,20 +936,20 @@ export const TokenSale: React.FC = () => {
               
               <div className="space-y-8">
                 <div>
-                  <h4 className="text-xl font-bold text-purple-300 mb-3">
+                  <h4 className="text-xl font-bold text-white mb-3">
                     What's the difference between phases?
                   </h4>
-                  <p className="text-purple-200 text-base leading-relaxed">
+                  <p className="text-gray-200 text-base leading-relaxed">
                     Phase 1 offers lower pricing (0.0002 EGLD per IDA) with 1M tokens. 
                     Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 4M tokens.
                   </p>
                 </div>
                 
                 <div>
-                  <h4 className="text-xl font-bold text-purple-300 mb-3">
+                  <h4 className="text-xl font-bold text-white mb-3">
                     Can I trade my IDA tokens?
                   </h4>
-                  <p className="text-purple-200 text-base leading-relaxed">
+                  <p className="text-gray-200 text-base leading-relaxed">
                     Yes, IDA tokens can be traded on supported MultiversX DEXes, 
                     transferred to other users, or used within the IDEA platform.
                   </p>
