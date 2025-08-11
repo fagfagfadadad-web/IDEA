@@ -346,7 +346,7 @@ const DesktopPhaseCard: React.FC<{
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <span className="text-gray-600 font-bold text-xl">Sale Progress</span>
-            <span className="text-gray-300 font-bold text-2xl">{progress.toFixed(1)}%</span>
+            <span className="text-gray-600 font-bold text-2xl">{progress.toFixed(1)}%</span>
           </div>
           
           <div className="relative">
