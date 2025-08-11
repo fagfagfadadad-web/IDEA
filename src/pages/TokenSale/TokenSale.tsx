@@ -71,76 +71,92 @@ const useCountdown = (targetDate: string) => {
   return timeLeft;
 };
 
-// Flip Countdown Component
-const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ targetDate, isMobile }) => {
+// Mobile Flip Countdown Component
+const MobileFlipCountdown: React.FC<{ targetDate: string }> = ({ targetDate }) => {
   const { days, hours, minutes, seconds, isExpired } = useCountdown(targetDate);
 
   if (isExpired) {
     return (
       <div className="text-center">
-        <p className={`text-white ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
-          Phase Ended
-        </p>
+        <p className="text-white text-lg font-bold">Phase Ended</p>
       </div>
     );
   }
 
   return (
-    <div className={`flex ${isMobile ? 'gap-2' : 'gap-4'} justify-center`}>
-      <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
-        <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
-            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
-          } font-bold text-white mb-1 flex items-center justify-center`}
-        >
+    <div className="flex gap-2 justify-center">
+      <div className="text-center" style={{ width: '60px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 h-12 leading-12 text-2xl font-bold text-white mb-1 flex items-center justify-center">
           {days}
         </div>
-        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-white uppercase font-bold tracking-wide`}>
-          Days
-        </p>
+        <p className="text-sm text-white uppercase font-bold tracking-wide">Days</p>
       </div>
-      <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
-        <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
-            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
-          } font-bold text-white mb-1 flex items-center justify-center`}
-        >
+      <div className="text-center" style={{ width: '60px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 h-12 leading-12 text-2xl font-bold text-white mb-1 flex items-center justify-center">
           {hours}
         </div>
-        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-white uppercase font-bold tracking-wide`}>
-          Hours
-        </p>
+        <p className="text-sm text-white uppercase font-bold tracking-wide">Hours</p>
       </div>
-      <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
-        <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
-            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
-          } font-bold text-white mb-1 flex items-center justify-center`}
-        >
+      <div className="text-center" style={{ width: '60px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 h-12 leading-12 text-2xl font-bold text-white mb-1 flex items-center justify-center">
           {minutes}
         </div>
-        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-white uppercase font-bold tracking-wide`}>
-          Mins
-        </p>
+        <p className="text-sm text-white uppercase font-bold tracking-wide">Mins</p>
       </div>
-      <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
-        <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
-            isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
-          } font-bold text-white mb-1 flex items-center justify-center`}
-        >
+      <div className="text-center" style={{ width: '60px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 h-12 leading-12 text-2xl font-bold text-white mb-1 flex items-center justify-center">
           {seconds}
         </div>
-        <p className={`${isMobile ? 'text-sm' : 'text-base'} text-white uppercase font-bold tracking-wide`}>
-          Secs
-        </p>
+        <p className="text-sm text-white uppercase font-bold tracking-wide">Secs</p>
       </div>
     </div>
   );
 };
 
-// Phase Card Component
-const PhaseCard: React.FC<{
+// Desktop Flip Countdown Component
+const DesktopFlipCountdown: React.FC<{ targetDate: string }> = ({ targetDate }) => {
+  const { days, hours, minutes, seconds, isExpired } = useCountdown(targetDate);
+
+  if (isExpired) {
+    return (
+      <div className="text-center">
+        <p className="text-white text-xl font-bold">Phase Ended</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex gap-6 justify-center">
+      <div className="text-center" style={{ width: '100px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-2xl shadow-2xl border border-indigo-400 h-20 text-4xl font-bold text-white mb-3 flex items-center justify-center">
+          {days}
+        </div>
+        <p className="text-base text-white uppercase font-bold tracking-wide">Days</p>
+      </div>
+      <div className="text-center" style={{ width: '100px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-2xl shadow-2xl border border-indigo-400 h-20 text-4xl font-bold text-white mb-3 flex items-center justify-center">
+          {hours}
+        </div>
+        <p className="text-base text-white uppercase font-bold tracking-wide">Hours</p>
+      </div>
+      <div className="text-center" style={{ width: '100px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-2xl shadow-2xl border border-indigo-400 h-20 text-4xl font-bold text-white mb-3 flex items-center justify-center">
+          {minutes}
+        </div>
+        <p className="text-base text-white uppercase font-bold tracking-wide">Minutes</p>
+      </div>
+      <div className="text-center" style={{ width: '100px' }}>
+        <div className="bg-gradient-to-b from-indigo-600 to-pink-600 rounded-2xl shadow-2xl border border-indigo-400 h-20 text-4xl font-bold text-white mb-3 flex items-center justify-center">
+          {seconds}
+        </div>
+        <p className="text-base text-white uppercase font-bold tracking-wide">Seconds</p>
+      </div>
+    </div>
+  );
+};
+
+// Mobile Phase Card Component
+const MobilePhaseCard: React.FC<{
   phase: number;
   title: string;
   supply: number;
@@ -149,8 +165,123 @@ const PhaseCard: React.FC<{
   isActive: boolean;
   isCompleted: boolean;
   endDate: string;
-  isMobile: boolean;
-}> = ({ phase, title, supply, price, sold, isActive, isCompleted, endDate, isMobile }) => {
+}> = ({ phase, title, supply, price, sold, isActive, isCompleted, endDate }) => {
+  const progress = (sold / supply) * 100;
+  const remaining = supply - sold;
+
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border-2 transition-all duration-500 ${
+      isActive 
+        ? 'border-indigo-400 bg-gradient-to-br from-indigo-900 to-pink-900 shadow-2xl shadow-indigo-500/30' 
+        : isCompleted
+        ? 'border-green-400 bg-gradient-to-br from-green-900 to-emerald-900 shadow-xl'
+        : 'border-gray-400 bg-gradient-to-br from-gray-800 to-slate-800 shadow-xl'
+    }`}>
+      <div className="absolute top-4 right-4">
+        <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+          isActive 
+            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white animate-pulse shadow-lg' 
+            : isCompleted
+            ? 'bg-green-500 text-white shadow-lg'
+            : 'bg-gray-500 text-white shadow-lg'
+        }`}>
+          {isActive ? 'LIVE' : isCompleted ? 'DONE' : 'SOON'}
+        </span>
+      </div>
+
+      <div className="p-6 space-y-6">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
+              isActive 
+                ? 'bg-gray-700 text-white border-2 border-indigo-400' 
+                : isCompleted
+                ? 'bg-gray-700 text-white border-2 border-green-400'
+                : 'bg-gray-700 text-white border-2 border-gray-400'
+            }`}>
+              <span className="text-xl font-bold">{phase}</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white">{title}</h3>
+              <p className="text-gray-300 text-sm font-medium">Phase {phase} Sale</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="bg-gray-900 rounded-xl p-4 border border-gray-600">
+            <div className="flex items-center gap-2 mb-1">
+              <Target size={16} className="text-indigo-400" />
+              <span className="text-indigo-300 text-xs font-medium uppercase tracking-wide">Supply</span>
+            </div>
+            <p className="text-white text-lg font-bold">{supply.toLocaleString()} IDA</p>
+          </div>
+          
+          <div className="bg-gray-900 rounded-xl p-4 border border-gray-600">
+            <div className="flex items-center gap-2 mb-1">
+              <DollarSign size={16} className="text-green-400" />
+              <span className="text-green-300 text-xs font-medium uppercase tracking-wide">Price</span>
+            </div>
+            <p className="text-white text-lg font-bold">{price.toFixed(6)} EGLD</p>
+            <p className="text-gray-300 text-xs">per IDA token</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-400 font-bold text-sm">Progress</span>
+            <span className="text-gray-400 font-bold text-lg">{progress.toFixed(1)}%</span>
+          </div>
+          
+          <div className="relative">
+            <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden shadow-inner border border-gray-600">
+              <div 
+                className="h-full transition-all duration-1000 shadow-lg"
+                style={{ 
+                  width: `${Math.min(progress, 100)}%`,
+                  background: 'linear-gradient(to right, #6366f1, #ec4899)',
+                  boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+                }}
+              />
+            </div>
+            <div className="flex justify-between mt-2 text-xs">
+              <span className="text-gray-400 font-medium">
+                Sold: {sold.toLocaleString()}
+              </span>
+              <span className="text-gray-400 font-medium">
+                Left: {remaining.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {isActive && (
+          <div className="bg-gray-900 rounded-xl p-4 border border-gray-600 shadow-lg">
+            <div className="text-center space-y-3">
+              <div className="flex items-center justify-center gap-2">
+                <Clock size={16} className="text-indigo-400" />
+                <span className="text-white font-semibold text-sm">Time Left</span>
+              </div>
+              <MobileFlipCountdown targetDate={endDate} />
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Desktop Phase Card Component
+const DesktopPhaseCard: React.FC<{
+  phase: number;
+  title: string;
+  supply: number;
+  price: number;
+  sold: number;
+  isActive: boolean;
+  isCompleted: boolean;
+  endDate: string;
+}> = ({ phase, title, supply, price, sold, isActive, isCompleted, endDate }) => {
   const progress = (sold / supply) * 100;
   const remaining = supply - sold;
 
@@ -163,9 +294,9 @@ const PhaseCard: React.FC<{
         : 'border-gray-400 bg-gradient-to-br from-gray-800 to-slate-800 shadow-xl'
     }`}>
       <div className="absolute top-6 right-6">
-        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+        <span className={`px-4 py-2 rounded-full text-sm font-bold ${
           isActive 
-            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-grey animate-pulse shadow-lg' 
+            ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white animate-pulse shadow-lg' 
             : isCompleted
             ? 'bg-green-500 text-white shadow-lg'
             : 'bg-gray-500 text-white shadow-lg'
@@ -174,58 +305,48 @@ const PhaseCard: React.FC<{
         </span>
       </div>
 
-      <div className={`p-${isMobile ? '8' : '10'} space-y-8`}>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
+      <div className="p-10 space-y-8">
+        <div className="space-y-3">
+          <div className="flex items-center gap-4">
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg ${
               isActive 
                 ? 'bg-gray-700 text-white border-2 border-indigo-400' 
                 : isCompleted
                 ? 'bg-gray-700 text-white border-2 border-green-400'
                 : 'bg-gray-700 text-white border-2 border-gray-400'
             }`}>
-              <span className="text-2xl font-bold">{phase}</span>
+              <span className="text-3xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-grey`}>
-                {title}
-              </h3>
-              <p className="text-grey-600 text-base font-medium">
-                Phase {phase} Token Sale
-              </p>
+              <h3 className="text-3xl font-bold text-white">{title}</h3>
+              <p className="text-gray-300 text-lg font-medium">Phase {phase} Token Sale</p>
             </div>
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-6'}`}>
-          <div className={`bg-gray-900 rounded-xl ${isMobile ? 'p-4' : 'p-6'} border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg`}>
-            <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : 'mb-2'}`}>
-              <Target size={18} className="text-indigo-400" />
-              <span className={`text-indigo-300 ${isMobile ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wide`}>Total Supply</span>
+        <div className="grid grid-cols-2 gap-6">
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Target size={20} className="text-indigo-400" />
+              <span className="text-indigo-300 text-sm font-medium uppercase tracking-wide">Total Supply</span>
             </div>
-            <p className={`text-white ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
-              {supply.toLocaleString()} IDA
-            </p>
+            <p className="text-white text-2xl font-bold">{supply.toLocaleString()} IDA</p>
           </div>
           
-          <div className={`bg-gray-900 rounded-xl ${isMobile ? 'p-4' : 'p-6'} border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg`}>
-            <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : 'mb-2'}`}>
-              <DollarSign size={18} className="text-green-400" />
-              <span className={`text-green-300 ${isMobile ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wide`}>Price</span>
+          <div className="bg-gray-900 rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <DollarSign size={20} className="text-green-400" />
+              <span className="text-green-300 text-sm font-medium uppercase tracking-wide">Price</span>
             </div>
-            <p className={`text-white ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
-              {price.toFixed(6)} EGLD
-            </p>
-            <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-              per IDA token
-            </p>
+            <p className="text-white text-2xl font-bold">{price.toFixed(6)} EGLD</p>
+            <p className="text-gray-300 text-sm">per IDA token</p>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <span className="text-gray-500 font-bold text-lg">Sale Progress</span>
-            <span className="text-gray-500 font-bold text-xl">{progress.toFixed(1)}%</span>
+            <span className="text-gray-300 font-bold text-xl">Sale Progress</span>
+            <span className="text-gray-300 font-bold text-2xl">{progress.toFixed(1)}%</span>
           </div>
           
           <div className="relative">
@@ -235,15 +356,15 @@ const PhaseCard: React.FC<{
                 style={{ 
                   width: `${Math.min(progress, 100)}%`,
                   background: 'linear-gradient(to right, #6366f1, #ec4899)',
-                  boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+                  boxShadow: '0 0 15px rgba(99, 102, 241, 0.5)'
                 }}
               />
             </div>
             <div className="flex justify-between mt-3 text-sm">
-              <span className="text-gray-500 font-medium">
+              <span className="text-gray-400 font-medium">
                 Sold: {sold.toLocaleString()} IDA
               </span>
-              <span className="text-gray-500 font-medium">
+              <span className="text-gray-400 font-medium">
                 Remaining: {remaining.toLocaleString()} IDA
               </span>
             </div>
@@ -251,13 +372,13 @@ const PhaseCard: React.FC<{
         </div>
 
         {isActive && (
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-600 shadow-lg">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-2">
-                <Clock size={20} className="text-indigo-400" />
-                <span className="text-white font-semibold text-lg">Time Remaining</span>
+          <div className="bg-gray-900 rounded-xl p-8 border border-gray-600 shadow-lg">
+            <div className="text-center space-y-6">
+              <div className="flex items-center justify-center gap-3">
+                <Clock size={24} className="text-indigo-400" />
+                <span className="text-white font-semibold text-xl">Time Remaining</span>
               </div>
-              <FlipCountdown targetDate={endDate} isMobile={isMobile} />
+              <DesktopFlipCountdown targetDate={endDate} />
             </div>
           </div>
         )}
@@ -266,8 +387,8 @@ const PhaseCard: React.FC<{
   );
 };
 
-// Buy Form Component
-const BuyForm: React.FC<{
+// Mobile Buy Form Component
+const MobileBuyForm: React.FC<{
   currentPhase: number;
   currentPrice: number;
   availableTokens: number;
@@ -280,7 +401,6 @@ const BuyForm: React.FC<{
   handleBuy: () => void;
   transactionHash: string | null;
   isPurchaseSuccessful: boolean;
-  isMobile: boolean;
   isPhaseActive: boolean;
 }> = ({
   currentPhase,
@@ -295,7 +415,6 @@ const BuyForm: React.FC<{
   handleBuy,
   transactionHash,
   isPurchaseSuccessful,
-  isMobile,
   isPhaseActive,
 }) => {
   const isValidAddress = (address?: string): boolean => {
@@ -308,78 +427,58 @@ const BuyForm: React.FC<{
     }
   };
 
-  const displayMinTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
-
   return (
-    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 overflow-hidden">
-      <div className="bg-gradient-to-r from-indigo-600 to-pink-600 p-8 text-white">
+    <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+      <div className="bg-gradient-to-r from-indigo-600 to-pink-600 p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
-            <Coins size={24} />
+          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+            <Coins size={20} />
           </div>
           <div>
-            <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
-              Buy IDA Tokens
-            </h3>
-            <p className="text-grey text-base">
-              Phase {currentPhase} Token Sale
-            </p>
+            <h3 className="text-lg font-bold">Buy IDA Tokens</h3>
+            <p className="text-gray-100 text-sm">Phase {currentPhase} Sale</p>
           </div>
         </div>
         
         {!isPhaseActive && (
-          <div className="bg-red-600 border border-red-400 rounded-xl p-4 mt-4">
-            <p className="text-white text-base font-medium">
-              ⚠️ This phase is not currently active
-            </p>
+          <div className="bg-red-600 border border-red-400 rounded-xl p-3 mt-3">
+            <p className="text-white text-sm font-medium">⚠️ This phase is not active</p>
           </div>
         )}
       </div>
 
-      <div className="p-8 space-y-8">
+      <div className="p-6 space-y-6">
         <div className="space-y-3">
-          <label className="block text-white font-semibold text-lg">
-            Amount to Purchase (IDA tokens)
+          <label className="block text-white font-semibold text-base">
+            Amount (IDA tokens)
           </label>
           <input
             type="number"
-            placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
+            placeholder={`Min: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
-            className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-lg font-medium"
+            className="w-full p-3 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-base font-medium"
             disabled={!isPhaseActive}
           />
-          <p className="text-gray-300 text-base">
+          <p className="text-gray-300 text-sm">
             Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
           </p>
         </div>
 
-        <div className="bg-gray-800 rounded-xl p-6 space-y-4 border border-gray-600 shadow-lg">
-          <h4 className="text-white font-bold text-lg">Purchase Summary</h4>
-          <div className="space-y-3">
+        <div className="bg-gray-800 rounded-xl p-4 space-y-3 border border-gray-600 shadow-lg">
+          <h4 className="text-white font-bold text-base">Summary</h4>
+          <div className="space-y-2">
             <div className="flex justify-between">
-              <span className="text-gray-300 font-medium">You Pay:</span>
-              <span className="text-white font-bold text-lg">
-                {egldCost.toFixed(8)} EGLD
-              </span>
+              <span className="text-gray-300 font-medium text-sm">You Pay:</span>
+              <span className="text-white font-bold text-base">{egldCost.toFixed(8)} EGLD</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-300 font-medium">You Receive:</span>
-              <span className="text-indigo-400 font-bold text-lg">
-                {Number(buyAmount || 0).toLocaleString()} IDA
-              </span>
+              <span className="text-gray-300 font-medium text-sm">You Get:</span>
+              <span className="text-indigo-400 font-bold text-base">{Number(buyAmount || 0).toLocaleString()} IDA</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-300 font-medium">Price per IDA:</span>
-              <span className="text-white">
-                {currentPrice.toFixed(6)} EGLD
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-300 font-medium">Available:</span>
-              <span className="text-white font-semibold">
-                {availableTokens.toLocaleString()} IDA
-              </span>
+              <span className="text-gray-300 font-medium text-sm">Available:</span>
+              <span className="text-white text-sm">{availableTokens.toLocaleString()} IDA</span>
             </div>
           </div>
         </div>
@@ -395,7 +494,146 @@ const BuyForm: React.FC<{
             !isLoggedIn ||
             !isValidAddress(userAddress)
           }
-          className={`w-full py-5 text-xl font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${
+          className={`w-full py-4 text-lg font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
+            isPhaseActive && !pending && isLoggedIn
+              ? 'bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white shadow-xl'
+              : 'bg-gray-600 text-gray-300 cursor-not-allowed'
+          }`}
+        >
+          {!isLoggedIn
+            ? 'Connect Wallet'
+            : !isPhaseActive
+            ? 'Phase Not Active'
+            : pending
+            ? 'Processing...'
+            : 'BUY IDA TOKENS'}
+          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={20} />}
+        </Button>
+
+        {!isLoggedIn && (
+          <p className="text-gray-300 text-sm text-center">
+            Connect your MultiversX wallet to participate
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Desktop Buy Form Component
+const DesktopBuyForm: React.FC<{
+  currentPhase: number;
+  currentPrice: number;
+  availableTokens: number;
+  buyAmount: string;
+  setBuyAmount: (value: string) => void;
+  egldCost: number;
+  pending: boolean;
+  isLoggedIn: boolean;
+  userAddress: string | undefined;
+  handleBuy: () => void;
+  transactionHash: string | null;
+  isPurchaseSuccessful: boolean;
+  isPhaseActive: boolean;
+}> = ({
+  currentPhase,
+  currentPrice,
+  availableTokens,
+  buyAmount,
+  setBuyAmount,
+  egldCost,
+  pending,
+  isLoggedIn,
+  userAddress,
+  handleBuy,
+  transactionHash,
+  isPurchaseSuccessful,
+  isPhaseActive,
+}) => {
+  const isValidAddress = (address?: string): boolean => {
+    if (!address) return false;
+    try {
+      new Address(address);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  return (
+    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 overflow-hidden h-fit">
+      <div className="bg-gradient-to-r from-indigo-600 to-pink-600 p-8 text-white">
+        <div className="flex items-center gap-4 mb-3">
+          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center shadow-lg">
+            <Coins size={32} />
+          </div>
+          <div>
+            <h3 className="text-2xl font-bold">Buy IDA Tokens</h3>
+            <p className="text-gray-100 text-lg">Phase {currentPhase} Token Sale</p>
+          </div>
+        </div>
+        
+        {!isPhaseActive && (
+          <div className="bg-red-600 border border-red-400 rounded-xl p-4 mt-4">
+            <p className="text-white text-base font-medium">
+              ⚠️ This phase is not currently active
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="p-8 space-y-8">
+        <div className="space-y-4">
+          <label className="block text-white font-semibold text-xl">
+            Amount to Purchase (IDA tokens)
+          </label>
+          <input
+            type="number"
+            placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
+            value={buyAmount}
+            onChange={(e) => setBuyAmount(e.target.value)}
+            className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-xl font-medium"
+            disabled={!isPhaseActive}
+          />
+          <p className="text-gray-300 text-lg">
+            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
+          </p>
+        </div>
+
+        <div className="bg-gray-800 rounded-xl p-8 space-y-6 border border-gray-600 shadow-lg">
+          <h4 className="text-white font-bold text-xl">Purchase Summary</h4>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 font-medium text-lg">You Pay:</span>
+              <span className="text-white font-bold text-xl">{egldCost.toFixed(8)} EGLD</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 font-medium text-lg">You Receive:</span>
+              <span className="text-indigo-400 font-bold text-xl">{Number(buyAmount || 0).toLocaleString()} IDA</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 font-medium text-lg">Price per IDA:</span>
+              <span className="text-white text-lg">{currentPrice.toFixed(6)} EGLD</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-300 font-medium text-lg">Available:</span>
+              <span className="text-white font-semibold text-lg">{availableTokens.toLocaleString()} IDA</span>
+            </div>
+          </div>
+        </div>
+
+        <Button
+          onClick={handleBuy}
+          disabled={
+            !isPhaseActive ||
+            !buyAmount ||
+            Number(buyAmount) < MINIMUM_PURCHASE_IDA ||
+            pending ||
+            availableTokens < MINIMUM_PURCHASE_IDA ||
+            !isLoggedIn ||
+            !isValidAddress(userAddress)
+          }
+          className={`w-full py-6 text-2xl font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${
             isPhaseActive && !pending && isLoggedIn
               ? 'bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transform'
               : 'bg-gray-600 text-gray-300 cursor-not-allowed'
@@ -408,14 +646,115 @@ const BuyForm: React.FC<{
             : pending
             ? 'Processing...'
             : 'BUY IDA TOKENS'}
-          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={24} />}
+          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={28} />}
         </Button>
 
         {!isLoggedIn && (
-          <p className="text-gray-300 text-base text-center">
+          <p className="text-gray-300 text-lg text-center">
             Connect your MultiversX wallet to participate in the token sale
           </p>
         )}
+      </div>
+    </div>
+  );
+};
+
+// Mobile Stats Overview Component
+const MobileStatsOverview: React.FC<{
+  phase1Sold: number;
+  phase2Sold: number;
+  egldPriceUsd: number;
+}> = ({ phase1Sold, phase2Sold, egldPriceUsd }) => {
+  return (
+    <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">
+            <TrendingUp size={16} className="text-white" />
+          </div>
+          <p className="text-indigo-300 text-xs font-medium uppercase tracking-wide">Total Raised</p>
+          <p className="text-lg font-bold text-white mt-1">
+            {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
+          </p>
+          <p className="text-gray-300 text-xs mt-1">
+            ≈ ${((((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)) * egldPriceUsd).toFixed(0)).toLocaleString()} USD
+          </p>
+        </div>
+        
+        <div className="text-center">
+          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">
+            <Coins size={16} className="text-white" />
+          </div>
+          <p className="text-green-300 text-xs font-medium uppercase tracking-wide">Tokens Sold</p>
+          <p className="text-lg font-bold text-white mt-1">
+            {(phase1Sold + phase2Sold).toLocaleString()}
+          </p>
+          <p className="text-gray-300 text-xs mt-1">
+            of {(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()} total
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Desktop Stats Overview Component
+const DesktopStatsOverview: React.FC<{
+  phase1Sold: number;
+  phase2Sold: number;
+  egldPriceUsd: number;
+  currentPhase: number;
+  isPhase1Active: boolean;
+  isPhase2Active: boolean;
+}> = ({ phase1Sold, phase2Sold, egldPriceUsd, currentPhase, isPhase1Active, isPhase2Active }) => {
+  return (
+    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-10">
+      <div className="grid grid-cols-4 gap-8">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <TrendingUp size={32} className="text-white" />
+          </div>
+          <p className="text-indigo-300 text-sm font-medium uppercase tracking-wide">Total Raised</p>
+          <p className="text-3xl font-bold text-white mt-2">
+            {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
+          </p>
+          <p className="text-gray-300 text-sm mt-1">
+            ≈ ${((((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)) * egldPriceUsd).toFixed(0)).toLocaleString()} USD
+          </p>
+        </div>
+        
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Coins size={32} className="text-white" />
+          </div>
+          <p className="text-green-300 text-sm font-medium uppercase tracking-wide">Tokens Sold</p>
+          <p className="text-3xl font-bold text-white mt-2">
+            {(phase1Sold + phase2Sold).toLocaleString()}
+          </p>
+          <p className="text-gray-300 text-sm mt-1">
+            of {(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()} total
+          </p>
+        </div>
+        
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Users size={32} className="text-white" />
+          </div>
+          <p className="text-blue-300 text-sm font-medium uppercase tracking-wide">Current Phase</p>
+          <p className="text-3xl font-bold text-white mt-2">Phase {currentPhase}</p>
+          <p className="text-gray-300 text-sm mt-1">
+            {isPhase1Active ? 'Active Now' : isPhase2Active ? 'Active Now' : 'Upcoming'}
+          </p>
+        </div>
+        
+        <div className="text-center">
+          <div className="w-20 h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <DollarSign size={32} className="text-white" />
+          </div>
+          <p className="text-orange-300 text-sm font-medium uppercase tracking-wide">EGLD Price</p>
+          <p className="text-3xl font-bold text-white mt-2">${egldPriceUsd.toFixed(2)}</p>
+          <p className="text-gray-300 text-sm mt-1">Live market price</p>
+        </div>
       </div>
     </div>
   );
@@ -440,7 +779,17 @@ export const TokenSale: React.FC = () => {
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   
-  const isMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Update mobile state on window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Výpočet dát pre fázy na základe údajov z kontraktu
   const calculatePhaseData = (totalBought: number) => {
@@ -473,17 +822,6 @@ export const TokenSale: React.FC = () => {
   const { phase1Sold, phase2Sold } = calculatePhaseData(totalBoughtFromContract);
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
-
-  // Debug logging for progress calculation
-  console.log('Progress calculation debug:', {
-    totalBoughtFromContract,
-    phase1Sold,
-    phase2Sold,
-    currentPhase,
-    currentSold,
-    currentSupply,
-    currentAvailable
-  });
 
   const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
 
@@ -711,135 +1049,75 @@ export const TokenSale: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="space-y-8">
-          {/* Hero Section */}
-          <div className="gradient-card p-8 text-center">
-            <div className="space-y-8">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-                <img
-                  src={LOGO_URL}
-                  alt="IDA Logo"
-                  className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-lg"
-                />
-                <div>
-                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold gradient-text">
-                    IDA Token Sale
-                  </h1>
-                  <p className="text-gray-600 text-sm md:text-base font-medium">
-                    Join the future of Web3 services marketplace
-                  </p>
-                </div>
-              </div>
-
-              {/* Stats Overview */}
-              <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-                  <div className="text-center">
-                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
-                      <TrendingUp size={isMobile ? 16 : 24} className="text-white" />
-                    </div>
-                    <p className="text-indigo-300 text-xs md:text-sm font-medium uppercase tracking-wide">Total Raised</p>
-                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
-                      {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
-                    </p>
-                    <p className="text-gray-300 text-xs md:text-sm mt-1">
-                      ≈ ${((((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)) * egldPriceUsd).toFixed(0)).toLocaleString()} USD
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
-                      <Coins size={isMobile ? 16 : 24} className="text-white" />
-                    </div>
-                    <p className="text-green-300 text-xs md:text-sm font-medium uppercase tracking-wide">Tokens Sold</p>
-                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
-                      {(phase1Sold + phase2Sold).toLocaleString()}
-                    </p>
-                    <p className="text-gray-300 text-xs md:text-sm mt-1">
-                      of {(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()} total
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
-                      <Users size={isMobile ? 16 : 24} className="text-white" />
-                    </div>
-                    <p className="text-blue-300 text-xs md:text-sm font-medium uppercase tracking-wide">Current Phase</p>
-                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
-                      Phase {currentPhase}
-                    </p>
-                    <p className="text-gray-300 text-xs md:text-sm mt-1">
-                      {isPhase1Active ? 'Active Now' : isPhase2Active ? 'Active Now' : 'Upcoming'}
-                    </p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-12 h-12 md:w-20 md:h-20 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-4 shadow-lg">
-                      <DollarSign size={isMobile ? 16 : 24} className="text-white" />
-                    </div>
-                    <p className="text-orange-300 text-xs md:text-sm font-medium uppercase tracking-wide">EGLD Price</p>
-                    <p className="text-lg md:text-3xl font-bold text-white mt-1 md:mt-2">
-                      ${egldPriceUsd.toFixed(2)}
-                    </p>
-                    <p className="text-gray-300 text-xs md:text-sm mt-1">
-                      Live market price
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-4 py-6">
+          <div className="space-y-6">
+            {/* Mobile Hero Section */}
+            <div className="gradient-card p-6 text-center">
+              <div className="space-y-6">
+                <div className="flex flex-col items-center gap-3">
+                  <img
+                    src={LOGO_URL}
+                    alt="IDA Logo"
+                    className="w-12 h-12 object-contain drop-shadow-lg"
+                  />
+                  <div>
+                    <h1 className="text-2xl font-bold gradient-text">IDA Token Sale</h1>
+                    <p className="text-gray-600 text-sm font-medium">
+                      Web3 services marketplace
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="space-y-8">
-            <div className="text-center">
-              <h2 className="text-4xl font-bold gradient-text mb-6">Token Sale Phases</h2>
-              <p className="text-gray-600 text-base md:text-xl max-w-4xl mx-auto leading-relaxed">
-                Our token sale is structured in two phases to provide early supporters with better pricing 
-                while ensuring broad public access to IDA tokens.
-              </p>
+                {/* Mobile Stats Overview */}
+                {!isLoading && (
+                  <MobileStatsOverview 
+                    phase1Sold={phase1Sold} 
+                    phase2Sold={phase2Sold} 
+                    egldPriceUsd={egldPriceUsd} 
+                  />
+                )}
+              </div>
             </div>
 
             {isLoading ? (
-              <div className="flex justify-center py-16">
+              <div className="flex justify-center py-12">
                 <div className="space-y-4 text-center">
-                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
-                  <p className="text-gray-700 text-lg">Loading sale data from smart contract...</p>
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
+                  <p className="text-gray-700 text-base">Loading sale data...</p>
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-                <PhaseCard
-                  phase={1}
-                  title="Early Bird Phase"
-                  supply={PHASE_1_SUPPLY}
-                  price={PHASE_1_PRICE_EGLD}
-                  sold={Math.min(totalBoughtFromContract, PHASE_1_SUPPLY)}
-                  isActive={isPhase1Active}
-                  isCompleted={isPhase1Completed}
-                  endDate={PHASE_1_END}
-                  isMobile={isMobile}
-                />
-                
-                <PhaseCard
-                  phase={2}
-                  title="Public Sale Phase"
-                  supply={PHASE_2_SUPPLY}
-                  price={PHASE_2_PRICE_EGLD}
-                  sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
-                  isActive={isPhase2Active}
-                  isCompleted={isPhase2Completed}
-                  endDate={PHASE_2_END}
-                  isMobile={isMobile}
-                />
-              </div>
-            )}
+              <>
+                {/* Mobile Phase Cards */}
+                <div className="space-y-4">
+                  <MobilePhaseCard
+                    phase={1}
+                    title="Early Bird"
+                    supply={PHASE_1_SUPPLY}
+                    price={PHASE_1_PRICE_EGLD}
+                    sold={Math.min(totalBoughtFromContract, PHASE_1_SUPPLY)}
+                    isActive={isPhase1Active}
+                    isCompleted={isPhase1Completed}
+                    endDate={PHASE_1_END}
+                  />
+                  
+                  <MobilePhaseCard
+                    phase={2}
+                    title="Public Sale"
+                    supply={PHASE_2_SUPPLY}
+                    price={PHASE_2_PRICE_EGLD}
+                    sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
+                    isActive={isPhase2Active}
+                    isCompleted={isPhase2Completed}
+                    endDate={PHASE_2_END}
+                  />
+                </div>
 
-            {!isLoading && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
-                <BuyForm
+                {/* Mobile Buy Form */}
+                <MobileBuyForm
                   currentPhase={currentPhase}
                   currentPrice={currentPrice}
                   availableTokens={tokensAvailableInContract}
@@ -852,105 +1130,441 @@ export const TokenSale: React.FC = () => {
                   handleBuy={handleBuy}
                   transactionHash={transactionHash}
                   isPurchaseSuccessful={isPurchaseSuccessful}
-                  isMobile={isMobile}
                   isPhaseActive={isCurrentPhaseActive}
                 />
 
+                {/* Mobile Transaction Status */}
+                {transactionHash && (
+                  <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 p-6">
+                    <div className="text-center space-y-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                        <BarChart3 size={20} className="text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white">Transaction Status</h3>
+                      <div className="space-y-3">
+                        <p className="text-gray-300 text-sm">Transaction Hash:</p>
+                        <p className="text-indigo-400 font-mono text-xs break-all">
+                          {shortenHash(transactionHash)}
+                        </p>
+                        <a
+                          href={`https://explorer.multiversx.com/transactions/${transactionHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors text-sm"
+                        >
+                          View on Explorer <ArrowRight size={14} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Mobile bottom padding */}
+            <div className="h-20"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop Layout
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+      <div className="container mx-auto max-w-7xl px-6 py-8">
+        <div className="space-y-12">
+          {/* Desktop Hero Section */}
+          <div className="gradient-card p-12 text-center">
+            <div className="space-y-10">
+              <div className="flex items-center justify-center gap-6">
+                <img
+                  src={LOGO_URL}
+                  alt="IDA Logo"
+                  className="w-24 h-24 object-contain drop-shadow-lg"
+                />
+                <div>
+                  <h1 className="text-6xl font-bold gradient-text">IDA Token Sale</h1>
+                  <p className="text-gray-600 text-xl font-medium mt-2">
+                    Join the future of Web3 services marketplace
+                  </p>
+                </div>
+              </div>
+
+              {/* Desktop Stats Overview */}
+              {!isLoading && (
+                <DesktopStatsOverview 
+                  phase1Sold={phase1Sold} 
+                  phase2Sold={phase2Sold} 
+                  egldPriceUsd={egldPriceUsd}
+                  currentPhase={currentPhase}
+                  isPhase1Active={isPhase1Active}
+                  isPhase2Active={isPhase2Active}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Content */}
+          <div className="space-y-12">
+            <div className="text-center">
+              <h2 className="text-5xl font-bold gradient-text mb-8">Token Sale Phases</h2>
+              <p className="text-gray-600 text-xl max-w-4xl mx-auto leading-relaxed">
+                Our token sale is structured in two phases to provide early supporters with better pricing 
+                while ensuring broad public access to IDA tokens.
+              </p>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="space-y-6 text-center">
+                  <div className="animate-spin rounded-full h-20 w-20 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
+                  <p className="text-gray-700 text-xl">Loading sale data from smart contract...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                {/* Desktop Phase Cards */}
                 <div className="space-y-8">
-                  {/* Transaction Status */}
+                  <DesktopPhaseCard
+                    phase={1}
+                    title="Early Bird Phase"
+                    supply={PHASE_1_SUPPLY}
+                    price={PHASE_1_PRICE_EGLD}
+                    sold={Math.min(totalBoughtFromContract, PHASE_1_SUPPLY)}
+                    isActive={isPhase1Active}
+                    isCompleted={isPhase1Completed}
+                    endDate={PHASE_1_END}
+                  />
+                  
+                  <DesktopPhaseCard
+                    phase={2}
+                    title="Public Sale Phase"
+                    supply={PHASE_2_SUPPLY}
+                    price={PHASE_2_PRICE_EGLD}
+                    sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
+                    isActive={isPhase2Active}
+                    isCompleted={isPhase2Completed}
+                    endDate={PHASE_2_END}
+                  />
+                </div>
+
+                {/* Desktop Right Column */}
+                <div className="space-y-8">
+                  {/* Desktop Buy Form */}
+                  <DesktopBuyForm
+                    currentPhase={currentPhase}
+                    currentPrice={currentPrice}
+                    availableTokens={tokensAvailableInContract}
+                    buyAmount={buyAmount}
+                    setBuyAmount={setBuyAmount}
+                    egldCost={egldCost}
+                    pending={pending}
+                    isLoggedIn={isAuthenticated}
+                    userAddress={address}
+                    handleBuy={handleBuy}
+                    transactionHash={transactionHash}
+                    isPurchaseSuccessful={isPurchaseSuccessful}
+                    isPhaseActive={isCurrentPhaseActive}
+                  />
+
+                  {/* Desktop Transaction Status */}
                   {transactionHash && (
-                    <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
-                      <div className="text-center space-y-4">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
-                          <BarChart3 size={isMobile ? 20 : 24} className="text-white" />
+                    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                      <div className="text-center space-y-6">
+                        <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                          <BarChart3 size={24} className="text-white" />
                         </div>
-                        <h3 className="text-lg md:text-2xl font-bold text-white">Transaction Status</h3>
-                        <div className="space-y-3">
-                          <p className="text-gray-300">
-                            Transaction Hash:
-                          </p>
-                          <p className="text-indigo-400 font-mono text-xs md:text-sm break-all">
+                        <h3 className="text-2xl font-bold text-white">Transaction Status</h3>
+                        <div className="space-y-4">
+                          <p className="text-gray-300 text-lg">Transaction Hash:</p>
+                          <p className="text-indigo-400 font-mono text-sm break-all">
                             {shortenHash(transactionHash)}
                           </p>
                           <a
                             href={`https://explorer.multiversx.com/transactions/${transactionHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors"
+                            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors text-lg"
                           >
-                            View on Explorer <ArrowRight size={16} />
+                            View on Explorer <ArrowRight size={18} />
                           </a>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Token Information */}
-                  <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
+                  {/* Desktop Token Information */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
                     <div className="space-y-6">
                       <div className="text-center">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                          <Award size={isMobile ? 20 : 24} className="text-white" />
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Award size={24} className="text-white" />
                         </div>
-                        <h3 className="text-lg md:text-2xl font-bold text-white">Token Information</h3>
+                        <h3 className="text-2xl font-bold text-white">Token Information</h3>
                       </div>
                       
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium text-sm md:text-base">Token Symbol:</span>
-                          <span className="text-white font-bold text-sm md:text-base">IDA</span>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Token Symbol:</span>
+                          <span className="text-white font-bold text-base">IDA</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium text-sm md:text-base">Token ID:</span>
-                          <span className="text-white font-mono text-xs md:text-sm">{TOKEN_ID}</span>
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Token ID:</span>
+                          <span className="text-white font-mono text-sm">{TOKEN_ID}</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium text-sm md:text-base">Total Supply:</span>
-                          <span className="text-white font-bold text-sm md:text-base">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Total Supply:</span>
+                          <span className="text-white font-bold text-base">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
                         </div>
                         
-                        <div className="flex justify-between items-center p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <span className="text-gray-300 font-medium text-sm md:text-base">Contract:</span>
-                          <span className="text-white font-mono text-xs md:text-sm">{shortenHash(saleContractAddress)}</span>
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Contract:</span>
+                          <span className="text-white font-mono text-sm">{shortenHash(saleContractAddress)}</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Key Features */}
-                  <div className="bg-gray-900 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-700 p-4 md:p-8">
+                  {/* Desktop Key Features */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
                     <div className="space-y-6">
                       <div className="text-center">
-                        <div className="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                          <Zap size={isMobile ? 20 : 24} className="text-white" />
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Zap size={24} className="text-white" />
                         </div>
-                        <h3 className="text-lg md:text-2xl font-bold text-white">Key Features</h3>
+                        <h3 className="text-2xl font-bold text-white">Key Features</h3>
                       </div>
                       
-                      <div className="space-y-3 md:space-y-4">
-                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <Shield size={isMobile ? 16 : 20} className="text-indigo-400 mt-1 flex-shrink-0" />
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Shield size={20} className="text-indigo-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold text-sm md:text-base">Secure Smart Contract</h4>
-                            <p className="text-gray-300 text-xs md:text-sm">Built on MultiversX blockchain with audited smart contracts</p>
+                            <h4 className="text-white font-semibold text-base">Secure Smart Contract</h4>
+                            <p className="text-gray-300 text-sm">Built on MultiversX blockchain with audited smart contracts</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <DollarSign size={isMobile ? 16 : 20} className="text-green-400 mt-1 flex-shrink-0" />
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <DollarSign size={20} className="text-green-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold text-sm md:text-base">Fair Pricing</h4>
-                            <p className="text-gray-300 text-xs md:text-sm">Transparent pricing with early bird discounts</p>
+                            <h4 className="text-white font-semibold text-base">Fair Pricing</h4>
+                            <p className="text-gray-300 text-sm">Transparent pricing with early bird discounts</p>
                           </div>
                         </div>
                         
-                        <div className="flex items-start gap-3 md:gap-4 p-3 md:p-4 bg-gray-800 rounded-lg md:rounded-xl border border-gray-600">
-                          <Users size={isMobile ? 16 : 20} className="text-blue-400 mt-1 flex-shrink-0" />
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Users size={20} className="text-blue-400 mt-1 flex-shrink-0" />
                           <div>
-                            <h4 className="text-white font-semibold text-sm md:text-base">Community Driven</h4>
-                            <p className="text-gray-300 text-xs md:text-sm">Token holders participate in governance decisions</p>
+                            <h4 className="text-white font-semibold text-base">Community Driven</h4>
+                            <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop Layout continues here...
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+      <div className="container mx-auto max-w-7xl px-6 py-8">
+        <div className="space-y-12">
+          {/* Desktop Hero Section */}
+          <div className="gradient-card p-12 text-center">
+            <div className="space-y-10">
+              <div className="flex items-center justify-center gap-8">
+                <img
+                  src={LOGO_URL}
+                  alt="IDA Logo"
+                  className="w-28 h-28 object-contain drop-shadow-lg"
+                />
+                <div>
+                  <h1 className="text-7xl font-bold gradient-text">IDA Token Sale</h1>
+                  <p className="text-gray-600 text-2xl font-medium mt-4">
+                    Join the future of Web3 services marketplace
+                  </p>
+                </div>
+              </div>
+
+              {/* Desktop Stats Overview */}
+              {!isLoading && (
+                <DesktopStatsOverview 
+                  phase1Sold={phase1Sold} 
+                  phase2Sold={phase2Sold} 
+                  egldPriceUsd={egldPriceUsd}
+                  currentPhase={currentPhase}
+                  isPhase1Active={isPhase1Active}
+                  isPhase2Active={isPhase2Active}
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Content */}
+          <div className="space-y-12">
+            <div className="text-center">
+              <h2 className="text-5xl font-bold gradient-text mb-8">Token Sale Phases</h2>
+              <p className="text-gray-600 text-xl max-w-5xl mx-auto leading-relaxed">
+                Our token sale is structured in two phases to provide early supporters with better pricing 
+                while ensuring broad public access to IDA tokens.
+              </p>
+            </div>
+
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="space-y-6 text-center">
+                  <div className="animate-spin rounded-full h-20 w-20 border-4 border-indigo-500 border-t-transparent mx-auto"></div>
+                  <p className="text-gray-700 text-xl">Loading sale data from smart contract...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+                {/* Desktop Phase Cards - 2 columns */}
+                <div className="xl:col-span-2 space-y-10">
+                  <DesktopPhaseCard
+                    phase={1}
+                    title="Early Bird Phase"
+                    supply={PHASE_1_SUPPLY}
+                    price={PHASE_1_PRICE_EGLD}
+                    sold={Math.min(totalBoughtFromContract, PHASE_1_SUPPLY)}
+                    isActive={isPhase1Active}
+                    isCompleted={isPhase1Completed}
+                    endDate={PHASE_1_END}
+                  />
+                  
+                  <DesktopPhaseCard
+                    phase={2}
+                    title="Public Sale Phase"
+                    supply={PHASE_2_SUPPLY}
+                    price={PHASE_2_PRICE_EGLD}
+                    sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
+                    isActive={isPhase2Active}
+                    isCompleted={isPhase2Completed}
+                    endDate={PHASE_2_END}
+                  />
+                </div>
+
+                {/* Desktop Right Column - 1 column */}
+                <div className="space-y-8">
+                  {/* Desktop Buy Form */}
+                  <DesktopBuyForm
+                    currentPhase={currentPhase}
+                    currentPrice={currentPrice}
+                    availableTokens={tokensAvailableInContract}
+                    buyAmount={buyAmount}
+                    setBuyAmount={setBuyAmount}
+                    egldCost={egldCost}
+                    pending={pending}
+                    isLoggedIn={isAuthenticated}
+                    userAddress={address}
+                    handleBuy={handleBuy}
+                    transactionHash={transactionHash}
+                    isPurchaseSuccessful={isPurchaseSuccessful}
+                    isPhaseActive={isCurrentPhaseActive}
+                  />
+
+                  {/* Desktop Transaction Status */}
+                  {transactionHash && (
+                    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                      <div className="text-center space-y-6">
+                        <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                          <BarChart3 size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Transaction Status</h3>
+                        <div className="space-y-4">
+                          <p className="text-gray-300 text-lg">Transaction Hash:</p>
+                          <p className="text-indigo-400 font-mono text-sm break-all">
+                            {shortenHash(transactionHash)}
+                          </p>
+                          <a
+                            href={`https://explorer.multiversx.com/transactions/${transactionHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors text-lg"
+                          >
+                            View on Explorer <ArrowRight size={18} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Desktop Token Information */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Award size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Token Information</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Token Symbol:</span>
+                          <span className="text-white font-bold text-base">IDA</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Token ID:</span>
+                          <span className="text-white font-mono text-sm">{TOKEN_ID}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Total Supply:</span>
+                          <span className="text-white font-bold text-base">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium text-base">Contract:</span>
+                          <span className="text-white font-mono text-sm">{shortenHash(saleContractAddress)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Desktop Key Features */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Zap size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Key Features</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Shield size={20} className="text-indigo-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold text-base">Secure Smart Contract</h4>
+                            <p className="text-gray-300 text-sm">Built on MultiversX blockchain with audited smart contracts</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <DollarSign size={20} className="text-green-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold text-base">Fair Pricing</h4>
+                            <p className="text-gray-300 text-sm">Transparent pricing with early bird discounts</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Users size={20} className="text-blue-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold text-base">Community Driven</h4>
+                            <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
                           </div>
                         </div>
                       </div>
