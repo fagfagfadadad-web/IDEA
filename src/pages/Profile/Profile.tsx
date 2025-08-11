@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play } from 'lucide-react';
-import { Button, Card, EmailNotificationsToggle, ReviewsList } from 'components';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3 } from 'lucide-react';
+import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
 import { useAuth } from '../../context/AuthContext';
@@ -209,6 +209,14 @@ export const Profile = () => {
   };
   
   const unreadCount = notifications?.filter(n => !n.read).length || 0;
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: <User size={16} /> },
+    { id: 'gigs', label: 'My Gigs', icon: <Briefcase size={16} /> },
+    { id: 'reviews', label: 'Reviews', icon: <Star size={16} /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={16} /> },
+    { id: 'settings', label: 'Settings', icon: <Settings size={16} /> }
+  ];
 
   if (!isLoggedIn && isOwnProfile) {
     return (
@@ -711,6 +719,27 @@ export const Profile = () => {
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Dashboard Tab */}
+              {activeTab === 'dashboard' && (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Task Manager */}
+                    <TaskManager />
+                    
+                    {/* Calendar Widget */}
+                    <CalendarWidget />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Financial Overview */}
+                    <FinancialOverview />
+                    
+                    {/* External Tools */}
+                    <ExternalToolsWidget />
+                  </div>
                 </div>
               )}
 
