@@ -1036,6 +1036,16 @@
   resolved "https://registry.npmjs.org/@multiversx/sdk-native-auth-client/-/sdk-native-auth-client-2.0.1.tgz"
   integrity sha512-J4RxpsfNnWBKOPz0vvhnReSf8V6mci11Pe3NT2awhrpBhtAvkSBUGIzgoGVf/eumrhyReRmKyMjo+u4UhGokbg==
 
+"@multiversx/sdk-network-providers@^3.0.0":
+  version "2.9.3"
+  resolved "https://registry.yarnpkg.com/@multiversx/sdk-network-providers/-/sdk-network-providers-2.9.3.tgz#453f3ab752bb36d5b9bda930ee8295c2bb148a04"
+  integrity sha512-oBrXbNaaHQymd8EqUQPW0bpZu9JaTz6TOaV8MzNCzUo0Xe3a2QxaQ7f0I5OYzD7k0TxPqLv4hQhfIsh3+ifmPw==
+  dependencies:
+    bech32 "1.1.4"
+    bignumber.js "9.0.1"
+    buffer "6.0.3"
+    json-bigint "1.0.0"
+
 "@multiversx/sdk-transaction-decoder@1.0.2":
   version "1.0.2"
   resolved "https://registry.npmjs.org/@multiversx/sdk-transaction-decoder/-/sdk-transaction-decoder-1.0.2.tgz"
@@ -3084,6 +3094,11 @@ big-integer@^1.6.17:
   version "1.6.52"
   resolved "https://registry.npmjs.org/big-integer/-/big-integer-1.6.52.tgz"
   integrity sha512-QxD8cf2eVqJOOz63z6JIN9BzvVs/dlySa5HGSBH5xtR8dPteIRQnBxxKqkNTiT6jbDTF6jAfrd4oMcND9RGbQg==
+
+bignumber.js@9.0.1:
+  version "9.0.1"
+  resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-9.0.1.tgz#8d7ba124c882bfd8e43260c67475518d0689e4e5"
+  integrity sha512-IdZR9mh6ahOBv/hYGiXyVuyCetmGJhtYkqLBpTStdhEGjegpPlUawydyaF3pbIOFynJTpllEs+NP+CS9jKFLjA==
 
 bignumber.js@^9.0.0:
   version "9.3.1"
