@@ -430,32 +430,6 @@ const BuyForm: React.FC<{
           <p className="text-gray-600 text-sm text-center">
             Connect your MultiversX wallet to participate in the token sale
           </p>
-        )}
-
-        {/* Transaction Status */}
-        {pending && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-              <p className="text-gray-800 text-sm">
-                {transactionHash 
-                  ? `Processing: ${shortenHash(transactionHash, 8)}` 
-                  : 'Preparing transaction...'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {isPurchaseSuccessful && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <ShieldCheck size={20} className="text-green-600" />
-              <p className="text-green-800 font-medium text-sm">
-                Purchase successful! Tokens will appear in your wallet shortly.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
