@@ -1112,6 +1112,20 @@ export const Profile = () => {
               </div>
             )}
 
+            {/* Dashboard Tab */}
+            {activeTab === 'dashboard' && (
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <FinancialOverview />
+                  <TaskManager />
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <CalendarWidget />
+                  <ExternalToolsWidget />
+                </div>
+              </div>
+            )}
+
             {/* Statistics for Public Profiles */}
             {!isOwnProfile && (
               <div className="gradient-card p-6">
