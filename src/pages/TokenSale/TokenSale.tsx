@@ -993,12 +993,5 @@ export const TokenSale: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
         </div>
-        
-        {/* Add bottom padding for mobile navigation */}
-        <div className="h-20 md:h-0"></div>
-      </div>
-    </div>
-  );
-};
+          </div>
