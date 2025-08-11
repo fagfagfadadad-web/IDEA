@@ -15,3 +15,4 @@ export * from './OrderDetails';
 export * from './Profile';
 export * from './ProposalDetail';
 export * from './Search';
+export * from './TokenSale';

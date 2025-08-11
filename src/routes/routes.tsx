@@ -13,6 +13,7 @@ import {
   MyRequests, 
   OrderDetails, 
   ProposalDetail, 
+  TokenSale,
   Unlock
 } from 'pages';
 import { RouteType } from 'types';
@@ -126,5 +127,10 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.search,
     title: 'Search',
     component: Search
+  },
+  {
+    path: RouteNamesEnum.tokenSale,
+    title: 'Token Sale',
+    component: TokenSale
   }
 ];

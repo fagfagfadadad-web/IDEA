@@ -16,5 +16,6 @@ export enum RouteNamesEnum {
   orderDetails = '/orders/:id',
   admin = '/admin',
   documentation = '/documentation',
-  search = '/search'
+  search = '/search',
+  tokenSale = '/token-sale'
 }
