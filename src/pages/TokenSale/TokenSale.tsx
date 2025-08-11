@@ -837,7 +837,7 @@ export const TokenSale: React.FC = () => {
               <BuyForm
                 currentPhase={currentPhase}
                 currentPrice={currentPrice}
-                availableTokens={tokensAvailableInContract}
+                availableTokens={0} // No tokens available since sale is complete
                 buyAmount={buyAmount}
                 setBuyAmount={setBuyAmount}
                 egldCost={egldCost}
@@ -848,7 +848,7 @@ export const TokenSale: React.FC = () => {
                 transactionHash={transactionHash}
                 isPurchaseSuccessful={isPurchaseSuccessful}
                 isMobile={isMobile}
-                isPhaseActive={isCurrentPhaseActive}
+                isPhaseActive={false} // No phase is active since sale is complete
               />
             </div>
           )}
