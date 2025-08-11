@@ -187,7 +187,7 @@ const PhaseCard: React.FC<{
               <span className="text-2xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-white`}>
+              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-grey`}>
                 {title}
               </h3>
               <p className="text-indigo-200 text-base font-medium">
