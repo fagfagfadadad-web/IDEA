@@ -325,7 +325,7 @@ const BuyForm: React.FC<{
               Buy IDA Tokens
             </h3>
             <p className="text-purple-100 text-base">
-              Phase {phase} Token Sale
+              Phase {currentPhase} Token Sale
             </p>
           </div>
         </div>
@@ -917,7 +917,6 @@ export const TokenSale: React.FC = () => {
                   <h4 className="text-xl font-bold text-white mb-3">
                     How do I participate in the token sale?
                   </h4>
-                  <p className="text-gray-200 text-base leading-relaxed">
                   <p className="text-gray-300 text-base leading-relaxed">
                     Connect your MultiversX wallet, select the amount of IDA tokens you want to purchase, 
                     and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA).
@@ -928,7 +927,6 @@ export const TokenSale: React.FC = () => {
                   <h4 className="text-xl font-bold text-white mb-3">
                     When will I receive my tokens?
                   </h4>
-                  <p className="text-gray-200 text-base leading-relaxed">
                   <p className="text-gray-300 text-base leading-relaxed">
                     IDA tokens are transferred to your wallet immediately after your purchase 
                     transaction is confirmed on the MultiversX blockchain.
@@ -941,7 +939,6 @@ export const TokenSale: React.FC = () => {
                   <h4 className="text-xl font-bold text-white mb-3">
                     What's the difference between phases?
                   </h4>
-                  <p className="text-gray-200 text-base leading-relaxed">
                   <p className="text-gray-300 text-base leading-relaxed">
                     Phase 1 offers lower pricing (0.0002 EGLD per IDA) with 1M tokens. 
                     Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 4M tokens.
@@ -952,7 +949,6 @@ export const TokenSale: React.FC = () => {
                   <h4 className="text-xl font-bold text-white mb-3">
                     Can I trade my IDA tokens?
                   </h4>
-                  <p className="text-gray-200 text-base leading-relaxed">
                   <p className="text-gray-300 text-base leading-relaxed">
                     Yes, IDA tokens can be traded on supported MultiversX DEXes, 
                     transferred to other users, or used within the IDEA platform.
