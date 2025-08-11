@@ -137,7 +137,7 @@ export const ExternalToolsWidget: React.FC = () => {
               className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 cursor-pointer group"
             >
               <div className="flex flex-col items-center text-center space-y-3">
-                <div className={`w-12 h-12 ${tool.color} rounded-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-200`}>
+                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200 p-2">
                   {tool.icon}
                 </div>
                 <div>
@@ -195,7 +195,7 @@ export const ExternalToolsWidget: React.FC = () => {
                   onClick={() => setShowIframe(false)}
                   className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <X size={20} />
+                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200 p-2">
                 </button>
               </div>
             </div>
