@@ -792,54 +792,54 @@ export const TokenSale: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <PhaseCard
-                    phase={1}
-                    title="Public Sale Phase 1"
-                    supply={PHASE_1_SUPPLY}
-                    price={PHASE_1_PRICE_EGLD}
-                    sold={phase1Sold}
-                    isActive={isPhase1Active}
-                    isCompleted={isPhase1Completed}
-                    endDate={PHASE_1_END}
-                    isMobile={isMobile}
-                  />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <PhaseCard
+                  phase={1}
+                  title="Public Sale Phase 1"
+                  supply={PHASE_1_SUPPLY}
+                  price={PHASE_1_PRICE_EGLD}
+                  sold={phase1Sold}
+                  isActive={isPhase1Active}
+                  isCompleted={isPhase1Completed}
+                  endDate={PHASE_1_END}
+                  isMobile={isMobile}
+                />
 
-                  <PhaseCard
-                    phase={2}
-                    title="Public Sale Phase 2"
-                    supply={PHASE_2_SUPPLY}
-                    price={PHASE_2_PRICE_EGLD}
-                    sold={phase2Sold}
-                    isActive={isPhase2Active}
-                    isCompleted={isPhase2Completed}
-                    endDate={PHASE_2_END}
-                    isMobile={isMobile}
-                  />
-                </div>
-
-                <div className="max-w-2xl mx-auto">
-                  <BuyForm
-                    currentPhase={currentPhase}
-                    currentPrice={currentPrice}
-                    availableTokens={tokensAvailableInContract}
-                    buyAmount={buyAmount}
-                    setBuyAmount={setBuyAmount}
-                    egldCost={egldCost}
-                    pending={pending}
-                    isLoggedIn={isAuthenticated}
-                    userAddress={address}
-                    handleBuy={handleBuy}
-                    transactionHash={transactionHash}
-                    isPurchaseSuccessful={isPurchaseSuccessful}
-                    isMobile={isMobile}
-                    isPhaseActive={isCurrentPhaseActive}
-                  />
-                </div>
-              </>
+                <PhaseCard
+                  phase={2}
+                  title="Public Sale Phase 2"
+                  supply={PHASE_2_SUPPLY}
+                  price={PHASE_2_PRICE_EGLD}
+                  sold={phase2Sold}
+                  isActive={isPhase2Active}
+                  isCompleted={isPhase2Completed}
+                  endDate={PHASE_2_END}
+                  isMobile={isMobile}
+                />
+              </div>
             )}
           </div>
+
+          {!isLoading && (
+            <div className="max-w-2xl mx-auto">
+              <BuyForm
+                currentPhase={currentPhase}
+                currentPrice={currentPrice}
+                availableTokens={tokensAvailableInContract}
+                buyAmount={buyAmount}
+                setBuyAmount={setBuyAmount}
+                egldCost={egldCost}
+                pending={pending}
+                isLoggedIn={isAuthenticated}
+                userAddress={address}
+                handleBuy={handleBuy}
+                transactionHash={transactionHash}
+                isPurchaseSuccessful={isPurchaseSuccessful}
+                isMobile={isMobile}
+                isPhaseActive={isCurrentPhaseActive}
+              />
+            </div>
+          )}
 
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
             <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
