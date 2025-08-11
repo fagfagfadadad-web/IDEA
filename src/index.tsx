@@ -7,6 +7,14 @@ if (typeof window !== 'undefined' && typeof (window as any).global === 'undefine
   (window as any).global = window;
 }
 
+// Fix for BigInt serialization error
+// This must be executed BEFORE any other imports that might use BigInt
+if (typeof BigInt !== 'undefined' && !BigInt.prototype.toJSON) {
+  BigInt.prototype.toJSON = function() {
+    return this.toString();
+  };
+}
+
 import { initApp } from 'lib';
 import { App } from './App';
 import { config } from './initConfig';
