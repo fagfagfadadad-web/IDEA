@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, Plus, Clock, MapPin, X, Edit, Trash2 } from 'lucide-react';
 import { Button } from 'components';
-import { useCalendarEvents, useCreateEvent, useUpdateEvent, useDeleteEvent, EventInput } from '../../hooks/useCalendarEvents';
+import { useCalendarEvents, useCreateEvent, useUpdateEvent, useDeleteEvent, EventInput, CalendarEvent } from '../../hooks/useCalendarEvents';
 import { useOrders } from '../../hooks/useOrders';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
