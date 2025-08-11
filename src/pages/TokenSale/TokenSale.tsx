@@ -728,7 +728,7 @@ export const TokenSale: React.FC = () => {
                   <h1 className="text-5xl md:text-6xl font-bold gradient-text">
                     IDA Token Sale
                   </h1>
-                  <p className="text-gray-300 text-base font-medium">
+                  <p className="text-gray-600 text-base font-medium">
                     Join the future of Web3 services marketplace
                   </p>
                 </div>
