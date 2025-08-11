@@ -15,8 +15,8 @@ const networkProvider = new ProxyNetworkProvider('https://gateway.multiversx.com
 const TOKEN_ID = 'IDA-f9bc1d';
 const PHASE_1_SUPPLY = 1000000; // 1M IDA pre fázu 1
 const PHASE_1_PRICE_EGLD = 0.0002; // 0.0002 EGLD za IDA (5000 IDA za 1 EGLD)
-const PHASE_1_END = '2025-08-15T23:59:59+02:00';
-const PHASE_2_SUPPLY = 3780000; // 3.78M IDA pre fázu 2
+const PHASE_1_END = '2025-08-15T23:59:59+02:00'; // Example end date, adjust as needed
+const PHASE_2_SUPPLY = 4000000; // Adjusted to 4M IDA for Phase 2, making total supply 5M (1M + 4M)
 const PHASE_2_PRICE_EGLD = 0.0006; // 0.0006 EGLD za IDA
 const PHASE_2_END = '2025-08-30T23:59:59+02:00';
 const MINIMUM_PURCHASE_EGLD = 1; // Fixná minimálna kúpna suma
@@ -555,6 +555,10 @@ export const TokenSale: React.FC = () => {
           const totalBoughtTokens = Number(BigInt('0x' + totalBoughtWei)) / 1e18;
           console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
           setTotalBoughtFromContract(totalBoughtTokens);
+          // For the requested scenario where 5,000,000 IDA tokens have been sold,
+          // the smart contract's 'getTotalBoughtAmountOfEsdt' function should return 5,000,000.
+          // If the contract does not reflect this, the progress bar will show actual contract data.
+          // setTotalBoughtFromContract(5000000); // Uncomment for simulation if contract data is not live
         } else {
           console.log('No valid total bought amount data returned from contract');
           setTotalBoughtFromContract(0);
@@ -576,6 +580,9 @@ export const TokenSale: React.FC = () => {
           const balanceTokens = Number(balanceWei) / 1e18;
           console.log('Available IDA tokens in contract:', balanceTokens);
           setTokensAvailableInContract(balanceTokens);
+          // For the requested scenario where 5,000,000 IDA tokens have been sold,
+          // the smart contract's IDA token balance should be 0.
+          // setTokensAvailableInContract(0); // Uncomment for simulation if contract data is not live
         } else {
           console.log('No token balance data returned from API');
           setTokensAvailableInContract(0);
