@@ -14,5 +14,6 @@ export * from './MyRequests';
 export * from './OrderDetails';
 export * from './Profile';
 export * from './ProposalDetail';
+export * from './RewardsHub';
 export * from './Search';
 export * from './TokenSale';

@@ -17,3 +17,4 @@ export * from './useUsers';
 export * from './useFileUpload';
 export * from './useUserTasks';
 export * from './useCalendarEvents';
+export * from './useRewards';

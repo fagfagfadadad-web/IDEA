@@ -13,6 +13,7 @@ import {
   MyRequests, 
   OrderDetails, 
   ProposalDetail, 
+  RewardsHub,
   TokenSale,
   Unlock
 } from 'pages';
@@ -132,5 +133,11 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.tokenSale,
     title: 'Token Sale',
     component: TokenSale
+  },
+  {
+    path: RouteNamesEnum.rewardsHub,
+    title: 'Rewards Hub',
+    component: RewardsHub,
+    authenticatedRoute: true
   }
 ];
