@@ -239,9 +239,12 @@ const PhaseCard: React.FC<{
           <div className="relative">
             <div className="w-full bg-gray-800 rounded-full h-8 overflow-hidden shadow-inner border-2 border-gray-600">
               <div 
+                className="h-full transition-all duration-500 ease-out relative"
+                style={{ 
+                  width: `${Math.min(progress, 100)}%`,
                   background: 'linear-gradient(to right, #6366f1, #ec4899)',
                   boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
-                style={{ width: `${Math.min(progress, 100)}%` }}
+                }}
               >
                 {/* Progress bar glow effect */}
                 <div 
