@@ -202,8 +202,8 @@ const MobilePhaseCard: React.FC<{
               <span className="text-xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">{title}</h3>
-              <p className="text-grey text-sm font-medium">Phase {phase} Sale</p>
+              <h3 className="text-lg font-bold text-grey">{title}</h3>
+              <p className="text-gray-300 text-sm font-medium">Phase {phase} Sale</p>
             </div>
           </div>
         </div>
