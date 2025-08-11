@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { User, Settings, Star, Calendar, DollarSign, Briefcase, Edit, Plus, Clock, CheckCircle, Eye, Palette, Image, Trello, FileText, ArrowLeft, Grid3X3 } from 'lucide-react';
 import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3 } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
@@ -23,6 +23,7 @@ const calculateEarnings = (orders: any[]) => {
   const idaEarnings = completedOrders
     .filter(order => order.payment_token !== 'EGLD')
     .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
+  const [showWorkspace, setShowWorkspace] = useState(false);
     
   return {
     egld: egldEarnings,
@@ -95,6 +96,12 @@ export const Profile = () => {
   const updateProfile = useUpdateProfile();
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
+    const workspace = searchParams.get('workspace');
+    
+    if (workspace === 'true') {
+      setShowWorkspace(true);
+    }
+    
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { claimPayment } = usePayments();
 
@@ -119,6 +126,19 @@ export const Profile = () => {
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleWorkspaceToggle = () => {
+    const newShowWorkspace = !showWorkspace;
+    setShowWorkspace(newShowWorkspace);
+    
+    // Update URL to reflect workspace state
+    const params = new URLSearchParams(searchParams);
+    if (newShowWorkspace) {
+      params.set('workspace', 'true');
+    } else {
+      params.delete('workspace');
+    }
+    navigate(`/profile?${params.toString()}`, { replace: true });
+  };
   const handleSaveProfile = async () => {
     try {
       await updateProfile.mutateAsync({
@@ -271,6 +291,41 @@ export const Profile = () => {
     );
   }
 
+  // If showing workspace, render workspace view
+  if (showWorkspace && isOwnProfile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-6 py-8">
+          <div className="space-y-8">
+            {/* Workspace Header */}
+            <div className="gradient-card p-8">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">My Workspace</h1>
+                  <p className="text-gray-600">Manage your projects, tasks, and earnings</p>
+                </div>
+                <Button
+                  onClick={handleWorkspaceToggle}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <ArrowLeft size={16} />
+                  Back to Profile
+                </Button>
+              </div>
+            </div>
+
+            {/* Workspace Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <FinancialOverview />
+              <CalendarWidget />
+              <TaskManager />
+              <ExternalToolsWidget />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
       <div className="container mx-auto max-w-7xl px-6 py-8">
@@ -322,6 +377,15 @@ export const Profile = () => {
                     </div>
                   </div>
                   
+                  {isOwnProfile && (
+                    <Button
+                      onClick={handleWorkspaceToggle}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    >
+                      <Grid3X3 size={16} />
+                      Open Workspace
+                    </Button>
+                  )}
                   {isOwnProfile && (
                     <div className="flex gap-3">
                       <Button
