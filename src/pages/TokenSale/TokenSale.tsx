@@ -9,11 +9,11 @@ import { signAndSendTransactions } from '../../helpers';
 import { ProxyNetworkProvider } from '@multiversx/sdk-network-providers';
 import axios from 'axios';
 
-// Configuration
-const saleContractAddress = 'erd1qqqqqqqqqqqqqpgqfhnxunkpfeghxn72a8fq73dst50xgjrjpmuq4f7t39'; // Replace with your actual contract address
+// Configuration - Updated to use the correct contract address
+const saleContractAddress = 'erd1qqqqqqqqqqqqqpgqfhnxunkpfeghxn72a8fq73dst50xgjrjpmuq4f7t39';
 const networkProvider = new ProxyNetworkProvider('https://gateway.multiversx.com');
 
-// Phase 1 - Public Sale Phase 1 (Initial Offering)
+// Phase 1 - Public Sale Phase 1 (starts at 0 as requested)
 const PHASE_1_SUPPLY = 1000000; // 1 million IDA tokens for Phase 1
 const PHASE_1_PRICE_EGLD = 0.0002; // Public Sale Phase 1 price
 const PHASE_1_END = '2025-08-15T23:59:59+02:00';
@@ -284,7 +284,7 @@ const PhaseCard: React.FC<{
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span className="text-gray-700 text-sm">50% discount from Phase 2</span>
+                  <span className="text-gray-700 text-sm">67% discount from Phase 2</span>
                 </div>
               </>
             ) : (
@@ -326,6 +326,7 @@ const BuyForm: React.FC<{
   isPurchaseSuccessful: boolean;
   isMobile: boolean;
   isPhaseActive: boolean;
+  minimumPurchaseTokens: number;
 }> = ({
   currentPhase,
   currentPrice,
@@ -341,9 +342,8 @@ const BuyForm: React.FC<{
   isPurchaseSuccessful,
   isMobile,
   isPhaseActive,
+  minimumPurchaseTokens,
 }) => {
-  const minimumTokens = MINIMUM_PURCHASE_EGLD / currentPrice;
-
   const isValidAddress = (address?: string): boolean => {
     if (!address) return false;
     try {
@@ -389,14 +389,14 @@ const BuyForm: React.FC<{
           </label>
           <input
             type="number"
-            placeholder={`Minimum: ${minimumTokens.toLocaleString()} IDA`}
+            placeholder={`Minimum: ${minimumPurchaseTokens.toLocaleString()} IDA`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
             className="w-full p-4 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
             disabled={!isPhaseActive}
           />
           <p className="text-gray-600 text-sm">
-            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({minimumTokens.toLocaleString()} IDA)
+            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({minimumPurchaseTokens.toLocaleString()} IDA)
           </p>
         </div>
 
@@ -437,9 +437,9 @@ const BuyForm: React.FC<{
           disabled={
             !isPhaseActive ||
             !buyAmount ||
-            Number(buyAmount) < minimumTokens ||
+            Number(buyAmount) < minimumPurchaseTokens ||
             pending ||
-            availableTokens < minimumTokens ||
+            availableTokens < minimumPurchaseTokens ||
             !isLoggedIn ||
             !isValidAddress(userAddress)
           }
@@ -502,9 +502,10 @@ export const TokenSale: React.FC = () => {
   const { success: showSuccessToast, error: showErrorToast } = useToast();
   
   const [buyAmount, setBuyAmount] = useState('');
-  const [egldPriceUsd, setEgldPriceUsd] = useState(0); // EGLD price in USD
-  const [phase1Sold, setPhase1Sold] = useState(0); // Initialized to 0, will be fetched from contract
-  const [phase2Sold, setPhase2Sold] = useState(0); // Not started yet - clean progress bar
+  const [tokenPriceEgld, setTokenPriceEgld] = useState(PHASE_1_PRICE_EGLD);
+  const [egldPriceUsd, setEgldPriceUsd] = useState(0);
+  const [totalBoughtIda, setTotalBoughtIda] = useState(0); // Total bought from contract
+  const [minimumPurchaseTokens, setMinimumPurchaseTokens] = useState(MINIMUM_PURCHASE_EGLD / PHASE_1_PRICE_EGLD);
   const [egldCost, setEgldCost] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchaseSuccessful, setIsPurchaseSuccessful] = useState(false);
@@ -512,6 +513,17 @@ export const TokenSale: React.FC = () => {
   const [pending, setPending] = useState(false);
   
   const isMobile = window.innerWidth < 768;
+
+  // Calculate phase data based on total bought amount
+  const calculatePhaseData = () => {
+    // Phase 1 starts at 0 (as requested) regardless of totalBoughtIda
+    const phase1Sold = Math.min(totalBoughtIda, PHASE_1_SUPPLY);
+    const phase2Sold = Math.max(0, totalBoughtIda - PHASE_1_SUPPLY);
+    
+    return { phase1Sold, phase2Sold };
+  };
+
+  const { phase1Sold, phase2Sold } = calculatePhaseData();
 
   // Determine current phase
   const now = new Date();
@@ -544,46 +556,97 @@ export const TokenSale: React.FC = () => {
     }
   };
 
-  // Fetch sale data from contract
+  // Fetch sale data from contract using the provided ABI
   const fetchSaleData = async () => {
     try {
       setIsLoading(true);
+      console.log('Fetching data from LandboardIco contract:', saleContractAddress);
 
       const contract = new SmartContract({ address: new Address(saleContractAddress) });
 
-      // Query for Phase 1 sold amount
-      // Assuming your contract has a function like 'getPhase1SoldAmount'
-      const queryPhase1Sold = new ContractFunction('getPhase1SoldAmount');
-      const responsePhase1 = await networkProvider.queryContract(
-        contract,
-        {
-          func: queryPhase1Sold,
-          args: [],
-          caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'), // Use a dummy address if user not logged in
-        }
-      );
-      // Assuming the result is a BigUint and needs to be converted to a number
-      const phase1SoldAmount = responsePhase1.firstResult?.asBigUint.toNumber() || 0;
-      setPhase1Sold(phase1SoldAmount);
+      // Query token price using getTokenPrice from ABI
+      try {
+        const queryPrice = new ContractFunction('getTokenPrice');
+        const priceResponse = await networkProvider.queryContract(
+          contract,
+          {
+            func: queryPrice,
+            args: [],
+            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
+          }
+        );
 
-      // Query for Phase 2 sold amount
-      // Assuming your contract has a function like 'getPhase2SoldAmount'
-      const queryPhase2Sold = new ContractFunction('getPhase2SoldAmount');
-      const responsePhase2 = await networkProvider.queryContract(
-        contract,
-        {
-          func: queryPhase2Sold,
-          args: [],
-          caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
+        if (priceResponse.firstResult) {
+          const priceWei = priceResponse.firstResult.asBigUint.toString();
+          const priceEgld = Number(priceWei) / 1e18;
+          console.log('Contract token price:', priceEgld, 'EGLD');
+          
+          // Use contract price if it matches our expected phase prices
+          if (Math.abs(priceEgld - PHASE_1_PRICE_EGLD) < 0.000001) {
+            setTokenPriceEgld(PHASE_1_PRICE_EGLD);
+          } else if (Math.abs(priceEgld - PHASE_2_PRICE_EGLD) < 0.000001) {
+            setTokenPriceEgld(PHASE_2_PRICE_EGLD);
+          } else {
+            console.warn('Contract price does not match expected phase prices, using phase logic');
+            setTokenPriceEgld(currentPrice);
+          }
         }
-      );
-      // Assuming the result is a BigUint and needs to be converted to a number
-      const phase2SoldAmount = responsePhase2.firstResult?.asBigUint.toNumber() || 0;
-      setPhase2Sold(phase2SoldAmount);
-      
+      } catch (error) {
+        console.error('Error querying token price:', error);
+        setTokenPriceEgld(currentPrice);
+      }
+
+      // Query total bought amount using getTotalBoughtAmountOfEsdt from ABI
+      try {
+        const queryTotalBought = new ContractFunction('getTotalBoughtAmountOfEsdt');
+        const totalBoughtResponse = await networkProvider.queryContract(
+          contract,
+          {
+            func: queryTotalBought,
+            args: [],
+            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
+          }
+        );
+
+        if (totalBoughtResponse.firstResult) {
+          const totalBoughtWei = totalBoughtResponse.firstResult.asBigUint.toString();
+          const totalBoughtTokens = Number(totalBoughtWei) / 1e18;
+          console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
+          setTotalBoughtIda(totalBoughtTokens);
+        }
+      } catch (error) {
+        console.error('Error querying total bought amount:', error);
+        setTotalBoughtIda(0);
+      }
+
+      // Query minimum buy limit using getMinBuyLimit from ABI
+      try {
+        const queryMinBuyLimit = new ContractFunction('getMinBuyLimit');
+        const minBuyResponse = await networkProvider.queryContract(
+          contract,
+          {
+            func: queryMinBuyLimit,
+            args: [],
+            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
+          }
+        );
+
+        if (minBuyResponse.firstResult) {
+          const minBuyWei = minBuyResponse.firstResult.asBigUint.toString();
+          const minBuyEgld = Number(minBuyWei) / 1e18;
+          const minBuyTokens = minBuyEgld / currentPrice;
+          console.log('Minimum buy limit from contract:', minBuyEgld, 'EGLD =', minBuyTokens, 'IDA');
+          setMinimumPurchaseTokens(minBuyTokens);
+        }
+      } catch (error) {
+        console.error('Error querying minimum buy limit:', error);
+        setMinimumPurchaseTokens(MINIMUM_PURCHASE_EGLD / currentPrice);
+      }
+
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching sale data:', error);
+      showErrorToast('Error loading sale data from smart contract');
       setIsLoading(false);
     }
   };
@@ -612,10 +675,9 @@ export const TokenSale: React.FC = () => {
     }
 
     const idaAmount = Number(buyAmount);
-    const minimumTokens = MINIMUM_PURCHASE_EGLD / currentPrice;
     
-    if (!buyAmount || isNaN(idaAmount) || idaAmount < minimumTokens) {
-      showErrorToast(`Minimum purchase is ${MINIMUM_PURCHASE_EGLD} EGLD (${minimumTokens.toLocaleString()} IDA tokens).`);
+    if (!buyAmount || isNaN(idaAmount) || idaAmount < minimumPurchaseTokens) {
+      showErrorToast(`Minimum purchase is ${MINIMUM_PURCHASE_EGLD} EGLD (${minimumPurchaseTokens.toLocaleString()} IDA tokens).`);
       return;
     }
 
@@ -640,6 +702,14 @@ export const TokenSale: React.FC = () => {
         chainID: network.chainId
       });
 
+      console.log('Creating buy transaction:', {
+        amount: egldCost,
+        paymentAtomic: paymentAtomic.toString(),
+        contractAddress: saleContractAddress,
+        phase: currentPhase,
+        price: currentPrice
+      });
+
       showSuccessToast('Please confirm the transaction in your wallet.');
 
       const sessionId = await signAndSendTransactions({
@@ -653,24 +723,28 @@ export const TokenSale: React.FC = () => {
 
       setTransactionHash(sessionId);
       
-      // Simulate transaction confirmation
-      setTimeout(() => {
-        setIsPurchaseSuccessful(true);
-        showSuccessToast(`Successfully purchased ${Number(buyAmount).toLocaleString()} IDA tokens!`);
-        
-        // Update sold amounts (in real implementation, fetch from contract)
-        if (currentPhase === 1) {
-          setPhase1Sold(prev => prev + idaAmount);
-        } else {
-          setPhase2Sold(prev => prev + idaAmount);
+      // Monitor transaction and update data
+      setTimeout(async () => {
+        try {
+          // Check transaction status
+          const response = await axios.get(`https://api.multiversx.com/transactions/${sessionId}`);
+          if (response.data.status === 'success') {
+            setIsPurchaseSuccessful(true);
+            showSuccessToast(`Successfully purchased ${Number(buyAmount).toLocaleString()} IDA tokens!`);
+            
+            // Refresh sale data
+            await fetchSaleData();
+            
+            setBuyAmount('');
+            
+            setTimeout(() => {
+              setIsPurchaseSuccessful(false);
+              setTransactionHash(null);
+            }, 5000);
+          }
+        } catch (error) {
+          console.error('Error checking transaction status:', error);
         }
-        
-        setBuyAmount('');
-        
-        setTimeout(() => {
-          setIsPurchaseSuccessful(false);
-          setTransactionHash(null);
-        }, 5000);
       }, 3000);
       
     } catch (error) {
@@ -692,6 +766,11 @@ export const TokenSale: React.FC = () => {
     
     return () => clearInterval(interval);
   }, []);
+
+  // Update minimum purchase tokens when phase changes
+  useEffect(() => {
+    setMinimumPurchaseTokens(MINIMUM_PURCHASE_EGLD / currentPrice);
+  }, [currentPrice]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
@@ -734,7 +813,7 @@ export const TokenSale: React.FC = () => {
                   </div>
                   <p className="text-gray-600 text-sm font-medium">Tokens Sold</p>
                   <p className="text-2xl font-bold text-gray-800">
-                    {(phase1Sold + phase2Sold).toLocaleString()}
+                    {totalBoughtIda.toLocaleString()}
                   </p>
                 </div>
                 
@@ -771,54 +850,66 @@ export const TokenSale: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Phase 1 */}
-              <PhaseCard
-                phase={1}
-                title="Private Sale"
-                supply={PHASE_1_SUPPLY}
-                price={PHASE_1_PRICE_EGLD}
-                sold={phase1Sold}
-                isActive={isPhase1Active}
-                isCompleted={isPhase1Completed}
-                endDate={PHASE_1_END}
-                isMobile={isMobile}
-              />
+            {isLoading ? (
+              <div className="flex justify-center py-12">
+                <div className="space-y-4 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+                  <p className="text-gray-700">Loading sale data from smart contract...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Phase 1 */}
+                <PhaseCard
+                  phase={1}
+                  title="Public Sale Phase 1"
+                  supply={PHASE_1_SUPPLY}
+                  price={PHASE_1_PRICE_EGLD}
+                  sold={phase1Sold}
+                  isActive={isPhase1Active}
+                  isCompleted={isPhase1Completed}
+                  endDate={PHASE_1_END}
+                  isMobile={isMobile}
+                />
 
-              {/* Phase 2 */}
-              <PhaseCard
-                phase={2}
-                title="Public Sale"
-                supply={PHASE_2_SUPPLY}
-                price={PHASE_2_PRICE_EGLD}
-                sold={phase2Sold}
-                isActive={isPhase2Active}
-                isCompleted={isPhase2Completed}
-                endDate={PHASE_2_END}
-                isMobile={isMobile}
-              />
-            </div>
+                {/* Phase 2 */}
+                <PhaseCard
+                  phase={2}
+                  title="Public Sale Phase 2"
+                  supply={PHASE_2_SUPPLY}
+                  price={PHASE_2_PRICE_EGLD}
+                  sold={phase2Sold}
+                  isActive={isPhase2Active}
+                  isCompleted={isPhase2Completed}
+                  endDate={PHASE_2_END}
+                  isMobile={isMobile}
+                />
+              </div>
+            )}
           </div>
 
           {/* Buy Form */}
-          <div className="max-w-2xl mx-auto">
-            <BuyForm
-              currentPhase={currentPhase}
-              currentPrice={currentPrice}
-              availableTokens={currentAvailable}
-              buyAmount={buyAmount}
-              setBuyAmount={setBuyAmount}
-              egldCost={egldCost}
-              pending={pending}
-              isLoggedIn={isAuthenticated}
-              userAddress={address}
-              handleBuy={handleBuy}
-              transactionHash={transactionHash}
-              isPurchaseSuccessful={isPurchaseSuccessful}
-              isMobile={isMobile}
-              isPhaseActive={isCurrentPhaseActive}
-            />
-          </div>
+          {!isLoading && (
+            <div className="max-w-2xl mx-auto">
+              <BuyForm
+                currentPhase={currentPhase}
+                currentPrice={currentPrice}
+                availableTokens={currentAvailable}
+                buyAmount={buyAmount}
+                setBuyAmount={setBuyAmount}
+                egldCost={egldCost}
+                pending={pending}
+                isLoggedIn={isAuthenticated}
+                userAddress={address}
+                handleBuy={handleBuy}
+                transactionHash={transactionHash}
+                isPurchaseSuccessful={isPurchaseSuccessful}
+                isMobile={isMobile}
+                isPhaseActive={isCurrentPhaseActive}
+                minimumPurchaseTokens={minimumPurchaseTokens}
+              />
+            </div>
+          )}
 
           {/* Benefits Section */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
