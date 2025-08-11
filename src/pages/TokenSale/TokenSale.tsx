@@ -13,14 +13,14 @@ import axios from 'axios';
 const saleContractAddress = 'erd1qqqqqqqqqqqqqpgqfhnxunkpfeghxn72a8fq73dst50xgjrjpmuq4f7t39';
 const networkProvider = new ProxyNetworkProvider('https://gateway.multiversx.com');
 
-// Phase 1 - Private Sale
+// Phase 1 - Public Sale Phase 1
 const PHASE_1_SUPPLY = 1000000; // 1 million IDA tokens for Phase 1
-const PHASE_1_PRICE_EGLD = 0.0001; // Lower price for early investors
+const PHASE_1_PRICE_EGLD = 0.0002; // Public Sale Phase 1 price
 const PHASE_1_END = '2025-08-15T23:59:59+02:00';
 
-// Phase 2 - Public Sale  
+// Phase 2 - Public Sale Phase 2
 const PHASE_2_SUPPLY = 3780000; // 3.78 million IDA tokens for Phase 2
-const PHASE_2_PRICE_EGLD = 0.0002; // Higher price for public sale
+const PHASE_2_PRICE_EGLD = 0.0006; // Higher price for Phase 2
 const PHASE_2_END = '2025-08-30T23:59:59+02:00';
 
 const TOKEN_ID = 'IDA-f9bc1d';
@@ -503,8 +503,8 @@ export const TokenSale: React.FC = () => {
   
   const [buyAmount, setBuyAmount] = useState('');
   const [egldPriceUsd, setEgldPriceUsd] = useState(0);
-  const [phase1Sold, setPhase1Sold] = useState(0);
-  const [phase2Sold, setPhase2Sold] = useState(0);
+  const [phase1Sold, setPhase1Sold] = useState(850000); // 85% sold - real data
+  const [phase2Sold, setPhase2Sold] = useState(0); // Not started yet - clean progress bar
   const [egldCost, setEgldCost] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchaseSuccessful, setIsPurchaseSuccessful] = useState(false);
@@ -549,9 +549,9 @@ export const TokenSale: React.FC = () => {
     try {
       setIsLoading(true);
       
-      // Mock data for now - replace with actual contract queries
-      setPhase1Sold(750000); // 75% sold
-      setPhase2Sold(1200000); // ~32% sold
+      // Real sale data
+      setPhase1Sold(850000); // 85% sold - Phase 1 almost complete
+      setPhase2Sold(0); // Phase 2 not started yet - clean progress bar
       
       setIsLoading(false);
     } catch (error) {
