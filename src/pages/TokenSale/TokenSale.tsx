@@ -154,14 +154,6 @@ const PhaseCard: React.FC<{
   const progress = (sold / supply) * 100;
   const remaining = supply - sold;
 
-  // Debug logging for progress bar
-  console.log(`Phase ${phase} Progress Debug:`, {
-    sold,
-    supply,
-    progress,
-    remaining,
-    progressWidth: `${Math.min(progress, 100)}%`
-  });
   return (
     <div className={`relative overflow-hidden rounded-3xl border-2 transition-all duration-500 transform hover:scale-105 ${
       isActive 
@@ -237,29 +229,11 @@ const PhaseCard: React.FC<{
           </div>
           
           <div className="relative">
-            <div className="w-full bg-gray-800 rounded-full h-8 overflow-hidden shadow-inner border-2 border-gray-600">
+            <div className="w-full bg-gray-800 rounded-full h-6 overflow-hidden shadow-inner border border-gray-600">
               <div 
-                className="h-full transition-all duration-500 ease-out relative"
-                style={{ 
-                  width: `${Math.min(progress, 100)}%`,
-                  background: 'linear-gradient(to right, #6366f1, #ec4899)',
-                  boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
-                }}
-              >
-                {/* Progress bar glow effect */}
-                <div 
-                  className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-pink-400 opacity-80"
-                  style={{
-                    filter: 'blur(1px)'
-                  }}
-                />
-              </div>
-              {/* Progress percentage overlay */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-white font-bold text-sm drop-shadow-lg">
-                  {progress > 10 ? `${progress.toFixed(1)}%` : ''}
-                </span>
-              </div>
+                className="h-full transition-all duration-1000 bg-gradient-to-r from-indigo-500 to-pink-500 shadow-lg"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
             </div>
             <div className="flex justify-between mt-3 text-sm">
               <span className="text-indigo-200 font-medium">
