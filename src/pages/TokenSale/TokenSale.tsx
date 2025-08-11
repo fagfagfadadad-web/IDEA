@@ -798,7 +798,7 @@ export const TokenSale: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <PhaseCard
                   phase={1}
-                  title="Public Sale Phase 1"
+                  title="Early Bird Phase"
                   supply={PHASE_1_SUPPLY}
                   price={PHASE_1_PRICE_EGLD}
                   sold={phase1Sold}
@@ -810,7 +810,7 @@ export const TokenSale: React.FC = () => {
                 
                 <PhaseCard
                   phase={2}
-                  title="Public Sale Phase 2"
+                  title="Public Sale Phase"
                   supply={PHASE_2_SUPPLY}
                   price={PHASE_2_PRICE_EGLD}
                   sold={phase2Sold}
@@ -821,134 +821,133 @@ export const TokenSale: React.FC = () => {
                 />
               </div>
             )}
-          </div>
 
-          {/* Buy Form */}
-          <div className="max-w-2xl mx-auto">
-            <BuyForm
-              currentPhase={currentPhase}
-              currentPrice={currentPrice}
-              availableTokens={currentAvailable}
-              buyAmount={buyAmount}
-              setBuyAmount={setBuyAmount}
-              egldCost={egldCost}
-              pending={pending}
-              isLoggedIn={isAuthenticated}
-              userAddress={address}
-              handleBuy={handleBuy}
-              transactionHash={transactionHash}
-              isPurchaseSuccessful={isPurchaseSuccessful}
-              isMobile={isMobile}
-              isPhaseActive={isCurrentPhaseActive}
-            />
-          </div>
+            {!isLoading && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <BuyForm
+                  currentPhase={currentPhase}
+                  currentPrice={currentPrice}
+                  availableTokens={tokensAvailableInContract}
+                  buyAmount={buyAmount}
+                  setBuyAmount={setBuyAmount}
+                  egldCost={egldCost}
+                  pending={pending}
+                  isLoggedIn={isAuthenticated}
+                  userAddress={address}
+                  handleBuy={handleBuy}
+                  transactionHash={transactionHash}
+                  isPurchaseSuccessful={isPurchaseSuccessful}
+                  isMobile={isMobile}
+                  isPhaseActive={isCurrentPhaseActive}
+                />
 
-          {/* Success Message */}
-          {isPurchaseSuccessful && transactionHash && (
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Award size={24} className="text-white" />
+                <div className="space-y-8">
+                  {/* Transaction Status */}
+                  {transactionHash && (
+                    <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                      <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                          <BarChart3 size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Transaction Status</h3>
+                        <div className="space-y-3">
+                          <p className="text-gray-300">
+                            Transaction Hash:
+                          </p>
+                          <p className="text-indigo-400 font-mono text-sm break-all">
+                            {shortenHash(transactionHash)}
+                          </p>
+                          <a
+                            href={`https://explorer.multiversx.com/transactions/${transactionHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 transition-colors"
+                          >
+                            View on Explorer <ArrowRight size={16} />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Token Information */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Award size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Token Information</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium">Token Symbol:</span>
+                          <span className="text-white font-bold">IDA</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium">Token ID:</span>
+                          <span className="text-white font-mono text-sm">{TOKEN_ID}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium">Total Supply:</span>
+                          <span className="text-white font-bold">{(PHASE_1_SUPPLY + PHASE_2_SUPPLY).toLocaleString()}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <span className="text-gray-300 font-medium">Contract:</span>
+                          <span className="text-white font-mono text-sm">{shortenHash(saleContractAddress)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Key Features */}
+                  <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Zap size={24} className="text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-white">Key Features</h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Shield size={20} className="text-indigo-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold">Secure Smart Contract</h4>
+                            <p className="text-gray-300 text-sm">Built on MultiversX blockchain with audited smart contracts</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <DollarSign size={20} className="text-green-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold">Fair Pricing</h4>
+                            <p className="text-gray-300 text-sm">Transparent pricing with early bird discounts</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-start gap-4 p-4 bg-gray-800 rounded-xl border border-gray-600">
+                          <Users size={20} className="text-blue-400 mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="text-white font-semibold">Community Driven</h4>
+                            <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-green-800 mb-2">
-                  Purchase Successful!
-                </h3>
-                <p className="text-green-700 mb-4">
-                  Your IDA tokens have been successfully purchased.
-                </p>
-                <p className="text-sm text-green-600">
-                  Transaction: {shortenHash(transactionHash)}
-                </p>
               </div>
-            </div>
-          )}
-
-          {/* Benefits Section */}
-          <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-6">Why Choose IDA Tokens?</h2>
-              <p className="text-gray-300 text-xl max-w-4xl mx-auto leading-relaxed">
-                IDA tokens power the future of decentralized services marketplace with exclusive benefits and utilities.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 hover:bg-gray-750 transition-all duration-300 shadow-lg">
-                <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Zap size={24} className="text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4 text-center">Platform Utility</h3>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  Use IDA tokens for reduced fees, premium features, and exclusive access to top-tier service providers.
-                </p>
-              </div>
-              
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 hover:bg-gray-750 transition-all duration-300 shadow-lg">
-                <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Shield size={24} className="text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4 text-center">Governance Rights</h3>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  Participate in platform governance decisions and shape the future of the IDEA ecosystem.
-                </p>
-              </div>
-              
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 hover:bg-gray-750 transition-all duration-300 shadow-lg">
-                <div className="w-16 h-16 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Award size={24} className="text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-4 text-center">Staking Rewards</h3>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  Stake your IDA tokens to earn passive rewards and contribute to network security.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* FAQ Section */}
-          <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-8">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-6">Frequently Asked Questions</h2>
-              <p className="text-gray-300 text-xl max-w-4xl mx-auto leading-relaxed">
-                Everything you need to know about the IDA token sale.
-              </p>
-            </div>
-
-            <div className="space-y-6 max-w-4xl mx-auto">
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">What is IDA token?</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  IDA is the native utility token of the IDEA platform, designed to facilitate transactions, 
-                  governance, and rewards within our decentralized services marketplace.
-                </p>
-              </div>
-              
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">How do I participate in the token sale?</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Connect your MultiversX wallet, choose the amount of IDA tokens you want to purchase, 
-                  and complete the transaction. The minimum purchase is 1 EGLD (5,000 IDA tokens).
-                </p>
-              </div>
-              
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">When will I receive my tokens?</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  IDA tokens are distributed immediately after your purchase transaction is confirmed on the MultiversX blockchain.
-                </p>
-              </div>
-              
-              <div className="bg-gray-800 rounded-2xl p-8 border border-gray-600 shadow-lg">
-                <h3 className="text-xl font-bold text-white mb-4">What are the token sale phases?</h3>
-                <p className="text-gray-300 leading-relaxed">
-                  Phase 1 offers 1M tokens at 0.0002 EGLD each until August 15th. 
-                  Phase 2 offers 4M tokens at 0.0006 EGLD each until August 30th.
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
+                
