@@ -470,6 +470,17 @@ export const TokenSale: React.FC = () => {
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
 
+  // Debug logging for progress calculation
+  console.log('Progress calculation debug:', {
+    totalBoughtFromContract,
+    phase1Sold,
+    phase2Sold,
+    currentPhase,
+    currentSold,
+    currentSupply,
+    currentAvailable
+  });
+
   const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
 
   // Získanie ceny EGLD v USD
@@ -801,7 +812,7 @@ export const TokenSale: React.FC = () => {
                   title="Early Bird Phase"
                   supply={PHASE_1_SUPPLY}
                   price={PHASE_1_PRICE_EGLD}
-                  sold={phase1Sold}
+                  sold={Math.min(totalBoughtFromContract, PHASE_1_SUPPLY)}
                   isActive={isPhase1Active}
                   isCompleted={isPhase1Completed}
                   endDate={PHASE_1_END}
@@ -813,7 +824,7 @@ export const TokenSale: React.FC = () => {
                   title="Public Sale Phase"
                   supply={PHASE_2_SUPPLY}
                   price={PHASE_2_PRICE_EGLD}
-                  sold={phase2Sold}
+                  sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
                   isActive={isPhase2Active}
                   isCompleted={isPhase2Completed}
                   endDate={PHASE_2_END}
