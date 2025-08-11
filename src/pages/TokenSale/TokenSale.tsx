@@ -179,10 +179,10 @@ const PhaseCard: React.FC<{
           <div className="flex items-center gap-3">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center shadow-lg ${
               isActive 
-                ? 'bg-gradient-to-r from-indigo-500 to-pink-500 text-white' 
+                ? 'bg-gray-700 text-white border-2 border-indigo-400' 
                 : isCompleted
-                ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-                : 'bg-gradient-to-r from-gray-500 to-slate-500 text-white'
+                ? 'bg-gray-700 text-white border-2 border-green-400'
+                : 'bg-gray-700 text-white border-2 border-gray-400'
             }`}>
               <span className="text-2xl font-bold">{phase}</span>
             </div>
@@ -713,7 +713,7 @@ export const TokenSale: React.FC = () => {
                   <h1 className="text-5xl md:text-6xl font-bold gradient-text">
                     IDA Token Sale
                   </h1>
-                  <p className="text-gray-600 text-xl font-medium mt-2">
+                  <p className="text-gray-300 text-base font-medium">
                     Join the future of Web3 services marketplace
                   </p>
                 </div>
@@ -809,15 +809,18 @@ export const TokenSale: React.FC = () => {
                 />
                 
                 <PhaseCard
-                  phase={2}
-                  title="Public Sale Phase"
+              <span className="text-gray-300 font-bold text-lg">Sale Progress</span>
+              <span className="text-gray-300 font-bold text-xl">{progress.toFixed(1)}%</span>
                   supply={PHASE_2_SUPPLY}
                   price={PHASE_2_PRICE_EGLD}
                   sold={phase2Sold}
                   isActive={isPhase2Active}
                   isCompleted={isPhase2Completed}
-                  endDate={PHASE_2_END}
-                  isMobile={isMobile}
+                  className="h-full transition-all duration-1000 shadow-lg"
+                  style={{ 
+                    width: `${Math.min(progress, 100)}%`,
+                    background: 'linear-gradient(to right, #6366f1, #ec4899)'
+                  }}
                 />
               </div>
             )}
@@ -936,10 +939,10 @@ export const TokenSale: React.FC = () => {
                           <div>
                             <h4 className="text-white font-semibold">Community Driven</h4>
                             <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
-                          </div>
+                <span className="text-gray-300 font-medium">
                         </div>
                       </div>
-                    </div>
+                <span className="text-gray-300 font-medium">
                   </div>
                 </div>
               </div>
