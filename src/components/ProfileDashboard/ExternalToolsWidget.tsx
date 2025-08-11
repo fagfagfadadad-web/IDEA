@@ -195,7 +195,7 @@ export const ExternalToolsWidget: React.FC = () => {
                   onClick={() => setShowIframe(false)}
                   className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-200 p-2">
+                  <X size={20} />
                 </button>
               </div>
             </div>
