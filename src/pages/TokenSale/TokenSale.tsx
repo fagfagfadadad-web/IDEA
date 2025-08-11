@@ -773,33 +773,6 @@ export const TokenSale: React.FC = () => {
                 </p>
               </div>
             </div>
-
-            {/* Overall Progress */}
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <TrendingUp size={24} className="text-white" />
-                  </div>
-                  <p className="text-gray-600 text-sm font-medium">Total Raised</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
-                  </p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Coins size={24} className="text-white" />
-                  </div>
-                  <p className="text-gray-600 text-sm font-medium">Tokens Sold</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {(phase1Sold + phase2Sold).toLocaleString()}
-                  </p>
-                </div>
-                
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Users size={24} className="text-white" />
                   </div>
                   <p className="text-gray-600 text-sm font-medium">Current Phase</p>
                   <p className="text-2xl font-bold text-gray-800">
