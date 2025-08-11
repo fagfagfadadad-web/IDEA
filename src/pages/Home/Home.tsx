@@ -879,7 +879,7 @@ export const Home = () => {
                       >
                         <div
                           className="py-3 px-4 border-b border-gray-200"
-                          aria-label={`View gig: ${String(gig.title || "Untitled Gig")}`}
+                          style={{ backgroundColor: `${categoryColor}20` }}
                         >
                           <div className="flex justify-between items-center">
                             <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -901,27 +901,27 @@ export const Home = () => {
                                           const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
                                           if (fallback) fallback.style.display = 'flex';
                                         }
-                                {gig.created_at ? new Date(String(gig.created_at)).toLocaleDateString() : "N/A"}
+                                      }}
                                     />
                                     <div 
                                       className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white absolute inset-0"
                                       style={{ display: 'none' }}
                                     >
                                       {String(request.client?.username || "?").charAt(0).toUpperCase()}
-                                  {String(gig.category || "Unknown").substring(0, 8)}...
+                                    </div>
                                   </>
                                 ) : (
-                                {String(gig.title || "Untitled Gig").length > 40 
+                                  <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-sm text-white">
                                     {String(request.client?.username || "?").charAt(0).toUpperCase()}
-                                  : String(gig.title || "Untitled Gig")}
+                                  </div>
                                 )}
                               </div>
-                                {String(gig.description || "No description available").length > 60 
+                              <span className="text-xs text-gray-600 truncate max-w-[80px]">
                                 {String(request.client?.username || "")}
-                                  : String(gig.description || "No description available")}
+                              </span>
                             </div>
                           </div>
-                                Duration: {gig.duration ? `${String(gig.duration)} days` : "N/A"}
+                        </div>
 
                         <div className="p-4 space-y-3">
                           <h3 className="text-lg font-bold text-gray-800">
@@ -943,16 +943,16 @@ export const Home = () => {
                                 <DollarSign size={14} />
                                 {request.budget_min && request.budget_max
                                   ? `${String(request.budget_min)}-${String(request.budget_max)} EGLD`
-                                  {String(gig.provider?.username || "U").charAt(0).toUpperCase()}
+                                  : request.budget_min
                                   ? `From ${String(request.budget_min)} EGLD`
                                   : `Up to ${String(request.budget_max)} EGLD`}
-                                  {String(gig.provider?.username || "Unknown").substring(0, 8)}
+                              </span>
                             )}
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-500">
                               {new Date(String(request.created_at)).toLocaleDateString()}
-                                  {String(gig.price || "N/A")} {tokenSymbol}
+                            </span>
                             <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded text-xs">
                               {String(proposalsCount)} proposal{proposalsCount !== 1 ? "s" : ""}
                             </span>
