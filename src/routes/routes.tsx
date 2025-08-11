@@ -1,6 +1,6 @@
 import { RouteNamesEnum } from 'localConstants';
 import {
-  Admin, 
+  Admin,
   ClientRequestDetail, 
   ClientRequests, 
   CreateClientRequest, 
@@ -9,7 +9,6 @@ import {
   Documentation, 
   GigDetail, 
   Gigs, 
-  Home, 
   MyRequests, 
   OrderDetails, 
   ProposalDetail, 
@@ -20,6 +19,7 @@ import {
 import { RouteType } from 'types';
 import React from 'react';
 
+const Home = React.lazy(() => import('pages/Home'));
 const Profile = React.lazy(() => import('pages/Profile'));
 const Search = React.lazy(() => import('pages/Search').then(module => ({ default: module.Search })));
 
