@@ -809,18 +809,15 @@ export const TokenSale: React.FC = () => {
                 />
                 
                 <PhaseCard
-              <span className="text-gray-300 font-bold text-lg">Sale Progress</span>
-              <span className="text-gray-300 font-bold text-xl">{progress.toFixed(1)}%</span>
+                  phase={2}
+                  title="Public Sale Phase"
                   supply={PHASE_2_SUPPLY}
                   price={PHASE_2_PRICE_EGLD}
                   sold={phase2Sold}
                   isActive={isPhase2Active}
                   isCompleted={isPhase2Completed}
-                  className="h-full transition-all duration-1000 shadow-lg"
-                  style={{ 
-                    width: `${Math.min(progress, 100)}%`,
-                    background: 'linear-gradient(to right, #6366f1, #ec4899)'
-                  }}
+                  endDate={PHASE_2_END}
+                  isMobile={isMobile}
                 />
               </div>
             )}
@@ -939,10 +936,10 @@ export const TokenSale: React.FC = () => {
                           <div>
                             <h4 className="text-white font-semibold">Community Driven</h4>
                             <p className="text-gray-300 text-sm">Token holders participate in governance decisions</p>
-                <span className="text-gray-300 font-medium">
+                          </div>
                         </div>
                       </div>
-                <span className="text-gray-300 font-medium">
+                    </div>
                   </div>
                 </div>
               </div>
