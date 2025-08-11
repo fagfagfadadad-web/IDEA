@@ -874,8 +874,8 @@ export const TokenSale: React.FC = () => {
                     What's the difference between phases?
                   </h4>
                   <p className="text-gray-700">
-                    Phase 1 offers early investor pricing (0.0001 EGLD per IDA) with limited supply. 
-                    Phase 2 is the public sale with higher pricing (0.0002 EGLD per IDA) but larger allocation.
+                    Phase 1 offers lower pricing (0.0002 EGLD per IDA) with 1M tokens. 
+                    Phase 2 has higher pricing (0.0006 EGLD per IDA) but larger allocation of 3.78M tokens.
                   </p>
                 </div>
                 
