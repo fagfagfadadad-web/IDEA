@@ -9,22 +9,17 @@ import { signAndSendTransactions } from '../../helpers';
 import { ProxyNetworkProvider } from '@multiversx/sdk-network-providers';
 import axios from 'axios';
 
-// Configuration - Using the correct smart contract address
+// Configuration
 const saleContractAddress = 'erd1qqqqqqqqqqqqqpgqfhnxunkpfeghxn72a8fq73dst50xgjrjpmuq4f7t39';
-const networkProvider = new ProxyNetworkProvider('https://gateway.multiversx.com');
-
-// Phase 1 - Public Sale Phase 1 (starts at 0 as requested)
-const PHASE_1_SUPPLY = 1000000; // 1 million IDA tokens for Phase 1
-const PHASE_1_PRICE_EGLD = 0.0002; // Public Sale Phase 1 price
-const PHASE_1_END = '2025-08-15T23:59:59+02:00';
-
-// Phase 2 - Public Sale Phase 2
-const PHASE_2_SUPPLY = 3780000; // 3.78 million IDA tokens for Phase 2
-const PHASE_2_PRICE_EGLD = 0.0006; // Higher price for Phase 2
-const PHASE_2_END = '2025-08-30T23:59:59+02:00';
-
+const networkProvider = new ProxyNetworkProvider('https://gateway.multiversx.com'); // Používame mainnet API
 const TOKEN_ID = 'IDA-f9bc1d';
-const MINIMUM_PURCHASE_EGLD = 1; // Minimum purchase amount in EGLD
+const PHASE_1_SUPPLY = 1000000; // 1M IDA pre fázu 1
+const PHASE_1_PRICE_EGLD = 0.0002; // 0.0002 EGLD za IDA (5000 IDA za 1 EGLD)
+const PHASE_1_END = '2025-08-15T23:59:59+02:00';
+const PHASE_2_SUPPLY = 3780000; // 3.78M IDA pre fázu 2
+const PHASE_2_PRICE_EGLD = 0.0006; // 0.0006 EGLD za IDA
+const PHASE_2_END = '2025-08-30T23:59:59+02:00';
+const MINIMUM_PURCHASE_EGLD = 1; // Fixná minimálna kúpna suma
 const LOGO_URL = 'https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png';
 
 // Utility function to shorten hash
@@ -100,7 +95,7 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow由内 ${
+          className={`bg-gradient-to-b from-gray-700 to-gray-900 rounded-md shadow-inner ${
             isMobile ? 'h-8 leading-8 text-2xl' : 'h-12 leading-12 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
@@ -161,7 +156,6 @@ const PhaseCard: React.FC<{
         ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50'
         : 'border-gray-300 bg-gradient-to-br from-gray-50 to-slate-50'
     }`}>
-      {/* Phase Badge */}
       <div className="absolute top-4 right-4">
         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
           isActive 
@@ -175,7 +169,6 @@ const PhaseCard: React.FC<{
       </div>
 
       <div className={`p-${isMobile ? '6' : '8'} space-y-6`}>
-        {/* Phase Header */}
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -198,7 +191,6 @@ const PhaseCard: React.FC<{
           </div>
         </div>
 
-        {/* Key Metrics */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
             <div className="flex items-center gap-2 mb-2">
@@ -224,7 +216,6 @@ const PhaseCard: React.FC<{
           </div>
         </div>
 
-        {/* Progress Section */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-700 font-medium">Sale Progress</span>
@@ -255,7 +246,6 @@ const PhaseCard: React.FC<{
           </div>
         </div>
 
-        {/* Countdown */}
         {isActive && (
           <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
             <div className="text-center space-y-3">
@@ -288,9 +278,6 @@ const BuyForm: React.FC<{
   isPurchaseSuccessful: boolean;
   isMobile: boolean;
   isPhaseActive: boolean;
-  minimumPurchaseTokens: number;
-  contractPrice: number;
-  contractMinBuyLimit: number;
 }> = ({
   currentPhase,
   currentPrice,
@@ -306,9 +293,6 @@ const BuyForm: React.FC<{
   isPurchaseSuccessful,
   isMobile,
   isPhaseActive,
-  minimumPurchaseTokens,
-  contractPrice,
-  contractMinBuyLimit,
 }) => {
   const isValidAddress = (address?: string): boolean => {
     if (!address) return false;
@@ -320,14 +304,11 @@ const BuyForm: React.FC<{
     }
   };
 
-  // Use contract price if available, otherwise use phase price
-  const displayPrice = contractPrice > 0 ? contractPrice : currentPrice;
-  const displayMinBuyLimit = contractMinBuyLimit > 0 ? contractMinBuyLimit : MINIMUM_PURCHASE_EGLD;
-  const displayMinTokens = displayMinBuyLimit / displayPrice;
+  // Používame fixnú minimálnu kúpnu sumu 1 EGLD (5000 IDA pri cene 0,0002 EGLD vo fáze 1)
+  const displayMinTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-      {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
@@ -338,7 +319,7 @@ const BuyForm: React.FC<{
               Buy IDA Tokens
             </h3>
             <p className="text-purple-100 text-sm">
-              Phase {currentPhase} - {displayPrice.toFixed(6)} EGLD per IDA
+              Phase {currentPhase} - {currentPrice.toFixed(6)} EGLD per IDA
             </p>
           </div>
         </div>
@@ -353,7 +334,6 @@ const BuyForm: React.FC<{
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Amount Input */}
         <div className="space-y-3">
           <label className="block text-gray-800 font-medium">
             Amount to Purchase (IDA tokens)
@@ -367,11 +347,10 @@ const BuyForm: React.FC<{
             disabled={!isPhaseActive}
           />
           <p className="text-gray-600 text-sm">
-            Minimum: {displayMinBuyLimit} EGLD ({displayMinTokens.toLocaleString()} IDA)
+            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({displayMinTokens.toLocaleString()} IDA)
           </p>
         </div>
 
-        {/* Cost Breakdown */}
         <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-4 space-y-3">
           <h4 className="text-gray-800 font-bold">Purchase Summary</h4>
           <div className="space-y-2">
@@ -390,7 +369,7 @@ const BuyForm: React.FC<{
             <div className="flex justify-between">
               <span className="text-gray-600">Price per IDA:</span>
               <span className="text-gray-800">
-                {displayPrice.toFixed(6)} EGLD
+                {currentPrice.toFixed(6)} EGLD
               </span>
             </div>
             <div className="flex justify-between">
@@ -402,7 +381,6 @@ const BuyForm: React.FC<{
           </div>
         </div>
 
-        {/* Buy Button */}
         <Button
           onClick={handleBuy}
           disabled={
@@ -461,36 +439,41 @@ export const TokenSale: React.FC = () => {
   
   const isMobile = window.innerWidth < 768;
 
-  // Calculate phase data based on frontend logic
-  const calculatePhaseData = () => {
-    // For display purposes, Phase 1 starts at 0 (as requested)
-    // We'll track phases separately from the contract's total
-    const phase1Sold = 0; // Always start Phase 1 at 0 for display
-    const phase2Sold = 0; // Phase 2 starts at 0 until Phase 1 is completed
-    
+  // Výpočet dát pre fázy na základe údajov z kontraktu
+  const calculatePhaseData = (totalBought: number) => {
+    let phase1Sold = 0;
+    let phase2Sold = 0;
+
+    // Fáza 1: Až 1M tokenov
+    if (totalBought <= PHASE_1_SUPPLY) {
+      phase1Sold = totalBought;
+    } else {
+      phase1Sold = PHASE_1_SUPPLY;
+      phase2Sold = totalBought - PHASE_1_SUPPLY;
+    }
+
     return { phase1Sold, phase2Sold };
   };
 
-  const { phase1Sold, phase2Sold } = calculatePhaseData();
-
-  // Determine current phase based on time and our frontend logic
+  // Určenie aktuálnej fázy na základe času
   const now = new Date();
   const phase1End = new Date(PHASE_1_END);
   const phase2End = new Date(PHASE_2_END);
   
-  const isPhase1Active = now < phase1End && phase1Sold < PHASE_1_SUPPLY;
-  const isPhase1Completed = now >= phase1End || phase1Sold >= PHASE_1_SUPPLY;
-  const isPhase2Active = isPhase1Completed && now < phase2End && phase2Sold < PHASE_2_SUPPLY;
-  const isPhase2Completed = now >= phase2End || phase2Sold >= PHASE_2_SUPPLY;
+  const isPhase1Active = now < phase1End && totalBoughtFromContract < PHASE_1_SUPPLY;
+  const isPhase1Completed = now >= phase1End || totalBoughtFromContract >= PHASE_1_SUPPLY;
+  const isPhase2Active = isPhase1Completed && now < phase2End && totalBoughtFromContract < (PHASE_1_SUPPLY + PHASE_2_SUPPLY);
+  const isPhase2Completed = now >= phase2End || totalBoughtFromContract >= (PHASE_1_SUPPLY + PHASE_2_SUPPLY);
   
   const currentPhase = isPhase1Active ? 1 : 2;
   const currentPrice = isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
   const currentSupply = isPhase1Active ? PHASE_1_SUPPLY : PHASE_2_SUPPLY;
+  const { phase1Sold, phase2Sold } = calculatePhaseData(totalBoughtFromContract);
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
   const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
 
-  // Fetch EGLD price
+  // Získanie ceny EGLD v USD
   const fetchEgldPrice = async () => {
     try {
       const response = await axios.get(
@@ -504,7 +487,7 @@ export const TokenSale: React.FC = () => {
     }
   };
 
-  // Fetch sale data from smart contract using the provided ABI
+  // Získanie dát z kontraktu
   const fetchSaleData = async () => {
     try {
       setIsLoading(true);
@@ -512,77 +495,68 @@ export const TokenSale: React.FC = () => {
 
       const contract = new SmartContract({ address: new Address(saleContractAddress) });
 
-      // Query token price using getTokenPrice from ABI
+      // Query token price
       try {
         const queryPrice = new ContractFunction('getTokenPrice');
-        const priceResponse = await networkProvider.queryContract(
-          contract,
-          {
-            func: queryPrice,
-            args: [],
-            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
-          }
-        );
+        const priceResponse = await networkProvider.queryContract({
+          address: new Address(saleContractAddress),
+          func: queryPrice,
+          args: [],
+        });
 
-        if (priceResponse.firstResult?.asBigUint) {
-          const priceWei = priceResponse.firstResult.asBigUint.toString();
-          const priceEgld = Number(priceWei) / 1e18;
+        if (priceResponse && priceResponse.returnData && priceResponse.returnData.length > 0) {
+          const priceWei = Buffer.from(priceResponse.returnData[0], 'base64').toString('hex');
+          const priceEgld = Number(BigInt('0x' + priceWei)) / 1e18;
           console.log('Contract token price:', priceEgld, 'EGLD');
           setContractTokenPrice(priceEgld);
         } else {
-          console.log('No token price data returned from contract');
-          setContractTokenPrice(0);
+          console.log('No valid token price data returned from contract, using default:', PHASE_1_PRICE_EGLD);
+          setContractTokenPrice(PHASE_1_PRICE_EGLD);
         }
       } catch (error) {
         console.error('Error querying token price:', error);
-        setContractTokenPrice(0);
+        setContractTokenPrice(PHASE_1_PRICE_EGLD);
       }
 
-      // Query minimum buy limit using getMinBuyLimit from ABI
+      // Query minimum buy limit
       try {
         const queryMinBuyLimit = new ContractFunction('getMinBuyLimit');
-        const minBuyResponse = await networkProvider.queryContract(
-          contract,
-          {
-            func: queryMinBuyLimit,
-            args: [],
-            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
-          }
-        );
+        const minBuyResponse = await networkProvider.queryContract({
+          address: new Address(saleContractAddress),
+          func: queryMinBuyLimit,
+          args: [],
+        });
 
-        if (minBuyResponse.firstResult?.asBigUint) {
-          const minBuyWei = minBuyResponse.firstResult.asBigUint.toString();
-          const minBuyEgld = Number(minBuyWei) / 1e18;
+        if (minBuyResponse && minBuyResponse.returnData && minBuyResponse.returnData.length > 0) {
+          const minBuyWei = Buffer.from(minBuyResponse.returnData[0], 'base64').toString('hex');
+          const minBuyEgld = Number(BigInt('0x' + minBuyWei)) / 1e18;
           console.log('Contract minimum buy limit:', minBuyEgld, 'EGLD');
           setContractMinBuyLimit(minBuyEgld);
         } else {
-          console.log('No minimum buy limit data returned from contract');
-          setContractMinBuyLimit(0);
+          console.log('No valid minimum buy limit data returned from contract, using default:', MINIMUM_PURCHASE_EGLD);
+          setContractMinBuyLimit(MINIMUM_PURCHASE_EGLD);
         }
       } catch (error) {
         console.error('Error querying minimum buy limit:', error);
-        setContractMinBuyLimit(0);
+        setContractMinBuyLimit(MINIMUM_PURCHASE_EGLD);
       }
 
-      // Query total bought amount using getTotalBoughtAmountOfEsdt from ABI
+      // Query total bought amount
       try {
         const queryTotalBought = new ContractFunction('getTotalBoughtAmountOfEsdt');
-        const totalBoughtResponse = await networkProvider.queryContract(
-          contract,
-          {
-            func: queryTotalBought,
-            args: [],
-            caller: new Address(address || 'erd1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq6gq4hu'),
-          }
-        );
+        const totalBoughtResponse = await networkProvider.queryContract({
+          address: new Address(saleContractAddress),
+          func: queryTotalBought,
+          args: [],
+        });
 
-        if (totalBoughtResponse.firstResult && totalBoughtResponse.firstResult.asBigUint) {
-          const totalBoughtWei = totalBoughtResponse.firstResult.asBigUint.toString();
-          const totalBoughtTokens = Number(totalBoughtWei) / 1e18;
+        if (totalBoughtResponse && totalBoughtResponse.returnData && totalBoughtResponse.returnData.length > 0) {
+          const totalBoughtWei = Buffer.from(totalBoughtResponse.returnData[0], 'base64').toString('hex');
+          const totalBoughtTokens = Number(BigInt('0x' + totalBoughtWei)) / 1e18;
           console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
           setTotalBoughtFromContract(totalBoughtTokens);
         } else {
-          console.log('No total bought amount data returned from contract');
+          console.log('No valid total bought amount data returned from contract');
           setTotalBoughtFromContract(0);
         }
       } catch (error) {
@@ -596,12 +570,15 @@ export const TokenSale: React.FC = () => {
           `https://api.multiversx.com/accounts/${saleContractAddress}/tokens/${TOKEN_ID}`,
           { timeout: 15000 }
         );
-        
+
         if (response.data && response.data.balance) {
           const balanceWei = response.data.balance;
           const balanceTokens = Number(balanceWei) / 1e18;
           console.log('Available IDA tokens in contract:', balanceTokens);
           setTokensAvailableInContract(balanceTokens);
+        } else {
+          console.log('No token balance data returned from API');
+          setTokensAvailableInContract(0);
         }
       } catch (error) {
         console.error('Error fetching contract token balance:', error);
@@ -616,20 +593,20 @@ export const TokenSale: React.FC = () => {
     }
   };
 
-  // Calculate EGLD cost
+  // Výpočet EGLD ceny
   useEffect(() => {
     const idaAmount = Number(buyAmount);
-    const priceToUse = contractTokenPrice > 0 ? contractTokenPrice : currentPrice;
-    
+    const priceToUse = currentPhase === 1 ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
+
     if (!isNaN(idaAmount) && idaAmount > 0 && priceToUse > 0) {
       const cost = idaAmount * priceToUse;
       setEgldCost(cost);
     } else {
       setEgldCost(0);
     }
-  }, [buyAmount, contractTokenPrice, currentPrice]);
+  }, [buyAmount, currentPhase]);
 
-  // Handle token purchase
+  // Spracovanie nákupu tokenov
   const handleBuy = async () => {
     if (!isAuthenticated || !address) {
       showErrorToast('Please connect your MultiversX wallet to proceed.');
@@ -642,16 +619,15 @@ export const TokenSale: React.FC = () => {
     }
 
     const idaAmount = Number(buyAmount);
-    const minTokens = contractMinBuyLimit > 0 ? contractMinBuyLimit / (contractTokenPrice > 0 ? contractTokenPrice : currentPrice) : MINIMUM_PURCHASE_EGLD / currentPrice;
-    
+    const minTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
+
     if (!buyAmount || isNaN(idaAmount) || idaAmount < minTokens) {
-      const minEgld = contractMinBuyLimit > 0 ? contractMinBuyLimit : MINIMUM_PURCHASE_EGLD;
-      showErrorToast(`Minimum purchase is ${minEgld} EGLD (${minTokens.toLocaleString()} IDA tokens).`);
+      showErrorToast(`Minimum purchase is ${MINIMUM_PURCHASE_EGLD} EGLD (${minTokens.toLocaleString()} IDA tokens).`);
       return;
     }
 
-    if (idaAmount > currentAvailable) {
-      showErrorToast(`Only ${currentAvailable.toLocaleString()} IDA tokens available in current phase.`);
+    if (idaAmount > tokensAvailableInContract) {
+      showErrorToast(`Only ${tokensAvailableInContract.toLocaleString()} IDA tokens available in contract.`);
       return;
     }
 
@@ -661,7 +637,7 @@ export const TokenSale: React.FC = () => {
       setIsPurchaseSuccessful(false);
 
       const paymentAtomic = BigInt(Math.floor(egldCost * 1e18));
-      
+
       const transaction = new Transaction({
         value: paymentAtomic,
         data: Buffer.from('buy'),
@@ -676,7 +652,7 @@ export const TokenSale: React.FC = () => {
         paymentAtomic: paymentAtomic.toString(),
         contractAddress: saleContractAddress,
         phase: currentPhase,
-        price: contractTokenPrice > 0 ? contractTokenPrice : currentPrice
+        price: currentPrice
       });
 
       showSuccessToast('Please confirm the transaction in your wallet.');
@@ -691,21 +667,18 @@ export const TokenSale: React.FC = () => {
       });
 
       setTransactionHash(sessionId);
-      
-      // Monitor transaction and update data
+
       setTimeout(async () => {
         try {
-          // Check transaction status
           const response = await axios.get(`https://api.multiversx.com/transactions/${sessionId}`);
           if (response.data.status === 'success') {
             setIsPurchaseSuccessful(true);
             showSuccessToast(`Successfully purchased ${Number(buyAmount).toLocaleString()} IDA tokens!`);
-            
-            // Refresh sale data
+
             await fetchSaleData();
-            
+
             setBuyAmount('');
-            
+
             setTimeout(() => {
               setIsPurchaseSuccessful(false);
               setTransactionHash(null);
@@ -715,7 +688,7 @@ export const TokenSale: React.FC = () => {
           console.error('Error checking transaction status:', error);
         }
       }, 3000);
-      
+
     } catch (error) {
       console.error('Error during purchase:', error);
       showErrorToast(error instanceof Error ? error.message : 'Purchase failed');
@@ -727,12 +700,12 @@ export const TokenSale: React.FC = () => {
   useEffect(() => {
     fetchEgldPrice();
     fetchSaleData();
-    
+
     const interval = setInterval(() => {
       fetchEgldPrice();
       fetchSaleData();
     }, 60000);
-    
+
     return () => clearInterval(interval);
   }, []);
 
@@ -740,7 +713,6 @@ export const TokenSale: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
       <div className="container mx-auto max-w-7xl px-6 py-8">
         <div className="space-y-8">
-          {/* Header */}
           <div className="text-center space-y-6">
             <div className="flex items-center justify-center gap-4">
               <img
@@ -758,7 +730,6 @@ export const TokenSale: React.FC = () => {
               </div>
             </div>
 
-            {/* Overall Progress */}
             <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="text-center">
@@ -804,7 +775,6 @@ export const TokenSale: React.FC = () => {
             </div>
           </div>
 
-          {/* Sale Phases */}
           <div className="space-y-8">
             <div className="text-center">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">Token Sale Phases</h2>
@@ -820,10 +790,8 @@ export const TokenSale: React.FC = () => {
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
                   <p className="text-gray-700">Loading sale data from smart contract...</p>
                 </div>
-              </div>
-            ) : (
+              ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Phase 1 */}
                   <PhaseCard
                     phase={1}
                     title="Public Sale Phase 1"
@@ -836,7 +804,6 @@ export const TokenSale: React.FC = () => {
                     isMobile={isMobile}
                   />
 
-                  {/* Phase 2 */}
                   <PhaseCard
                     phase={2}
                     title="Public Sale Phase 2"
@@ -849,16 +816,15 @@ export const TokenSale: React.FC = () => {
                     isMobile={isMobile}
                   />
                 </div>
-            )}
+              )}
           </div>
 
-          {/* Buy Form */}
           {!isLoading && (
             <div className="max-w-2xl mx-auto">
               <BuyForm
                 currentPhase={currentPhase}
                 currentPrice={currentPrice}
-                availableTokens={Math.min(currentAvailable, tokensAvailableInContract)}
+                availableTokens={tokensAvailableInContract}
                 buyAmount={buyAmount}
                 setBuyAmount={setBuyAmount}
                 egldCost={egldCost}
@@ -870,14 +836,10 @@ export const TokenSale: React.FC = () => {
                 isPurchaseSuccessful={isPurchaseSuccessful}
                 isMobile={isMobile}
                 isPhaseActive={isCurrentPhaseActive}
-                minimumPurchaseTokens={contractMinBuyLimit > 0 ? contractMinBuyLimit / (contractTokenPrice > 0 ? contractTokenPrice : currentPrice) : MINIMUM_PURCHASE_EGLD / currentPrice}
-                contractPrice={contractTokenPrice}
-                contractMinBuyLimit={contractMinBuyLimit}
               />
             </div>
           )}
 
-          {/* Benefits Section */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
             <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
               Why Choose IDA Tokens?
@@ -925,7 +887,6 @@ export const TokenSale: React.FC = () => {
             </div>
           </div>
 
-          {/* FAQ Section */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
             <h3 className="text-2xl font-bold text-gray-800 mb-8 text-center">
               Frequently Asked Questions
@@ -938,7 +899,7 @@ export const TokenSale: React.FC = () => {
                   </h4>
                   <p className="text-gray-700">
                     Connect your MultiversX wallet, select the amount of IDA tokens you want to purchase, 
-                    and confirm the transaction. Minimum purchase is {contractMinBuyLimit > 0 ? contractMinBuyLimit : MINIMUM_PURCHASE_EGLD} EGLD.
+                    and confirm the transaction. Minimum purchase is {MINIMUM_PURCHASE_EGLD} EGLD ({(MINIMUM_PURCHASE_EGLD / currentPrice).toLocaleString()} IDA).
                   </p>
                 </div>
                 
