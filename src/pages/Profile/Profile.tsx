@@ -11,6 +11,8 @@ import { useOrders } from 'hooks';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
 import { useReviewsForProvider } from 'hooks';
 import { usePayments } from 'hooks';
+import { ProfileService } from '../../services/profileService';
+import { TransactionService } from '../../services/transactionService';
 
 // Helper function to calculate earnings from orders
 const calculateEarnings = (orders: any[]) => {
@@ -81,6 +83,9 @@ export const Profile = () => {
   const [showGigMenu, setShowGigMenu] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedGig, setSelectedGig] = useState<any>(null);
+  const [idaBalance, setIdaBalance] = useState<number>(0);
+  const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
+  const [isLoadingIda, setIsLoadingIda] = useState(false);
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
@@ -113,6 +118,42 @@ export const Profile = () => {
       });
     }
   }, [profile]);
+
+  // Load IDA balance and transactions
+  useEffect(() => {
+    if (user?.wallet_address && (activeTab === 'wallet' || activeTab === 'overview')) {
+      loadIdaData();
+    }
+  }, [user?.wallet_address, activeTab]);
+
+  const loadIdaData = async () => {
+    if (!user?.wallet_address) return;
+
+    setIsLoadingIda(true);
+    try {
+      const [balance, transactions] = await Promise.all([
+        ProfileService.getUserIdaBalance(user.wallet_address),
+        TransactionService.getTransactionHistory(user.wallet_address, 10)
+      ]);
+
+      setIdaBalance(balance);
+      setIdaTransactions(transactions.filter(tx => tx.token_identifier === 'IDA'));
+    } catch (error) {
+      console.error('Error loading IDA data:', error);
+    } finally {
+      setIsLoadingIda(false);
+    }
+  };
+
+  const formatCoins = (amount: number) => {
+    if (amount >= 1000000) {
+      return (amount / 1000000).toFixed(1) + 'M';
+    } else if (amount >= 1000) {
+      return (amount / 1000).toFixed(1) + 'K';
+    } else {
+      return Math.round(amount * 100) / 100;
+    }
+  };
 
   const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -215,6 +256,7 @@ export const Profile = () => {
     { id: 'gigs', label: 'My Gigs', icon: <Briefcase size={16} /> },
     { id: 'reviews', label: 'Reviews', icon: <Star size={16} /> },
     { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={16} /> },
+    { id: 'wallet', label: 'IDA Wallet', icon: <Coins size={16} /> },
     { id: 'settings', label: 'Settings', icon: <Settings size={16} /> }
   ];
 
@@ -478,6 +520,18 @@ export const Profile = () => {
                       <p className="text-gray-600 text-xs">
                         of {gigs?.length || 0} total
                       </p>
+                    </div>
+
+                    <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Coins size={20} className="text-purple-600" />
+                        <span className="text-purple-800 font-medium">IDA Balance</span>
+                      </div>
+                      {isLoadingIda ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                      ) : (
+                        <p className="text-purple-800 text-2xl font-bold">{formatCoins(idaBalance)}</p>
+                      )}
                     </div>
                   </div>
 
@@ -772,6 +826,149 @@ export const Profile = () => {
                 </div>
               )}
 
+              {/* IDA Wallet Tab */}
+              {activeTab === 'wallet' && (
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">IDA Token Wallet</h3>
+                    <p className="text-gray-600">
+                      Your IDA tokens earned through tasks and referrals for the upcoming airdrop
+                    </p>
+                  </div>
+
+                  {/* IDA Balance Card */}
+                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8">
+                    <div className="text-center">
+                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Coins size={32} className="text-white" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-800 mb-2">IDA Token Balance</h3>
+                      {isLoadingIda ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+                      ) : (
+                        <p className="text-3xl font-bold gradient-text">{formatCoins(idaBalance)} IDA</p>
+                      )}
+                      <p className="text-gray-600 text-sm mt-2">
+                        Earned through tasks and referrals
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button
+                      onClick={() => navigate('/rewards')}
+                      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
+                    >
+                      <Gift size={20} />
+                      <span>Complete Tasks</span>
+                    </Button>
+                    <Button
+                      onClick={() => navigate('/rewards')}
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
+                    >
+                      <Users size={20} />
+                      <span>Invite Friends</span>
+                    </Button>
+                  </div>
+
+                  {/* IDA Transaction History */}
+                  <div className="bg-white border border-gray-200 rounded-xl p-6">
+                    <h4 className="text-lg font-bold text-gray-800 mb-4">IDA Transaction History</h4>
+                    
+                    {isLoadingIda ? (
+                      <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                      </div>
+                    ) : idaTransactions.length > 0 ? (
+                      <div className="space-y-3">
+                        {idaTransactions.map((tx) => (
+                          <div
+                            key={tx.id}
+                            className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="text-lg">
+                                {tx.transaction_type === 'reward' ? '🎁' :
+                                 tx.transaction_type === 'referral' ? '👥' :
+                                 tx.transaction_type === 'send' ? '↗️' : '↙️'}
+                              </span>
+                              <div>
+                                <p className="font-medium text-gray-800">
+                                  {tx.description || 
+                                   (tx.transaction_type === 'reward' ? 'Task Reward' :
+                                    tx.transaction_type === 'referral' ? 'Referral Bonus' :
+                                    tx.transaction_type === 'send' ? 'Sent IDA' : 'Received IDA')}
+                                </p>
+                                <p className="text-gray-500 text-xs">
+                                  {new Date(tx.timestamp).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className={`font-bold ${
+                                tx.transaction_type === 'send' ? 'text-red-600' : 'text-green-600'
+                              }`}>
+                                {tx.transaction_type === 'send' ? '-' : '+'}
+                                {formatCoins(tx.amount)} IDA
+                              </p>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                tx.status === 'success' ? 'bg-green-100 text-green-800' :
+                                tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {tx.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Coins size={32} className="text-gray-400 mx-auto mb-3" />
+                        <p className="text-gray-600">No IDA transactions yet</p>
+                        <p className="text-gray-500 text-sm">
+                          Complete tasks and invite friends to start earning IDA tokens
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Airdrop Information */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <Gift size={24} className="text-white" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-bold text-gray-800">Airdrop Information</h4>
+                        <p className="text-gray-600 text-sm">Learn about the upcoming IDA token airdrop</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-gray-700 text-sm">
+                        • IDA tokens earned through tasks and referrals will be eligible for the airdrop
+                      </p>
+                      <p className="text-gray-700 text-sm">
+                        • The more IDA tokens you earn, the larger your airdrop allocation
+                      </p>
+                      <p className="text-gray-700 text-sm">
+                        • Airdrop details and timeline will be announced soon
+                      </p>
+                      <div className="pt-3">
+                        <Button
+                          onClick={() => navigate('/rewards')}
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                        >
+                          <Gift size={16} />
+                          Start Earning IDA
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* My Orders - Only for own profile */}
               {isOwnProfile && (
                 <div className="gradient-card p-6">
@@ -1002,6 +1199,18 @@ export const Profile = () => {
                       <p className="text-gray-600 text-xs">
                         of {gigs?.length || 0} total
                       </p>
+                    </div>
+
+                    <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Coins size={20} className="text-purple-600" />
+                        <span className="text-purple-800 font-medium">IDA Balance</span>
+                      </div>
+                      {isLoadingIda ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
+                      ) : (
+                        <p className="text-purple-800 text-2xl font-bold">{formatCoins(idaBalance)}</p>
+                      )}
                     </div>
                   </div>
 

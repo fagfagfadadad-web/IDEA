@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { AdminDisputes, AdminUsers, AdminGigs } from 'components';
+import { AdminTasks } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useAdminStats } from '../../hooks/useUsers';
 import { useAuth } from '../../context/AuthContext';
 import { Users, AlertTriangle, Briefcase, Settings } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
 
 export const Admin: React.FC = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -15,7 +17,8 @@ export const Admin: React.FC = () => {
     { id: 0, label: 'Disputes Management', component: AdminDisputes, icon: <AlertTriangle size={20} /> },
     { id: 1, label: 'User Management', component: AdminUsers, icon: <Users size={20} /> },
     { id: 2, label: 'Gig Management', component: AdminGigs, icon: <Briefcase size={20} /> },
-    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-gray-800">System settings coming soon...</div>, icon: <Settings size={20} /> }
+    { id: 3, label: 'Task Management', component: AdminTasks, icon: <CheckSquare size={20} /> },
+    { id: 4, label: 'System Settings', component: () => <div className="p-8 text-gray-800">System settings coming soon...</div>, icon: <Settings size={20} /> }
   ];
 
   // Show loading while auth is still loading
