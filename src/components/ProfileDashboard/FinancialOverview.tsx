@@ -1,11 +1,13 @@
 import React from 'react';
-import { DollarSign, TrendingUp, Calendar, Briefcase, Eye, Plus } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Briefcase, Eye, Plus, Clock, CheckCircle } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { useGigs } from '../../hooks/useGigs';
+import { useAuth } from '../../context/AuthContext';
 
 export const FinancialOverview: React.FC = () => {
   const { data: orders, isLoading: ordersLoading } = useOrders();
   const { data: gigs, isLoading: gigsLoading } = useGigs();
+  const { user } = useAuth();
 
   const isLoading = ordersLoading || gigsLoading;
 
@@ -13,10 +15,38 @@ export const FinancialOverview: React.FC = () => {
   const stats = React.useMemo(() => {
     if (!orders || !gigs) return null;
 
-    const completedOrders = orders.filter(order => order.status === 'completed');
-    const totalEarnings = completedOrders.reduce((sum, order) => sum + order.amount, 0);
-    const pendingOrders = orders.filter(order => order.status === 'in_progress' || order.status === 'delivered');
-    const pendingEarnings = pendingOrders.reduce((sum, order) => sum + order.amount, 0);
+    // Filter orders where user is the provider
+    const providerOrders = orders.filter(order => {
+      const isProvider = user?.id === order.gig?.provider?.id || 
+                        user?.id === order.gig?.provider_id ||
+                        (user?.wallet_address && order.provider_address && user.wallet_address === order.provider_address);
+      return isProvider;
+    });
+
+    const completedOrders = providerOrders.filter(order => order.status === 'completed');
+    const pendingOrders = providerOrders.filter(order => 
+      order.status === 'in_progress' || 
+      order.status === 'delivered' || 
+      order.status === 'pending_approval'
+    );
+    
+    // Calculate earnings with proper fee deduction
+    const egldEarnings = completedOrders
+      .filter(order => order.payment_token === 'EGLD')
+      .reduce((sum, order) => sum + (order.amount * 0.9), 0); // 90% after 10% fee
+      
+    const idaEarnings = completedOrders
+      .filter(order => order.payment_token !== 'EGLD')
+      .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
+    
+    const totalEarnings = egldEarnings + idaEarnings;
+    
+    const pendingEarnings = pendingOrders.reduce((sum, order) => {
+      if (order.payment_token === 'EGLD') {
+        return sum + (order.amount * 0.9); // After fee
+      }
+      return sum + order.amount;
+    }, 0);
     
     const thisMonth = new Date();
     thisMonth.setDate(1);
@@ -25,22 +55,38 @@ export const FinancialOverview: React.FC = () => {
     const thisMonthOrders = completedOrders.filter(order => 
       new Date(order.created_at) >= thisMonth
     );
-    const thisMonthEarnings = thisMonthOrders.reduce((sum, order) => sum + order.amount, 0);
+    const thisMonthEarnings = thisMonthOrders.reduce((sum, order) => {
+      if (order.payment_token === 'EGLD') {
+        return sum + (order.amount * 0.9); // After fee
+      }
+      return sum + order.amount;
+    }, 0);
 
     const totalViews = gigs.reduce((sum, gig) => sum + (gig.view_count || 0), 0);
     const activeGigs = gigs.filter(gig => gig.status === 'active').length;
+    
+    // Orders ready to claim (completed + 3 days passed)
+    const ordersReadyToClaim = providerOrders.filter(order => {
+      if (order.status !== 'completed') return false;
+      const completionDate = new Date(order.status_updated_at);
+      const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+      return new Date() >= threeDaysLater;
+    }).length;
 
     return {
       totalEarnings,
+      egldEarnings,
+      idaEarnings,
       pendingEarnings,
       thisMonthEarnings,
       completedOrdersCount: completedOrders.length,
       pendingOrdersCount: pendingOrders.length,
+      ordersReadyToClaim,
       totalViews,
       activeGigs,
       totalGigs: gigs.length
     };
-  }, [orders, gigs]);
+  }, [orders, gigs, user]);
 
   if (isLoading) {
     return (
@@ -80,10 +126,10 @@ export const FinancialOverview: React.FC = () => {
               <span className="text-green-800 font-medium text-sm">Total Earnings</span>
             </div>
             <p className="text-green-800 text-xl font-bold">
-              {stats.totalEarnings.toFixed(2)} EGLD
+              {stats.totalEarnings.toFixed(2)}
             </p>
             <p className="text-green-600 text-xs">
-              {stats.completedOrdersCount} completed orders
+              EGLD: {stats.egldEarnings.toFixed(2)} | IDA: {stats.idaEarnings.toFixed(2)}
             </p>
           </div>
 
@@ -93,7 +139,7 @@ export const FinancialOverview: React.FC = () => {
               <span className="text-blue-800 font-medium text-sm">Pending</span>
             </div>
             <p className="text-blue-800 text-xl font-bold">
-              {stats.pendingEarnings.toFixed(2)} EGLD
+              {stats.pendingEarnings.toFixed(2)}
             </p>
             <p className="text-blue-600 text-xs">
               {stats.pendingOrdersCount} active orders
@@ -102,39 +148,51 @@ export const FinancialOverview: React.FC = () => {
 
           <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Calendar size={16} className="text-purple-600" />
-              <span className="text-purple-800 font-medium text-sm">This Month</span>
+              <CheckCircle size={16} className="text-purple-600" />
+              <span className="text-purple-800 font-medium text-sm">Ready to Claim</span>
             </div>
             <p className="text-purple-800 text-xl font-bold">
-              {stats.thisMonthEarnings.toFixed(2)} EGLD
+              {stats.ordersReadyToClaim}
             </p>
             <p className="text-purple-600 text-xs">
-              Current month earnings
+              orders ready for claim
             </p>
           </div>
 
           <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
-              <Briefcase size={16} className="text-orange-600" />
-              <span className="text-orange-800 font-medium text-sm">Active Gigs</span>
+              <Calendar size={16} className="text-orange-600" />
+              <span className="text-orange-800 font-medium text-sm">This Month</span>
             </div>
             <p className="text-orange-800 text-xl font-bold">
-              {stats.activeGigs}
+              {stats.thisMonthEarnings.toFixed(2)}
             </p>
             <p className="text-orange-600 text-xs">
-              of {stats.totalGigs} total gigs
+              earnings this month
             </p>
           </div>
         </div>
 
         {/* Additional Stats */}
-        <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Eye size={16} className="text-gray-600" />
-              <span className="text-gray-700 font-medium">Total Profile Views</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Eye size={16} className="text-gray-600" />
+                <span className="text-gray-700 font-medium text-sm">Total Views</span>
+              </div>
+              <span className="text-gray-800 font-bold">{stats.totalViews}</span>
             </div>
-            <span className="text-gray-800 font-bold">{stats.totalViews}</span>
+          </div>
+          
+          <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Briefcase size={16} className="text-gray-600" />
+                <span className="text-gray-700 font-medium text-sm">Active Gigs</span>
+              </div>
+              <span className="text-gray-800 font-bold">{stats.activeGigs}/{stats.totalGigs}</span>
+            </div>
           </div>
         </div>
 
