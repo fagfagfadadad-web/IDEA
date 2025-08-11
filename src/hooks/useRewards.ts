@@ -20,14 +20,24 @@ export const useTasks = () => {
   }, [user?.id]);
 
   const loadTasks = async () => {
-    if (!user?.id || !user?.wallet_address) return;
+    if (!user?.id || !user?.wallet_address) {
+      setTasks([]);
+      setUserTasks([]);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
 
     try {
       // Initialize user for rewards system
-      await ProfileService.initializeUserForRewards(user.wallet_address);
+      const userProfile = await ProfileService.initializeUserForRewards(user.wallet_address);
+      if (!userProfile) {
+        console.warn('Could not initialize user for rewards system');
+        setTasks([]);
+        setUserTasks([]);
+        return;
+      }
       
       // Initialize user tasks
       await TaskService.initializeUserTasks(user.id);
@@ -42,14 +52,11 @@ export const useTasks = () => {
       setUserTasks(userTasksData);
 
       // Check for automatic task completions
-      const userProfile = await ProfileService.getUserProfile(user.id);
-      if (userProfile) {
-        await TaskService.checkAndCompleteAutomaticTasks(user.id, userProfile);
-        
-        // Reload user tasks after auto-completion check
-        const updatedUserTasks = await TaskService.getUserTasks(user.id);
-        setUserTasks(updatedUserTasks);
-      }
+      await TaskService.checkAndCompleteAutomaticTasks(user.id, userProfile);
+      
+      // Reload user tasks after auto-completion check
+      const updatedUserTasks = await TaskService.getUserTasks(user.id);
+      setUserTasks(updatedUserTasks);
     } catch (err) {
       console.error('Error loading tasks:', err);
       // Don't show error to user, just log it
@@ -137,14 +144,27 @@ export const useReferrals = () => {
   }, [user?.wallet_address]);
 
   const loadReferralData = async () => {
-    if (!user?.wallet_address) return;
+    if (!user?.wallet_address || !user?.id) {
+      setReferralStats(null);
+      setReferrals([]);
+      setRewards([]);
+      setLeaderboard([]);
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
 
     try {
       // Initialize user referral stats if needed
-      await ReferralService.initializeUserReferralStats(user.id);
+      const initialized = await ReferralService.initializeUserReferralStats(user.id);
+      if (!initialized) {
+        console.warn('Could not initialize referral stats');
+        setReferralStats(null);
+        setReferrals([]);
+        setRewards([]);
+        return;
+      }
       
       const [stats, userReferrals, rewardHistory, topReferrers] = await Promise.all([
         ReferralService.getUserReferralStats(user.wallet_address),
@@ -159,7 +179,8 @@ export const useReferrals = () => {
       setLeaderboard(topReferrers);
     } catch (err) {
       console.error('Error loading referral data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load referral data');
+      // Don't show error to user, just log it
+      setError(null);
     } finally {
       setIsLoading(false);
     }

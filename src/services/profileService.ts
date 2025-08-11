@@ -7,20 +7,9 @@ export class ProfileService {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select(`
-          id,
-          username,
-          wallet_address,
-          ida_balance,
-          total_earned,
-          level,
-          xp,
-          avatar_url,
-          bio,
-          created_at
-        `)
+        .select('id, username, wallet_address, ida_balance, total_earned, level, xp, avatar_url, bio, created_at')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       return data;
@@ -68,29 +57,19 @@ export class ProfileService {
       // Check if user exists
       const { data: user, error } = await supabase
         .from('users')
-        .select(`
-          id,
-          username,
-          wallet_address,
-          ida_balance,
-          total_earned,
-          level,
-          xp,
-          avatar_url,
-          bio,
-          created_at
-        `)
+        .select('id, username, wallet_address, ida_balance, total_earned, level, xp, avatar_url, bio, created_at')
         .eq('wallet_address', address)
         .maybeSingle();
 
       if (error) {
         console.error('Error fetching user:', error);
-        throw new Error('Failed to fetch user profile');
+        return null;
       }
 
       if (!user) {
         // User doesn't exist, this shouldn't happen in our system
-        throw new Error('User not found. Please complete profile setup first.');
+        console.warn('User not found for address:', address);
+        return null;
       }
 
       // Initialize IDA balance and stats if they don't exist
@@ -104,18 +83,7 @@ export class ProfileService {
             xp: 0
           })
           .eq('id', user.id)
-          .select(`
-            id,
-            username,
-            wallet_address,
-            ida_balance,
-            total_earned,
-            level,
-            xp,
-            avatar_url,
-            bio,
-            created_at
-          `)
+          .select('id, username, wallet_address, ida_balance, total_earned, level, xp, avatar_url, bio, created_at')
           .maybeSingle();
 
         if (updateError) throw updateError;
@@ -125,7 +93,7 @@ export class ProfileService {
       return user;
     } catch (error) {
       console.error('Error initializing user for rewards:', error);
-      throw new Error('Failed to initialize user for rewards system');
+      return null;
     }
   }
 

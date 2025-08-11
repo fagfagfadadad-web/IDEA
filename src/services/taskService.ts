@@ -11,11 +11,14 @@ export class TaskService {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        return [];
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching tasks:', error);
-      throw new Error('Failed to load tasks');
+      return [];
     }
   }
 
@@ -27,11 +30,14 @@ export class TaskService {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching admin tasks:', error);
+        return [];
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching admin tasks:', error);
-      throw new Error('Failed to load admin tasks');
+      return [];
     }
   }
 
@@ -40,18 +46,18 @@ export class TaskService {
     try {
       const { data, error } = await supabase
         .from('user_tasks')
-        .select(`
-          *,
-          task:tasks(*)
-        `)
+        .select('*, task:tasks(*)')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user tasks:', error);
+        return [];
+      }
       return data || [];
     } catch (error) {
       console.error('Error fetching user tasks:', error);
-      throw new Error('Failed to load user tasks');
+      return [];
     }
   }
 
@@ -60,6 +66,7 @@ export class TaskService {
     try {
       // Get all active tasks
       const tasks = await this.getAllTasks();
+      if (tasks.length === 0) return;
       
       // Check which tasks user already has
       const { data: existingUserTasks } = await supabase
@@ -87,7 +94,7 @@ export class TaskService {
       }
     } catch (error) {
       console.error('Error initializing user tasks:', error);
-      throw new Error('Failed to initialize user tasks');
+      // Don't throw error, just log it
     }
   }
 
@@ -323,9 +330,9 @@ export class TaskService {
   static async getTaskStatistics(): Promise<TaskStatistics> {
     try {
       const [tasksResult, userTasksResult, rewardsResult] = await Promise.all([
-        supabase.from('tasks').select('id, is_active'),
-        supabase.from('user_tasks').select('status'),
-        supabase.from('user_tasks').select('task:tasks(reward_amount)').eq('status', 'claimed')
+        supabase.from('tasks').select('id, is_active').then(r => r.error ? { data: [] } : r),
+        supabase.from('user_tasks').select('status').then(r => r.error ? { data: [] } : r),
+        supabase.from('user_tasks').select('task:tasks(reward_amount)').eq('status', 'claimed').then(r => r.error ? { data: [] } : r)
       ]);
 
       const totalTasks = tasksResult.data?.length || 0;

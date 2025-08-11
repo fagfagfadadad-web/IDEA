@@ -16,7 +16,7 @@ export class ReferralService {
   }
 
   // Initialize user referral stats
-  static async initializeUserReferralStats(userId: string): Promise<void> {
+  static async initializeUserReferralStats(userId: string): Promise<boolean> {
     try {
       // Check if stats already exist
       const { data: existing } = await supabase
@@ -25,7 +25,7 @@ export class ReferralService {
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (existing) return;
+      if (existing) return true;
 
       // Generate unique referral code
       const referralCode = await this.generateUniqueReferralCode();
@@ -44,9 +44,10 @@ export class ReferralService {
         });
 
       if (error) throw error;
+      return true;
     } catch (error) {
       console.error('Error initializing referral stats:', error);
-      throw new Error('Failed to initialize referral stats');
+      return false;
     }
   }
 
