@@ -15,3 +15,5 @@ export * from './useGigViews';
 export * from './useDisputes';
 export * from './useUsers';
 export * from './useFileUpload';
+export * from './useUserTasks';
+export * from './useCalendarEvents';

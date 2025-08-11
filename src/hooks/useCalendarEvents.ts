@@ -1,0 +1,175 @@
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
+
+export type CalendarEvent = {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  start_time: string;
+  end_time: string;
+  location?: string;
+  event_type: 'meeting' | 'deadline' | 'reminder' | 'milestone';
+  created_at: string;
+  updated_at: string;
+};
+
+export type EventInput = {
+  title: string;
+  description?: string;
+  start_time: string;
+  end_time: string;
+  location?: string;
+  event_type?: 'meeting' | 'deadline' | 'reminder' | 'milestone';
+};
+
+export const useCalendarEvents = () => {
+  const [data, setData] = useState<CalendarEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchEvents();
+  }, [user?.id]);
+
+  const fetchEvents = async () => {
+    try {
+      setIsLoading(true);
+      
+      if (!user?.id) {
+        setData([]);
+        return;
+      }
+
+      const { data: events, error } = await supabase
+        .from('calendar_events')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_time', { ascending: true });
+
+      if (error) throw error;
+
+      setData(events || []);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError(err instanceof Error ? err : new Error('Unknown error'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    data,
+    isLoading,
+    error,
+    refetch: fetchEvents
+  };
+};
+
+export const useCreateEvent = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+
+  const mutateAsync = async (input: EventInput) => {
+    setIsLoading(true);
+    try {
+      if (!user?.id) {
+        throw new Error('Please log in to create events');
+      }
+
+      const { data: event, error } = await supabase
+        .from('calendar_events')
+        .insert({
+          user_id: user.id,
+          title: input.title,
+          description: input.description,
+          start_time: input.start_time,
+          end_time: input.end_time,
+          location: input.location,
+          event_type: input.event_type || 'reminder'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return event;
+    } catch (error) {
+      console.error('Error creating event:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutateAsync,
+    isLoading
+  };
+};
+
+export const useUpdateEvent = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const mutateAsync = async ({ 
+    id, 
+    updates 
+  }: { 
+    id: string; 
+    updates: Partial<EventInput>
+  }) => {
+    setIsLoading(true);
+    try {
+      const { data: event, error } = await supabase
+        .from('calendar_events')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return event;
+    } catch (error) {
+      console.error('Error updating event:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutateAsync,
+    isLoading
+  };
+};
+
+export const useDeleteEvent = () => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const mutateAsync = async (eventId: string) => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('calendar_events')
+        .delete()
+        .eq('id', eventId);
+
+      if (error) throw error;
+
+      return eventId;
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    mutateAsync,
+    isLoading
+  };
+};

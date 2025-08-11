@@ -1,0 +1,375 @@
+import React, { useState } from 'react';
+import { Calendar, Plus, Clock, MapPin, X, Edit, Trash2 } from 'lucide-react';
+import { Button } from 'components';
+import { useCalendarEvents, useCreateEvent, useUpdateEvent, useDeleteEvent, EventInput } from '../../hooks/useCalendarEvents';
+import { useToast } from '../../context/ToastContext';
+
+export const CalendarWidget: React.FC = () => {
+  const { data: events, isLoading, error, refetch } = useCalendarEvents();
+  const createEvent = useCreateEvent();
+  const updateEvent = useUpdateEvent();
+  const deleteEvent = useDeleteEvent();
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<any>(null);
+  const [eventForm, setEventForm] = useState<EventInput>({
+    title: '',
+    description: '',
+    start_time: '',
+    end_time: '',
+    location: '',
+    event_type: 'reminder'
+  });
+
+  const handleCreateEvent = async () => {
+    if (!eventForm.title.trim()) {
+      showErrorToast('Please enter an event title');
+      return;
+    }
+
+    if (!eventForm.start_time || !eventForm.end_time) {
+      showErrorToast('Please set start and end times');
+      return;
+    }
+
+    try {
+      await createEvent.mutateAsync(eventForm);
+      showSuccessToast('Event created successfully');
+      setShowCreateModal(false);
+      setEventForm({
+        title: '',
+        description: '',
+        start_time: '',
+        end_time: '',
+        location: '',
+        event_type: 'reminder'
+      });
+      refetch();
+    } catch (error) {
+      showErrorToast('Failed to create event');
+    }
+  };
+
+  const handleUpdateEvent = async () => {
+    if (!editingEvent || !eventForm.title.trim()) {
+      showErrorToast('Please enter an event title');
+      return;
+    }
+
+    try {
+      await updateEvent.mutateAsync({
+        id: editingEvent.id,
+        updates: eventForm
+      });
+      showSuccessToast('Event updated successfully');
+      setEditingEvent(null);
+      setEventForm({
+        title: '',
+        description: '',
+        start_time: '',
+        end_time: '',
+        location: '',
+        event_type: 'reminder'
+      });
+      refetch();
+    } catch (error) {
+      showErrorToast('Failed to update event');
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+
+    try {
+      await deleteEvent.mutateAsync(eventId);
+      showSuccessToast('Event deleted successfully');
+      refetch();
+    } catch (error) {
+      showErrorToast('Failed to delete event');
+    }
+  };
+
+  const handleEditEvent = (event: any) => {
+    setEditingEvent(event);
+    setEventForm({
+      title: event.title,
+      description: event.description || '',
+      start_time: new Date(event.start_time).toISOString().slice(0, 16),
+      end_time: new Date(event.end_time).toISOString().slice(0, 16),
+      location: event.location || '',
+      event_type: event.event_type
+    });
+  };
+
+  const getEventTypeColor = (type: string) => {
+    switch (type) {
+      case 'meeting': return 'text-blue-600 bg-blue-100';
+      case 'deadline': return 'text-red-600 bg-red-100';
+      case 'milestone': return 'text-purple-600 bg-purple-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  };
+
+  const getEventTypeIcon = (type: string) => {
+    switch (type) {
+      case 'meeting': return '👥';
+      case 'deadline': return '⏰';
+      case 'milestone': return '🎯';
+      default: return '📅';
+    }
+  };
+
+  // Get upcoming events (next 7 days)
+  const upcomingEvents = events?.filter(event => {
+    const eventDate = new Date(event.start_time);
+    const now = new Date();
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return eventDate >= now && eventDate <= weekFromNow;
+  }) || [];
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="text-lg font-bold text-gray-800">Calendar</h3>
+            <p className="text-gray-600 text-sm">
+              {upcomingEvents.length} upcoming events this week
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+          >
+            <Plus size={16} />
+            Add Event
+          </Button>
+        </div>
+
+        {/* Events List */}
+        <div className="space-y-4 max-h-96 overflow-y-auto">
+          {upcomingEvents.length === 0 ? (
+            <div className="text-center py-8">
+              <Calendar size={32} className="text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600">No upcoming events. Create your first event!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {upcomingEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className="p-4 border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">{getEventTypeIcon(event.event_type)}</span>
+                        <h4 className="font-semibold text-gray-800">{event.title}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.event_type)}`}>
+                          {event.event_type}
+                        </span>
+                      </div>
+                      
+                      {event.description && (
+                        <p className="text-gray-600 text-sm mb-2">{event.description}</p>
+                      )}
+                      
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Clock size={14} />
+                          <span>
+                            {new Date(event.start_time).toLocaleDateString()} • 
+                            {new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
+                            {new Date(event.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        
+                        {event.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin size={14} />
+                            <span>{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEditEvent(event)}
+                        className="text-gray-400 hover:text-indigo-600 transition-colors p-1"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEvent(event.id)}
+                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Create/Edit Event Modal */}
+      {(showCreateModal || editingEvent) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-800">
+                  {editingEvent ? 'Edit Event' : 'Create New Event'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setEditingEvent(null);
+                    setEventForm({
+                      title: '',
+                      description: '',
+                      start_time: '',
+                      end_time: '',
+                      location: '',
+                      event_type: 'reminder'
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Event Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={eventForm.title}
+                    onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                    placeholder="Enter event title"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={eventForm.description}
+                    onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                    placeholder="Enter event description"
+                    rows={3}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      Start Time *
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={eventForm.start_time}
+                      onChange={(e) => setEventForm({ ...eventForm, start_time: e.target.value })}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-2">
+                      End Time *
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={eventForm.end_time}
+                      onChange={(e) => setEventForm({ ...eventForm, end_time: e.target.value })}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    value={eventForm.location}
+                    onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                    placeholder="Enter location (optional)"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-700 text-sm font-medium mb-2">
+                    Event Type
+                  </label>
+                  <select
+                    value={eventForm.event_type}
+                    onChange={(e) => setEventForm({ ...eventForm, event_type: e.target.value as any })}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value="reminder">Reminder</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="deadline">Deadline</option>
+                    <option value="milestone">Milestone</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={() => {
+                    setShowCreateModal(false);
+                    setEditingEvent(null);
+                    setEventForm({
+                      title: '',
+                      description: '',
+                      start_time: '',
+                      end_time: '',
+                      location: '',
+                      event_type: 'reminder'
+                    });
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={editingEvent ? handleUpdateEvent : handleCreateEvent}
+                  disabled={createEvent.isLoading || updateEvent.isLoading}
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg"
+                >
+                  {createEvent.isLoading || updateEvent.isLoading 
+                    ? 'Saving...' 
+                    : editingEvent ? 'Update Event' : 'Create Event'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
