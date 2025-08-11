@@ -125,7 +125,7 @@ const FlipCountdown: React.FC<{ targetDate: string; isMobile: boolean }> = ({ ta
       </div>
       <div className="text-center" style={{ width: isMobile ? '60px' : '88px' }}>
         <div
-          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-grey ${
+          className={`bg-gradient-to-b from-indigo-600 to-pink-600 rounded-xl shadow-2xl border border-indigo-400 ${
             isMobile ? 'h-12 leading-12 text-2xl' : 'h-16 leading-16 text-4xl'
           } font-bold text-white mb-1 flex items-center justify-center`}
         >
@@ -187,7 +187,7 @@ const PhaseCard: React.FC<{
               <span className="text-2xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-indigo-200`}>
+              <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-grey`}>
                 {title}
               </h3>
               <p className="text-indigo-200 text-base font-medium">
