@@ -435,31 +435,6 @@ const BuyForm: React.FC<{
             Connect your MultiversX wallet to participate in the token sale
           </p>
         )}
-
-        {/* Transaction Status */}
-        {pending && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-              <p className="text-gray-800 text-sm">
-                {transactionHash 
-                  ? `Processing: ${shortenHash(transactionHash, 8)}` 
-                  : 'Preparing transaction...'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {isPurchaseSuccessful && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <ShieldCheck size={20} className="text-green-600" />
-              <p className="text-green-800 font-medium text-sm">
-                Purchase successful! Tokens will appear in your wallet shortly.
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -773,6 +748,33 @@ export const TokenSale: React.FC = () => {
                 </p>
               </div>
             </div>
+
+            {/* Overall Progress */}
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp size={24} className="text-white" />
+                  </div>
+                  <p className="text-gray-600 text-sm font-medium">Total Raised</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {((phase1Sold * PHASE_1_PRICE_EGLD) + (phase2Sold * PHASE_2_PRICE_EGLD)).toFixed(2)} EGLD
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Coins size={24} className="text-white" />
+                  </div>
+                  <p className="text-gray-600 text-sm font-medium">Tokens Sold</p>
+                  <p className="text-2xl font-bold text-gray-800">
+                    {(phase1Sold + phase2Sold).toLocaleString()}
+                  </p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Users size={24} className="text-white" />
                   </div>
                   <p className="text-gray-600 text-sm font-medium">Current Phase</p>
                   <p className="text-2xl font-bold text-gray-800">
