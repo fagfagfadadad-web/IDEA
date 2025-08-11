@@ -337,7 +337,7 @@ export const Profile = () => {
                         className="border-purple-600 text-purple-600 hover:bg-purple-50"
                       >
                         <BarChart3 size={16} />
-                        Dashboard
+                        Workspace
                       </Button>
                     </div>
                   )}
