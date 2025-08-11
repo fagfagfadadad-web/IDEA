@@ -323,7 +323,7 @@ const BuyForm: React.FC<{
             <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold`}>
               Buy IDA Tokens
             </h3>
-            <p className="text-white/80 text-base">
+            <p className="text-grey text-base">
               Phase {currentPhase} Token Sale
             </p>
           </div>
