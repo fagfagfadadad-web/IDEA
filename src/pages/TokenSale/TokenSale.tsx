@@ -478,6 +478,9 @@ export const TokenSale: React.FC = () => {
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
   const currentAvailable = currentSupply - currentSold;
 
+  // Define if current phase is active
+  const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
+
   // Získanie ceny EGLD v USD
   const fetchEgldPrice = async () => {
     try {
