@@ -1037,9 +1037,9 @@
   integrity sha512-J4RxpsfNnWBKOPz0vvhnReSf8V6mci11Pe3NT2awhrpBhtAvkSBUGIzgoGVf/eumrhyReRmKyMjo+u4UhGokbg==
 
 "@multiversx/sdk-network-providers@^3.0.0":
-  version "2.9.3"
-  resolved "https://registry.yarnpkg.com/@multiversx/sdk-network-providers/-/sdk-network-providers-2.9.3.tgz#453f3ab752bb36d5b9bda930ee8295c2bb148a04"
-  integrity sha512-oBrXbNaaHQymd8EqUQPW0bpZu9JaTz6TOaV8MzNCzUo0Xe3a2QxaQ7f0I5OYzD7k0TxPqLv4hQhfIsh3+ifmPw==
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@multiversx/sdk-network-providers/-/sdk-network-providers-2.9.0.tgz#9dedb73b88295c68e41f5898cb23552283d7fa7f"
+  integrity sha512-K1aolRg8xCDH/E0bPSIdXZbprKf3fxkEfmxhXN+pYXd2LXoXLdIQazo16b1kraxsRsyDDv8Ovc5oWg32/+Vtcg==
   dependencies:
     bech32 "1.1.4"
     bignumber.js "9.0.1"
