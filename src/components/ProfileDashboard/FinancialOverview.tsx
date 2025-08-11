@@ -24,7 +24,7 @@ export const FinancialOverview: React.FC = () => {
     });
 
     const completedOrders = providerOrders.filter(order => order.status === 'completed');
-    const pendingOrders = providerOrders.filter(order => 
+    const inProgressOrders = providerOrders.filter(order => 
       order.status === 'in_progress' || 
       order.status === 'delivered' || 
       order.status === 'pending_approval'
@@ -41,12 +41,30 @@ export const FinancialOverview: React.FC = () => {
     
     const totalEarnings = egldEarnings + idaEarnings;
     
-    const pendingEarnings = pendingOrders.reduce((sum, order) => {
+    const inProgressEarnings = inProgressOrders.reduce((sum, order) => {
       if (order.payment_token === 'EGLD') {
         return sum + (order.amount * 0.9); // After fee
       }
       return sum + order.amount;
     }, 0);
+    
+    // Orders ready to claim (completed + 3 days passed)
+    const claimableOrders = completedOrders.filter(order => {
+      const completionDate = new Date(order.status_updated_at);
+      const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+      return new Date() >= threeDaysLater;
+    });
+    
+    // Calculate claimable earnings split by token
+    const egldClaimableEarnings = claimableOrders
+      .filter(order => order.payment_token === 'EGLD')
+      .reduce((sum, order) => sum + (order.amount * 0.9), 0); // 90% after 10% fee
+      
+    const idaClaimableEarnings = claimableOrders
+      .filter(order => order.payment_token !== 'EGLD')
+      .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
+    
+    const totalClaimableEarnings = egldClaimableEarnings + idaClaimableEarnings;
     
     const thisMonth = new Date();
     thisMonth.setDate(1);
@@ -65,22 +83,19 @@ export const FinancialOverview: React.FC = () => {
     const totalViews = gigs.reduce((sum, gig) => sum + (gig.view_count || 0), 0);
     const activeGigs = gigs.filter(gig => gig.status === 'active').length;
     
-    // Orders ready to claim (completed + 3 days passed)
-    const ordersReadyToClaim = providerOrders.filter(order => {
-      if (order.status !== 'completed') return false;
-      const completionDate = new Date(order.status_updated_at);
-      const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-      return new Date() >= threeDaysLater;
-    }).length;
+    const ordersReadyToClaim = claimableOrders.length;
 
     return {
       totalEarnings,
       egldEarnings,
       idaEarnings,
-      pendingEarnings,
+      inProgressEarnings,
+      egldClaimableEarnings,
+      idaClaimableEarnings,
+      totalClaimableEarnings,
       thisMonthEarnings,
       completedOrdersCount: completedOrders.length,
-      pendingOrdersCount: pendingOrders.length,
+      inProgressOrdersCount: inProgressOrders.length,
       ordersReadyToClaim,
       totalViews,
       activeGigs,
@@ -136,13 +151,13 @@ export const FinancialOverview: React.FC = () => {
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-blue-600" />
-              <span className="text-blue-800 font-medium text-sm">Pending</span>
+              <span className="text-blue-800 font-medium text-sm">Claimable Earnings</span>
             </div>
             <p className="text-blue-800 text-xl font-bold">
-              {stats.pendingEarnings.toFixed(2)}
+              {stats.totalClaimableEarnings.toFixed(2)}
             </p>
             <p className="text-blue-600 text-xs">
-              {stats.pendingOrdersCount} active orders
+              EGLD: {stats.egldClaimableEarnings.toFixed(2)} | IDA: {stats.idaClaimableEarnings.toFixed(2)}
             </p>
           </div>
 
