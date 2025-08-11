@@ -278,6 +278,16 @@ const PhaseCard: React.FC<{
                   <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                   <span className="text-gray-700 text-sm">Early investor pricing</span>
                 </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span className="text-gray-700 text-sm">Larger token allocation</span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -670,7 +680,7 @@ export const TokenSale: React.FC = () => {
     }
 
     const idaAmount = Number(buyAmount);
-    const minTokens = contractMinBuyLimit > 0 ? contractMinBuyLimit / (contractPrice > 0 ? contractPrice : currentPrice) : minimumPurchaseTokens;
+    const minTokens = contractMinBuyLimit > 0 ? contractMinBuyLimit / (contractTokenPrice > 0 ? contractTokenPrice : currentPrice) : MINIMUM_PURCHASE_EGLD / currentPrice;
     
     if (!buyAmount || isNaN(idaAmount) || idaAmount < minTokens) {
       const minEgld = contractMinBuyLimit > 0 ? contractMinBuyLimit : MINIMUM_PURCHASE_EGLD;
@@ -704,7 +714,7 @@ export const TokenSale: React.FC = () => {
         paymentAtomic: paymentAtomic.toString(),
         contractAddress: saleContractAddress,
         phase: currentPhase,
-        price: contractPrice > 0 ? contractPrice : currentPrice
+        price: contractTokenPrice > 0 ? contractTokenPrice : currentPrice
       });
 
       showSuccessToast('Please confirm the transaction in your wallet.');
