@@ -130,7 +130,7 @@ export const TaskManager: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold text-gray-800">Task Manager</h3>
+            <h3 className="text-lg font-bold text-gray-800">Workspace Tasks</h3>
             <p className="text-gray-600 text-sm">
               {pendingTasks.length} pending • {completedTasks.length} completed
             </p>

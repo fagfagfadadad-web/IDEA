@@ -202,7 +202,7 @@ export const CalendarWidget: React.FC = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold text-gray-800">Calendar</h3>
+            <h3 className="text-lg font-bold text-gray-800">Workspace Calendar</h3>
             <p className="text-gray-600 text-sm">
               {upcomingEvents.length} upcoming events (next 2 weeks)
             </p>

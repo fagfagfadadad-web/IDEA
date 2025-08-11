@@ -118,7 +118,7 @@ export const ExternalToolsWidget: React.FC = () => {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h3 className="text-lg font-bold text-gray-800">External Tools</h3>
+          <h3 className="text-lg font-bold text-gray-800">Workspace Tools</h3>
           <p className="text-gray-600 text-sm">Quick access to your favorite design and productivity tools</p>
         </div>
 

@@ -213,7 +213,7 @@ export const FinancialOverview: React.FC = () => {
 
         {/* Quick Actions */}
         <div className="border-t border-gray-200 pt-4">
-          <h4 className="text-md font-semibold text-gray-700 mb-3">Quick Actions</h4>
+          <h4 className="text-md font-semibold text-gray-700 mb-3">Workspace Actions</h4>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => window.location.href = '/create-gig'}
