@@ -37,6 +37,7 @@ const externalTools: ExternalTool[] = [
         width="20" 
         height="20" 
       />
+    ),
     url: 'https://www.canva.com',
     description: 'Create graphics and designs',
     color: 'bg-blue-500'
@@ -81,6 +82,7 @@ const externalTools: ExternalTool[] = [
         width="20" 
         height="20" 
       />
+    ),
     url: 'https://github.com',
     description: 'Code repositories',
     color: 'bg-gray-900'
@@ -88,6 +90,7 @@ const externalTools: ExternalTool[] = [
   {
     id: 'discord',
     name: 'Discord',
+    icon: (
       <img 
         src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" 
         alt="Discord" 
