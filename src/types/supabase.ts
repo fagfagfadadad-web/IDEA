@@ -35,6 +35,10 @@ export interface Database {
           discord_username: string | null
           telegram_username: string | null
           is_banned: boolean | null
+          ida_balance: number | null
+          total_earned: number | null
+          level: number | null
+          xp: number | null
         }
         Insert: {
           id?: string
@@ -54,6 +58,10 @@ export interface Database {
           linkedin_url?: string | null
           website_url?: string | null
           is_banned?: boolean | null
+          ida_balance?: number | null
+          total_earned?: number | null
+          level?: number | null
+          xp?: number | null
         }
         Update: {
           id?: string
@@ -73,6 +81,241 @@ export interface Database {
           linkedin_url?: string | null
           website_url?: string | null
           is_banned?: boolean | null
+          ida_balance?: number | null
+          total_earned?: number | null
+          level?: number | null
+          xp?: number | null
+        }
+      }
+      tasks: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          reward_amount: number
+          xp_reward: number
+          task_type: string
+          required_value: string | null
+          proof_required_type: string | null
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          title: string
+          description: string
+          reward_amount: number
+          xp_reward?: number
+          task_type: string
+          required_value?: string | null
+          proof_required_type?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          reward_amount?: number
+          xp_reward?: number
+          task_type?: string
+          required_value?: string | null
+          proof_required_type?: string | null
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      user_tasks: {
+        Row: {
+          id: string
+          user_id: string
+          task_id: string
+          status: string
+          proof_url: string | null
+          proof_text: string | null
+          completed_at: string | null
+          claimed_at: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task_id: string
+          status?: string
+          proof_url?: string | null
+          proof_text?: string | null
+          completed_at?: string | null
+          claimed_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task_id?: string
+          status?: string
+          proof_url?: string | null
+          proof_text?: string | null
+          completed_at?: string | null
+          claimed_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      referral_stats: {
+        Row: {
+          user_id: string
+          referral_code: string
+          total_referrals: number
+          active_referrals: number
+          total_referral_earnings: number
+          pending_earnings: number
+          completed_earnings: number
+          total_rewards: number
+          last_updated: string | null
+        }
+        Insert: {
+          user_id: string
+          referral_code: string
+          total_referrals?: number
+          active_referrals?: number
+          total_referral_earnings?: number
+          pending_earnings?: number
+          completed_earnings?: number
+          total_rewards?: number
+          last_updated?: string | null
+        }
+        Update: {
+          user_id?: string
+          referral_code?: string
+          total_referrals?: number
+          active_referrals?: number
+          total_referral_earnings?: number
+          pending_earnings?: number
+          completed_earnings?: number
+          total_rewards?: number
+          last_updated?: string | null
+        }
+      }
+      referrals: {
+        Row: {
+          id: string
+          referrer_id: string
+          referred_user_id: string
+          referral_code: string
+          status: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          referred_user_id: string
+          referral_code: string
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          referred_user_id?: string
+          referral_code?: string
+          status?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+      }
+      referral_rewards: {
+        Row: {
+          id: string
+          referrer_id: string
+          referred_user_id: string | null
+          referral_id: string | null
+          reward_type: string
+          reward_amount: number
+          reward_token: string
+          status: string
+          order_id: string | null
+          gig_id: string | null
+          created_at: string | null
+          processed_at: string | null
+          transaction_hash: string | null
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          referred_user_id?: string | null
+          referral_id?: string | null
+          reward_type: string
+          reward_amount?: number
+          reward_token?: string
+          status?: string
+          order_id?: string | null
+          gig_id?: string | null
+          created_at?: string | null
+          processed_at?: string | null
+          transaction_hash?: string | null
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          referred_user_id?: string | null
+          referral_id?: string | null
+          reward_type?: string
+          reward_amount?: number
+          reward_token?: string
+          status?: string
+          order_id?: string | null
+          gig_id?: string | null
+          created_at?: string | null
+          processed_at?: string | null
+          transaction_hash?: string | null
+          notes?: string | null
+        }
+      }
+      transaction_history: {
+        Row: {
+          id: string
+          from_address: string
+          to_address: string
+          token_identifier: string
+          amount: number
+          transaction_hash: string | null
+          transaction_type: string
+          status: string
+          timestamp: string
+          description: string | null
+        }
+        Insert: {
+          id?: string
+          from_address: string
+          to_address: string
+          token_identifier: string
+          amount: number
+          transaction_hash?: string | null
+          transaction_type: string
+          status?: string
+          timestamp?: string
+          description?: string | null
+        }
+        Update: {
+          id?: string
+          from_address?: string
+          to_address?: string
+          token_identifier?: string
+          amount?: number
+          transaction_hash?: string | null
+          transaction_type?: string
+          status?: string
+          timestamp?: string
+          description?: string | null
         }
       }
       gigs: {

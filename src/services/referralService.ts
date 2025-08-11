@@ -62,7 +62,7 @@ export class ReferralService {
         .from('referral_stats')
         .select('referral_code')
         .eq('referral_code', code)
-        .single();
+        .maybeSingle();
 
       if (!data) return code;
       attempts++;
