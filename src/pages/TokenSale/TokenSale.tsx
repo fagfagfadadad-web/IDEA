@@ -197,26 +197,26 @@ const PhaseCard: React.FC<{
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg">
-            <div className="flex items-center gap-2 mb-2">
+        <div className={`grid grid-cols-1 ${isMobile ? 'gap-3' : 'md:grid-cols-2 gap-6'}`}>
+          <div className={`bg-gray-900 rounded-xl ${isMobile ? 'p-4' : 'p-6'} border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg`}>
+            <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : 'mb-2'}`}>
               <Target size={18} className="text-indigo-400" />
-              <span className="text-indigo-300 text-sm font-medium uppercase tracking-wide">Total Supply</span>
+              <span className={`text-indigo-300 ${isMobile ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wide`}>Total Supply</span>
             </div>
-            <p className="text-white text-xl font-bold">
+            <p className={`text-white ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
               {supply.toLocaleString()} IDA
             </p>
           </div>
           
-          <div className="bg-gray-900 rounded-xl p-6 border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg">
-            <div className="flex items-center gap-2 mb-2">
+          <div className={`bg-gray-900 rounded-xl ${isMobile ? 'p-4' : 'p-6'} border border-gray-600 hover:bg-gray-800 transition-all duration-300 shadow-lg`}>
+            <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : 'mb-2'}`}>
               <DollarSign size={18} className="text-green-400" />
-              <span className="text-green-300 text-sm font-medium uppercase tracking-wide">Price</span>
+              <span className={`text-green-300 ${isMobile ? 'text-xs' : 'text-sm'} font-medium uppercase tracking-wide`}>Price</span>
             </div>
-            <p className="text-white text-xl font-bold">
+            <p className={`text-white ${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>
               {price.toFixed(6)} EGLD
             </p>
-            <p className="text-gray-300 text-sm">
+            <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>
               per IDA token
             </p>
           </div>
