@@ -492,10 +492,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         total_earned: profile.total_earned,
         level: profile.level,
         xp: profile.xp
-      };
-      
-      setUser(enhancedUser);
-      setIsProfileReady(true);
       setAuthMessage('');
     } catch (error: any) {
       console.error('❌ AuthContext: Profile setup error:', error);
