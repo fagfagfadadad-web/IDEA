@@ -107,34 +107,50 @@ export const Header = () => {
             </Link>
             
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-6">
-              <Link to="/gigs" className="text-gray-800 hover:text-blue-600 transition-colors">
+            <nav className="hidden lg:flex items-center space-x-1">
+              <Link 
+                to="/gigs" 
+                className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+              >
                 Browse Gigs
               </Link>
-              <Link to="/requests" className="text-gray-800 hover:text-blue-600 transition-colors">
+              <Link 
+                to="/requests" 
+                className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+              >
                 Open Bids
               </Link>
-              <Link to="/token-sale" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
-                <Coins size={16} />
+              <a
+                href="https://ideagigs.store/token-sale"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+              >
                 Token Sale
-              </Link>
-              <Link to="/rewards" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
-                <Gift size={16} />
+              </a>
+              <Link 
+                to="/rewards" 
+                className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+              >
                 Rewards
               </Link>
               {isLoggedIn && (
                 <>
-                  <Link to="/my-requests" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
-                    <Briefcase size={16} />
+                  <Link 
+                    to="/my-requests" 
+                    className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+                  >
                     My Requests
                   </Link>
-                  <Link to="/create-gig" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
-                    <Plus size={16} />
+                  <Link 
+                    to="/create-gig" 
+                    className="inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0 transition-colors"
+                  >
                     Create Gig
                   </Link>
                 </>
               )}
-            </div>
+            </nav>
           </div>
 
           <div className="flex items-center space-x-4">
