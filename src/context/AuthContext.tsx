@@ -487,6 +487,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error('❌ AuthContext: Profile setup error:', error);
       throw error;
+    } finally {
+      // Process referral code after profile is fully set up
+      try {
+        const pendingReferralCode = localStorage.getItem('pendingReferralCode');
+        if (pendingReferralCode && walletAddress) {
+          console.log('🔗 AuthContext: Processing pending referral code:', pendingReferralCode);
+          await ReferralService.checkReferralFromUrl(walletAddress, pendingReferralCode);
+        }
+      } catch (referralError) {
+        console.error('🔗 AuthContext: Error processing referral:', referralError);
+        // Don't fail the auth process if referral processing fails
+      }
     }
   };
 

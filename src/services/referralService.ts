@@ -187,10 +187,17 @@ export class ReferralService {
   }
 
   // Check referral from URL and process signup bonus
-  static async checkReferralFromUrl(newUserAddress: string): Promise<void> {
+  static async checkReferralFromUrl(newUserAddress: string, referralCodeOverride: string | null = null): Promise<void> {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const referralCode = urlParams.get('ref');
+      let referralCode = referralCodeOverride;
+      
+      // If no override provided, try to get from URL
+      if (!referralCode) {
+        const urlParams = new URLSearchParams(window.location.search);
+        referralCode = urlParams.get('ref');
+      }
+      
+      console.log('🔗 ReferralService: Processing referral code:', referralCode);
 
       if (!referralCode) return;
 
@@ -201,7 +208,12 @@ export class ReferralService {
         .eq('referral_code', referralCode)
         .single();
 
-      if (!referrerStats) return;
+      if (!referrerStats) {
+        console.log('🔗 ReferralService: Referrer not found for code:', referralCode);
+        return;
+      }
+      
+      console.log('🔗 ReferralService: Found referrer:', referrerStats.user_id);
 
       // Get new user
       const { data: newUser } = await supabase
@@ -210,7 +222,12 @@ export class ReferralService {
         .eq('wallet_address', newUserAddress)
         .single();
 
-      if (!newUser) return;
+      if (!newUser) {
+        console.log('🔗 ReferralService: New user not found for address:', newUserAddress);
+        return;
+      }
+      
+      console.log('🔗 ReferralService: Found new user:', newUser.id);
 
       // Check if referral already exists
       const { data: existingReferral } = await supabase
@@ -219,7 +236,10 @@ export class ReferralService {
         .eq('referred_user_id', newUser.id)
         .single();
 
-      if (existingReferral) return;
+      if (existingReferral) {
+        console.log('🔗 ReferralService: Referral already exists for user:', newUser.id);
+        return;
+      }
 
       // Create referral record
       const { data: referral, error: referralError } = await supabase
@@ -234,6 +254,8 @@ export class ReferralService {
         .single();
 
       if (referralError) throw referralError;
+      
+      console.log('🔗 ReferralService: Created referral record:', referral.id);
 
       // Give signup bonus to both users
       await Promise.all([
@@ -241,10 +263,11 @@ export class ReferralService {
         this.giveReferralReward(newUser.id, 'signup_bonus', this.REWARD_AMOUNTS.signup, referral.id)
       ]);
 
-      // Clear referral code from URL
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('ref');
-      window.history.replaceState({}, '', newUrl.toString());
+      console.log('🔗 ReferralService: Signup bonuses awarded to both users');
+      
+      // Clear any pending referral code from localStorage
+      localStorage.removeItem('pendingReferralCode');
+      console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
     } catch (error) {
       console.error('Error processing referral:', error);
     }
