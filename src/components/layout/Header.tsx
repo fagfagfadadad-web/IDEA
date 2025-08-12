@@ -238,10 +238,10 @@ export const Header = () => {
                           onClick={() => setIsProfileMenuOpen(false)}
                           aria-hidden="true"
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden transform -translate-x-4">
                           <Link
                             to="/profile"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -249,7 +249,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/my-requests"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Briefcase size={16} />
@@ -257,7 +257,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/create-gig"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Plus size={16} />
@@ -267,7 +267,7 @@ export const Header = () => {
                             href="https://ideagigs.store/token-sale"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Coins size={16} />
@@ -275,7 +275,7 @@ export const Header = () => {
                           </a>
                           <Link
                             to="/profile?tab=settings"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Settings size={16} />
@@ -283,14 +283,14 @@ export const Header = () => {
                           </Link>
                           <button
                             onClick={handleForceReconnect}
-                            className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-colors duration-200 w-full text-left border-b border-gray-100"
+                            className="flex items-center gap-3 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-colors duration-200 w-full text-left border-b border-gray-100"
                           >
                             <Wallet size={16} />
                             Reconnect Wallet
                           </button>
                           <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-left"
+                            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-left"
                           >
                             <LogOut size={16} />
                             Logout
@@ -343,7 +343,7 @@ export const Header = () => {
                 className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label="Toggle menu"
               >
-                <MenuIcon size={20} />
+                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-[60]"
               </button>
             </div>
           </div>
@@ -351,14 +351,15 @@ export const Header = () => {
       </div>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`lg:hidden fixed inset-0 z-50 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+        <div
+          className="absolute inset-0 bg-black bg-opacity-50"
+          onClick={() => setIsMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}>
             {/* Menu Header */}
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-pink-50">
               <div className="flex justify-between items-center">
@@ -491,8 +492,7 @@ export const Header = () => {
                     Connect Wallet
                   </Button>
                 </div>
-              )}
-            </div>
+      </div>
           </div>
         </div>
       )}
