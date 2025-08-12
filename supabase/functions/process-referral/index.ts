@@ -374,11 +374,11 @@ Deno.serve(async (req: Request) => {
     const { error: statsError } = await supabaseAdmin
       .from('referral_stats')
       .update({
-        total_referrals: supabaseAdmin.sql`total_referrals + 1`,
-        active_referrals: supabaseAdmin.sql`active_referrals + 1`,
-        total_referral_earnings: supabaseAdmin.sql`total_referral_earnings + ${SIGNUP_BONUS}`,
-        completed_earnings: supabaseAdmin.sql`completed_earnings + ${SIGNUP_BONUS}`,
-        total_rewards: supabaseAdmin.sql`total_rewards + 1`,
+        total_referrals: (referrerStats.total_referrals || 0) + 1,
+        active_referrals: (referrerStats.active_referrals || 0) + 1,
+        total_referral_earnings: (referrerStats.total_referral_earnings || 0) + SIGNUP_BONUS,
+        completed_earnings: (referrerStats.completed_earnings || 0) + SIGNUP_BONUS,
+        total_rewards: (referrerStats.total_rewards || 0) + 1,
         last_updated: new Date().toISOString()
       })
       .eq('user_id', referrerStats.user_id);
