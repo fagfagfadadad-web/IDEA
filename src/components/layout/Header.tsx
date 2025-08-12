@@ -394,6 +394,7 @@ export const Header = () => {
                                   <p className="text-xs text-gray-500">Disconnect wallet</p>
                                 </div>
                               </button>
+                            </div>
                           </div>
                         </>
                       )}
