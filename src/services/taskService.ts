@@ -315,7 +315,7 @@ export class TaskService {
         })
         .eq('id', taskId)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
