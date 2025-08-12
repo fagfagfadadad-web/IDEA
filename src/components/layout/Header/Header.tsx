@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch, Gift } from 'lucide-react';
-import { Button } from 'components';
-import { NotificationsDropdown } from '../NotificationsMenu';
-import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
-import { RouteNamesEnum } from 'localConstants';
-import { useNotifications, Notification as CustomNotification } from '../../hooks/useNotifications';
-import { useWindowSize } from '../../hooks/useWindowSize';
-import { useAuth } from '../../context/AuthContext';
+import { Button } from 'components'; // Assuming this is your custom Button component
+import { NotificationsDropdown } from '../NotificationsMenu'; // Assuming this is your custom NotificationsDropdown component
+import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib'; // Assuming these are your custom auth utilities
+import { RouteNamesEnum } from 'localConstants'; // Assuming this contains your route constants
+import { useNotifications, Notification as CustomNotification } from '../../hooks/useNotifications'; // Assuming this is your notifications hook
+import { useWindowSize } from '../../hooks/useWindowSize'; // Assuming this is your window size hook
+import { useAuth } from '../../context/AuthContext'; // Assuming this is your auth context
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -17,12 +17,12 @@ export const Header = () => {
   const { width } = useWindowSize();
   const isMobile = width < 768;
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
-  const unreadCount = notifications?.filter(n => !n.read).length || 0;
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
   // Debug logging for notifications
   useEffect(() => {
@@ -31,9 +31,9 @@ export const Header = () => {
       userId: user?.id,
       notificationsCount: notifications?.length || 0,
       unreadCount,
-      notifications: notifications?.slice(0, 3), // Log first 3 for debugging
+      notifications: notifications?.slice(0, 3),
       hasUser: !!user,
-      userReady: !!user?.id
+      userReady: !!user?.id,
     });
   }, [notifications, unreadCount, isLoggedIn, user?.id]);
 
@@ -73,17 +73,15 @@ export const Header = () => {
       console.log('Navigation completed');
     } catch (error) {
       console.error('Navigation error:', error);
-      // Fallback to window.location
       window.location.href = '/unlock';
     }
   };
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    
     if (searchTerm.trim()) {
       navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm("");
+      setSearchTerm('');
     } else {
       navigate('/search');
     }
@@ -94,53 +92,77 @@ export const Header = () => {
   };
 
   return (
-    <div className="bg-white py-3 md:py-4 border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4 md:px-6">
+    <header className="bg-white py-3 md:py-4 border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex justify-between items-center">
+          {/* Logo and Desktop Navigation */}
           <div className="flex items-center space-x-4">
-            <Link to="/" className="h-8 md:h-10 w-8 md:w-10 flex items-center hover:scale-105 transition-transform">
+            <Link
+              to="/"
+              className="h-8 md:h-10 w-8 md:w-10 flex items-center hover:scale-105 transition-transform"
+              aria-label="Home"
+            >
               <img
                 src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
                 alt="IDEA Logo"
                 className="w-full h-full object-contain"
               />
             </Link>
-            
+
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-6">
-              <Link to="/gigs" className="text-gray-800 hover:text-blue-600 transition-colors">
+            <nav className="hidden lg:flex items-center space-x-6">
+              <Link
+                to="/gigs"
+                className="text-gray-800 hover:text-blue-600 transition-colors text-sm font-medium"
+              >
                 Browse Gigs
               </Link>
-              <Link to="/requests" className="text-gray-800 hover:text-blue-600 transition-colors">
+              <Link
+                to="/requests"
+                className="text-gray-800 hover:text-blue-600 transition-colors text-sm font-medium"
+              >
                 Open Bids
               </Link>
-              <Link to="/token-sale" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+              <Link
+                to="/token-sale"
+                className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
+              >
                 <Coins size={16} />
                 Token Sale
               </Link>
-              <Link to="/rewards" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+              <Link
+                to="/rewards"
+                className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
+              >
                 <Gift size={16} />
                 Rewards
               </Link>
               {isLoggedIn && (
                 <>
-                  <Link to="/my-requests" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+                  <Link
+                    to="/my-requests"
+                    className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
+                  >
                     <Briefcase size={16} />
                     My Requests
                   </Link>
-                  <Link to="/create-gig" className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2">
+                  <Link
+                    to="/create-gig"
+                    className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
+                  >
                     <Plus size={16} />
                     Create Gig
                   </Link>
                 </>
               )}
-            </div>
+            </nav>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Desktop and Mobile Actions */}
+          <div className="flex items-center space-x-3">
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-4">
-              {/* Enhanced Search with Input */}
+            <div className="hidden lg:flex items-center space-x-3">
+              {/* Search Form */}
               <form onSubmit={handleSearch} className="max-w-xs hidden xl:block">
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -152,16 +174,18 @@ export const Header = () => {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all duration-200"
+                    aria-label="Search gigs or bids"
                   />
                 </div>
               </form>
-              
+
               {isLoggedIn ? (
                 <div className="flex items-center space-x-3">
-                  {/* Notifications */}
-                  <button 
+                  {/* Notifications Button */}
+                  <button
                     onClick={() => setShowNotificationsModal(true)}
-                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
+                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
+                    aria-label="Notifications"
                   >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
@@ -170,48 +194,49 @@ export const Header = () => {
                       </span>
                     )}
                   </button>
-                  
+
                   {/* Profile Menu */}
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200"
+                      aria-label="Profile menu"
                     >
                       {user?.avatar_url ? (
                         <>
                           <img
                             src={user.avatar_url}
-                            alt={user.username || "Profile"}
+                            alt={user.username || 'Profile'}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
                               if (parent) {
                                 const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
                                 if (fallback) fallback.style.display = 'flex';
                               }
                             }}
                           />
-                          <div 
+                          <div
                             className="fallback-avatar w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white absolute inset-0"
                             style={{ display: 'none' }}
                           >
-                            {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                           </div>
                         </>
                       ) : (
                         <div className="w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white">
-                          {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                       )}
                     </button>
-                    
+
                     {isProfileMenuOpen && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-10" 
+                        <div
+                          className="fixed inset-0 z-10"
                           onClick={() => setIsProfileMenuOpen(false)}
+                          aria-hidden="true"
                         />
                         <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
                           <Link
@@ -293,14 +318,16 @@ export const Header = () => {
               <button
                 onClick={handleSearchButtonClick}
                 className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Search"
               >
                 <Search size={20} />
               </button>
-              
+
               {isLoggedIn && (
-                <button 
+                <button
                   onClick={() => setShowNotificationsModal(true)}
                   className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label="Notifications"
                 >
                   <Bell size={20} className="text-gray-600" />
                   {unreadCount > 0 && (
@@ -312,8 +339,12 @@ export const Header = () => {
               )}
 
               <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                onClick={() => {
+                  console.log('Toggling mobile menu, current state:', isMobileMenuOpen);
+                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                }}
+                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center block z-[60]"
+                aria-label="Toggle menu"
               >
                 <MenuIcon size={20} />
               </button>
@@ -325,24 +356,26 @@ export const Header = () => {
       {/* Mobile Drawer */}
       {isMobileMenuOpen && (
         <>
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-50"
             onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
           />
-          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300">
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-[60] transform transition-transform duration-300 translate-x-0">
             <div className="p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold gradient-text">Menu</h2>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  aria-label="Close menu"
                 >
                   <X size={20} />
                 </button>
               </div>
             </div>
 
-            <div className="p-4 space-y-2">
+            <nav className="p-4 space-y-2">
               <Link
                 to="/gigs"
                 className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
@@ -458,7 +491,7 @@ export const Header = () => {
                   Connect Wallet
                 </Button>
               )}
-            </div>
+            </nav>
           </div>
         </>
       )}
@@ -466,17 +499,16 @@ export const Header = () => {
       {/* Notifications Modal */}
       {showNotificationsModal && (
         <>
-          <div 
-            className="fixed inset-0 z-40" 
+          <div
+            className="fixed inset-0 z-40"
             onClick={() => setShowNotificationsModal(false)}
+            aria-hidden="true"
           />
-          <div className="fixed top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
+          <div className="fixed top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-[60] max-h-[80vh] overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Notifications
-                  </h3>
+                  <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
                   {unreadCount > 0 && (
                     <p className="text-sm text-gray-600">
                       {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
@@ -486,22 +518,23 @@ export const Header = () => {
                 <button
                   onClick={() => setShowNotificationsModal(false)}
                   className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+                  aria-label="Close notifications"
                 >
                   <X size={20} />
                 </button>
               </div>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsDropdown 
+              <NotificationsDropdown
                 notifications={notifications}
                 isLoading={isLoading}
                 error={error}
-                onClose={() => setShowNotificationsModal(false)} 
+                onClose={() => setShowNotificationsModal(false)}
               />
             </div>
           </div>
         </>
       )}
-    </div>
+    </header>
   );
 };
