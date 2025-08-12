@@ -125,113 +125,113 @@ export const FinancialOverview: React.FC = () => {
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 overflow-hidden">
       <div className="space-y-6">
         {/* Header */}
         <div>
           <h3 className="text-lg font-bold text-gray-800">Financial Overview</h3>
-          <p className="text-gray-600 text-sm">Your earnings and performance metrics</p>
+          <p className="text-gray-600 text-xs">Your earnings and performance metrics</p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
+        <div className="grid grid-cols-2 gap-3 overflow-hidden">
+          <div className="bg-green-50 border border-green-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={16} className="text-green-600" />
-              <span className="text-green-800 font-medium text-sm">Total Earnings</span>
+              <span className="text-green-800 font-medium text-xs">Total Earnings</span>
             </div>
-            <p className="text-green-800 text-xl font-bold">
+            <p className="text-green-800 text-lg font-bold break-words">
               {stats.totalEarnings.toFixed(2)}
             </p>
-            <p className="text-green-600 text-xs">
+            <p className="text-green-600 text-xs break-words">
               EGLD: {stats.egldEarnings.toFixed(2)} | IDA: {stats.idaEarnings.toFixed(2)}
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-blue-600" />
-              <span className="text-blue-800 font-medium text-sm">Claimable Earnings</span>
+              <span className="text-blue-800 font-medium text-xs">Claimable</span>
             </div>
-            <p className="text-blue-800 text-xl font-bold">
+            <p className="text-blue-800 text-lg font-bold break-words">
               {stats.totalClaimableEarnings.toFixed(2)}
             </p>
-            <p className="text-blue-600 text-xs">
+            <p className="text-blue-600 text-xs break-words">
               EGLD: {stats.egldClaimableEarnings.toFixed(2)} | IDA: {stats.idaClaimableEarnings.toFixed(2)}
             </p>
           </div>
 
-          <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+          <div className="bg-purple-50 border border-purple-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle size={16} className="text-purple-600" />
-              <span className="text-purple-800 font-medium text-sm">Ready to Claim</span>
+              <span className="text-purple-800 font-medium text-xs">Ready</span>
             </div>
-            <p className="text-purple-800 text-xl font-bold">
+            <p className="text-purple-800 text-lg font-bold">
               {stats.ordersReadyToClaim}
             </p>
-            <p className="text-purple-600 text-xs">
+            <p className="text-purple-600 text-xs break-words">
               orders ready for claim
             </p>
           </div>
 
-          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center gap-2 mb-2">
               <Calendar size={16} className="text-orange-600" />
-              <span className="text-orange-800 font-medium text-sm">This Month</span>
+              <span className="text-orange-800 font-medium text-xs">This Month</span>
             </div>
-            <p className="text-orange-800 text-xl font-bold">
+            <p className="text-orange-800 text-lg font-bold break-words">
               {stats.thisMonthEarnings.toFixed(2)}
             </p>
-            <p className="text-orange-600 text-xs">
+            <p className="text-orange-600 text-xs break-words">
               earnings this month
             </p>
           </div>
         </div>
 
         {/* Additional Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+        <div className="grid grid-cols-2 gap-3 overflow-hidden">
+          <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Eye size={16} className="text-gray-600" />
-                <span className="text-gray-700 font-medium text-sm">Total Views</span>
+                <span className="text-gray-700 font-medium text-xs">Views</span>
               </div>
-              <span className="text-gray-800 font-bold">{stats.totalViews}</span>
+              <span className="text-gray-800 font-bold text-sm">{stats.totalViews}</span>
             </div>
           </div>
           
-          <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+          <div className="bg-gray-50 border border-gray-200 p-3 rounded-lg overflow-hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Briefcase size={16} className="text-gray-600" />
-                <span className="text-gray-700 font-medium text-sm">Active Gigs</span>
+                <span className="text-gray-700 font-medium text-xs">Gigs</span>
               </div>
-              <span className="text-gray-800 font-bold">{stats.activeGigs}/{stats.totalGigs}</span>
+              <span className="text-gray-800 font-bold text-sm">{stats.activeGigs}/{stats.totalGigs}</span>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="border-t border-gray-200 pt-4">
-          <h4 className="text-md font-semibold text-gray-700 mb-3">Workspace Actions</h4>
-          <div className="grid grid-cols-2 gap-3">
+        <div className="border-t border-gray-200 pt-3">
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Quick Actions</h4>
+          <div className="grid grid-cols-2 gap-2 overflow-hidden">
             <button
               onClick={() => window.location.href = '/create-gig'}
-              className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors text-left"
+              className="p-2 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors text-left overflow-hidden"
             >
               <div className="flex items-center gap-2">
-                <Plus size={16} className="text-indigo-600" />
-                <span className="text-indigo-800 font-medium text-sm">Create Gig</span>
+                <Plus size={14} className="text-indigo-600" />
+                <span className="text-indigo-800 font-medium text-xs">Create Gig</span>
               </div>
             </button>
             
             <button
               onClick={() => window.location.href = '/my-requests'}
-              className="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left"
+              className="p-2 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors text-left overflow-hidden"
             >
               <div className="flex items-center gap-2">
-                <Briefcase size={16} className="text-green-600" />
-                <span className="text-green-800 font-medium text-sm">View Orders</span>
+                <Briefcase size={14} className="text-green-600" />
+                <span className="text-green-800 font-medium text-xs">View Orders</span>
               </div>
             </button>
           </div>
