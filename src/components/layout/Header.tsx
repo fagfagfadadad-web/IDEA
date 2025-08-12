@@ -216,7 +216,7 @@ export const Header = () => {
                   {/* Notifications */}
                   <button 
                     onClick={() => setShowNotificationsModal(true)}
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-red-50 w-full text-left transition-all duration-200"
+                    className="relative p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
                   >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
@@ -314,165 +314,229 @@ export const Header = () => {
                           <button
                             onClick={handleForceReconnect}
                             className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-all duration-200 w-full text-left border-b border-gray-100"
-              <Link
-                to="/gigs"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Briefcase size={18} />
-                Browse Gigs
-              </Link>
-              <Link
-                to="/requests"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FileSearch size={18} />
-                Open Bids
-              </Link>
-              <Link
-                to="/token-sale"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Coins size={18} />
-                Token Sale
-              </Link>
-              <Link
-                to="/rewards"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Gift size={18} />
-                Rewards
-              </Link>
-              {isLoggedIn && (
-                <>
-                  <Link
-                    to="/my-requests"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Briefcase size={18} />
-                    My Requests
-                  </Link>
-                  <Link
-                    to="/create-gig"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Plus size={18} />
-                    Create Gig
-                  </Link>
-                </>
-              )}
-              <button
-                onClick={() => {
-                  handleSearchButtonClick();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left"
-              >
-                <Search size={18} />
-                Search
-              </button>
-              {isLoggedIn ? (
-                <>
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <User size={18} />
-                    Profile
-                  </Link>
-                  <Link
-                    to="/profile?tab=settings"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Settings size={18} />
-                    Settings
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleForceReconnect();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 rounded-lg transition-all duration-200 w-full text-left"
-                  >
-                    <Wallet size={18} />
-                    Reconnect Wallet
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left mt-4"
-                  >
-                    <LogOut size={18} />
-                    Disconnect
-                  </button>
-                </>
+                          >
+                            <Wallet size={16} />
+                            Reconnect Wallet
+                          </button>
+                          <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-red-50 rounded-b-lg w-full text-left transition-all duration-200"
+                          >
+                            <LogOut size={16} />
+                            Logout
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               ) : (
                 <Button
-                  onClick={() => {
-                    handleConnect();
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={handleConnect}
                   variant="outline"
-                  fullWidth
-                  className="mt-4"
+                  className="flex items-center gap-2"
                 >
                   <Wallet size={18} />
                   Connect Wallet
                 </Button>
               )}
             </div>
-          </div>
-        </>
-      )}
 
-      {/* Notifications Modal */}
-      {showNotificationsModal && (
-        <>
-          <div 
-            className="fixed inset-0 z-40" 
-            onClick={() => setShowNotificationsModal(false)}
-          />
-          <div className="fixed top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800">
-                    Notifications
-                  </h3>
-                  {unreadCount > 0 && (
-                    <p className="text-sm text-gray-600">
-                      {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => setShowNotificationsModal(false)}
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+            {/* Mobile Actions */}
+            <div className="lg:hidden flex items-center space-x-2">
+              {isLoggedIn && (
+                <button 
+                  onClick={() => setShowNotificationsModal(true)}
+                  className="relative p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
                 >
-                  <X size={20} />
+                  <Bell size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </button>
+              )}
+              
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+              >
+                <MenuIcon size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <>
+            <div 
+              className="fixed inset-0 z-30 bg-black bg-opacity-50" 
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            <div className="absolute top-full left-0 right-0 mt-2 mx-4 bg-white rounded-xl shadow-2xl border border-gray-200 z-40 overflow-hidden">
+              <div className="p-4 space-y-2">
+                <Link
+                  to="/gigs"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Briefcase size={18} />
+                  Browse Gigs
+                </Link>
+                <Link
+                  to="/requests"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FileSearch size={18} />
+                  Open Bids
+                </Link>
+                <Link
+                  to="/token-sale"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Coins size={18} />
+                  Token Sale
+                </Link>
+                <Link
+                  to="/rewards"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Gift size={18} />
+                  Rewards
+                </Link>
+                {isLoggedIn && (
+                  <>
+                    <Link
+                      to="/my-requests"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Briefcase size={18} />
+                      My Requests
+                    </Link>
+                    <Link
+                      to="/create-gig"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Plus size={18} />
+                      Create Gig
+                    </Link>
+                  </>
+                )}
+                <button
+                  onClick={() => {
+                    handleSearchButtonClick();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left"
+                >
+                  <Search size={18} />
+                  Search
+                </button>
+                {isLoggedIn ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User size={18} />
+                      Profile
+                    </Link>
+                    <Link
+                      to="/profile?tab=settings"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Settings size={18} />
+                      Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleForceReconnect();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 rounded-lg transition-all duration-200 w-full text-left"
+                    >
+                      <Wallet size={18} />
+                      Reconnect Wallet
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left mt-4"
+                    >
+                      <LogOut size={18} />
+                      Disconnect
+                    </button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      handleConnect();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    variant="outline"
+                    fullWidth
+                    className="mt-4"
+                  >
+                    <Wallet size={18} />
+                    Connect Wallet
+                  </Button>
+                )}
               </div>
             </div>
-            <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsDropdown 
-                notifications={notifications}
-                isLoading={isLoading}
-                error={error}
-                onClose={() => setShowNotificationsModal(false)} 
-              />
+          </>
+        )}
+
+        {/* Notifications Modal */}
+        {showNotificationsModal && (
+          <>
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setShowNotificationsModal(false)}
+            />
+            <div className="fixed top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">
+                      Notifications
+                    </h3>
+                    {unreadCount > 0 && (
+                      <p className="text-sm text-gray-600">
+                        {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setShowNotificationsModal(false)}
+                    className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-y-auto max-h-[60vh]">
+                <NotificationsDropdown 
+                  notifications={notifications}
+                  isLoading={isLoading}
+                  error={error}
+                  onClose={() => setShowNotificationsModal(false)} 
+                />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
