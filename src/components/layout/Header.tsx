@@ -216,7 +216,7 @@ export const Header = () => {
                   {/* Notifications */}
                   <button 
                     onClick={() => setShowNotificationsModal(true)}
-                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-red-50 w-full text-left transition-all duration-200"
                   >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
                     {unreadCount > 0 && (
@@ -268,10 +268,10 @@ export const Header = () => {
                           className="fixed inset-0 z-10" 
                           onClick={() => setIsProfileMenuOpen(false)}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden">
                           <Link
                             to="/profile"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-t-lg transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -279,7 +279,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/my-requests"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Briefcase size={16} />
@@ -287,7 +287,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/create-gig"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Plus size={16} />
@@ -297,7 +297,7 @@ export const Header = () => {
                             href="https://ideagigs.store/token-sale"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Coins size={16} />
@@ -305,7 +305,7 @@ export const Header = () => {
                           </a>
                           <Link
                             to="/profile?tab=settings"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Settings size={16} />
@@ -313,7 +313,7 @@ export const Header = () => {
                           </Link>
                           <button
                             onClick={handleForceReconnect}
-            <div className="p-4 space-y-2">
+                            className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-all duration-200 w-full text-left border-b border-gray-100"
               <Link
                 to="/gigs"
                 className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
