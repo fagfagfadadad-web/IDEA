@@ -153,6 +153,14 @@ export const useAdminStats = () => {
         .maybeSingle();
 
       if (error) {
+        // Handle PGRST116 error specifically - treat as no data found
+        if (error.code === 'PGRST116' && error.details === 'The result contains 0 rows') {
+          console.log('🔍 useAdminStats: No admin stats found, treating as empty result');
+          setData(null);
+          setError(null);
+          return;
+        }
+        
         console.error('🔍 useAdminStats: Error fetching stats:', error);
         throw error;
       }
