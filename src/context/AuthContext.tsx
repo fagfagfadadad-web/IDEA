@@ -495,12 +495,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const pendingReferralCode = localStorage.getItem('pendingReferralCode');
         if (pendingReferralCode && walletAddress) {
           console.log('🔗 AuthContext: Processing pending referral code:', pendingReferralCode);
+          
           // Call ReferralService to process the referral code
           await ReferralService.checkReferralFromUrl(walletAddress, pendingReferralCode);
+          
+          // Clear the pending referral code after successful processing
+          localStorage.removeItem('pendingReferralCode');
+          console.log('🔗 AuthContext: Cleared pending referral code after processing');
         }
       } catch (referralError) {
         console.error('🔗 AuthContext: Error processing referral:', referralError);
         // Don't fail the auth process if referral processing fails
+        // But still clear the pending code to prevent repeated attempts
+        localStorage.removeItem('pendingReferralCode');
       }
     }
   };

@@ -187,14 +187,20 @@ export class ReferralService {
   }
 
   // Check referral from URL and process signup bonus
-  static async checkReferralFromUrl(newUserAddress: string, referralCodeOverride: string | null = null): Promise<void> {
+  static async checkReferralFromUrl(newUserAddress: string, referralCodeOverride?: string): Promise<void> {
     try {
-      let referralCode = referralCodeOverride;
+      let referralCode = referralCodeOverride || null;
       
       // If no override provided, try to get from URL
       if (!referralCode) {
-        const urlParams = new URLSearchParams(window.location.search);
-        referralCode = urlParams.get('ref');
+        // First check localStorage for pending referral code
+        referralCode = localStorage.getItem('pendingReferralCode');
+        
+        // If not in localStorage, try URL
+        if (!referralCode) {
+          const urlParams = new URLSearchParams(window.location.search);
+          referralCode = urlParams.get('ref');
+        }
       }
       
       console.log('🔗 ReferralService: Processing referral code:', referralCode);
