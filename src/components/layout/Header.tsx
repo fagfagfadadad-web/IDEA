@@ -92,6 +92,7 @@ export const Header = () => {
   };
 
   return (
+    <>
     <header className="bg-white py-3 md:py-4 border-b border-gray-200 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex justify-between items-center">
@@ -238,7 +239,7 @@ export const Header = () => {
                           onClick={() => setIsProfileMenuOpen(false)}
                           aria-hidden="true"
                         />
-                        <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden transform -translate-x-4">
+                        <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden transform -translate-x-12">
                           <Link
                             to="/profile"
                             className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
@@ -349,193 +350,194 @@ export const Header = () => {
           </div>
         </div>
       </div>
+    </header>
 
-      {/* Mobile Menu Overlay */}
-      <div className={`lg:hidden fixed inset-0 z-50 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-        <div
-          className="absolute inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsMobileMenuOpen(false)}
-          aria-hidden="true"
-        />
-        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-          isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}>
-            {/* Menu Header */}
-            <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-pink-50">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
-                <button
+    {/* Mobile Menu Overlay */}
+    <div className={`lg:hidden fixed inset-0 z-50 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div
+        className="absolute inset-0 bg-black bg-opacity-50"
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+      <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
+        isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+      }`}>
+          {/* Menu Header */}
+          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-pink-50">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Menu Content */}
+          <div className="p-4 space-y-2 overflow-y-auto h-full pb-20">
+            <Link
+              to="/gigs"
+              className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Briefcase size={18} />
+              Browse Gigs
+            </Link>
+            <Link
+              to="/requests"
+              className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FileSearch size={18} />
+              Open Bids
+            </Link>
+            <Link
+              to="/token-sale"
+              className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Coins size={18} />
+              Token Sale
+            </Link>
+            <Link
+              to="/rewards"
+              className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Gift size={18} />
+              Rewards
+            </Link>
+            {isLoggedIn && (
+              <>
+                <Link
+                  to="/my-requests"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-colors"
                 >
-                  <X size={20} />
+                  <Briefcase size={18} />
+                  My Requests
+                </Link>
+                <Link
+                  to="/create-gig"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Plus size={18} />
+                  Create Gig
+                </Link>
+              </>
+            )}
+            <button
+              onClick={() => {
+                handleSearchButtonClick();
+                setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
+            >
+              <Search size={18} />
+              Search
+            </button>
+            
+            {/* User Section */}
+            {isLoggedIn ? (
+              <div className="pt-4 border-t border-gray-200 mt-4">
+                <Link
+                  to="/profile"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={18} />
+                  Profile
+                </Link>
+                <Link
+                  to="/profile?tab=settings"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Settings size={18} />
+                  Settings
+                </Link>
+                <button
+                  onClick={() => {
+                    handleForceReconnect();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-orange-50 rounded-lg transition-colors w-full text-left"
+                >
+                  <Wallet size={18} />
+                  Reconnect Wallet
+                </button>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 py-3 px-3 text-base text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full text-left"
+                >
+                  <LogOut size={18} />
+                  Disconnect
                 </button>
               </div>
-            </div>
-
-            {/* Menu Content */}
-            <div className="p-4 space-y-2 overflow-y-auto h-full pb-20">
-              <Link
-                to="/gigs"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Briefcase size={18} />
-                Browse Gigs
-              </Link>
-              <Link
-                to="/requests"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FileSearch size={18} />
-                Open Bids
-              </Link>
-              <Link
-                to="/token-sale"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Coins size={18} />
-                Token Sale
-              </Link>
-              <Link
-                to="/rewards"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Gift size={18} />
-                Rewards
-              </Link>
-              {isLoggedIn && (
-                <>
-                  <Link
-                    to="/my-requests"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Briefcase size={18} />
-                    My Requests
-                  </Link>
-                  <Link
-                    to="/create-gig"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Plus size={18} />
-                    Create Gig
-                  </Link>
-                </>
-              )}
-              <button
-                onClick={() => {
-                  handleSearchButtonClick();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
-              >
-                <Search size={18} />
-                Search
-              </button>
-              
-              {/* User Section */}
-              {isLoggedIn ? (
-                <div className="pt-4 border-t border-gray-200 mt-4">
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <User size={18} />
-                    Profile
-                  </Link>
-                  <Link
-                    to="/profile?tab=settings"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Settings size={18} />
-                    Settings
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleForceReconnect();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-orange-50 rounded-lg transition-colors w-full text-left"
-                  >
-                    <Wallet size={18} />
-                    Reconnect Wallet
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full text-left"
-                  >
-                    <LogOut size={18} />
-                    Disconnect
-                  </button>
-                </div>
-              ) : (
-                <div className="pt-4 border-t border-gray-200 mt-4">
-                  <Button
-                    onClick={() => {
-                      handleConnect();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    variant="outline"
-                    fullWidth
-                  >
-                    <Wallet size={18} />
-                    Connect Wallet
-                  </Button>
-                </div>
-              )}
-            </div>
+            ) : (
+              <div className="pt-4 border-t border-gray-200 mt-4">
+                <Button
+                  onClick={() => {
+                    handleConnect();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  variant="outline"
+                  fullWidth
+                >
+                  <Wallet size={18} />
+                  Connect Wallet
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+    </div>
 
-      {/* Notifications Modal */}
-      {showNotificationsModal && (
-        <div className="fixed inset-0 z-40">
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setShowNotificationsModal(false)}
-          />
-          <div className="absolute top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
-                  {unreadCount > 0 && (
-                    <p className="text-sm text-gray-600">
-                      {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => setShowNotificationsModal(false)}
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
-                  aria-label="Close notifications"
-                >
-                  <X size={20} />
-                </button>
+    {/* Notifications Modal */}
+    {showNotificationsModal && (
+      <div className="fixed inset-0 z-40">
+        <div
+          className="absolute inset-0 bg-black bg-opacity-50"
+          onClick={() => setShowNotificationsModal(false)}
+        />
+        <div className="absolute top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
+          <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
+                {unreadCount > 0 && (
+                  <p className="text-sm text-gray-600">
+                    {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
+                  </p>
+                )}
               </div>
-            </div>
-            <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsDropdown
-                notifications={notifications}
-                isLoading={isLoading}
-                error={error}
-                onClose={() => setShowNotificationsModal(false)}
-              />
+              <button
+                onClick={() => setShowNotificationsModal(false)}
+                className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
+                aria-label="Close notifications"
+              >
+                <X size={20} />
+              </button>
             </div>
           </div>
+          <div className="overflow-y-auto max-h-[60vh]">
+            <NotificationsDropdown
+              notifications={notifications}
+              isLoading={isLoading}
+              error={error}
+              onClose={() => setShowNotificationsModal(false)}
+            />
+          </div>
         </div>
-      )}
-    </header>
+      </div>
+    )}
+    </>
   );
 };
