@@ -220,20 +220,20 @@ export const Header = () => {
                             Token Sale
                           </a>
                           <Link
-                            to="/profile?tab=settings"
+                className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50"
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Settings size={16} />
                             Settings
-                          </Link>
+                className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50 flex items-center gap-2"
                           <button
                             onClick={handleForceReconnect}
                             className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-all duration-200 w-full text-left border-b border-gray-100"
                           >
                             <Wallet size={16} />
                             Reconnect Wallet
-                          </button>
+                className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50 flex items-center gap-2"
                           <button
                             onClick={handleLogout}
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-red-50 rounded-b-lg w-full text-left transition-all duration-200"
@@ -242,14 +242,14 @@ export const Header = () => {
                             Logout
                           </button>
                         </div>
-                      </>
+                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50 flex items-center gap-2"
                     )}
                   </div>
                 </div>
               ) : (
                 <Button
                   onClick={handleConnect}
-                  variant="outline"
+                    className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50 flex items-center gap-2"
                   className="flex items-center gap-2"
                 >
                   <Wallet size={18} />
@@ -276,7 +276,7 @@ export const Header = () => {
               
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all duration-200"
+                className="text-gray-700 hover:text-indigo-600 font-medium transition-colors duration-200 px-3 py-2 rounded-lg hover:bg-indigo-50"
               >
                 <MenuIcon size={20} />
               </button>
