@@ -591,16 +591,17 @@ export const RewardsHub = () => {
                           className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
                         />
                         <div className="flex gap-3">
+                        <div className="space-y-3">
                           <Button
                             onClick={handleCopyReferralLink}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
                           >
                             <Copy size={16} />
                             Copy Link
                           </Button>
                           <Button
                             onClick={handleShareReferralLink}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
+                            className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
                           >
                             <Share size={16} />
                             Share Link
