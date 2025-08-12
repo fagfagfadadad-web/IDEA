@@ -294,7 +294,7 @@ export const Header = () => {
               <div className="p-4 space-y-2">
                 <Link
                   to="/gigs"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Briefcase size={18} />
@@ -302,7 +302,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/requests"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FileSearch size={18} />
@@ -310,7 +310,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/token-sale"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Coins size={18} />
@@ -318,7 +318,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/rewards"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Gift size={18} />
@@ -328,7 +328,7 @@ export const Header = () => {
                   <>
                     <Link
                       to="/my-requests"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Briefcase size={18} />
@@ -336,7 +336,7 @@ export const Header = () => {
                     </Link>
                     <Link
                       to="/create-gig"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Plus size={18} />
@@ -349,7 +349,7 @@ export const Header = () => {
                     handleSearchButtonClick();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200 w-full text-left"
                 >
                   <Search size={18} />
                   Search
@@ -358,7 +358,7 @@ export const Header = () => {
                   <>
                     <Link
                       to="/profile"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <User size={18} />
@@ -366,7 +366,7 @@ export const Header = () => {
                     </Link>
                     <Link
                       to="/profile?tab=settings"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Settings size={18} />
@@ -377,7 +377,7 @@ export const Header = () => {
                         handleForceReconnect();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 rounded-lg transition-all duration-200 w-full text-left"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 w-full text-left"
                     >
                       <Wallet size={18} />
                       Reconnect Wallet
@@ -387,7 +387,7 @@ export const Header = () => {
                         handleLogout();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-lg transition-all duration-200 w-full text-left mt-4"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-red-50 rounded-lg transition-all duration-200 w-full text-left mt-4"
                     >
                       <LogOut size={18} />
                       Disconnect
