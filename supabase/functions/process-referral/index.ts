@@ -256,77 +256,84 @@ Deno.serve(async (req: Request) => {
 
     console.log('🔗 Created reward records');
 
-    // Update user balances
-    const balancePromises = [
-      // Update referrer balance
-      supabaseAdmin.rpc('increment_user_balance', {
-        user_id: referrerStats.user_id,
-        ida_amount: SIGNUP_BONUS,
-        earned_amount: SIGNUP_BONUS
-      }),
-      // Update new user balance
-      supabaseAdmin.rpc('increment_user_balance', {
-        user_id: newUser.id,
-        ida_amount: SIGNUP_BONUS,
-        earned_amount: SIGNUP_BONUS
-      })
-    ];
-
-    const balanceResults = await Promise.allSettled(balancePromises);
+    // Update user balances - get current balances first
+    console.log('🔗 Updating user balances...');
     
-    // If RPC function doesn't exist, fall back to direct updates
-    const failedBalances = balanceResults.filter(result => result.status === 'rejected');
-    if (failedBalances.length > 0) {
-      console.log('🔗 RPC function not available, using direct balance updates');
-      
-      // Get current balances and update directly
-      const { data: referrerUser } = await supabaseAdmin
-        .from('users')
-        .select('ida_balance, total_earned')
-        .eq('id', referrerStats.user_id)
-        .single();
+    // Get current balances for both users
+    const { data: referrerUser, error: referrerUserError } = await supabaseAdmin
+      .from('users')
+      .select('ida_balance, total_earned, level, xp')
+      .eq('id', referrerStats.user_id)
+      .single();
 
-      const { data: newUserData } = await supabaseAdmin
-        .from('users')
-        .select('ida_balance, total_earned')
-        .eq('id', newUser.id)
-        .single();
+    const { data: newUserData, error: newUserError } = await supabaseAdmin
+      .from('users')
+      .select('ida_balance, total_earned, level, xp')
+      .eq('id', newUser.id)
+      .single();
 
-      if (referrerUser) {
-        await supabaseAdmin
-          .from('users')
-          .update({
-            ida_balance: (referrerUser.ida_balance || 0) + SIGNUP_BONUS,
-            total_earned: (referrerUser.total_earned || 0) + SIGNUP_BONUS
-          })
-          .eq('id', referrerStats.user_id);
-      }
-
-      if (newUserData) {
-        await supabaseAdmin
-          .from('users')
-          .update({
-            ida_balance: (newUserData.ida_balance || 0) + SIGNUP_BONUS,
-            total_earned: (newUserData.total_earned || 0) + SIGNUP_BONUS
-          })
-          .eq('id', newUser.id);
-      }
+    if (referrerUserError) {
+      console.error('Error fetching referrer user:', referrerUserError);
+      throw new Error(`Failed to fetch referrer user: ${referrerUserError.message}`);
     }
+
+    if (newUserError) {
+      console.error('Error fetching new user:', newUserError);
+      throw new Error(`Failed to fetch new user: ${newUserError.message}`);
+    }
+
+    // Update referrer balance
+    const referrerNewBalance = (referrerUser.ida_balance || 0) + SIGNUP_BONUS;
+    const referrerNewEarned = (referrerUser.total_earned || 0) + SIGNUP_BONUS;
+    
+    const { error: referrerUpdateError } = await supabaseAdmin
+      .from('users')
+      .update({
+        ida_balance: referrerNewBalance,
+        total_earned: referrerNewEarned
+      })
+      .eq('id', referrerStats.user_id);
+
+    if (referrerUpdateError) {
+      console.error('Error updating referrer balance:', referrerUpdateError);
+      throw new Error(`Failed to update referrer balance: ${referrerUpdateError.message}`);
+    }
+
+    console.log('🔗 Updated referrer balance:', {
+      userId: referrerStats.user_id,
+      oldBalance: referrerUser.ida_balance || 0,
+      newBalance: referrerNewBalance,
+      bonusAdded: SIGNUP_BONUS
+    });
+
+    // Update new user balance
+    const newUserNewBalance = (newUserData.ida_balance || 0) + SIGNUP_BONUS;
+    const newUserNewEarned = (newUserData.total_earned || 0) + SIGNUP_BONUS;
+    
+    const { error: newUserUpdateError } = await supabaseAdmin
+      .from('users')
+      .update({
+        ida_balance: newUserNewBalance,
+        total_earned: newUserNewEarned
+      })
+      .eq('id', newUser.id);
+
+    if (newUserUpdateError) {
+      console.error('Error updating new user balance:', newUserUpdateError);
+      throw new Error(`Failed to update new user balance: ${newUserUpdateError.message}`);
+    }
+
+    console.log('🔗 Updated new user balance:', {
+      userId: newUser.id,
+      oldBalance: newUserData.ida_balance || 0,
+      newBalance: newUserNewBalance,
+      bonusAdded: SIGNUP_BONUS
+    });
 
     console.log('🔗 Updated user balances');
 
     // Record transactions
     const transactionPromises = [
-      // Referrer transaction
-      supabaseAdmin.from('transaction_history').insert({
-        from_address: 'system',
-        to_address: requestData.newUserWalletAddress, // We'll use the referrer's address from users table
-        token_identifier: 'IDA',
-        amount: SIGNUP_BONUS,
-        transaction_type: 'referral',
-        status: 'success',
-        description: 'Referral signup bonus'
-      }),
       // New user transaction
       supabaseAdmin.from('transaction_history').insert({
         from_address: 'system',
@@ -339,16 +346,9 @@ Deno.serve(async (req: Request) => {
       })
     ];
 
-    // Get referrer wallet address for transaction record
-    const { data: referrerUser } = await supabaseAdmin
-      .from('users')
-      .select('wallet_address')
-      .eq('id', referrerStats.user_id)
-      .single();
-
-    if (referrerUser) {
-      // Update the referrer transaction with correct address
-      transactionPromises[0] = supabaseAdmin.from('transaction_history').insert({
+    // Add referrer transaction with correct address
+    transactionPromises.unshift(
+      supabaseAdmin.from('transaction_history').insert({
         from_address: 'system',
         to_address: referrerUser.wallet_address,
         token_identifier: 'IDA',
@@ -356,8 +356,8 @@ Deno.serve(async (req: Request) => {
         transaction_type: 'referral',
         status: 'success',
         description: 'Referral signup bonus'
-      });
-    }
+      })
+    );
 
     const transactionResults = await Promise.allSettled(transactionPromises);
     
