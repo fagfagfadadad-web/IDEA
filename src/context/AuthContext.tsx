@@ -378,7 +378,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           wallet_address: existingUserByWallet.wallet_address,
           username: existingUserByWallet.username,
           full_name: existingUserByWallet.full_name,
-          avatar_url: existingUserByWallet.avatar_url
+          avatar_url: existingUserByWallet.avatar_url,
+          ida_balance: existingUserByWallet.ida_balance,
+          total_earned: existingUserByWallet.total_earned,
+          level: existingUserByWallet.level,
+          xp: existingUserByWallet.xp
         };
         
         setUser(enhancedUser);
@@ -488,10 +492,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         total_earned: profile.total_earned,
         level: profile.level,
         xp: profile.xp
-        ida_balance: existingUserByWallet.ida_balance,
-        total_earned: existingUserByWallet.total_earned,
-        level: existingUserByWallet.level,
-        xp: existingUserByWallet.xp
       };
       
       setUser(enhancedUser);
