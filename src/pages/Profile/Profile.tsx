@@ -746,7 +746,7 @@ export const Profile = () => {
                           </Button>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
 
