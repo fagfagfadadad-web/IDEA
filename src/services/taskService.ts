@@ -312,16 +312,15 @@ export class TaskService {
         })
         .eq('id', taskId)
         .select()
-        .limit(1);
+        .maybeSingle();
 
       if (error) throw error;
       
-      // Check if any rows were returned
-      if (!data || data.length === 0) {
+      if (!data) {
         return null;
       }
       
-      return data[0];
+      return data;
     } catch (error) {
       console.error('Error updating task:', error);
       throw new Error('Failed to update task');
