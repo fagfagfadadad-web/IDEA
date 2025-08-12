@@ -1,5 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
@@ -11,11 +11,34 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 const AppContent = () => {
   const location = useLocation();
+  const hasProcessedReferral = useRef(false);
   
   useEffect(() => {
     console.log('🔄 App: Route changed to:', location.pathname);
     console.log('🔄 App: Available routes:', routes.map(r => r.path));
   }, [location]);
+
+  // Capture referral code from URL on initial load
+  useEffect(() => {
+    if (hasProcessedReferral.current) return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get('ref');
+    
+    if (referralCode) {
+      console.log('🔗 App: Referral code detected in URL:', referralCode);
+      localStorage.setItem('pendingReferralCode', referralCode);
+      
+      // Clean the URL to remove the referral parameter
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('ref');
+      window.history.replaceState({}, '', newUrl.toString());
+      
+      console.log('🔗 App: Referral code saved to localStorage and URL cleaned');
+    }
+    
+    hasProcessedReferral.current = true;
+  }, []);
 
   return (
     <>
