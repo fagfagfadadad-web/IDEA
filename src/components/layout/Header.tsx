@@ -238,10 +238,10 @@ export const Header = () => {
                           onClick={() => setIsProfileMenuOpen(false)}
                           aria-hidden="true"
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-20 overflow-hidden">
                           <Link
                             to="/profile"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -249,7 +249,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/my-requests"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Briefcase size={16} />
@@ -257,7 +257,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/create-gig"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Plus size={16} />
@@ -267,7 +267,7 @@ export const Header = () => {
                             href="https://ideagigs.store/token-sale"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Coins size={16} />
@@ -275,7 +275,7 @@ export const Header = () => {
                           </a>
                           <Link
                             to="/profile?tab=settings"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Settings size={16} />
@@ -283,7 +283,7 @@ export const Header = () => {
                           </Link>
                           <button
                             onClick={handleForceReconnect}
-                            className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-colors duration-200 w-full text-left"
+                            className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-orange-50 transition-colors duration-200 w-full text-left border-b border-gray-100"
                           >
                             <Wallet size={16} />
                             Reconnect Wallet
@@ -354,13 +354,12 @@ export const Header = () => {
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
           {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          
-          {/* Menu Panel */}
-          <div className="absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl">
+      <div className={`lg:hidden fixed inset-0 z-50 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div
+          className="absolute inset-0 bg-black bg-opacity-50"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             {/* Menu Header */}
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-pink-50">
               <div className="flex justify-between items-center">
@@ -495,18 +494,17 @@ export const Header = () => {
                 </div>
               )}
             </div>
-          </div>
-        </div>
+      </div>
       )}
 
       {/* Notifications Modal */}
       {showNotificationsModal && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-40">
           <div
             className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => setShowNotificationsModal(false)}
           />
-          <div className="absolute top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 max-h-[80vh] overflow-hidden">
+          <div className="absolute top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-[80vh] overflow-hidden">
             <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <div>
