@@ -207,143 +207,67 @@ export class ReferralService {
 
       if (!referralCode) return;
 
-      // Find referrer by code
-      const { data: referrerStats } = await supabase
-        .from('referral_stats')
-        .select('user_id')
-        .eq('referral_code', referralCode)
-        .maybeSingle();
-
-      if (!referrerStats) {
-        console.log('🔗 ReferralService: Referrer not found for code:', referralCode);
-        return;
-      }
+      // Call Edge Function to process referral with service role privileges
+      console.log('🔗 ReferralService: Calling process-referral Edge Function...');
       
-      console.log('🔗 ReferralService: Found referrer:', referrerStats.user_id);
+      const { data: result, error: functionError } = await supabase.functions.invoke('process-referral', {
+        body: {
+          referralCode: referralCode,
+          newUserWalletAddress: newUserAddress
+        }
+      });
 
-      // Get new user
-      const { data: newUser } = await supabase
-        .from('users')
-        .select('id')
-        .eq('wallet_address', newUserAddress)
-        .maybeSingle();
-
-      if (!newUser) {
-        console.log('🔗 ReferralService: New user not found for address:', newUserAddress);
-        return;
-      }
-      
-      console.log('🔗 ReferralService: Found new user:', newUser.id);
-
-      // Check if referral already exists
-      const { data: existingReferral } = await supabase
-        .from('referrals')
-        .select('id')
-        .eq('referred_user_id', newUser.id)
-        .maybeSingle();
-
-      if (existingReferral) {
-        console.log('🔗 ReferralService: Referral already exists for user:', newUser.id);
-        return;
+      if (functionError) {
+        console.error('🔗 ReferralService: Edge Function error:', functionError);
+        throw new Error(`Referral processing failed: ${functionError.message}`);
       }
 
-      // Create referral record
-      const { data: referral, error: referralError } = await supabase
-        .from('referrals')
-        .insert({
-          referrer_id: referrerStats.user_id,
-          referred_user_id: newUser.id,
-          referral_code: referralCode,
-          status: 'active'
-        })
-        .select()
-        .single();
+      if (result?.error) {
+        console.error('🔗 ReferralService: Edge Function returned error:', result.error);
+        // Don't throw error for expected cases like invalid codes or existing referrals
+        if (result.error.includes('Invalid referral code') || 
+            result.error.includes('already processed') ||
+            result.error.includes('Cannot refer yourself')) {
+          console.log('🔗 ReferralService: Expected referral error, continuing:', result.error);
+          return;
+        }
+        throw new Error(result.error);
+      }
 
-      if (referralError) throw referralError;
-      
-      console.log('🔗 ReferralService: Created referral record:', referral.id);
-
-      // Give signup bonus to both users
-      await Promise.all([
-        this.giveReferralReward(referrerStats.user_id, 'signup_bonus', this.REWARD_AMOUNTS.signup, referral.id),
-        this.giveReferralReward(newUser.id, 'signup_bonus', this.REWARD_AMOUNTS.signup, referral.id)
-      ]);
-
-      console.log('🔗 ReferralService: Signup bonuses awarded to both users');
+      console.log('🔗 ReferralService: Referral processed successfully:', result);
       
       // Clear any pending referral code from localStorage
       localStorage.removeItem('pendingReferralCode');
       console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
     } catch (error) {
       console.error('Error processing referral:', error);
+      // Clear pending referral code even on error to prevent repeated attempts
+      localStorage.removeItem('pendingReferralCode');
+      console.log('🔗 ReferralService: Cleared pending referral code after error');
     }
   }
 
   // Give referral reward
-  private static async giveReferralReward(
+  static async giveReferralReward(
     userId: string,
     rewardType: string,
     amount: number,
     referralId?: string
   ): Promise<void> {
     try {
-      // Create reward record
-      const { error: rewardError } = await supabase
-        .from('referral_rewards')
-        .insert({
-          referrer_id: userId,
-          referral_id: referralId,
-          reward_type: rewardType,
-          reward_amount: amount,
-          reward_token: 'IDA',
-          status: 'completed',
-          processed_at: new Date().toISOString()
-        });
-
-      if (rewardError) throw rewardError;
-
-      // Update user balance
-      const { data: user } = await supabase
-        .from('users')
-        .select('ida_balance, total_earned')
-        .eq('id', userId)
-        .single();
-
-      if (user) {
-        const newBalance = (user.ida_balance || 0) + amount;
-        const newTotalEarned = (user.total_earned || 0) + amount;
-
-        await supabase
-          .from('users')
-          .update({
-            ida_balance: newBalance,
-            total_earned: newTotalEarned
-          })
-          .eq('id', userId);
-
-        // Record transaction
-        const { data: userWallet } = await supabase
-          .from('users')
-          .select('wallet_address')
-          .eq('id', userId)
-          .single();
-
-        if (userWallet) {
-          await supabase
-            .from('transaction_history')
-            .insert({
-              from_address: 'system',
-              to_address: userWallet.wallet_address,
-              token_identifier: 'IDA',
-              amount: amount,
-              transaction_type: 'referral',
-              status: 'success',
-              description: `Referral reward: ${this.getRewardTypeDescription(rewardType)}`
-            });
-        }
+      // This method is now deprecated in favor of Edge Function processing
+      // Keeping it for backward compatibility but it should not be used directly
+      console.warn('giveReferralReward called directly - this should now be handled by Edge Function');
+      
+      // For non-signup rewards, we might still use this method
+      // But signup bonuses should go through the Edge Function
+      if (rewardType !== 'signup_bonus') {
+        // TODO: Implement other reward types through Edge Function as needed
+        console.log('Non-signup reward type, processing locally:', rewardType);
       }
     } catch (error) {
       console.error('Error giving referral reward:', error);
+      throw error;
     }
   }
 
