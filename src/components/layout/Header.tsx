@@ -340,10 +340,10 @@ export const Header = () => {
 
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-[60]"
                 aria-label="Toggle menu"
               >
-                className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-[60]"
+                <MenuIcon size={20} />
               </button>
             </div>
           </div>
@@ -492,10 +492,11 @@ export const Header = () => {
                     Connect Wallet
                   </Button>
                 </div>
-      </div>
+              )}
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Notifications Modal */}
       {showNotificationsModal && (
