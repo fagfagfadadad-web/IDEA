@@ -371,10 +371,9 @@ export class TaskService {
       const totalTasks = tasksResult.data?.length || 0;
       const activeTasks = tasksResult.data?.filter(t => t.is_active).length || 0;
       const totalCompletions = userTasksResult.data?.filter(ut => ut.status === 'claimed').length || 0;
-      const totalRewardsDistributed = rewardsResult.data?.reduce(
-        (sum, ut) => sum + (ut.task?.reward_amount || 0), 
-        0
-      ) || 0;
+      const totalRewardsDistributed = rewardsResult.data?.reduce((sum, ut: any) => {
+        return sum + (ut.task?.reward_amount || 0);
+      }, 0) || 0;
 
       return {
         totalTasks,

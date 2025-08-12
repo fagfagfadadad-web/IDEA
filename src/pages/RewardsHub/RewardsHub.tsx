@@ -80,6 +80,21 @@ export const RewardsHub = () => {
   const [clickCount, setClickCount] = useState(0);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const getRewardTypeDescription = (rewardType: string): string => {
+    switch (rewardType) {
+      case 'signup_bonus':
+        return 'Welcome bonus';
+      case 'gig_creation':
+        return 'Gig creation bonus';
+      case 'order_completion':
+        return 'Order completion bonus';
+      case 'monthly_bonus':
+        return 'Monthly activity bonus';
+      default:
+        return 'Referral bonus';
+    }
+  };
+
   const handleTitleClick = () => {
     setClickCount(prev => prev + 1);
     

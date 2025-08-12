@@ -52,7 +52,7 @@ export class ProfileService {
   }
 
   // Initialize user profile for rewards system
-  static async initializeUserForRewards(address: string): Promise<UserProfile> {
+  static async initializeUserForRewards(address: string): Promise<UserProfile | null> {
     try {
       // Check if user exists
       const { data: user, error } = await supabase
