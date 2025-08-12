@@ -25,7 +25,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useFileUpload } from '../../hooks/useFileUpload';
 import { useTasks, useReferrals, useAdminTasks } from '../../hooks/useRewards';
-import { Task, UserTask } from '../../types/rewards.types';
+import { Task, UserRewardTask } from '../../types/rewards.types';
 import { useNavigate } from 'react-router-dom';
 
 export const RewardsHub = () => {
@@ -67,7 +67,7 @@ export const RewardsHub = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [clickedExternalLinks, setClickedExternalLinks] = useState<Set<string>>(new Set());
   const [showProofModal, setShowProofModal] = useState(false);
-  const [selectedTaskForProof, setSelectedTaskForProof] = useState<UserTask | null>(null);
+  const [selectedTaskForProof, setSelectedTaskForProof] = useState<UserRewardTask | null>(null);
   const [proofData, setProofData] = useState<{
     file?: File;
     url?: string;
@@ -110,8 +110,8 @@ export const RewardsHub = () => {
     window.open(url, '_blank');
   };
 
-  const handleOpenProofModal = (userTask: UserTask) => {
-    setSelectedTaskForProof(userTask);
+  const handleOpenProofModal = (userRewardTask: UserRewardTask) => {
+    setSelectedTaskForProof(userRewardTask);
     setShowProofModal(true);
   };
 
@@ -192,19 +192,19 @@ export const RewardsHub = () => {
   };
 
   // Helper functions
-  const canSubmitProof = (userTask: UserTask) => {
-    return userTask.task?.proof_required_type !== 'none' && 
-           userTask.task?.proof_required_type !== undefined &&
-           userTask.status === 'available';
+  const canSubmitProof = (userRewardTask: UserRewardTask) => {
+    return userRewardTask.task?.proof_required_type !== 'none' && 
+           userRewardTask.task?.proof_required_type !== undefined &&
+           userRewardTask.status === 'available';
   };
 
-  const canCompleteTask = (userTask: UserTask) => {
-    if (!userTask.task) return false;
-    return userTask.status === 'available' && userTask.task.task_type === 'manual';
+  const canCompleteTask = (userRewardTask: UserRewardTask) => {
+    if (!userRewardTask.task) return false;
+    return userRewardTask.status === 'available' && userRewardTask.task.task_type === 'manual';
   };
 
-  const canClaimReward = (userTask: UserTask) => {
-    return userTask.status === 'completed';
+  const canClaimReward = (userRewardTask: UserRewardTask) => {
+    return userRewardTask.status === 'completed';
   };
 
   const isExternalTask = (taskType: string) => {

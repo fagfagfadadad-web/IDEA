@@ -3,13 +3,13 @@ import { useAuth } from '../context/AuthContext';
 import { TaskService } from '../services/taskService';
 import { ReferralService } from '../services/referralService';
 import { ProfileService } from '../services/profileService';
-import { Task, UserTask, UserReferralStats, Referral, ReferralReward, TaskStatistics } from '../types/rewards.types';
+import { Task, UserRewardTask, UserReferralStats, Referral, ReferralReward, TaskStatistics } from '../types/rewards.types';
 
 // Hook for tasks
 export const useTasks = () => {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [userTasks, setUserTasks] = useState<UserTask[]>([]);
+  const [userTasks, setUserTasks] = useState<UserRewardTask[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,12 +40,12 @@ export const useTasks = () => {
       }
       
       // Initialize user tasks
-      await TaskService.initializeUserTasks(user.id);
+      await TaskService.initializeUserRewardTasks(user.id);
       
       // Load tasks and user progress
       const [allTasks, userTasksData] = await Promise.all([
         TaskService.getAllTasks(),
-        TaskService.getUserTasks(user.id)
+        TaskService.getUserRewardTasks(user.id)
       ]);
 
       setTasks(allTasks);
@@ -55,7 +55,7 @@ export const useTasks = () => {
       await TaskService.checkAndCompleteAutomaticTasks(user.id, userProfile);
       
       // Reload user tasks after auto-completion check
-      const updatedUserTasks = await TaskService.getUserTasks(user.id);
+      const updatedUserTasks = await TaskService.getUserRewardTasks(user.id);
       setUserTasks(updatedUserTasks);
     } catch (err) {
       console.error('Error loading tasks:', err);
@@ -71,7 +71,7 @@ export const useTasks = () => {
 
     setIsLoading(true);
     try {
-      await TaskService.completeTask(user.id, taskId, proofUrl, proofText);
+      await TaskService.completeRewardTask(user.id, taskId, proofUrl, proofText);
       await loadTasks(); // Reload to get updated status
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to complete task');
@@ -85,7 +85,7 @@ export const useTasks = () => {
 
     setIsLoading(true);
     try {
-      const result = await TaskService.claimTaskReward(user.id, taskId);
+      const result = await TaskService.claimRewardTaskReward(user.id, taskId);
       await loadTasks(); // Reload to get updated status
       return result;
     } catch (error) {

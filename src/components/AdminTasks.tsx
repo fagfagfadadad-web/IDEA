@@ -3,7 +3,7 @@ import { CheckSquare, Plus, Edit, Trash2, X, Upload, FileText, Link as LinkIcon 
 import { Button } from 'components';
 import { useAdminTasks } from '../hooks/useRewards';
 import { useToast } from '../context/ToastContext';
-import { Task } from '../types/rewards.types';
+import { Task, UserRewardTask } from '../types/rewards.types';
 
 export const AdminTasks: React.FC = () => {
   const { 
