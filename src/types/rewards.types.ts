@@ -12,7 +12,7 @@ export interface Task {
   updated_at: string;
 }
 
-export interface UserTask {
+export interface UserRewardTask {
   id: string;
   user_id: string;
   task_id: string;
