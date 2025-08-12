@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3 } from 'lucide-react';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
@@ -860,14 +860,14 @@ export const Profile = () => {
                       onClick={() => navigate('/rewards')}
                       className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
                     >
-                      <Gift size={20} />
+                      <Package size={20} />
                       <span>Complete Tasks</span>
                     </Button>
                     <Button
                       onClick={() => navigate('/rewards')}
                       className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
                     >
-                      <Users size={20} />
+                      <UserPlus size={20} />
                       <span>Invite Friends</span>
                     </Button>
                   </div>
@@ -938,7 +938,7 @@ export const Profile = () => {
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Gift size={24} className="text-white" />
+                        <Package size={24} className="text-white" />
                       </div>
                       <div>
                         <h4 className="text-lg font-bold text-gray-800">Airdrop Information</h4>
@@ -960,8 +960,8 @@ export const Profile = () => {
                           onClick={() => navigate('/rewards')}
                           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                         >
-                          <Gift size={16} />
-                          Start Earning IDA
+                          <Package size={16} />
+                          <span>Start Earning IDA</span>
                         </Button>
                       </div>
                     </div>
