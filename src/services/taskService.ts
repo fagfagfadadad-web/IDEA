@@ -44,16 +44,23 @@ export class TaskService {
   // Get user reward tasks with task details
   static async getUserRewardTasks(userId: string): Promise<UserRewardTask[]> {
     try {
+      // First ensure user has reward tasks initialized
+      await this.initializeUserRewardTasks(userId);
+      
       const { data, error } = await supabase
         .from('user_reward_tasks')
-        .select('*, tasks!left(*)')
+        .select(`
+          *,
+          task:tasks!user_reward_tasks_task_id_fkey(*)
+        `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error fetching user reward tasks:', error);
-        return [];
+        throw error;
       }
+      
       return data || [];
     } catch (error) {
       console.error('Error fetching user reward tasks:', error);
@@ -159,15 +166,24 @@ export class TaskService {
         .from('user_reward_tasks')
         .select(`
           *,
-          tasks!left(*)
+          task:tasks!user_reward_tasks_task_id_fkey(*)
         `)
         .eq('user_id', userId)
         .eq('task_id', taskId)
         .eq('status', 'completed')
         .maybeSingle();
 
-      if (taskError || !userRewardTask?.task) {
-        throw new Error('Task not found or not completed');
+      if (taskError) {
+        console.error('Error fetching user reward task:', taskError);
+        throw new Error('Failed to fetch task data');
+      }
+      
+      if (!userRewardTask) {
+        throw new Error('Task not found or not in completed status');
+      }
+      
+      if (!userRewardTask.task) {
+        throw new Error('Task details not found');
       }
 
       // Update user task status to claimed
