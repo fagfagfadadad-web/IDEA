@@ -584,27 +584,29 @@ export const RewardsHub = () => {
                   {referralStats && (
                     <div className="bg-white border border-gray-200 rounded-xl p-6">
                       <h3 className="text-lg font-bold text-gray-800 mb-4">Your Referral Link</h3>
-                      <div className="flex gap-3">
+                      <div className="space-y-3">
                         <input
                           value={getReferralLink()}
                           readOnly
-                          className="flex-1 p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
+                          className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
                         />
-                        <Button
-                          onClick={handleCopyReferralLink}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center gap-2"
-                        >
-                          <Copy size={16} />
-                          Copy
-                        </Button>
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={handleCopyReferralLink}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
+                          >
+                            <Copy size={16} />
+                            Copy Link
+                          </Button>
+                          <Button
+                            onClick={handleShareReferralLink}
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
+                          >
+                            <Share size={16} />
+                            Share Link
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        onClick={handleShareReferralLink}
-                        className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
-                      >
-                        <Share size={16} />
-                        Share Link
-                      </Button>
                     </div>
                   )}
 
