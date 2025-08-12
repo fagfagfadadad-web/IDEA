@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Search, Plus, User, Grid3X3, LogOut, Settings, Wallet, FileText, Briefcase } from 'lucide-react';
-import { Gift } from 'lucide-react';
 import { Button } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
@@ -207,12 +206,6 @@ export const MobileBottomNav = () => {
           to="/requests"
           icon={<Briefcase size={20} />}
           label="Bids"
-        />
-        
-        <NavItem
-          to="/rewards"
-          icon={<Gift size={20} />}
-          label="Rewards"
         />
         
         <NavItem
