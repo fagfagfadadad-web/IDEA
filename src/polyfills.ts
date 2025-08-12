@@ -22,11 +22,15 @@ if (typeof window !== 'undefined') {
   // Ensure Buffer is available globally if needed
   if (typeof (window as any).Buffer === 'undefined') {
     try {
-      const { Buffer } = require('buffer');
-      (window as any).Buffer = Buffer;
+      // Try to import Buffer from the buffer package if available
+      import('buffer').then(({ Buffer }) => {
+        (window as any).Buffer = Buffer;
+        console.log('Buffer polyfill loaded successfully');
+      }).catch(() => {
+        console.warn('Buffer polyfill not available - this is expected in some environments');
+      });
     } catch (e) {
-      // Buffer polyfill not available, continue without it
-      console.warn('Buffer polyfill not available');
+      console.warn('Buffer polyfill not available - this is expected in some environments');
     }
   }
 }

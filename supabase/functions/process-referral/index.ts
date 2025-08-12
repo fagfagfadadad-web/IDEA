@@ -91,7 +91,7 @@ Deno.serve(async (req: Request) => {
     // Find referrer by code
     const { data: referrerStats, error: referrerError } = await supabaseAdmin
       .from('referral_stats')
-      .select('user_id')
+      .select('user_id, total_referrals, active_referrals, total_referral_earnings, completed_earnings, total_rewards')
       .eq('referral_code', requestData.referralCode)
       .maybeSingle();
 
