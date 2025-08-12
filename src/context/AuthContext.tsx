@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
+// Add import for ReferralService (adjust path as needed)
+import { ReferralService } from '../services/ReferralService'; // Adjust path based on your project structure
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -493,6 +495,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const pendingReferralCode = localStorage.getItem('pendingReferralCode');
         if (pendingReferralCode && walletAddress) {
           console.log('🔗 AuthContext: Processing pending referral code:', pendingReferralCode);
+          // Call ReferralService to process the referral code
           await ReferralService.checkReferralFromUrl(walletAddress, pendingReferralCode);
         }
       } catch (referralError) {
@@ -603,18 +606,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔄 AuthContext: Force reconnecting wallet...');
       isAuthenticating.current = true; // Prevent new auth attempts during reconnect
       
-       // Clear MultiversX SDK state by calling provider logout
-       try {
-         const provider = getAccountProvider();
-         if (provider && typeof provider.logout === 'function') {
-           await provider.logout();
-           console.log('✅ AuthContext: Provider logout successful for reconnect');
-         }
-       } catch (sdkError) {
-         console.error('⚠️ AuthContext: Error calling provider logout for reconnect:', sdkError);
-         // Continue with reconnect even if provider logout fails
-       }
-       
+      // Clear MultiversX SDK state by calling provider logout
+      try {
+        const provider = getAccountProvider();
+        if (provider && typeof provider.logout === 'function') {
+          await provider.logout();
+          console.log('✅ AuthContext: Provider logout successful for reconnect');
+        }
+      } catch (sdkError) {
+        console.error('⚠️ AuthContext: Error calling provider logout for reconnect:', sdkError);
+        // Continue with reconnect even if provider logout fails
+      }
+      
       // Clear all local state first
       setUser(null);
       setIsProfileReady(false);
