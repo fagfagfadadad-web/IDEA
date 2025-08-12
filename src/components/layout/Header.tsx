@@ -354,12 +354,11 @@ export const Header = () => {
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
           {/* Backdrop */}
-      <div className={`lg:hidden fixed inset-0 z-50 transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div
-          className="absolute inset-0 bg-black bg-opacity-50"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
             {/* Menu Header */}
             <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-pink-50">
               <div className="flex justify-between items-center">
@@ -494,7 +493,8 @@ export const Header = () => {
                 </div>
               )}
             </div>
-      </div>
+          </div>
+        </div>
       )}
 
       {/* Notifications Modal */}
