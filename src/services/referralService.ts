@@ -212,7 +212,7 @@ export class ReferralService {
         .from('referral_stats')
         .select('user_id')
         .eq('referral_code', referralCode)
-        .single();
+        .maybeSingle();
 
       if (!referrerStats) {
         console.log('🔗 ReferralService: Referrer not found for code:', referralCode);
@@ -226,7 +226,7 @@ export class ReferralService {
         .from('users')
         .select('id')
         .eq('wallet_address', newUserAddress)
-        .single();
+        .maybeSingle();
 
       if (!newUser) {
         console.log('🔗 ReferralService: New user not found for address:', newUserAddress);
@@ -240,7 +240,7 @@ export class ReferralService {
         .from('referrals')
         .select('id')
         .eq('referred_user_id', newUser.id)
-        .single();
+        .maybeSingle();
 
       if (existingReferral) {
         console.log('🔗 ReferralService: Referral already exists for user:', newUser.id);
