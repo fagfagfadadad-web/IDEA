@@ -286,6 +286,15 @@ Deno.serve(async (req: Request) => {
     const referrerNewBalance = (referrerUser.ida_balance || 0) + SIGNUP_BONUS;
     const referrerNewEarned = (referrerUser.total_earned || 0) + SIGNUP_BONUS;
     
+    console.log('🔗 Updating referrer balance:', {
+      userId: referrerStats.user_id,
+      oldBalance: referrerUser.ida_balance || 0,
+      newBalance: referrerNewBalance,
+      oldEarned: referrerUser.total_earned || 0,
+      newEarned: referrerNewEarned,
+      bonusAdded: SIGNUP_BONUS
+    });
+    
     const { error: referrerUpdateError } = await supabaseAdmin
       .from('users')
       .update({
@@ -299,16 +308,20 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to update referrer balance: ${referrerUpdateError.message}`);
     }
 
-    console.log('🔗 Updated referrer balance:', {
-      userId: referrerStats.user_id,
-      oldBalance: referrerUser.ida_balance || 0,
-      newBalance: referrerNewBalance,
-      bonusAdded: SIGNUP_BONUS
-    });
+    console.log('🔗 ✅ Referrer balance updated successfully');
 
     // Update new user balance
     const newUserNewBalance = (newUserData.ida_balance || 0) + SIGNUP_BONUS;
     const newUserNewEarned = (newUserData.total_earned || 0) + SIGNUP_BONUS;
+    
+    console.log('🔗 Updating new user balance:', {
+      userId: newUser.id,
+      oldBalance: newUserData.ida_balance || 0,
+      newBalance: newUserNewBalance,
+      oldEarned: newUserData.total_earned || 0,
+      newEarned: newUserNewEarned,
+      bonusAdded: SIGNUP_BONUS
+    });
     
     const { error: newUserUpdateError } = await supabaseAdmin
       .from('users')
@@ -323,17 +336,36 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to update new user balance: ${newUserUpdateError.message}`);
     }
 
-    console.log('🔗 Updated new user balance:', {
-      userId: newUser.id,
-      oldBalance: newUserData.ida_balance || 0,
-      newBalance: newUserNewBalance,
-      bonusAdded: SIGNUP_BONUS
-    });
+    console.log('🔗 ✅ New user balance updated successfully');
 
     console.log('🔗 Updated user balances');
 
+    // Get referrer wallet address for transaction history
+    const { data: referrerWalletData, error: referrerWalletError } = await supabaseAdmin
+      .from('users')
+      .select('wallet_address')
+      .eq('id', referrerStats.user_id)
+      .single();
+
+    if (referrerWalletError) {
+      console.error('Error fetching referrer wallet address:', referrerWalletError);
+      throw new Error(`Failed to fetch referrer wallet address: ${referrerWalletError.message}`);
+    }
+
+    console.log('🔗 Referrer wallet address:', referrerWalletData.wallet_address);
+
     // Record transactions
     const transactionPromises = [
+      // Referrer transaction
+      supabaseAdmin.from('transaction_history').insert({
+        from_address: 'system',
+        to_address: referrerWalletData.wallet_address,
+        token_identifier: 'IDA',
+        amount: SIGNUP_BONUS,
+        transaction_type: 'referral',
+        status: 'success',
+        description: 'Referral signup bonus'
+      }),
       // New user transaction
       supabaseAdmin.from('transaction_history').insert({
         from_address: 'system',
@@ -346,26 +378,18 @@ Deno.serve(async (req: Request) => {
       })
     ];
 
-    // Add referrer transaction with correct address
-    transactionPromises.unshift(
-      supabaseAdmin.from('transaction_history').insert({
-        from_address: 'system',
-        to_address: referrerUser.wallet_address,
-        token_identifier: 'IDA',
-        amount: SIGNUP_BONUS,
-        transaction_type: 'referral',
-        status: 'success',
-        description: 'Referral signup bonus'
-      })
-    );
-
     const transactionResults = await Promise.allSettled(transactionPromises);
     
     // Check if any transaction recording failed
     const failedTransactions = transactionResults.filter(result => result.status === 'rejected');
     if (failedTransactions.length > 0) {
       console.error('Some transaction records failed to create:', failedTransactions);
-      // Continue anyway, don't fail the whole process
+      failedTransactions.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(`Transaction ${index} failed:`, result.reason);
+        }
+      });
+      throw new Error('Failed to record transaction history');
     }
 
     console.log('🔗 Recorded transaction history');

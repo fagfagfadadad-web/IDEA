@@ -360,7 +360,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data: existingUserByWallet, error: fetchWalletError } = await supabase
         .from('users')
-        .select('id, username, full_name, avatar_url, wallet_address, email, is_admin')
+        .select('id, username, full_name, avatar_url, wallet_address, email, is_admin, ida_balance, total_earned, level, xp')
         .eq('wallet_address', walletAddress)
         .maybeSingle();
 
@@ -389,7 +389,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const { data: existingUserById, error: fetchIdError } = await supabase
         .from('users')
-        .select('id, username, full_name, avatar_url, wallet_address, is_admin')
+        .select('id, username, full_name, avatar_url, wallet_address, is_admin, ida_balance, total_earned, level, xp')
         .eq('id', authUser.id)
         .maybeSingle();
 
@@ -415,7 +415,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           wallet_address: walletAddress,
           username: existingUserById.username,
           full_name: existingUserById.full_name,
-          avatar_url: existingUserById.avatar_url
+          avatar_url: existingUserById.avatar_url,
+          ida_balance: existingUserById.ida_balance,
+          total_earned: existingUserById.total_earned,
+          level: existingUserById.level,
+          xp: existingUserById.xp
         };
         
         setUser(enhancedUser);
@@ -479,7 +483,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         wallet_address: walletAddress,
         username: profile.username,
         full_name: profile.full_name,
-        avatar_url: profile.avatar_url
+        avatar_url: profile.avatar_url,
+        ida_balance: profile.ida_balance,
+        total_earned: profile.total_earned,
+        level: profile.level,
+        xp: profile.xp
+        ida_balance: existingUserByWallet.ida_balance,
+        total_earned: existingUserByWallet.total_earned,
+        level: existingUserByWallet.level,
+        xp: existingUserByWallet.xp
       };
       
       setUser(enhancedUser);
