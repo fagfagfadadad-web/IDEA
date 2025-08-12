@@ -25,6 +25,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useFileUpload } from '../../hooks/useFileUpload';
 import { useTasks, useReferrals, useAdminTasks } from '../../hooks/useRewards';
+import { ReferralService } from '../../services/referralService';
 import { Task, UserRewardTask } from '../../types/rewards.types';
 import { useNavigate } from 'react-router-dom';
 
@@ -453,7 +454,7 @@ export const RewardsHub = () => {
                                 {userTask.task && isExternalTask(userTask.task.task_type) && userTask.task.required_value && userTask.status === 'available' && (
                                   <div className="space-y-2">
                                     <Button
-                                      onClick={() => handleExternalLinkClick(userTask.task_id, userTask.task.required_value!)}
+                                      onClick={() => handleExternalLinkClick(userTask.task_id, userTask.task?.required_value || '')}
                                       className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
                                     >
                                       {React.createElement(getExternalLinkIcon(userTask.task.task_type), { size: 16 })}
