@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch, Gift } from 'lucide-react';
-import { Button } from 'components'; // Assuming this is your custom Button component
-import { NotificationsDropdown } from '../NotificationsMenu'; // Assuming this is your custom NotificationsDropdown component
-import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib'; // Assuming these are your custom auth utilities
-import { RouteNamesEnum } from 'localConstants'; // Assuming this contains your route constants
-import { useNotifications, Notification as CustomNotification } from '../../hooks/useNotifications'; // Assuming this is your notifications hook
-import { useWindowSize } from '../../hooks/useWindowSize'; // Assuming this is your window size hook
-import { useAuth } from '../../context/AuthContext'; // Assuming this is your auth context
+import { Button } from 'components';
+import { NotificationsDropdown } from '../../NotificationsMenu';
+import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
+import { RouteNamesEnum } from 'localConstants';
+import { useNotifications, Notification as CustomNotification } from '../../../hooks/useNotifications';
+import { useWindowSize } from '../../../hooks/useWindowSize';
+import { useAuth } from '../../../context/AuthContext';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
