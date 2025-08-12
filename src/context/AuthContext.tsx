@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
-// Add import for ReferralService (adjust path as needed)
-import { ReferralService } from '../services/ReferralService'; // Adjust path based on your project structure
+import { ReferralService } from '../services/referralService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
