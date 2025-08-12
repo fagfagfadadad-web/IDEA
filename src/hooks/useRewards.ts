@@ -39,9 +39,6 @@ export const useTasks = () => {
         return;
       }
       
-      // Initialize user tasks
-      await TaskService.initializeUserRewardTasks(user.id);
-      
       // Load tasks and user progress
       const [allTasks, userTasksData] = await Promise.all([
         TaskService.getAllTasks(),
