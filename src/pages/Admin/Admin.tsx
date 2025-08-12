@@ -79,11 +79,11 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-      <div className="container mx-auto max-w-7xl px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50 overflow-x-hidden">
+      <div className="w-full max-w-full px-3 md:px-6 py-4 md:py-8">
         <div className="space-y-8">
           {/* Header */}
-          <div className="gradient-card p-8">
+          <div className="gradient-card p-4 md:p-8">
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
               <div className="flex items-center">
                 <span className="text-green-600 mr-2">✅</span>
@@ -91,7 +91,7 @@ export const Admin: React.FC = () => {
               </div>
             </div>
             
-            <h1 className="text-3xl font-bold text-gray-800 mb-6">Admin Dashboard</h1>
+            <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6">Admin Dashboard</h1>
             
             {statsError ? (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
@@ -108,53 +108,53 @@ export const Admin: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Total Users</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_users || 0}</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
+                <div className="bg-white border border-gray-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Total Users</p>
+                  <p className="text-gray-800 text-lg md:text-3xl font-bold">{stats?.total_users || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Registered users</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Total Gigs</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_gigs || 0}</p>
+                <div className="bg-white border border-gray-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Total Gigs</p>
+                  <p className="text-gray-800 text-lg md:text-3xl font-bold">{stats?.total_gigs || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Active gigs</p>
                 </div>
 
-                <div className="bg-white border border-gray-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Total Orders</p>
-                  <p className="text-gray-800 text-3xl font-bold">{stats?.total_orders || 0}</p>
+                <div className="bg-white border border-gray-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Total Orders</p>
+                  <p className="text-gray-800 text-lg md:text-3xl font-bold">{stats?.total_orders || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">All orders</p>
                 </div>
 
-                <div className="bg-white border border-red-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Pending Disputes</p>
-                  <p className="text-red-600 text-3xl font-bold">{stats?.pending_disputes || 0}</p>
+                <div className="bg-white border border-red-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Pending Disputes</p>
+                  <p className="text-red-600 text-lg md:text-3xl font-bold">{stats?.pending_disputes || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Need attention</p>
                 </div>
 
-                <div className="bg-white border border-green-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Completed Orders</p>
-                  <p className="text-green-600 text-3xl font-bold">{stats?.completed_orders || 0}</p>
+                <div className="bg-white border border-green-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Completed Orders</p>
+                  <p className="text-green-600 text-lg md:text-3xl font-bold">{stats?.completed_orders || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">Successful orders</p>
                 </div>
 
                 {/* Additional stats from the new view */}
-                <div className="bg-white border border-blue-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">Active Orders</p>
-                  <p className="text-blue-600 text-3xl font-bold">{stats?.active_orders || 0}</p>
+                <div className="bg-white border border-blue-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">Active Orders</p>
+                  <p className="text-blue-600 text-lg md:text-3xl font-bold">{stats?.active_orders || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">In progress</p>
                 </div>
 
-                <div className="bg-white border border-purple-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">New Users (30d)</p>
-                  <p className="text-purple-600 text-3xl font-bold">{stats?.new_users_this_month || 0}</p>
+                <div className="bg-white border border-purple-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">New Users (30d)</p>
+                  <p className="text-purple-600 text-lg md:text-3xl font-bold">{stats?.new_users_this_month || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">This month</p>
                 </div>
 
-                <div className="bg-white border border-orange-200 p-6 rounded-xl shadow-sm">
-                  <p className="text-gray-600 text-sm font-medium">New Orders (30d)</p>
-                  <p className="text-orange-600 text-3xl font-bold">{stats?.new_orders_this_month || 0}</p>
+                <div className="bg-white border border-orange-200 p-3 md:p-6 rounded-xl shadow-sm">
+                  <p className="text-gray-600 text-xs md:text-sm font-medium">New Orders (30d)</p>
+                  <p className="text-orange-600 text-lg md:text-3xl font-bold">{stats?.new_orders_this_month || 0}</p>
                   <p className="text-gray-500 text-xs mt-1">This month</p>
                 </div>
               </div>
@@ -174,19 +174,19 @@ export const Admin: React.FC = () => {
           {/* Tabs Section */}
           <div className="gradient-card overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-200">
-              <div className="flex overflow-x-auto">
+              <div className="flex overflow-x-auto scrollbar-hide">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-3 px-6 py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                    className={`flex items-center gap-2 px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                       activeTab === tab.id
                         ? 'border-indigo-500 text-indigo-600 bg-white'
                         : 'border-transparent text-gray-500 hover:text-indigo-600 hover:bg-gray-50'
                     }`}
                   >
                     {tab.icon}
-                    <span>{tab.label}</span>
+                    <span className="hidden sm:inline">{tab.label}</span>
                   </button>
                 ))}
               </div>
@@ -194,13 +194,16 @@ export const Admin: React.FC = () => {
 
             <div className="bg-white">
               {/* Active Tab Content */}
-              <div className="p-8">
+              <div className="p-4 md:p-8">
                 {React.createElement(tabs[activeTab].component)}
               </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Add bottom padding for mobile navigation */}
+      <div className="h-20 md:h-0"></div>
     </div>
   );
 };

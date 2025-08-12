@@ -128,53 +128,53 @@ export const AdminTasks: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Task Management</h2>
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2">
-          <span className="text-indigo-800 font-medium">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-800">Task Management</h2>
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-2 md:px-4 py-1 md:py-2">
+          <span className="text-indigo-800 font-medium text-xs md:text-sm">
             {adminTasks.length} task{adminTasks.length !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-blue-50 border border-blue-200 p-6 rounded-xl">
-          <div className="flex items-center gap-3 mb-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+        <div className="bg-blue-50 border border-blue-200 p-3 md:p-6 rounded-xl">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
             <CheckSquare size={20} className="text-blue-600" />
-            <span className="text-blue-800 font-medium">Total Tasks</span>
+            <span className="text-blue-800 font-medium text-xs md:text-sm">Total Tasks</span>
           </div>
-          <p className="text-blue-800 text-2xl font-bold">{taskStats.totalTasks}</p>
+          <p className="text-blue-800 text-lg md:text-2xl font-bold">{taskStats.totalTasks}</p>
         </div>
 
-        <div className="bg-green-50 border border-green-200 p-6 rounded-xl">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="bg-green-50 border border-green-200 p-3 md:p-6 rounded-xl">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
             <CheckSquare size={20} className="text-green-600" />
-            <span className="text-green-800 font-medium">Active Tasks</span>
+            <span className="text-green-800 font-medium text-xs md:text-sm">Active Tasks</span>
           </div>
-          <p className="text-green-800 text-2xl font-bold">{taskStats.activeTasks}</p>
+          <p className="text-green-800 text-lg md:text-2xl font-bold">{taskStats.activeTasks}</p>
         </div>
 
-        <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="bg-purple-50 border border-purple-200 p-3 md:p-6 rounded-xl">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
             <CheckSquare size={20} className="text-purple-600" />
-            <span className="text-purple-800 font-medium">Completions</span>
+            <span className="text-purple-800 font-medium text-xs md:text-sm">Completions</span>
           </div>
-          <p className="text-purple-800 text-2xl font-bold">{taskStats.totalCompletions}</p>
+          <p className="text-purple-800 text-lg md:text-2xl font-bold">{taskStats.totalCompletions}</p>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="bg-orange-50 border border-orange-200 p-3 md:p-6 rounded-xl col-span-2 md:col-span-1">
+          <div className="flex items-center gap-2 md:gap-3 mb-2">
             <CheckSquare size={20} className="text-orange-600" />
-            <span className="text-orange-800 font-medium">IDA Distributed</span>
+            <span className="text-orange-800 font-medium text-xs md:text-sm">IDA Distributed</span>
           </div>
-          <p className="text-orange-800 text-2xl font-bold">{taskStats.totalRewardsDistributed.toLocaleString()}</p>
+          <p className="text-orange-800 text-lg md:text-2xl font-bold">{taskStats.totalRewardsDistributed.toLocaleString()}</p>
         </div>
       </div>
 
       {/* Create Task Button */}
       <Button
         onClick={handleOpenCreate}
-        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg flex items-center gap-2"
+        className="bg-green-600 hover:bg-green-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg flex items-center gap-2 text-sm md:text-base w-full md:w-auto"
       >
         <Plus size={16} />
         Create New Task
@@ -199,11 +199,12 @@ export const AdminTasks: React.FC = () => {
         ) : adminTasks.length > 0 ? (
           <div className="divide-y divide-gray-200">
             {adminTasks.map((task) => (
-              <div key={task.id} className="p-6 hover:bg-gray-50">
+              <div key={task.id} className="p-4 md:p-6 hover:bg-gray-50">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-bold text-gray-800">{task.title}</h3>
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-2">
+                      <h3 className="text-base md:text-lg font-bold text-gray-800">{task.title}</h3>
+                      <div className="flex gap-2 flex-wrap">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                         task.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
@@ -212,9 +213,10 @@ export const AdminTasks: React.FC = () => {
                       <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                         {getTaskTypeLabel(task.task_type)}
                       </span>
+                      </div>
                     </div>
-                    <p className="text-gray-600 mb-3">{task.description}</p>
-                    <div className="flex gap-4 text-sm">
+                    <p className="text-gray-600 mb-3 text-sm">{task.description}</p>
+                    <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm">
                       <span className="text-purple-600 font-medium">
                         Reward: {task.reward_amount.toLocaleString()} IDA
                       </span>
@@ -223,7 +225,7 @@ export const AdminTasks: React.FC = () => {
                       </span>
                       {task.required_value && (
                         <span className="text-gray-600">
-                          Required: {task.required_value}
+                          Required: {task.required_value.length > 20 ? task.required_value.substring(0, 20) + '...' : task.required_value}
                         </span>
                       )}
                       <span className="text-gray-600">
@@ -231,17 +233,17 @@ export const AdminTasks: React.FC = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0">
                     <Button
                       onClick={() => handleOpenEdit(task)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg flex items-center gap-2"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm"
                     >
                       <Edit size={14} />
                       Edit
                     </Button>
                     <Button
                       onClick={() => handleDelete(task.id, task.title)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg flex items-center gap-2"
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg flex items-center gap-2 text-sm"
                     >
                       <Trash2 size={14} />
                       Delete
@@ -262,10 +264,10 @@ export const AdminTasks: React.FC = () => {
       {/* Create/Edit Task Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
+          <div className="bg-white rounded-xl w-full max-w-full md:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-4 md:p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-gray-800">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800">
                   {editingTask ? 'Edit Task' : 'Create New Task'}
                 </h3>
                 <button
@@ -284,7 +286,7 @@ export const AdminTasks: React.FC = () => {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Task title"
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                   />
                 </div>
 
@@ -295,11 +297,11 @@ export const AdminTasks: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Task description"
                     rows={3}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-gray-800 text-sm font-medium mb-2">Reward Amount (IDA) *</label>
                     <input
@@ -307,7 +309,7 @@ export const AdminTasks: React.FC = () => {
                       value={formData.reward_amount}
                       onChange={(e) => setFormData({ ...formData, reward_amount: parseInt(e.target.value) || 0 })}
                       placeholder="1000"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                     />
                   </div>
 
@@ -318,7 +320,7 @@ export const AdminTasks: React.FC = () => {
                       value={formData.xp_reward}
                       onChange={(e) => setFormData({ ...formData, xp_reward: parseInt(e.target.value) || 0 })}
                       placeholder="50"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                     />
                     <p className="text-gray-500 text-xs mt-1">
                       Experience points (100 XP = 1 level)
@@ -331,7 +333,7 @@ export const AdminTasks: React.FC = () => {
                   <select
                     value={formData.task_type}
                     onChange={(e) => setFormData({ ...formData, task_type: e.target.value as Task['task_type'] })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                   >
                     <option value="manual">Manual</option>
                     <option value="wallet_connect">Wallet Connect</option>
@@ -365,7 +367,7 @@ export const AdminTasks: React.FC = () => {
                       formData.task_type === 'external_link' ? 'https://example.com' :
                       'e.g., 10 for level 10'
                     }
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                   />
                   {(formData.task_type === 'social_follow' || formData.task_type === 'social_post' || formData.task_type === 'social_retweet' || formData.task_type === 'social_like' || formData.task_type === 'external_link') && (
                     <p className="text-gray-500 text-xs mt-1">
@@ -382,7 +384,7 @@ export const AdminTasks: React.FC = () => {
                   <select
                     value={formData.proof_required_type}
                     onChange={(e) => setFormData({ ...formData, proof_required_type: e.target.value as Task['proof_required_type'] })}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
                   >
                     <option value="none">No proof required</option>
                     <option value="file">File upload (screenshot, document)</option>
@@ -410,17 +412,17 @@ export const AdminTasks: React.FC = () => {
                   <span className="text-gray-800 font-medium">Active</span>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-col md:flex-row gap-3 pt-4">
                   <Button
                     onClick={() => setShowModal(false)}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg"
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 md:py-3 px-4 rounded-lg text-sm md:text-base"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleSubmit}
                     disabled={isLoading}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-lg"
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 md:py-3 px-4 rounded-lg text-sm md:text-base"
                   >
                     {isLoading ? 'Saving...' : editingTask ? 'Update Task' : 'Create Task'}
                   </Button>

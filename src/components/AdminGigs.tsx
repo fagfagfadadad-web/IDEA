@@ -130,16 +130,16 @@ export const AdminGigs: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Gig Management</h2>
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-2">
-          <span className="text-indigo-800 font-medium">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-800">Gig Management</h2>
+        <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-2 md:px-4 py-1 md:py-2">
+          <span className="text-indigo-800 font-medium text-xs md:text-sm">
             {filteredGigs.length} gig{filteredGigs.length !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
       
       {/* Search and filters */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-3 md:gap-4">
         <form onSubmit={handleSearch} className="flex-1">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -150,7 +150,7 @@ export const AdminGigs: React.FC = () => {
               placeholder="Search by title, description, or provider"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full pl-10 pr-4 py-2 md:py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
             />
           </div>
         </form>
@@ -158,7 +158,7 @@ export const AdminGigs: React.FC = () => {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800 w-full md:w-48 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+          className="bg-white border border-gray-300 rounded-lg px-3 md:px-4 py-2 md:py-3 text-gray-800 w-full md:w-48 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
         >
           <option value="all">All Statuses</option>
           <option value="active">Active</option>
@@ -170,37 +170,37 @@ export const AdminGigs: React.FC = () => {
       {/* Gigs Table */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs md:text-sm min-w-[700px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left p-4 text-gray-700 font-medium">Gig</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Provider</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Price</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Category</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Status</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Created</th>
-                <th className="text-left p-4 text-gray-700 font-medium">Actions</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Gig</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Provider</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Price</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Category</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Status</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Created</th>
+                <th className="text-left p-2 md:p-4 text-gray-700 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {paginatedGigs.map((gig) => (
                 <tr key={gig.id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <div className="flex items-center gap-3">
                       <img
                         src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
                         alt={gig.title}
-                        className="w-12 h-12 object-cover rounded-lg"
+                        className="w-8 md:w-12 h-8 md:h-12 object-cover rounded-lg"
                       />
                       <div>
-                        <p className="text-gray-800 font-medium line-clamp-1">{gig.title}</p>
-                        <p className="text-gray-600 text-sm line-clamp-1">{gig.description.substring(0, 50)}...</p>
+                        <p className="text-gray-800 font-medium line-clamp-1 text-xs md:text-sm">{gig.title.length > 20 ? gig.title.substring(0, 20) + '...' : gig.title}</p>
+                        <p className="text-gray-600 text-xs line-clamp-1">{gig.description.substring(0, 30)}...</p>
                       </div>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
+                      <div className="w-6 md:w-8 h-6 md:h-8 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400">
                         {gig.provider?.avatar_url ? (
                           <>
                             <img
@@ -230,21 +230,21 @@ export const AdminGigs: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <span className="text-gray-700 text-sm">{gig.provider?.username}</span>
+                      <span className="text-gray-700 text-xs">{gig.provider?.username}</span>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <div className="flex items-center gap-1">
                       <DollarSign size={14} className="text-gray-600" />
-                      <span className="text-gray-700 text-sm">{gig.price} {gig.payment_token || 'EGLD'}</span>
+                      <span className="text-gray-700 text-xs">{gig.price} {gig.payment_token || 'EGLD'}</span>
                     </div>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                      {gig.category}
+                      {gig.category.length > 10 ? gig.category.substring(0, 10) + '...' : gig.category}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       gig.status === 'active' ? 'bg-green-100 text-green-800' :
                       gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
@@ -253,12 +253,12 @@ export const AdminGigs: React.FC = () => {
                       {gig.status}
                     </span>
                   </td>
-                  <td className="p-4">
-                    <span className="text-gray-700 text-sm">
+                  <td className="p-2 md:p-4">
+                    <span className="text-gray-700 text-xs">
                       {new Date(gig.created_at).toLocaleDateString()}
                     </span>
                   </td>
-                  <td className="p-4">
+                  <td className="p-2 md:p-4">
                     <div className="relative">
                       <button
                         onClick={() => setShowMenu(showMenu === gig.id ? null : gig.id)}
@@ -274,7 +274,7 @@ export const AdminGigs: React.FC = () => {
                               handleViewGig(gig.id);
                               setShowMenu(null);
                             }}
-                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg text-sm"
                           >
                             <Eye size={16} />
                             View Gig
@@ -284,14 +284,14 @@ export const AdminGigs: React.FC = () => {
                               handleEditGig(gig.id);
                               setShowMenu(null);
                             }}
-                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 text-sm"
                           >
                             <Edit size={16} />
                             Edit Gig
                           </button>
                           <button
                             onClick={() => confirmDeleteGig(gig)}
-                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2"
+                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 text-sm"
                           >
                             <Trash2 size={16} />
                             Delete Gig
@@ -300,7 +300,7 @@ export const AdminGigs: React.FC = () => {
                           {gig.status !== 'active' && (
                             <button
                               onClick={() => handleUpdateGigStatus(gig.id, 'active')}
-                              className="w-full text-left px-4 py-2 text-green-600 hover:bg-green-50 flex items-center gap-2"
+                              className="w-full text-left px-4 py-2 text-green-600 hover:bg-green-50 flex items-center gap-2 text-sm"
                             >
                               <CheckCircle size={16} />
                               Set Active
@@ -309,7 +309,7 @@ export const AdminGigs: React.FC = () => {
                           {gig.status !== 'paused' && (
                             <button
                               onClick={() => handleUpdateGigStatus(gig.id, 'paused')}
-                              className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 flex items-center gap-2"
+                              className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 flex items-center gap-2 text-sm"
                             >
                               <XCircle size={16} />
                               Set Paused
@@ -318,7 +318,7 @@ export const AdminGigs: React.FC = () => {
                           {gig.status !== 'inactive' && (
                             <button
                               onClick={() => handleUpdateGigStatus(gig.id, 'inactive')}
-                              className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
+                              className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg text-sm"
                             >
                               <XCircle size={16} />
                               Set Inactive
@@ -337,22 +337,22 @@ export const AdminGigs: React.FC = () => {
       
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-6 overflow-x-auto">
           <div className="flex items-center gap-4">
             <Button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg disabled:opacity-50 text-sm"
             >
               Previous
             </Button>
-            <span className="text-gray-800 font-medium">
+            <span className="text-gray-800 font-medium text-sm">
               Page {currentPage} of {totalPages}
             </span>
             <Button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-3 md:px-4 py-2 rounded-lg disabled:opacity-50 text-sm"
             >
               Next
             </Button>
@@ -363,24 +363,24 @@ export const AdminGigs: React.FC = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
-            <p className="text-gray-700 mb-4">
+          <div className="bg-white rounded-xl p-4 md:p-6 max-w-full md:max-w-md w-full">
+            <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
+            <p className="text-gray-700 mb-4 text-sm md:text-base">
               Are you sure you want to delete "{selectedGig?.title}"?
             </p>
-            <p className="text-red-600 mb-4 text-sm">
+            <p className="text-red-600 mb-4 text-xs md:text-sm">
               This action cannot be undone. All related orders and messages will also be deleted.
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col md:flex-row gap-3">
               <Button
                 onClick={() => setShowDeleteModal(false)}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg text-sm"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDelete}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg text-sm"
                 disabled={deleteGig.isLoading}
               >
                 {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
