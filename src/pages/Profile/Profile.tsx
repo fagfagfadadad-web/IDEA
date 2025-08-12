@@ -1,287 +1,127 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus } from 'lucide-react';
-import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus, Gift, Users } from 'lucide-react';
+import {
+  User, 
+  Settings, 
+  Star, 
+  Calendar, 
+  CheckCircle, 
+  Clock, 
+  Edit, 
+  Trash2, 
+  X, 
+  Plus, 
+  MapPin, 
+  Gift, 
+  Users 
+} from 'lucide-react';
+import { Button, Card, EmailNotificationsToggle, ReviewsList, StarRating } from 'components';
 import { useGetIsLoggedIn } from 'lib';
-import { useProfile, useUpdateProfile } from 'hooks';
+import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
+import { useReviewsForProvider } from '../../hooks/useReviews';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
-import { useOrders } from 'hooks';
-import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
-import { useReviewsForProvider } from 'hooks';
-import { usePayments } from 'hooks';
-import { ProfileService } from '../../services/profileService';
-import { TransactionService } from '../../services/transactionService';
-
-// Helper function to calculate earnings from orders
-const calculateEarnings = (orders: any[]) => {
-  const completedOrders = orders?.filter(order => order.status === 'completed') || [];
-  
-  const egldEarnings = completedOrders
-    .filter(order => order.payment_token === 'EGLD')
-    .reduce((sum, order) => sum + (order.amount * 0.9), 0); // 90% after 10% fee
-    
-  const idaEarnings = completedOrders
-    .filter(order => order.payment_token !== 'EGLD')
-    .reduce((sum, order) => sum + order.amount, 0); // 100% for IDA tokens
-    
-  return {
-    egld: egldEarnings,
-    ida: idaEarnings,
-    totalOrders: completedOrders.length,
-    totalEarnings: egldEarnings + idaEarnings
-  };
-};
-
-// Helper function to calculate review statistics
-const calculateReviewStats = (reviews: any[]) => {
-  if (!reviews || reviews.length === 0) {
-    return {
-      averageRating: 0,
-      totalReviews: 0,
-      ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-    };
-  }
-  
-  const totalReviews = reviews.length;
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
-  
-  const ratingDistribution = reviews.reduce((dist, review) => {
-    dist[review.rating] = (dist[review.rating] || 0) + 1;
-    return dist;
-  }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
-  
-  return {
-    averageRating,
-    totalReviews,
-    ratingDistribution
-  };
-};
+import { TaskManager } from '../../components/ProfileDashboard/TaskManager';
+import { CalendarWidget } from '../../components/ProfileDashboard/CalendarWidget';
+import { FinancialOverview } from '../../components/ProfileDashboard/FinancialOverview';
+import { ExternalToolsWidget } from '../../components/ProfileDashboard/ExternalToolsWidget';
 
 export const Profile = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
-  const { success, error: showErrorToast } = useToast();
+  const { user, isAuthenticated } = useAuth();
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
   
-  // Use the id from params if viewing someone else's profile, otherwise use current user
-  const { data: profile, isLoading, error, refetch } = useProfile(id);
+  // Determine if viewing own profile or someone else's
+  const isOwnProfile = !id || (user && id === user.id);
+  const profileId = isOwnProfile ? undefined : id;
   
-  // Determine if this is the user's own profile
-  const isOwnProfile = !id || (user?.id === profile?.id);
+  // Real hooks
+  const { data: profile, isLoading, error, refetch } = useProfile(profileId);
+  const { data: reviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(profileId || user?.id || '');
+  const updateProfile = useUpdateProfile();
 
-  // Real hooks for data fetching
-  const { data: gigs, refetch: refetchGigs } = useGigs();
-  const { data: orders, refetch: refetchOrders } = useOrders();
-  const { data: notifications } = useNotifications(user?.id);
-  const { data: providerReviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsForProvider(profile?.id || '');
-
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showGigMenu, setShowGigMenu] = useState<string | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedGig, setSelectedGig] = useState<any>(null);
-  const [idaBalance, setIdaBalance] = useState<number>(0);
-  const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
-  const [isLoadingIda, setIsLoadingIda] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
-    avatar_url: '',
     bio: '',
+    email: '',
     twitter_url: '',
     github_url: '',
     linkedin_url: '',
     website_url: '',
+    discord_username: '',
+    telegram_username: '',
   });
 
-  const updateProfile = useUpdateProfile();
-  const deleteGig = useDeleteGig();
-  const updateGigStatus = useUpdateGigStatus();
-  const markAllAsRead = useMarkAllNotificationsAsRead();
-  const { claimPayment } = usePayments();
-
-  // Initialize edit form when profile loads
+  // Set active tab from URL parameter
   useEffect(() => {
-    if (profile) {
+    const tab = searchParams.get('tab');
+    if (tab === 'settings') setActiveTab(1);
+    else if (tab === 'reviews') setActiveTab(2);
+    else if (tab === 'workspace') setActiveTab(3);
+    else setActiveTab(0);
+  }, [searchParams]);
+
+  // Load profile data into edit form
+  useEffect(() => {
+    if (profile && isOwnProfile) {
       setEditForm({
         username: profile.username || '',
         full_name: profile.full_name || '',
-        avatar_url: profile.avatar_url || '',
         bio: profile.bio || '',
+        email: profile.email || '',
         twitter_url: profile.twitter_url || '',
         github_url: profile.github_url || '',
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
+        discord_username: profile.discord_username || '',
+        telegram_username: profile.telegram_username || '',
       });
     }
-  }, [profile]);
+  }, [profile, isOwnProfile]);
 
-  // Load IDA balance and transactions
-  useEffect(() => {
-    if (user?.wallet_address && (activeTab === 'wallet' || activeTab === 'overview')) {
-      loadIdaData();
-    }
-  }, [user?.wallet_address, activeTab]);
-
-  const loadIdaData = async () => {
-    if (!user?.wallet_address) return;
-
-    setIsLoadingIda(true);
+  const handleSaveProfile = async () => {
     try {
-      const [balance, transactions] = await Promise.all([
-        ProfileService.getUserIdaBalance(user.wallet_address),
-        TransactionService.getTransactionHistory(user.wallet_address, 10)
-      ]);
-
-      setIdaBalance(balance);
-      setIdaTransactions(transactions.filter(tx => tx.token_identifier === 'IDA'));
+      await updateProfile.mutateAsync(editForm);
+      showSuccessToast('Profile updated successfully');
+      setIsEditing(false);
+      refetch();
     } catch (error) {
-      console.error('Error loading IDA data:', error);
-    } finally {
-      setIsLoadingIda(false);
+      console.error('Error updating profile:', error);
+      showErrorToast('Error updating profile');
     }
   };
 
-  const formatCoins = (amount: number) => {
-    if (amount >= 1000000) {
-      return (amount / 1000000).toFixed(1) + 'M';
-    } else if (amount >= 1000) {
-      return (amount / 1000).toFixed(1) + 'K';
-    } else {
-      return Math.round(amount * 100) / 100;
-    }
-  };
-
-  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = async () => {
-    try {
-      await updateProfile.mutateAsync({
-        ...editForm
-      });
-      setIsEditModalOpen(false);
-      refetch();
-      success('Profile updated successfully');
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      showErrorToast('Error updating profile. Please try again later.');
-    }
+  const calculateAverageRating = () => {
+    if (!reviews || reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return total / reviews.length;
   };
-
-  const handleEditGig = (gigId: string) => {
-    navigate(`/create-gig?edit=${gigId}`);
-    setShowGigMenu(null);
-  };
-
-  const handleDeleteGig = async () => {
-    if (!selectedGig) return;
-    
-    try {
-      await deleteGig.mutateAsync(selectedGig.id, {
-        onSuccess: () => {
-          success('Gig deleted successfully');
-          refetchGigs();
-        }
-      });
-      setShowDeleteModal(false);
-      setSelectedGig(null);
-    } catch (error) {
-      console.error('Failed to delete gig:', error);
-      showErrorToast('Failed to delete gig');
-    }
-  };
-
-  const handleUpdateGigStatus = async (gigId: string, status: string) => {
-    try {
-      await updateGigStatus.mutateAsync({ id: gigId, status });
-      success(`Gig ${status === 'active' ? 'activated' : status === 'paused' ? 'paused' : 'deactivated'} successfully`);
-      refetchGigs();
-      setShowGigMenu(null);
-    } catch (error) {
-      console.error('Failed to update gig status:', error);
-      showErrorToast('Failed to update gig status');
-    }
-  };
-
-  const confirmDeleteGig = (gig: any) => {
-    setSelectedGig(gig);
-    setShowDeleteModal(true);
-    setShowGigMenu(null);
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      if (!user?.id) {
-        showErrorToast('Please log in to mark notifications as read');
-        return;
-      }
-      
-      const unreadCount = notifications?.filter(n => !n.read).length || 0;
-      if (unreadCount === 0) {
-        success('All notifications are already read');
-        return;
-      }
-
-      await markAllAsRead.mutateAsync();
-      success('All notifications marked as read');
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
-      showErrorToast('Error marking notifications as read');
-    }
-  };
-
-  const handleClaimPayment = async (orderId: string) => {
-    try {
-      await claimPayment(orderId);
-      
-      // Refresh orders data to remove from waiting list
-      await refetchOrders();
-      success('Payment claimed successfully');
-    } catch (error) {
-      console.error('Error claiming payment:', error);
-      showErrorToast(`Error claiming payment: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-  
-  const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: <User size={16} /> },
-    { id: 'gigs', label: 'My Gigs', icon: <Briefcase size={16} /> },
-    { id: 'reviews', label: 'Reviews', icon: <Star size={16} /> },
-    { id: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={16} /> },
-    { id: 'wallet', label: 'IDA Wallet', icon: <Coins size={16} /> },
-    { id: 'settings', label: 'Settings', icon: <Settings size={16} /> }
+    { id: 0, label: 'Overview', icon: <User size={20} /> },
+    { id: 1, label: 'Settings', icon: <Settings size={20} /> },
+    { id: 2, label: 'Reviews', icon: <Star size={20} /> },
+    { id: 3, label: 'Workspace', icon: <Gift size={20} /> },
   ];
 
-  if (!isLoggedIn && isOwnProfile) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-        <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="gradient-card p-8">
-            <div className="bg-yellow-100 border border-yellow-400 rounded-md p-4">
-              <div className="flex items-center">
-                <span className="text-yellow-600 mr-2">⚠️</span>
-                <span className="text-gray-800">Please log in to view your profile.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // Show loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-        <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="gradient-card p-8">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 py-6 md:py-8">
+          <div className="gradient-card p-6 md:p-8">
             <div className="flex justify-center">
               <div className="space-y-4 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
@@ -294,16 +134,17 @@ export const Profile = () => {
     );
   }
 
-  if (error || !profile) {
+  // Show error state
+  if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-        <div className="container mx-auto max-w-7xl px-6 py-8">
-          <div className="gradient-card p-8">
-            <div className="bg-red-100 border border-red-400 rounded-md p-4">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 py-6 md:py-8">
+          <div className="gradient-card p-6 md:p-8">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <div className="flex items-center">
-                <span className="text-red-600 mr-2">⚠️</span>
-                <span className="text-gray-800">
-                  {error ? `Error: ${error.message}` : 'Profile not found'}
+                <span className="text-red-500 mr-2">⚠️</span>
+                <span className="text-red-700 font-medium">
+                  Error loading profile: {error.message}
                 </span>
               </div>
             </div>
@@ -313,1366 +154,649 @@ export const Profile = () => {
     );
   }
 
+  // Show not found state for other user's profile
+  if (!isOwnProfile && !profile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 py-6 md:py-8">
+          <div className="gradient-card p-6 md:p-8">
+            <div className="text-center">
+              <User size={48} className="text-gray-400 mx-auto mb-4" />
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Profile Not Found</h2>
+              <p className="text-gray-600 mb-6">
+                The profile you're looking for doesn't exist or has been removed.
+              </p>
+              <Button
+                onClick={() => navigate('/')}
+                variant="gradient"
+                size="md"
+              >
+                Go Home
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt for own profile when not authenticated
+  if (isOwnProfile && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
+        <div className="container mx-auto max-w-7xl px-4 md:px-6 py-6 md:py-8">
+          <div className="gradient-card p-6 md:p-8">
+            <div className="text-center">
+              <User size={48} className="text-gray-400 mx-auto mb-4" />
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Connect Your Wallet</h2>
+              <p className="text-gray-600 mb-6">
+                Connect your wallet to view and manage your profile
+              </p>
+              <Button
+                onClick={() => navigate('/unlock')}
+                variant="gradient"
+                size="lg"
+              >
+                Connect Wallet
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const averageRating = calculateAverageRating();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50">
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <div className="space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-indigo-50 overflow-hidden">
+      <div className="container mx-auto max-w-7xl px-3 md:px-6 py-4 md:py-8 overflow-hidden">
+        <div className="space-y-4 md:space-y-8 overflow-hidden">
           {/* Profile Header */}
-          <div className="gradient-card p-8">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
-                {profile.avatar_url ? (
-                  <>
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.username || "Profile"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div 
-                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white absolute inset-0"
-                      style={{ display: 'none' }}
-                    >
-                      {profile.username?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                  </>
-                ) : (
-                  <span>{profile.username?.charAt(0)?.toUpperCase() || "U"}</span>
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                      {profile.full_name || profile.username}
-                    </h1>
-                    <p className="text-gray-600 mb-2">@{profile.username}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Calendar size={16} />
-                        <span>Joined {new Date(profile.created_at).toLocaleDateString()}</span>
+          <div className="gradient-card p-4 md:p-8 overflow-hidden">
+            <div className="space-y-4 md:space-y-6 overflow-hidden">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 overflow-hidden">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex-shrink-0">
+                  {profile?.avatar_url ? (
+                    <>
+                      <img
+                        src={profile.avatar_url}
+                        alt={profile.username || "Profile"}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }
+                        }}
+                      />
+                      <div 
+                        className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl md:text-2xl font-bold text-white absolute inset-0"
+                        style={{ display: 'none' }}
+                      >
+                        {profile?.username?.charAt(0)?.toUpperCase() || "U"}
                       </div>
-                    </div>
-                  </div>
-                  
-                  {isOwnProfile && (
-                    <div className="flex gap-3">
-                      <Button
-                        onClick={() => setIsEditModalOpen(true)}
-                        variant="gradient"
-                      >
-                        <Edit size={16} />
-                        Edit Profile
-                      </Button>
-                      <Button
-                        onClick={() => setActiveTab('dashboard')}
-                        variant="outline"
-                        className="border-purple-600 text-purple-600 hover:bg-purple-50"
-                      >
-                        <BarChart3 size={16} />
-                        Workspace
-                      </Button>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl md:text-2xl font-bold text-white">
+                      {profile?.username?.charAt(0)?.toUpperCase() || "U"}
                     </div>
                   )}
                 </div>
-              </div>
-            </div>
-          </div>
+                
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-1 md:mb-2 break-words">
+                    {profile?.full_name || profile?.username || 'Anonymous User'}
+                  </h1>
+                  {profile?.username && profile?.full_name && (
+                    <p className="text-sm md:text-base text-gray-600 mb-2 break-words">@{profile.username}</p>
+                  )}
+                  {profile?.bio && (
+                    <p className="text-sm md:text-base text-gray-700 break-words line-clamp-2 md:line-clamp-none">
+                      {profile.bio}
+                    </p>
+                  )}
+                  
+                  {/* Stats for other user's profile */}
+                  {!isOwnProfile && (
+                    <div className="flex flex-wrap gap-2 md:gap-4 mt-3 md:mt-4 overflow-hidden">
+                      <div className="flex items-center gap-1 md:gap-2">
+                        <Calendar size={14} className="text-gray-400 flex-shrink-0" />
+                        <span className="text-xs md:text-sm text-gray-600 break-words">
+                          Joined {new Date(profile?.created_at || '').toLocaleDateString()}
+                        </span>
+                      </div>
+                      {reviews && reviews.length > 0 && (
+                        <div className="flex items-center gap-1 md:gap-2">
+                          <StarRating 
+                            rating={averageRating}
+                            size={14}
+                            showText={false}
+                            className="flex-shrink-0"
+                          />
+                          <span className="text-xs md:text-sm text-gray-600 break-words">
+                            {averageRating.toFixed(1)} ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-          {/* Profile Content */}
-          {activeTab === 'dashboard' ? (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Task Manager */}
-                <TaskManager />
-                
-                {/* Calendar Widget */}
-                <CalendarWidget />
-              </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Financial Overview */}
-                <FinancialOverview />
-                
-                {/* External Tools */}
-                <ExternalToolsWidget />
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* About Me */}
-              <div className="gradient-card p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">About Me</h3>
-                {profile.bio ? (
-                  <p className="text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
-                ) : (
-                  <p className="text-gray-500 italic">
-                    {isOwnProfile ? 'Add a bio to tell others about yourself' : 'No bio available'}
-                  </p>
+                {isOwnProfile && (
+                  <div className="flex flex-col sm:flex-row gap-2 md:gap-3 w-full md:w-auto flex-shrink-0">
+                    <Button
+                      onClick={() => setIsEditing(!isEditing)}
+                      variant="outline"
+                      size="sm"
+                      className="w-full sm:w-auto"
+                    >
+                      <Edit size={16} />
+                      {isEditing ? 'Cancel' : 'Edit Profile'}
+                    </Button>
+                    {isEditing && (
+                      <Button
+                        onClick={handleSaveProfile}
+                        disabled={updateProfile.isLoading}
+                        variant="gradient"
+                        size="sm"
+                        className="w-full sm:w-auto"
+                      >
+                        <CheckCircle size={16} />
+                        {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
 
-              {/* Social Media Links */}
-              <div className="gradient-card p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Social Media Links</h3>
-                <div className="space-y-3">
+              {/* Social Links for public profiles */}
+              {!isOwnProfile && profile && (
+                <div className="flex flex-wrap gap-2 md:gap-3 overflow-hidden">
                   {profile.twitter_url && (
                     <a
                       href={profile.twitter_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors text-xs md:text-sm flex-shrink-0"
                     >
-                      <Twitter size={20} />
-                      <span>Twitter</span>
+                      <span>🐦</span>
+                      <span className="break-words">Twitter</span>
                     </a>
                   )}
-                  
                   {profile.github_url && (
                     <a
                       href={profile.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-gray-700 hover:text-gray-900 transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors text-xs md:text-sm flex-shrink-0"
                     >
-                      <Github size={20} />
-                      <span>GitHub</span>
+                      <span>💻</span>
+                      <span className="break-words">GitHub</span>
                     </a>
                   )}
-                  
                   {profile.linkedin_url && (
                     <a
                       href={profile.linkedin_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-blue-600 hover:text-blue-700 transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 transition-colors text-xs md:text-sm flex-shrink-0"
                     >
-                      <Linkedin size={20} />
-                      <span>LinkedIn</span>
+                      <span>💼</span>
+                      <span className="break-words">LinkedIn</span>
                     </a>
                   )}
-                  
                   {profile.website_url && (
                     <a
                       href={profile.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-green-600 hover:text-green-700 transition-colors"
+                      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 md:py-2 bg-green-100 text-green-800 rounded-lg hover:bg-green-200 transition-colors text-xs md:text-sm flex-shrink-0"
                     >
-                      <Globe size={20} />
-                      <span>Website</span>
+                      <span>🌐</span>
+                      <span className="break-words">Website</span>
                     </a>
-                  )}
-                  
-                  {!profile.twitter_url && !profile.github_url && !profile.linkedin_url && !profile.website_url && (
-                    <p className="text-gray-500 italic">
-                      {isOwnProfile ? 'Add your social media links to connect with others' : 'No social media links available'}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Statistics Overview - Mobile Only */}
-              {isOwnProfile && (
-                <div className="gradient-card p-6 lg:hidden">
-                  <h3 className="text-lg font-bold text-gray-800 mb-6">Statistics Overview</h3>
-                  
-                  {/* Main Stats Grid */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star size={16} className="text-yellow-500" />
-                        <span className="text-gray-800 text-sm font-medium">Average Rating</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">
-                        {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
-                        })()}
-                      </p>
-                      <p className="text-gray-600 text-xs">
-                        {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
-                        })()}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Briefcase size={16} className="text-green-600" />
-                        <span className="text-gray-800 text-sm font-medium">Active Gigs</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">
-                        {gigs?.filter(g => g.status === 'active').length || 0}
-                      </p>
-                      <p className="text-gray-600 text-xs">
-                        of {gigs?.length || 0} total
-                      </p>
-                    </div>
-
-                    <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Coins size={20} className="text-purple-600" />
-                        <span className="text-purple-800 font-medium">IDA Balance</span>
-                      </div>
-                      {isLoadingIda ? (
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                      ) : (
-                        <p className="text-purple-800 text-2xl font-bold">{formatCoins(idaBalance)}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Earnings Section */}
-                  <div className="space-y-4">
-                    <h4 className="text-md font-bold text-gray-800">Earnings</h4>
-                    
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <DollarSign size={16} className="text-blue-600" />
-                            <span className="text-gray-800 font-medium">EGLD Earnings</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-gray-800">
-                              {(() => {
-                                const earnings = calculateEarnings(orders || []);
-                                return earnings.egld.toFixed(2);
-                              })()} EGLD
-                            </p>
-                            <p className="text-gray-600 text-xs">After 10% fee</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Coins size={16} className="text-purple-600" />
-                            <span className="text-gray-800 font-medium">IDA Earnings</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-gray-800">
-                              {(() => {
-                                const earnings = calculateEarnings(orders || []);
-                                return earnings.ida.toFixed(2);
-                              })()} IDA
-                            </p>
-                            <p className="text-gray-600 text-xs">No fees</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Check size={16} className="text-gray-600" />
-                          <span className="text-gray-800 font-medium">Completed Orders</span>
-                        </div>
-                        <p className="text-xl font-bold text-gray-800">
-                          {(() => {
-                            const earnings = calculateEarnings(orders || []);
-                            return earnings.totalOrders;
-                          })()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Rating Distribution */}
-                  {(() => {
-                    const stats = calculateReviewStats(providerReviews || []);
-                    return stats.totalReviews > 0 ? (
-                      <div className="space-y-4">
-                        <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
-                        <div className="space-y-2">
-                          {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = stats.ratingDistribution[rating] || 0;
-                            const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
-                            
-                            return (
-                              <div key={rating} className="flex items-center gap-3">
-                                <div className="flex items-center gap-1 w-12">
-                                  <span className="text-gray-800 text-sm">{rating}</span>
-                                  <Star size={12} className="text-yellow-500" />
-                                </div>
-                                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
-                                    style={{ width: `${percentage}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-gray-600 text-sm w-12 text-right">
-                                  {count}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
-              )}
-
-              {/* Reviews Section - Show for public profiles */}
-              {!isOwnProfile && (
-                <div className="gradient-card p-6">
-                  <ReviewsList 
-                    reviews={providerReviews || []}
-                    isLoading={reviewsLoading}
-                    error={reviewsError}
-                    showTitle={true}
-                  />
-                </div>
-              )}
-
-              {/* My Reviews - Only for own profile */}
-              {isOwnProfile && (
-                <div className="gradient-card p-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-6">My Reviews</h3>
-                  <ReviewsList 
-                    reviews={providerReviews || []}
-                    isLoading={reviewsLoading}
-                    error={reviewsError}
-                    showTitle={false}
-                  />
-                </div>
-              )}
-
-              {/* My Gigs - Only for own profile */}
-              {isOwnProfile && (
-                <div className="gradient-card p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-lg font-bold text-gray-800">My Gigs</h3>
-                    <Button
-                      onClick={() => navigate('/create-gig')}
-                      variant="gradient"
-                    >
-                      <Plus size={16} />
-                      Create Gig
-                    </Button>
-                  </div>
-                  
-                  {gigs?.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-600 mb-4">You haven't created any gigs yet.</p>
-                      <Button
-                        onClick={() => navigate('/create-gig')}
-                        variant="gradient"
-                      >
-                        <Plus size={16} />
-                        Create your first gig
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {gigs?.map((gig) => (
-                        <div
-                          key={gig.id}
-                          className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-indigo-500 hover:shadow-lg transition-all duration-300 relative group"
-                        >
-                          {/* Gig Actions Menu */}
-                          <div className="absolute top-2 right-2 z-10">
-                            <div className="relative">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setShowGigMenu(showGigMenu === gig.id ? null : gig.id);
-                                }}
-                                className="p-1 bg-white bg-opacity-75 hover:bg-opacity-100 rounded text-gray-600 hover:text-gray-800 transition-colors shadow-sm"
-                              >
-                                <MoreVertical size={16} />
-                              </button>
-                              
-                              {showGigMenu === gig.id && (
-                                <>
-                                  <div 
-                                    className="fixed inset-0 z-10" 
-                                    onClick={() => setShowGigMenu(null)}
-                                  />
-                                  <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-48">
-                                    <button
-                                      onClick={() => handleEditGig(gig.id)}
-                                      className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2 rounded-t-lg"
-                                    >
-                                      <Edit size={16} />
-                                      Edit Gig
-                                    </button>
-                                    <button
-                                      onClick={() => navigate(`/gigs/${gig.id}`)}
-                                      className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-50 flex items-center gap-2"
-                                    >
-                                      <Eye size={16} />
-                                      View Gig
-                                    </button>
-                                    <hr className="border-gray-200" />
-                                    {gig.status !== 'active' && (
-                                      <button
-                                        onClick={() => handleUpdateGigStatus(gig.id, 'active')}
-                                        className="w-full text-left px-4 py-2 text-green-600 hover:bg-green-50 flex items-center gap-2"
-                                      >
-                                        <Play size={16} />
-                                        Activate
-                                      </button>
-                                    )}
-                                    {gig.status !== 'paused' && (
-                                      <button
-                                        onClick={() => handleUpdateGigStatus(gig.id, 'paused')}
-                                        className="w-full text-left px-4 py-2 text-yellow-600 hover:bg-yellow-50 flex items-center gap-2"
-                                      >
-                                        <Pause size={16} />
-                                        Pause
-                                      </button>
-                                    )}
-                                    <button
-                                      onClick={() => confirmDeleteGig(gig)}
-                                      className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2 rounded-b-lg"
-                                    >
-                                      <Trash2 size={16} />
-                                      Delete
-                                    </button>
-                                  </div>
-                                </>
-                              )}
-                            </div>
-                          </div>
-
-                          <div
-                            className="cursor-pointer"
-                            onClick={() => navigate(`/gigs/${gig.id}`)}
-                          >
-                            <img
-                              src={gig.media_urls?.images?.[0] || "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"}
-                              alt={gig.title}
-                              className="w-full h-32 object-cover"
-                            />
-                            
-                            <div className="p-4 space-y-3">
-                              <div className="flex justify-between items-start">
-                                <h4 className="text-gray-800 font-bold line-clamp-2 flex-1 mr-2">
-                                  {gig.title}
-                                </h4>
-                                <span className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
-                                  gig.status === 'active' ? 'bg-green-100 text-green-800' :
-                                  gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {gig.status}
-                                </span>
-                              </div>
-                              
-                              {/* Views counter */}
-                              <div className="flex items-center gap-2">
-                                <Eye size={14} className="text-gray-400" />
-                                <span className="text-gray-500 text-sm">
-                                  {gig.view_count || 0} views
-                                </span>
-                              </div>
-                              
-                              <p className="text-gray-600 text-sm line-clamp-2">
-                                {gig.description.split('\n\nPackage Includes:')[0]}
-                              </p>
-                              
-                              <div className="flex justify-between items-center">
-                                <span className="text-indigo-600 font-bold">
-                                  {gig.price} {gig.payment_token === 'EGLD' ? 'EGLD' : 'IDEA'}
-                                </span>
-                                <span className="text-gray-600 text-sm">
-                                  {gig.duration} days
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Dashboard Tab */}
-              {activeTab === 'dashboard' && (
-                <div className="space-y-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Task Manager */}
-                    <TaskManager />
-                    
-                    {/* Calendar Widget */}
-                    <CalendarWidget />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Financial Overview */}
-                    <FinancialOverview />
-                    
-                    {/* External Tools */}
-                    <ExternalToolsWidget />
-                  </div>
-                </div>
-              )}
-
-              {/* IDA Wallet Tab */}
-              {activeTab === 'wallet' && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">IDA Token Wallet</h3>
-                    <p className="text-gray-600">
-                      Your IDA tokens earned through tasks and referrals for the upcoming airdrop
-                    </p>
-                  </div>
-
-                  {/* IDA Balance Card */}
-                  <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-8">
-                    <div className="text-center">
-                      <div className="w-20 h-20 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Coins size={32} className="text-white" />
-                      </div>
-                      <h3 className="text-lg font-medium text-gray-800 mb-2">IDA Token Balance</h3>
-                      {isLoadingIda ? (
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-                      ) : (
-                        <p className="text-3xl font-bold gradient-text">{formatCoins(idaBalance)} IDA</p>
-                      )}
-                      <p className="text-gray-600 text-sm mt-2">
-                        Earned through tasks and referrals
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button
-                      onClick={() => navigate('/rewards')}
-                      className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
-                    >
-                      <Package size={20} />
-                      <span>Complete Tasks</span>
-                    </Button>
-                    <Button
-                      onClick={() => navigate('/rewards')}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-4 rounded-lg flex items-center justify-center gap-2"
-                    >
-                      <UserPlus size={20} />
-                      <span>Invite Friends</span>
-                    </Button>
-                  </div>
-
-                  {/* IDA Transaction History */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-6">
-                    <h4 className="text-lg font-bold text-gray-800 mb-4">IDA Transaction History</h4>
-                    
-                    {isLoadingIda ? (
-                      <div className="flex justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                      </div>
-                    ) : idaTransactions.length > 0 ? (
-                      <div className="space-y-3">
-                        {idaTransactions.map((tx) => (
-                          <div
-                            key={tx.id}
-                            className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="text-lg">
-                                {tx.transaction_type === 'reward' ? '🎁' :
-                                 tx.transaction_type === 'referral' ? '👥' :
-                                 tx.transaction_type === 'send' ? '↗️' : '↙️'}
-                              </span>
-                              <div>
-                                <p className="font-medium text-gray-800">
-                                  {tx.description || 
-                                   (tx.transaction_type === 'reward' ? 'Task Reward' :
-                                    tx.transaction_type === 'referral' ? 'Referral Bonus' :
-                                    tx.transaction_type === 'send' ? 'Sent IDA' : 'Received IDA')}
-                                </p>
-                                <p className="text-gray-500 text-xs">
-                                  {new Date(tx.timestamp).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className={`font-bold ${
-                                tx.transaction_type === 'send' ? 'text-red-600' : 'text-green-600'
-                              }`}>
-                                {tx.transaction_type === 'send' ? '-' : '+'}
-                                {formatCoins(tx.amount)} IDA
-                              </p>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                tx.status === 'success' ? 'bg-green-100 text-green-800' :
-                                tx.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {tx.status}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Coins size={32} className="text-gray-400 mx-auto mb-3" />
-                        <p className="text-gray-600">No IDA transactions yet</p>
-                        <p className="text-gray-500 text-sm">
-                          Complete tasks and invite friends to start earning IDA tokens
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Airdrop Information */}
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Package size={24} className="text-white" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-bold text-gray-800">Airdrop Information</h4>
-                        <p className="text-gray-600 text-sm">Learn about the upcoming IDA token airdrop</p>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <p className="text-gray-700 text-sm">
-                        • IDA tokens earned through tasks and referrals will be eligible for the airdrop
-                      </p>
-                      <p className="text-gray-700 text-sm">
-                        • The more IDA tokens you earn, the larger your airdrop allocation
-                      </p>
-                      <p className="text-gray-700 text-sm">
-                        • Airdrop details and timeline will be announced soon
-                      </p>
-                      <div className="pt-3">
-                        <Button
-                          onClick={() => navigate('/rewards')}
-                          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                        >
-                          <Package size={16} />
-                          <span>Start Earning IDA</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* My Orders - Only for own profile */}
-              {isOwnProfile && (
-                <div className="gradient-card p-6">
-                  {/* Orders Waiting for Claim */}
-                  <h3 className="text-lg font-bold text-gray-800 mb-6">Orders Waiting for Claim</h3>
-                  {orders?.filter(order => {
-                    const isCompleted = order.status === 'completed';
-                    const completionDate = new Date(order.status_updated_at);
-                    const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                    const now = new Date();
-                    const canClaim = isCompleted && now >= threeDaysLater;
-                    const isProvider = user?.id === order.gig?.provider?.id || user?.id === order.gig?.provider_id;
-                    return isCompleted && canClaim && isProvider;
-                  }).length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-600 mb-4">No orders ready to claim.</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {orders?.filter(order => {
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const isProvider = user?.id === order.gig?.provider?.id || user?.id === order.gig?.provider_id;
-                        return isCompleted && canClaim && isProvider;
-                      }).map((order) => {
-                        // Calculate claim status (already filtered, but included for consistency)
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
-                        
-                        // Format countdown (not used here but kept for consistency)
-                        const formatCountdown = (ms: number) => {
-                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                          return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-                        };
-                        
-                        return (
-                          <div
-                            key={order.id}
-                            className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="text-gray-800 font-medium mb-1">
-                                  {order.gig?.title || 'Custom Project'}
-                                </h4>
-                                <p className="text-gray-600 text-sm">
-                                  {order.amount} {order.payment_token || 'EGLD'} • {order.status}
-                                </p>
-                              </div>
-                              <span className="text-gray-600 text-sm">
-                                {new Date(order.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                            
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                              <div className="flex justify-between items-center">
-                                <div>
-                                  <p className="text-sm font-medium text-gray-800">
-                                    💰 Ready to claim payment
-                                  </p>
-                                </div>
-                                <Button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (canClaim) {
-                                      handleClaimPayment(order.id);
-                                    }
-                                  }}
-                                  disabled={!canClaim}
-                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                    canClaim 
-                                      ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                  }`}
-                                >
-                                  Claim Payment
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Recent Orders */}
-                  <h3 className="text-lg font-bold text-gray-800 mb-6 mt-8">Recent Orders</h3>
-                  {orders?.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-gray-600 mb-4">No orders yet.</p>
-                      <Button
-                        onClick={() => navigate('/gigs')}
-                        variant="gradient"
-                      >
-                        Browse Gigs
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {orders?.map((order) => {
-                        // Calculate if 3 days have passed since completion
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
-                        const isProvider = user?.id === order.gig?.provider?.id || user?.id === order.gig?.provider_id;
-                        
-                        // Format countdown
-                        const formatCountdown = (ms: number) => {
-                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                          return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-                        };
-                        
-                        return (
-                          <div
-                            key={order.id}
-                            className="bg-white p-4 rounded-lg border border-gray-200 hover:border-indigo-500 hover:shadow-md transition-all duration-300 cursor-pointer"
-                            onClick={() => navigate(`/orders/${order.id}`)}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <h4 className="text-gray-800 font-medium mb-1">
-                                  {order.gig?.title || 'Custom Project'}
-                                </h4>
-                                <p className="text-gray-600 text-sm">
-                                  {order.amount} {order.payment_token || 'EGLD'} • {order.status}
-                                </p>
-                                {/* Zobrazenie skráteného ID objednávky malým písmom */}
-                                <p className="text-gray-500 text-xs mt-1">Order ID: {order.id.slice(0, 8)}...</p>
-                              </div>
-                              <span className="text-gray-600 text-sm">
-                                {new Date(order.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                            
-                            {/* Claim Payment Section for Completed Orders */}
-                            {isCompleted && isProvider && (
-                              <div className="mt-4 pt-4 border-t border-gray-200">
-                                <div className="flex justify-between items-center">
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-800">
-                                      {canClaim ? '💰 Ready to claim payment' : '⏳ Payment claim available in:'}
-                                    </p>
-                                    {!canClaim && (
-                                      <p className="text-xs text-gray-600">
-                                        {formatCountdown(timeUntilClaim)}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (canClaim) {
-                                        handleClaimPayment(order.id);
-                                      }
-                                    }}
-                                    disabled={!canClaim}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                      canClaim 
-                                        ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }`}
-                                  >
-                                    {canClaim ? 'Claim Payment' : `Wait ${formatCountdown(timeUntilClaim)}`}
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
                   )}
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Right Column - Only for own profile */}
-            {isOwnProfile && (
-              <div className="space-y-8">
-                {/* Statistics Overview - Desktop Only */}
-                <div className="gradient-card p-6 hidden lg:block">
-                  <h3 className="text-lg font-bold text-gray-800 mb-6">Statistics Overview</h3>
-                  
-                  {/* Main Stats Grid */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star size={16} className="text-yellow-500" />
-                        <span className="text-gray-800 text-sm font-medium">Average Rating</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">
-                        {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
-                        })()}
-                      </p>
-                      <p className="text-gray-600 text-xs">
-                        {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
-                        })()}
-                      </p>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Briefcase size={16} className="text-green-600" />
-                        <span className="text-gray-800 text-sm font-medium">Active Gigs</span>
-                      </div>
-                      <p className="text-2xl font-bold text-gray-800">
-                        {gigs?.filter(g => g.status === 'active').length || 0}
-                      </p>
-                      <p className="text-gray-600 text-xs">
-                        of {gigs?.length || 0} total
-                      </p>
-                    </div>
-
-                    <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Coins size={20} className="text-purple-600" />
-                        <span className="text-purple-800 font-medium">IDA Balance</span>
-                      </div>
-                      {isLoadingIda ? (
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                      ) : (
-                        <p className="text-purple-800 text-2xl font-bold">{formatCoins(idaBalance)}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Earnings Section */}
-                  <div className="space-y-4">
-                    <h4 className="text-md font-bold text-gray-800">Earnings</h4>
-                    
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <DollarSign size={16} className="text-blue-600" />
-                            <span className="text-gray-800 font-medium">EGLD Earnings</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-gray-800">
-                              {(() => {
-                                const earnings = calculateEarnings(orders || []);
-                                return earnings.egld.toFixed(2);
-                              })()} EGLD
-                            </p>
-                            <p className="text-gray-600 text-xs">After 10% fee</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Coins size={16} className="text-purple-600" />
-                            <span className="text-gray-800 font-medium">IDA Earnings</span>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-gray-800">
-                              {(() => {
-                                const earnings = calculateEarnings(orders || []);
-                                return earnings.ida.toFixed(2);
-                              })()} IDA
-                            </p>
-                            <p className="text-gray-600 text-xs">No fees</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg border border-gray-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Check size={16} className="text-gray-600" />
-                          <span className="text-gray-800 font-medium">Completed Orders</span>
-                        </div>
-                        <p className="text-xl font-bold text-gray-800">
-                          {(() => {
-                            const earnings = calculateEarnings(orders || []);
-                            return earnings.totalOrders;
-                          })()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Rating Distribution */}
-                  {(() => {
-                    const stats = calculateReviewStats(providerReviews || []);
-                    return stats.totalReviews > 0 ? (
-                      <div className="space-y-4">
-                        <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
-                        <div className="space-y-2">
-                          {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = stats.ratingDistribution[rating] || 0;
-                            const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
-                            
-                            return (
-                              <div key={rating} className="flex items-center gap-3">
-                                <div className="flex items-center gap-1 w-12">
-                                  <span className="text-gray-800 text-sm">{rating}</span>
-                                  <Star size={12} className="text-yellow-500" />
-                                </div>
-                                <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
-                                    style={{ width: `${percentage}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-gray-600 text-sm w-12 text-right">
-                                  {count}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ) : null;
-                  })()}
-                </div>
-
-                {/* Settings */}
-                <div className="gradient-card p-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">Settings</h3>
-                  <div className="space-y-4">
-                    <EmailNotificationsToggle 
-                      enabled={profile.email_notifications_enabled || false}
-                      currentEmail={profile.email || ''}
-                      onEmailUpdated={(newEmail) => {
-                        // Refresh profile data after email update
-                        refetch();
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Notifications */}
-                <div className="gradient-card p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
-                    {unreadCount > 0 && (
-                      <Button
-                        onClick={handleMarkAllAsRead}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Mark all as read ({unreadCount})
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {notifications?.length === 0 ? (
-                    <p className="text-gray-600">No notifications</p>
-                  ) : (
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {notifications?.slice(0, 5).map((notification) => (
-                        <div
-                          key={notification.id}
-                          className={`p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors ${
-                            !notification.read 
-                              ? 'bg-blue-50 border-blue-300' 
-                              : 'bg-white border-gray-200'
-                          }`}
-                          onClick={() => {
-                            // Navigate to notification target if available
-                            if (notification.data?.order_id) {
-                              navigate(`/orders/${notification.data.order_id}`);
-                            } else if (notification.data?.proposal_id) {
-                              navigate(`/proposals/${notification.data.proposal_id}`);
-                            }
-                          }}
-                        >
-                          <div className="space-y-1">
-                            <p className={`text-sm ${
-                              !notification.read ? 'text-gray-800 font-medium' : 'text-gray-700'
-                            }`}>
-                              {notification.title}
-                            </p>
-                            <p className="text-gray-600 text-xs line-clamp-2">
-                              {notification.content}
-                            </p>
-                            <p className="text-gray-500 text-xs">
-                              {new Date(notification.created_at).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+          {/* Tabs for own profile */}
+          {isOwnProfile && (
+            <div className="gradient-card overflow-hidden">
+              <div className="bg-gray-50 border-b border-gray-200 overflow-hidden">
+                <div className="flex overflow-x-auto scrollbar-hide">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-2 md:gap-3 px-4 md:px-6 py-3 md:py-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                        activeTab === tab.id
+                          ? 'border-indigo-500 text-indigo-600 bg-white'
+                          : 'border-transparent text-gray-500 hover:text-indigo-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {tab.icon}
+                      <span className="break-words">{tab.label}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {/* Statistics for Public Profiles */}
-            {!isOwnProfile && (
-              <div className="gradient-card p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-6">Provider Statistics</h3>
-                
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Star size={16} className="text-yellow-500" />
-                      <span className="text-gray-800 text-sm font-medium">Average Rating</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {(() => {
-                        const stats = calculateReviewStats(providerReviews || []);
-                        return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
-                      })()}
-                    </p>
-                    <p className="text-gray-600 text-xs">
-                      {(() => {
-                        const stats = calculateReviewStats(providerReviews || []);
-                        return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
-                      })()}
-                    </p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Briefcase size={16} className="text-green-600" />
-                      <span className="text-gray-800 text-sm font-medium">Total Gigs</span>
-                    </div>
-                    <p className="text-2xl font-bold text-gray-800">
-                      {/* For public profiles, we'd need to fetch their gigs separately */}
-                      0
-                    </p>
-                    <p className="text-gray-600 text-xs">
-                      available services
-                    </p>
-                  </div>
-                </div>
-
-                {/* Rating Distribution for Public Profile */}
-                {(() => {
-                  const stats = calculateReviewStats(providerReviews || []);
-                  return stats.totalReviews > 0 ? (
-                    <div className="space-y-4">
-                      <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
-                      <div className="space-y-2">
-                        {[5, 4, 3, 2, 1].map((rating) => {
-                          const count = stats.ratingDistribution[rating] || 0;
-                          const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+              <div className="p-4 md:p-8 overflow-hidden">
+                {/* Overview Tab */}
+                {activeTab === 0 && (
+                  <div className="space-y-4 md:space-y-6 overflow-hidden">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 overflow-hidden">
+                      <div className="lg:col-span-2 space-y-4 md:space-y-6 overflow-hidden">
+                        {/* Profile Info */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 overflow-hidden">
+                          <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4 break-words">Profile Information</h3>
                           
-                          return (
-                            <div key={rating} className="flex items-center gap-3">
-                              <div className="flex items-center gap-1 w-12">
-                                <span className="text-gray-800 text-sm">{rating}</span>
-                                <Star size={12} className="text-yellow-500" />
+                          {isEditing ? (
+                            <div className="space-y-3 md:space-y-4 overflow-hidden">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">Username</label>
+                                  <input
+                                    type="text"
+                                    name="username"
+                                    value={editForm.username}
+                                    onChange={handleChange}
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">Full Name</label>
+                                  <input
+                                    type="text"
+                                    name="full_name"
+                                    value={editForm.full_name}
+                                    onChange={handleChange}
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
                               </div>
-                              <div className="flex-1 bg-gray-200 rounded-full h-2">
-                                <div
-                                  className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-300"
-                                  style={{ width: `${percentage}%` }}
-                                ></div>
+                              
+                              <div className="overflow-hidden">
+                                <label className="block text-gray-800 text-sm font-medium mb-2">Bio</label>
+                                <textarea
+                                  name="bio"
+                                  value={editForm.bio}
+                                  onChange={handleChange}
+                                  rows={3}
+                                  className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none text-sm md:text-base"
+                                />
                               </div>
-                              <span className="text-gray-600 text-sm w-12 text-right">
-                                {count}
+
+                              <div className="overflow-hidden">
+                                <label className="block text-gray-800 text-sm font-medium mb-2">Email</label>
+                                <input
+                                  type="email"
+                                  name="email"
+                                  value={editForm.email}
+                                  onChange={handleChange}
+                                  className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">Twitter URL</label>
+                                  <input
+                                    type="url"
+                                    name="twitter_url"
+                                    value={editForm.twitter_url}
+                                    onChange={handleChange}
+                                    placeholder="https://twitter.com/username"
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">GitHub URL</label>
+                                  <input
+                                    type="url"
+                                    name="github_url"
+                                    value={editForm.github_url}
+                                    onChange={handleChange}
+                                    placeholder="https://github.com/username"
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">LinkedIn URL</label>
+                                  <input
+                                    type="url"
+                                    name="linkedin_url"
+                                    value={editForm.linkedin_url}
+                                    onChange={handleChange}
+                                    placeholder="https://linkedin.com/in/username"
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
+                                <div className="overflow-hidden">
+                                  <label className="block text-gray-800 text-sm font-medium mb-2">Website URL</label>
+                                  <input
+                                    type="url"
+                                    name="website_url"
+                                    value={editForm.website_url}
+                                    onChange={handleChange}
+                                    placeholder="https://yourwebsite.com"
+                                    className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-3 md:space-y-4 overflow-hidden">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                                <div className="overflow-hidden">
+                                  <p className="text-gray-600 text-sm">Username</p>
+                                  <p className="text-gray-800 font-medium break-words">{profile?.username || 'Not set'}</p>
+                                </div>
+                                <div className="overflow-hidden">
+                                  <p className="text-gray-600 text-sm">Full Name</p>
+                                  <p className="text-gray-800 font-medium break-words">{profile?.full_name || 'Not set'}</p>
+                                </div>
+                              </div>
+                              
+                              <div className="overflow-hidden">
+                                <p className="text-gray-600 text-sm">Bio</p>
+                                <p className="text-gray-800 break-words">{profile?.bio || 'No bio available'}</p>
+                              </div>
+
+                              <div className="overflow-hidden">
+                                <p className="text-gray-600 text-sm">Email</p>
+                                <p className="text-gray-800 break-words">{profile?.email || 'Not set'}</p>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                                <div className="overflow-hidden">
+                                  <p className="text-gray-600 text-sm">Member Since</p>
+                                  <p className="text-gray-800 font-medium break-words">
+                                    {new Date(profile?.created_at || '').toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <div className="overflow-hidden">
+                                  <p className="text-gray-600 text-sm">Wallet Address</p>
+                                  <p className="text-gray-800 font-mono text-xs md:text-sm break-all">
+                                    {user?.wallet_address ? (
+                                      <span title={user.wallet_address}>
+                                        {user.wallet_address.substring(0, 8)}...{user.wallet_address.substring(user.wallet_address.length - 6)}
+                                      </span>
+                                    ) : (
+                                      'Not connected'
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Activity Stats */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 overflow-hidden">
+                          <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-3 md:mb-4 break-words">Activity Overview</h3>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 overflow-hidden">
+                            <div className="text-center p-3 md:p-4 bg-blue-50 rounded-lg overflow-hidden">
+                              <p className="text-blue-600 text-lg md:text-2xl font-bold break-words">
+                                {profile?.gigs?.length || 0}
+                              </p>
+                              <p className="text-blue-800 text-xs md:text-sm font-medium break-words">Gigs Created</p>
+                            </div>
+                            <div className="text-center p-3 md:p-4 bg-green-50 rounded-lg overflow-hidden">
+                              <p className="text-green-600 text-lg md:text-2xl font-bold break-words">
+                                {profile?.orders?.filter((o: any) => o.status === 'completed').length || 0}
+                              </p>
+                              <p className="text-green-800 text-xs md:text-sm font-medium break-words">Orders Completed</p>
+                            </div>
+                            <div className="text-center p-3 md:p-4 bg-purple-50 rounded-lg overflow-hidden">
+                              <p className="text-purple-600 text-lg md:text-2xl font-bold break-words">
+                                {reviews?.length || 0}
+                              </p>
+                              <p className="text-purple-800 text-xs md:text-sm font-medium break-words">Reviews Received</p>
+                            </div>
+                            <div className="text-center p-3 md:p-4 bg-orange-50 rounded-lg overflow-hidden">
+                              <p className="text-orange-600 text-lg md:text-2xl font-bold break-words">
+                                {averageRating > 0 ? averageRating.toFixed(1) : '0.0'}
+                              </p>
+                              <p className="text-orange-800 text-xs md:text-sm font-medium break-words">Avg Rating</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Sidebar */}
+                      <div className="space-y-4 md:space-y-6 overflow-hidden">
+                        {/* Quick Stats */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 overflow-hidden">
+                          <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 break-words">Quick Stats</h3>
+                          <div className="space-y-2 md:space-y-3 overflow-hidden">
+                            <div className="flex justify-between items-center overflow-hidden">
+                              <span className="text-gray-600 text-sm break-words">Active Gigs</span>
+                              <span className="text-gray-800 font-bold text-sm break-words">
+                                {profile?.gigs?.filter((g: any) => g.status === 'active').length || 0}
                               </span>
                             </div>
-                          );
-                        })}
+                            <div className="flex justify-between items-center overflow-hidden">
+                              <span className="text-gray-600 text-sm break-words">Total Orders</span>
+                              <span className="text-gray-800 font-bold text-sm break-words">
+                                {profile?.orders?.length || 0}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center overflow-hidden">
+                              <span className="text-gray-600 text-sm break-words">Success Rate</span>
+                              <span className="text-gray-800 font-bold text-sm break-words">
+                                {profile?.orders?.length > 0 
+                                  ? Math.round((profile.orders.filter((o: any) => o.status === 'completed').length / profile.orders.length) * 100)
+                                  : 0}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Recent Activity */}
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 overflow-hidden">
+                          <h3 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 break-words">Recent Activity</h3>
+                          <div className="space-y-2 md:space-y-3 overflow-hidden">
+                            {profile?.orders?.slice(0, 3).map((order: any) => (
+                              <div key={order.id} className="flex items-center gap-2 md:gap-3 p-2 md:p-3 bg-gray-50 rounded-lg overflow-hidden">
+                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                  order.status === 'completed' ? 'bg-green-500' :
+                                  order.status === 'in_progress' ? 'bg-blue-500' :
+                                  order.status === 'delivered' ? 'bg-yellow-500' :
+                                  'bg-gray-500'
+                                }`} />
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <p className="text-gray-800 font-medium text-xs md:text-sm break-words line-clamp-1">
+                                    {order.gig?.title || 'Custom Project'}
+                                  </p>
+                                  <p className="text-gray-600 text-xs break-words">
+                                    {new Date(order.created_at).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+                            )) || (
+                              <p className="text-gray-600 text-sm break-words">No recent activity</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-4">
-                      <p className="text-gray-600">No reviews yet</p>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
-          )}
-        </div>
+                  </div>
+                )}
 
-        {/* Edit Profile Modal */}
-        {isEditModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto rounded-lg">
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-gray-800">Edit Profile</h3>
-                  <button
-                    onClick={() => setIsEditModalOpen(false)}
-                    className="text-gray-400 hover:text-gray-800"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Profile Picture URL
-                    </label>
-                    <div className="flex flex-col md:flex-row gap-4">
-                      {/* Current avatar preview */}
-                      <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0">
-                        {editForm.avatar_url ? (
-                          <img
-                            src={editForm.avatar_url}
-                            alt="Avatar preview"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
+                {/* Settings Tab */}
+                {activeTab === 1 && (
+                  <div className="space-y-4 md:space-y-6 overflow-hidden">
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 overflow-hidden">
+                      <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 md:mb-6 break-words">Account Settings</h3>
+                      
+                      <div className="space-y-4 md:space-y-6 overflow-hidden">
+                        {/* Email Notifications */}
+                        <div className="overflow-hidden">
+                          <h4 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 break-words">Email Notifications</h4>
+                          <EmailNotificationsToggle
+                            enabled={profile?.email_notifications_enabled || false}
+                            currentEmail={profile?.email || ''}
+                            onEmailUpdated={(email) => {
+                              if (profile) {
+                                profile.email = email;
                               }
                             }}
                           />
-                        ) : (
-                          <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
-                        )}
-                      </div>
-                      
-                      {/* URL input */}
-                      <div className="flex-1">
-                        <input
-                          type="url"
-                          name="avatar_url"
-                          value={editForm.avatar_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://example.com/your-avatar.jpg"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <p className="text-gray-600 text-xs mt-1">
-                          Enter a direct URL to your profile image
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                        </div>
 
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={editForm.username}
-                      onChange={handleEditFormChange}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
+                        {/* Social Links */}
+                        <div className="overflow-hidden">
+                          <h4 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 break-words">Social Links</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">Twitter URL</label>
+                              <input
+                                type="url"
+                                name="twitter_url"
+                                value={editForm.twitter_url}
+                                onChange={handleChange}
+                                placeholder="https://twitter.com/username"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">GitHub URL</label>
+                              <input
+                                type="url"
+                                name="github_url"
+                                value={editForm.github_url}
+                                onChange={handleChange}
+                                placeholder="https://github.com/username"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">LinkedIn URL</label>
+                              <input
+                                type="url"
+                                name="linkedin_url"
+                                value={editForm.linkedin_url}
+                                onChange={handleChange}
+                                placeholder="https://linkedin.com/in/username"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">Website URL</label>
+                              <input
+                                type="url"
+                                name="website_url"
+                                value={editForm.website_url}
+                                onChange={handleChange}
+                                placeholder="https://yourwebsite.com"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                          </div>
+                        </div>
 
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="full_name"
-                      value={editForm.full_name}
-                      onChange={handleEditFormChange}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
+                        {/* Contact Info */}
+                        <div className="overflow-hidden">
+                          <h4 className="text-base md:text-lg font-bold text-gray-800 mb-3 md:mb-4 break-words">Contact Information</h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 overflow-hidden">
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">Discord Username</label>
+                              <input
+                                type="text"
+                                name="discord_username"
+                                value={editForm.discord_username}
+                                onChange={handleChange}
+                                placeholder="username#1234"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                            <div className="overflow-hidden">
+                              <label className="block text-gray-800 text-sm font-medium mb-2">Telegram Username</label>
+                              <input
+                                type="text"
+                                name="telegram_username"
+                                value={editForm.telegram_username}
+                                onChange={handleChange}
+                                placeholder="@username"
+                                className="w-full p-2 md:p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base"
+                              />
+                            </div>
+                          </div>
+                        </div>
 
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Bio
-                    </label>
-                    <textarea
-                      name="bio"
-                      value={editForm.bio}
-                      onChange={handleEditFormChange}
-                      rows={4}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Tell others about yourself..."
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-800 mb-3">Social Media Links</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          Twitter URL
-                        </label>
-                        <input
-                          type="url"
-                          name="twitter_url"
-                          value={editForm.twitter_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://twitter.com/yourusername"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          GitHub URL
-                        </label>
-                        <input
-                          type="url"
-                          name="github_url"
-                          value={editForm.github_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://github.com/yourusername"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          LinkedIn URL
-                        </label>
-                        <input
-                          type="url"
-                          name="linkedin_url"
-                          value={editForm.linkedin_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://linkedin.com/in/yourusername"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          Website URL
-                        </label>
-                        <input
-                          type="url"
-                          name="website_url"
-                          value={editForm.website_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://yourwebsite.com"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
+                        <div className="pt-4 md:pt-6 overflow-hidden">
+                          <Button
+                            onClick={handleSaveProfile}
+                            disabled={updateProfile.isLoading}
+                            variant="gradient"
+                            size="lg"
+                            fullWidth
+                          >
+                            <CheckCircle size={16} />
+                            {updateProfile.isLoading ? 'Saving Changes...' : 'Save All Changes'}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={() => setIsEditModalOpen(false)}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={handleSaveProfile}
-                    disabled={updateProfile.isLoading}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
-                  >
-                    {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
+                {/* Reviews Tab */}
+                {activeTab === 2 && (
+                  <div className="overflow-hidden">
+                    <ReviewsList 
+                      reviews={reviews || []}
+                      isLoading={reviewsLoading}
+                      error={reviewsError}
+                      showTitle={true}
+                    />
+                  </div>
+                )}
+
+                {/* Workspace Tab */}
+                {activeTab === 3 && (
+                  <div className="space-y-4 md:space-y-6 overflow-hidden">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 overflow-hidden">
+                      <div className="space-y-4 md:space-y-6 overflow-hidden">
+                        <FinancialOverview />
+                        <TaskManager />
+                      </div>
+                      <div className="space-y-4 md:space-y-6 overflow-hidden">
+                        <CalendarWidget />
+                        <ExternalToolsWidget />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Delete Confirmation Modal */}
-        {showDeleteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 max-w-md w-full">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
-              <p className="text-gray-700 mb-4">
-                Are you sure you want to delete "{selectedGig?.title}"?
-              </p>
-              <p className="text-red-600 mb-4 text-sm">
-                This action cannot be undone. All related orders and messages will also be deleted.
-              </p>
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleDeleteGig}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
-                  disabled={deleteGig.isLoading}
-                >
-                  {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
-                </Button>
-              </div>
+          {/* Public profile view (for other users) */}
+          {!isOwnProfile && profile && (
+            <div className="gradient-card p-4 md:p-8 overflow-hidden">
+              <ReviewsList 
+                reviews={reviews || []}
+                isLoading={reviewsLoading}
+                error={reviewsError}
+                showTitle={true}
+              />
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Add bottom padding for mobile navigation */}
+          <div className="h-20 md:h-0"></div>
+        </div>
       </div>
     </div>
   );
