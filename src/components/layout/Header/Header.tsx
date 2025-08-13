@@ -247,22 +247,22 @@ export const Header = () => {
                           <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
-                                {user?.avatar_url ? (
+                                {user?.avatar_url && user.avatar_url.length > 0 ? (
+                                  (() => {
+                                    console.log('Header: Showing user avatar image for dropdown');
+                                    return (
                                   <>
                                     <img
                                       src={user.avatar_url}
-                            <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
-                              {user?.avatar_url && user.avatar_url.length > 0 ? (
-                                (() => {
-                                  console.log('Header: Showing user avatar image for dropdown');
-                                  return (
+                                      alt={user.username || 'Profile'}
+                                      className="w-full h-full object-cover"
                                       onError={(e) => {
+                                        console.log('Header: Dropdown avatar image failed to load, showing fallback');
                                         e.currentTarget.style.display = 'none';
                                         const parent = e.currentTarget.parentElement;
                                         if (parent) {
                                           const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
                                           if (fallback) fallback.style.display = 'flex';
-                                      console.log('Header: Dropdown avatar image failed to load, showing fallback');
                                         }
                                       }}
                                     />
@@ -272,23 +272,23 @@ export const Header = () => {
                                     >
                                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                     </div>
-                                    className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                  </>
+                                    );
+                                  })()
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                                  (() => {
+                                    console.log('Header: No avatar URL, showing gradient fallback for dropdown');
+                                    return (
+                                  <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
                                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                   </div>
+                                    );
+                                  })()
                                 )}
-                                  );
-                                })()
                               </div>
-                                (() => {
-                                  console.log('Header: No avatar URL, showing gradient fallback for dropdown');
-                                  return (
-                                <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
+                              <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
                                 <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
-                                  );
-                                })()
                               </div>
                             </div>
                           </div>
