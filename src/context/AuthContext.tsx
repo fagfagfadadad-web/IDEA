@@ -13,10 +13,13 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
+  isProfileReady: false,
   authMessage: '',
   forceReconnect: async () => {},
 });
 
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const { address } = useGetAccount();
   const isLoggedIn = useGetIsLoggedIn();
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,10 +30,12 @@ const AuthContext = createContext<AuthContextType>({
   const isAuthenticating = useRef(false);
 
   const validateAndReinitializeProvider = async () => {
+    try {
       console.log('🔧 AuthContext: Validating wallet provider...');
       const provider = getAccountProvider();
       
       // Check if provider exists and has required methods
+      if (!provider || typeof provider.signTransactions !== 'function') {
         console.log('⚠️ AuthContext: Provider is invalid, attempting reinitialization...');
         // Try to reinitialize UnlockPanelManager which should restore provider state
         try {
@@ -78,6 +83,7 @@ const AuthContext = createContext<AuthContextType>({
       // Don't fail immediately, just log and continue
       console.log('⚠️ AuthContext: Continuing despite validation failure');
       return true;
+    }
   };
 
   // Generate a valid email from MultiversX address using first 6 characters
@@ -233,7 +239,10 @@ const AuthContext = createContext<AuthContextType>({
         if (currentSession && currentSession.user) {
           await handleSupabaseSignOut();
         }
+        setUser(null);
+        setIsProfileReady(false);
         return;
+      }
 
       // Check for address change
       if (lastAddress && lastAddress !== address) {
@@ -246,6 +255,7 @@ const AuthContext = createContext<AuthContextType>({
       if (currentSession && currentSession.user) {
         console.log('🔍 AuthContext: Checking existing session user profile...');
         const { data: profile, error: profileError } = await supabase
+          .from('users')
           .select('id, wallet_address, is_admin')
           .eq('id', currentSession.user.id)
           .maybeSingle();
@@ -283,10 +293,12 @@ const AuthContext = createContext<AuthContextType>({
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: generatedEmail,
             password: address,
+            options: {
               data: {
                 multiversx_address: address,
               },
             },
+          });
 
           if (signUpError) {
             console.error('❌ AuthContext: Sign up error:', signUpError);
@@ -325,6 +337,7 @@ const AuthContext = createContext<AuthContextType>({
     try {
       const { data: existingUserByWallet, error: fetchWalletError } = await supabase
         .from('users')
+        .select('id, username, full_name, avatar_url, wallet_address, is_admin, ida_balance, total_earned, level, xp')
         .eq('wallet_address', walletAddress)
         .maybeSingle();
 
@@ -348,6 +361,7 @@ const AuthContext = createContext<AuthContextType>({
         };
         
         setUser(enhancedUser);
+        setIsProfileReady(true);
         setAuthMessage('');
         return;
       }
@@ -358,6 +372,7 @@ const AuthContext = createContext<AuthContextType>({
         .maybeSingle();
 
       if (fetchIdError && fetchIdError.code !== 'PGRST116') {
+        throw new Error(`Failed to check user by ID: ${fetchIdError.message}`);
       }
 
       if (existingUserById) {
@@ -372,6 +387,7 @@ const AuthContext = createContext<AuthContextType>({
         }
         
         // Enhance auth user with profile data
+        const enhancedUser = {
           ...authUser,
           is_admin: existingUserById.is_admin,
           wallet_address: walletAddress,
@@ -384,6 +400,7 @@ const AuthContext = createContext<AuthContextType>({
           xp: existingUserById.xp
         };
         
+        setUser(enhancedUser);
         setIsProfileReady(true);
         setAuthMessage('');
         return;
@@ -415,6 +432,7 @@ const AuthContext = createContext<AuthContextType>({
       }
 
       if (!isUnique) {
+        throw new Error('Failed to generate unique username');
       }
 
       const { data: profile, error: profileError } = await supabase
@@ -443,6 +461,7 @@ const AuthContext = createContext<AuthContextType>({
         wallet_address: walletAddress,
         username: profile.username,
         full_name: profile.full_name,
+        avatar_url: profile.avatar_url,
         ida_balance: profile.ida_balance,
         total_earned: profile.total_earned,
         level: profile.level,
@@ -487,6 +506,7 @@ const AuthContext = createContext<AuthContextType>({
     }
   };
 
+  useEffect(() => {
     let isMounted = true;
 
     // CRITICAL: Always run syncAuth when login state or address changes
@@ -505,13 +525,22 @@ const AuthContext = createContext<AuthContextType>({
         setUser(null);
         setIsProfileReady(false);
         setLastAddress(null); // Force full re-authentication on next login
+      }
     });
 
     return () => {
+      isMounted = false;
+      authListener.subscription.unsubscribe();
     };
+  }, [isLoggedIn, address]);
+
+  const logout = async () => {
+    try {
       // Clear MultiversX SDK state by calling provider logout
+      try {
         const provider = getAccountProvider();
         if (provider && typeof provider.logout === 'function') {
+          await provider.logout();
           console.log('✅ AuthContext: Provider logout successful');
         }
       } catch (sdkError) {
@@ -545,7 +574,9 @@ const AuthContext = createContext<AuthContextType>({
             key.includes('provider') ||
             key.includes('account') ||
             key.includes('login')) {
+          sessionStorage.removeItem(key);
         }
+      });
       
       // Refresh the page to reset the DApp state without closing xPortal
       window.location.reload();
@@ -599,6 +630,7 @@ const AuthContext = createContext<AuthContextType>({
       }
       
       // Clear any cached wallet state in localStorage
+      Object.keys(localStorage).forEach(key => {
         if (key.includes('wallet') || key.includes('provider') || key.includes('dapp')) {
           localStorage.removeItem(key);
         }
@@ -606,6 +638,7 @@ const AuthContext = createContext<AuthContextType>({
       
       setAuthMessage('Wallet disconnected. Redirecting to connection page...');
       // Small delay to ensure cleanup is complete
+      setTimeout(() => {
         window.location.href = '/unlock';
       }, 1000);
       
@@ -621,6 +654,8 @@ const AuthContext = createContext<AuthContextType>({
     isAuthenticated: isLoggedIn && !!user && isProfileReady,
     user,
     loading,
+    isProfileReady,
+    authMessage,
     logout,
     forceReconnect,
   };
@@ -637,6 +672,7 @@ export const useAuth = () => {
 };
 
 export const updateUserEmail = async (userId: string, email: string) => {
+  try {
     const { error } = await supabase
       .from('users')
       .update({ email })
@@ -644,7 +680,9 @@ export const updateUserEmail = async (userId: string, email: string) => {
 
     if (error) {
       throw new Error(`Failed to update email: ${error.message}`);
+    }
   } catch (error: any) {
     console.error('Error updating email:', error);
     throw error;
+  }
 };
