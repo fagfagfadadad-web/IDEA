@@ -18,8 +18,6 @@ export class ReferralService {
   // Initialize user referral stats
   static async initializeUserReferralStats(userId: string): Promise<boolean> {
     try {
-      console.log('🔗 ReferralService: Initializing referral stats for user:', userId);
-      
       // First, try to get existing stats with referral code
       const { data: existing, error: fetchError } = await supabase
         .from('referral_stats')
@@ -33,7 +31,6 @@ export class ReferralService {
       }
 
       if (existing) {
-        console.log('🔗 ReferralService: Referral stats already exist for user:', userId, 'with code:', existing.referral_code);
         return true;
       }
 
@@ -46,7 +43,6 @@ export class ReferralService {
         // Use fallback code generation
         referralCode = `USER_${userId.substring(0, 6).toUpperCase()}`;
       }
-      console.log('🔗 ReferralService: Generated referral code:', referralCode);
 
       // Use upsert to handle race conditions
       const { data, error } = await supabase
@@ -71,13 +67,11 @@ export class ReferralService {
         console.error('🔗 ReferralService: Error creating referral stats:', error);
         // If it's still a duplicate key error, just return true as stats exist
         if (error.code === '23505') {
-          console.log('🔗 ReferralService: Stats already exist (race condition), continuing...');
           return true;
         }
         throw error;
       }
       
-      console.log('🔗 ReferralService: Successfully initialized referral stats:', data);
       return true;
     } catch (error) {
       console.error('Error initializing referral stats:', error);
@@ -234,12 +228,9 @@ export class ReferralService {
         }
       }
       
-      console.log('🔗 ReferralService: Processing referral for new user:', newUserAddress, 'with code:', referralCode);
-
       if (!referralCode) return;
 
       // Call Edge Function to process referral with service role privileges
-      console.log('🔗 ReferralService: Calling Edge Function to process referral');
       try {
         // Use direct fetch to avoid Supabase client issues
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -279,7 +270,6 @@ export class ReferralService {
           throw new Error(result.error);
         }
 
-        console.log('🔗 ReferralService: Successfully processed referral via Edge Function:', result);
         // Clear any pending referral code from localStorage
         localStorage.removeItem('pendingReferralCode');
         
@@ -287,7 +277,6 @@ export class ReferralService {
         console.error('🔗 ReferralService: Edge Function failed, trying fallback:', edgeFunctionError);
         
         // If Edge Function fails, try to process locally as fallback
-        console.log('🔗 ReferralService: Attempting local fallback processing');
         try {
           // Find referrer by code
           const { data: referrerStats, error: referrerError } = await supabase
@@ -297,7 +286,6 @@ export class ReferralService {
             .maybeSingle();
 
           if (referrerError || !referrerStats) {
-            console.log('🔗 ReferralService: Invalid referral code or referrer not found');
             return;
           }
 
@@ -309,7 +297,6 @@ export class ReferralService {
             .maybeSingle();
 
           if (newUserError || !newUser) {
-            console.log('🔗 ReferralService: New user not found');
             return;
           }
 
@@ -321,17 +308,14 @@ export class ReferralService {
             .maybeSingle();
 
           if (existingReferral) {
-            console.log('🔗 ReferralService: Referral already exists for this user');
             return;
           }
 
           // Prevent self-referral
           if (referrerStats.user_id === newUser.id) {
-            console.log('🔗 ReferralService: Cannot refer yourself');
             return;
           }
 
-          console.log('🔗 ReferralService: Local fallback validation passed, but cannot process rewards without service role');
         } catch (fallbackError) {
           console.error('🔗 ReferralService: Local fallback also failed:', fallbackError);
         }
