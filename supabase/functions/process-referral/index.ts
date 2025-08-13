@@ -20,8 +20,13 @@
     - Error handling and logging
 */
 
-import { corsHeaders } from '../_shared/cors.ts';
-import { createClient } from 'npm:@supabase/supabase-js@2.52.0';
+// Define CORS headers directly to avoid import issues
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Max-Age': '86400',
+};
 
 interface ReferralRequest {
   referralCode: string;
@@ -29,8 +34,11 @@ interface ReferralRequest {
 }
 
 Deno.serve(async (req: Request) => {
-  // Handle CORS preflight requests
+  console.log('🔗 Edge Function: Request received:', req.method, req.url);
+
+  // Handle CORS preflight requests first
   if (req.method === 'OPTIONS') {
+    console.log('🔗 Edge Function: Handling OPTIONS request');
     return new Response(null, {
       status: 200,
       headers: corsHeaders,
@@ -38,8 +46,6 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    console.log('🔗 Edge Function: Request received:', req.method, req.url);
-
     // Only allow POST requests
     if (req.method !== 'POST') {
       console.log('🔗 Edge Function: Method not allowed:', req.method);
@@ -58,13 +64,37 @@ Deno.serve(async (req: Request) => {
 
     console.log('🔗 Edge Function: Environment check:', {
       hasUrl: !!supabaseUrl,
-      hasKey: !!supabaseServiceRoleKey
+      hasKey: !!supabaseServiceRoleKey,
+      url: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'missing'
     });
 
     if (!supabaseUrl || !supabaseServiceRoleKey) {
       console.error('🔗 Edge Function: Missing Supabase environment variables');
       return new Response(
-        JSON.stringify({ error: 'Service configuration error' }),
+        JSON.stringify({ 
+          error: 'Service configuration error',
+          details: 'Missing required environment variables'
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Import Supabase client dynamically to avoid startup issues
+    let createClient;
+    try {
+      const supabaseModule = await import('https://esm.sh/@supabase/supabase-js@2.39.3');
+      createClient = supabaseModule.createClient;
+      console.log('🔗 Edge Function: Supabase module imported successfully');
+    } catch (importError) {
+      console.error('🔗 Edge Function: Failed to import Supabase:', importError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Service initialization error',
+          details: 'Failed to load required dependencies'
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -77,11 +107,23 @@ Deno.serve(async (req: Request) => {
     console.log('🔗 Edge Function: Supabase admin client created');
 
     // Parse request body
-    const requestData: ReferralRequest = await req.json();
-    console.log('🔗 Edge Function: Request data:', {
-      referralCode: requestData.referralCode,
-      newUserAddress: requestData.newUserWalletAddress?.substring(0, 10) + '...'
-    });
+    let requestData: ReferralRequest;
+    try {
+      requestData = await req.json();
+      console.log('🔗 Edge Function: Request data parsed:', {
+        referralCode: requestData.referralCode,
+        newUserAddress: requestData.newUserWalletAddress?.substring(0, 10) + '...'
+      });
+    } catch (parseError) {
+      console.error('🔗 Edge Function: Failed to parse request body:', parseError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request body' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     // Validate required fields
     if (!requestData.referralCode || !requestData.newUserWalletAddress) {
@@ -306,7 +348,7 @@ Deno.serve(async (req: Request) => {
       .eq('id', referrerStats.user_id)
       .single();
 
-    const { data: newUserData, error: newUserError } = await supabaseAdmin
+    const { data: newUserData, error: newUserDataError } = await supabaseAdmin
       .from('users')
       .select('ida_balance, total_earned, level, xp')
       .eq('id', newUser.id)
@@ -323,10 +365,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (newUserError) {
-      console.error('🔗 Edge Function: Error fetching new user:', newUserError);
+    if (newUserDataError) {
+      console.error('🔗 Edge Function: Error fetching new user:', newUserDataError);
       return new Response(
-        JSON.stringify({ error: `Failed to fetch new user: ${newUserError.message}` }),
+        JSON.stringify({ error: `Failed to fetch new user: ${newUserDataError.message}` }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
