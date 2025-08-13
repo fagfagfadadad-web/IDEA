@@ -139,13 +139,11 @@ export const useAdminStats = () => {
       setIsLoading(true);
       
       if (!user?.is_admin) {
-        console.log('🔍 useAdminStats: User is not admin, skipping stats fetch');
         setData(null);
         setError(null);
         return;
       }
 
-      console.log('🔍 useAdminStats: Fetching admin stats...');
       
       const { data: stats, error } = await supabase
         .from('admin_stats')
@@ -155,17 +153,14 @@ export const useAdminStats = () => {
       if (error) {
         // Handle PGRST116 error specifically - treat as no data found
         if (error.code === 'PGRST116' && error.details === 'The result contains 0 rows') {
-          console.log('🔍 useAdminStats: No admin stats found, treating as empty result');
           setData(null);
           setError(null);
           return;
         }
         
-        console.error('🔍 useAdminStats: Error fetching stats:', error);
         throw error;
       }
 
-      console.log('🔍 useAdminStats: Fetched stats:', stats);
       setData(stats);
       setError(null);
     } catch (err) {

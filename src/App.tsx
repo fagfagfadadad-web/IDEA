@@ -14,8 +14,6 @@ const AppContent = () => {
   const hasProcessedReferral = useRef(false);
   
   useEffect(() => {
-    console.log('🔄 App: Route changed to:', location.pathname);
-    console.log('🔄 App: Available routes:', routes.map(r => r.path));
   }, [location]);
 
   // Capture referral code from URL on initial load
@@ -26,7 +24,6 @@ const AppContent = () => {
     const referralCode = urlParams.get('ref');
     
     if (referralCode) {
-      console.log('🔗 App: Referral code detected in URL:', referralCode);
       localStorage.setItem('pendingReferralCode', referralCode);
       
       // Clean the URL to remove the referral parameter
@@ -34,7 +31,6 @@ const AppContent = () => {
       newUrl.searchParams.delete('ref');
       window.history.replaceState({}, '', newUrl.toString());
       
-      console.log('🔗 App: Referral code saved to localStorage and URL cleaned');
     }
     
     hasProcessedReferral.current = true;

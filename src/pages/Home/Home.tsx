@@ -391,8 +391,6 @@ export const Home = () => {
                         onClick={() => handleCategoryClick(category.slug)}
                         aria-label={`Select ${category.title} category`}
                       >
-                        <div className="mb-2 text-gray-800 relative z-10 transform group-hover:scale-110 transition-transform duration-300">
-                          {category.icon}
                         </div>
                         <p className="text-xs font-semibold text-gray-800 relative z-10 leading-tight text-center break-words px-1 hyphens-auto">
                           {category.title}
@@ -815,8 +813,6 @@ export const Home = () => {
 
                           <div className="p-3 space-y-2">
                             <h3 className="text-sm font-bold text-gray-800">
-                              {request.title.length > 40 
-                                ? `${request.title.substring(0, 40)}...` 
                                 : request.title}
                             </h3>
                             <p className="text-xs text-gray-600">

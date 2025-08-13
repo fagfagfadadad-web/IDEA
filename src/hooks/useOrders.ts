@@ -218,12 +218,10 @@ export const useOrders = () => {
       setIsLoading(true);
 
       if (!isLoggedIn || !address) {
-        console.log('🔍 useOrders: Not logged in or no address:', { isLoggedIn, address });
         setData([]);
         return;
       }
 
-      console.log('🔍 useOrders: Fetching orders for address:', address);
 
       const { data: user } = await supabase
         .from('users')
@@ -231,16 +229,13 @@ export const useOrders = () => {
         .eq('wallet_address', address)
         .maybeSingle();
 
-      console.log('🔍 useOrders: Found user:', user);
 
       if (!user) {
-        console.log('🔍 useOrders: No user found for address:', address);
         setData([]);
         return;
       }
 
       const filterQuery = `client_id.eq.${user.id},provider_address.eq.${address}`;
-      console.log('🔍 useOrders: Using filter query:', filterQuery);
 
       const { data: orders, error } = await supabase
         .from('orders')
@@ -258,12 +253,6 @@ export const useOrders = () => {
         .or(filterQuery)
         .order('created_at', { ascending: false });
 
-      console.log('🔍 useOrders: Query result:', { orders, error });
-      console.log('🔍 useOrders: Orders count:', orders?.length || 0);
-      console.log('🔍 useOrders: First few orders:', orders?.slice(0, 3));
-      orders?.forEach(order => {
-        console.log(`🔍 useOrders: Order ID: ${order.id}, Gig Provider ID: ${order.gig?.provider?.id}, Current User ID: ${user.id}`);
-      });
 
       if (error) throw error;
 

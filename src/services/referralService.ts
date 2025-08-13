@@ -153,7 +153,6 @@ export class ReferralService {
             avatar_url
           )
         `)
-        .eq('referrer_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -163,12 +162,10 @@ export class ReferralService {
       return [];
     }
   }
-
   // Get referral rewards
   static async getReferralRewards(address: string): Promise<ReferralReward[]> {
     try {
       const { data: user } = await supabase
-        .from('users')
         .select('id')
         .eq('wallet_address', address)
         .single();
@@ -177,11 +174,9 @@ export class ReferralService {
 
       const { data, error } = await supabase
         .from('referral_rewards')
-        .select('*')
         .eq('referrer_id', user.id)
         .eq('status', 'completed')
         .order('processed_at', { ascending: false });
-
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -203,16 +198,13 @@ export class ReferralService {
             avatar_url
           )
         `)
-        .order('total_referral_earnings', { ascending: false })
         .limit(limit);
 
-      if (error) throw error;
       return data || [];
     } catch (error) {
       console.error('Error fetching referral leaderboard:', error);
       return [];
     }
-  }
 
   // Generate referral link
   static generateReferralLink(referralCode: string): string {
@@ -237,12 +229,10 @@ export class ReferralService {
         }
       }
       
-      console.log('🔗 ReferralService: Processing referral code:', referralCode);
 
       if (!referralCode) return;
 
       // Call Edge Function to process referral with service role privileges
-      console.log('🔗 ReferralService: Calling process-referral Edge Function...');
       
       try {
         // Use direct fetch to avoid Supabase client issues
@@ -267,35 +257,28 @@ export class ReferralService {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error('🔗 ReferralService: Edge Function HTTP error:', response.status, errorText);
           throw new Error(`Referral processing failed: HTTP ${response.status}`);
         }
 
         const result = await response.json();
         
         if (result.error) {
-          console.error('🔗 ReferralService: Edge Function returned error:', result.error);
           // Don't throw error for expected cases like invalid codes or existing referrals
           if (result.error.includes('Invalid referral code') ||
               result.error.includes('already processed') ||
               result.error.includes('Cannot refer yourself')) {
-            console.log('🔗 ReferralService: Expected referral error, continuing:', result.error);
             return;
           }
           throw new Error(result.error);
         }
 
-        console.log('🔗 ReferralService: Referral processed successfully:', result);
         
         // Clear any pending referral code from localStorage
         localStorage.removeItem('pendingReferralCode');
-        console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
         
       } catch (edgeFunctionError) {
-        console.error('🔗 ReferralService: Edge Function call failed:', edgeFunctionError.message);
         
         // If Edge Function fails, try to process locally as fallback
-        console.log('🔗 ReferralService: Attempting local fallback processing...');
         
         try {
           // Find referrer by code
@@ -306,7 +289,6 @@ export class ReferralService {
             .maybeSingle();
 
           if (referrerError || !referrerStats) {
-            console.log('🔗 ReferralService: Invalid referral code in fallback:', referralCode);
             return;
           }
 
@@ -318,7 +300,6 @@ export class ReferralService {
             .maybeSingle();
 
           if (newUserError || !newUser) {
-            console.log('🔗 ReferralService: New user not found in fallback');
             return;
           }
 
@@ -330,31 +311,24 @@ export class ReferralService {
             .maybeSingle();
 
           if (existingReferral) {
-            console.log('🔗 ReferralService: Referral already exists (fallback)');
             return;
           }
 
           // Prevent self-referral
           if (referrerStats.user_id === newUser.id) {
-            console.log('🔗 ReferralService: Self-referral attempt (fallback)');
             return;
           }
 
-          console.log('🔗 ReferralService: ✅ Fallback validation passed, but cannot create referral without service role');
-          console.log('🔗 ReferralService: Please check Edge Function deployment and try again later');
           
         } catch (fallbackError) {
-          console.error('🔗 ReferralService: Fallback processing also failed:', fallbackError);
         }
         
         // Don't throw error, just log and continue
-        console.log('🔗 ReferralService: Referral processing failed, but continuing with normal auth flow');
       }
     } catch (error) {
       console.error('Error processing referral:', error);
       // Clear pending referral code even on error to prevent repeated attempts
       localStorage.removeItem('pendingReferralCode');
-      console.log('🔗 ReferralService: Cleared pending referral code after error');
     }
   }
 

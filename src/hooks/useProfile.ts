@@ -77,7 +77,6 @@ export const useProfile = (id?: string) => {
         throw error;
       }
       
-      console.log('🔍 useProfile: Fetched user profile:', profile);
 
       // Fetch reviews received by this user as a provider
       // First get all orders where this user is the provider
@@ -108,7 +107,6 @@ export const useProfile = (id?: string) => {
         console.error('Error fetching provider orders:', ordersError);
       }
 
-      console.log('🔍 useProfile: Fetched provider orders:', providerOrders);
       
       // Extract reviews from provider orders
       const receivedReviews = (providerOrders || [])
@@ -125,20 +123,6 @@ export const useProfile = (id?: string) => {
           }))
         );
 
-      console.log('🔍 useProfile: Extracted received reviews:', receivedReviews);
-      console.log('🔍 useProfile: Received reviews count:', receivedReviews?.length || 0);
-      receivedReviews?.forEach((review, index) => {
-        console.log(`🔍 Received Review ${index}:`, {
-          reviewId: review.id,
-          orderId: review.order_id,
-          clientData: review.order?.client,
-          hasClient: !!review.order?.client,
-          clientUsername: review.order?.client?.username,
-          clientFullName: review.order?.client?.full_name,
-          providerId: review.order?.gig?.provider_id,
-          providerUsername: review.order?.gig?.provider?.username
-        });
-      });
 
       // Fetch all orders for this user (both as client and provider)
       const { data: allOrders, error: allOrdersError } = await supabase

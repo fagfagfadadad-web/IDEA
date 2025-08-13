@@ -189,17 +189,8 @@ export const useReferrals = () => {
       
       // Calculate total IDA earned from referrals for display
       const totalReferralEarnings = rewardHistory.reduce((sum, reward) => {
-        console.log('🔗 useReferrals: Processing reward:', {
-          id: reward.id,
-          type: reward.reward_type,
-          amount: reward.reward_amount,
-          referrer_id: reward.referrer_id,
-          referred_user_id: reward.referred_user_id,
-          current_user_id: user.id
-        });
         return sum + reward.reward_amount;
       }, 0);
-      console.log('🔗 useReferrals: Total referral earnings calculated:', totalReferralEarnings);
     } catch (err) {
       console.error('Error loading referral data:', err);
       // Don't show error to user, just log it
