@@ -23,7 +23,7 @@ interface GigWithProviderWallet {
 }
 
 // Define a specific type for payment status
-export type OrderPaymentStatus = 'pending' | 'paid' | 'released' | 'disputed' | 'resolved' | 'claimed';
+export type OrderPaymentStatus = 'pending' | 'paid' | 'released' | 'disputed' | 'resolved' | 'claimed' | 'escrowed';
 
 interface Order {
   id: string;

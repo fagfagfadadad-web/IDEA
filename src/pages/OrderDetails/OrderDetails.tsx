@@ -839,21 +839,22 @@ const OrderDetails = () => {
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
   const canSubmitWork =
     isProvider &&
-    order?.status === 'in_progress' &&
+    order?.payment_status === 'released' &&
     order?.payment_status === 'escrowed' &&
     order?.work_status !== 'submitted';
   const canClaimPayment = 
     isProvider && 
     order?.status === 'completed' && 
     (order?.payment_status === 'released' || order?.payment_status === 'paid') &&
-    order?.payment_status !== 'claimed';
+    order?.payment_status !== 'claimed' && 
+    order?.payment_status !== 'resolved';
   const canReview = 
     isClient && 
     order?.status === 'completed' && 
     order?.payment_status === 'released';
   const canDispute =
     (isClient || isProvider) &&
-    order?.payment_status === 'escrowed' &&
+    order?.payment_status === 'released' &&
     order?.status !== 'completed' &&
     order?.status !== 'cancelled';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
