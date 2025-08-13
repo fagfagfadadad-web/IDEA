@@ -186,7 +186,7 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                     className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-sm font-bold text-white bg-gray-500"
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gray-500 flex items-center justify-center text-sm font-bold text-white"
                       title="Click to view your profile"
                       aria-label="Profile menu"
                     >
@@ -195,9 +195,10 @@ export const Header = () => {
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
-                          onError={(e) => e.currentTarget.style.display = 'none'}
+                            className="w-full h-full object-cover absolute inset-0"
                         />
                       )}
+                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                     </button>
 
@@ -272,24 +273,9 @@ export const Header = () => {
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
-                            <Settings size={16} />
-                            Settings
-                          </Link>
-                          <button
-                            onClick={handleForceReconnect}
                             className="flex items-center gap-2 px-4 py-3 text-orange-600 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 w-full text-left"
                           >
-                            <Wallet size={16} />
-                            Reconnect Wallet
-                          </button>
-                          <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-b-lg w-full text-left transition-all duration-200"
-                          >
-                            <LogOut size={16} />
-                            Logout
-                          </button>
-                        </div>
+                        </>
                       </>
                     )}
                   </div>
