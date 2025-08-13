@@ -20,25 +20,38 @@ export class ReferralService {
     try {
       console.log('🔗 ReferralService: Initializing referral stats for user:', userId);
       
-      // Check if stats already exist
-      const { data: existing } = await supabase
+      // First, try to get existing stats with referral code
+      const { data: existing, error: fetchError } = await supabase
         .from('referral_stats')
-        .select('user_id')
+        .select('user_id, referral_code')
         .eq('user_id', userId)
         .maybeSingle();
 
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        console.error('🔗 ReferralService: Error fetching existing stats:', fetchError);
+        throw fetchError;
+      }
+
       if (existing) {
-        console.log('🔗 ReferralService: Referral stats already exist for user:', userId);
+        console.log('🔗 ReferralService: Referral stats already exist for user:', userId, 'with code:', existing.referral_code);
         return true;
       }
 
-      // Generate unique referral code
-      const referralCode = await this.generateUniqueReferralCode();
+      // Generate unique referral code for new user
+      let referralCode: string;
+      try {
+        referralCode = await this.generateUniqueReferralCode();
+      } catch (codeError) {
+        console.error('🔗 ReferralService: Failed to generate referral code:', codeError);
+        // Use fallback code generation
+        referralCode = `USER_${userId.substring(0, 6).toUpperCase()}`;
+      }
       console.log('🔗 ReferralService: Generated referral code:', referralCode);
 
+      // Use upsert to handle race conditions
       const { data, error } = await supabase
         .from('referral_stats')
-        .insert({
+        .upsert({
           user_id: userId,
           referral_code: referralCode,
           total_referrals: 0,
@@ -47,15 +60,24 @@ export class ReferralService {
           pending_earnings: 0,
           completed_earnings: 0,
           total_rewards: 0
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
         })
         .select()
         .maybeSingle();
 
-      if (error && error.code !== '23505') { // Ignore duplicate key errors
+      if (error) {
         console.error('🔗 ReferralService: Error creating referral stats:', error);
+        // If it's still a duplicate key error, just return true as stats exist
+        if (error.code === '23505') {
+          console.log('🔗 ReferralService: Stats already exist (race condition), continuing...');
+          return true;
+        }
         throw error;
       }
       
+      console.log('🔗 ReferralService: Successfully initialized referral stats:', data);
       return true;
     } catch (error) {
       console.error('Error initializing referral stats:', error);
