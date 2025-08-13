@@ -287,8 +287,6 @@ export const Home = () => {
                     src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
                     alt="Web3 Development Logo"
                     className="h-12 md:h-24 object-contain transition-transform duration-300 hover:scale-105"
-                    onError={(e) => console.error("Logo image error:", e)}
-                    onLoad={() => console.log("Logo image loaded successfully")}
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full max-w-sm md:w-auto md:max-w-none">
@@ -711,8 +709,6 @@ export const Home = () => {
                 src={sampleAd.imageUrl}
                 alt="Advertisement"
                 className="w-full max-w-[280px] md:max-w-[516px] h-auto max-h-20 md:max-h-32 object-contain rounded-lg shadow-lg hover:brightness-110 transition-all duration-300 mx-auto block"
-                onError={(e) => console.error("Ad image error:", e)}
-                onLoad={() => console.log("Ad image loaded successfully")}
               />
             </a>
           </div>
