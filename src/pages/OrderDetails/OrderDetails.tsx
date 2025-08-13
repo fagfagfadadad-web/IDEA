@@ -840,24 +840,22 @@ const OrderDetails = () => {
   const canSubmitWork =
     isProvider &&
     order?.payment_status === 'released' &&
-    order?.payment_status === 'released' &&
+    order?.payment_status === 'escrowed' &&
     order?.work_status !== 'submitted';
   const canClaimPayment = 
     isProvider && 
     order?.status === 'completed' && 
-    order?.payment_status === 'released' &&
     (order?.payment_status === 'released' || order?.payment_status === 'paid') &&
-    order?.payment_status !== 'claimed' &&
+    order?.payment_status !== 'claimed' && 
     order?.payment_status !== 'resolved';
   const canReview = 
     isClient && 
     order?.status === 'completed' && 
     order?.payment_status === 'released';
-  const canDispute =
-    (isClient || isProvider) &&
-    order?.payment_status === 'released' &&
-    order?.status !== 'completed' &&
-    order?.status !== 'cancelled';
+  const canDispute = isClient && 
+    order?.status === 'delivered' && 
+    order?.payment_status === 'paid' &&
+    order?.payment_status !== 'disputed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
