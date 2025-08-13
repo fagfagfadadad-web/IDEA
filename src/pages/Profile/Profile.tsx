@@ -111,9 +111,8 @@ export const Profile = () => {
     
     // Only show orders that are completed, payment released, but not yet claimed
     return isProvider && 
-          return isProvider && 
-                 order.payment_status === 'released' && 
-                 order.status === 'completed';
+           order.status === 'completed' && 
+           order.payment_status === 'released';
   }) || [];
 
   // Initialize edit form when profile loads
