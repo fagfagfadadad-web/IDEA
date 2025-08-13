@@ -839,7 +839,7 @@ const OrderDetails = () => {
   const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'paid';
   const canSubmitWork =
     isProvider &&
-    order?.payment_status === 'escrowed' &&
+    (order?.payment_status === 'paid' || order?.payment_status === 'escrowed') &&
     order?.payment_status === 'paid' &&
     order?.work_status !== 'submitted';
   const canClaimPayment = 
@@ -856,7 +856,9 @@ const OrderDetails = () => {
     order?.status === 'delivered' && 
     order?.payment_status === 'paid' &&
     order?.payment_status === 'paid' &&
-    order?.status !== 'cancelled';
+    order?.status !== 'cancelled' &&
+    order?.status !== 'completed' &&
+    order?.payment_status === 'paid';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
