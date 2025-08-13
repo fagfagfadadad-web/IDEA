@@ -179,6 +179,92 @@ const monitorTransactionStatus = async (txHash: string, maxAttempts = 20) => {
   throw new Error('Transaction monitoring timeout');
 };
 
+// Helper function to monitor transaction and update order status
+const handleClaimPaymentWithTracking = async (
+  orderId: string,
+  address: string,
+  network: any,
+  showSuccessToast: (message: string) => void,
+  showErrorToast: (message: string) => void
+) => {
+  try {
+    const hexOrderId = uuidToHex(orderId);
+    
+    const transaction = new Transaction({
+      value: BigInt(0),
+      data: Buffer.from(`claim@${hexOrderId}`),
+      receiver: new Address(ESCROW_ADDRESS),
+      gasLimit: BigInt(20000000),
+      sender: new Address(address),
+      chainID: network.chainId
+    });
+
+    console.log('Creating claim transaction:', { orderId, hexOrderId, escrowAddress: ESCROW_ADDRESS });
+
+    const sessionId = await signAndSendTransactions({
+      transactions: [transaction],
+      transactionsDisplayInfo: {
+        processingMessage: 'Claiming payment...',
+        errorMessage: 'Claim failed',
+        successMessage: 'Payment successfully claimed'
+      }
+    });
+
+    console.log('Payment claimed, session ID:', sessionId);
+
+    // Monitor transaction status
+    const verification = await monitorTransactionStatus(sessionId);
+    if (!verification.success) {
+      throw new Error(verification.error || 'Claim failed during verification');
+    }
+
+    // Update order status in database after successful claim
+    const { error: updateError } = await supabase
+      .from('orders')
+      .update({
+        payment_status: 'claimed',
+        status: 'completed',
+        status_updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+
+    if (updateError) {
+      console.error('Error updating order after claim:', updateError);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    // Add system message to chat
+    try {
+      await supabase.from('messages').insert({
+        order_id: orderId,
+        sender_id: address,
+        content: JSON.stringify({
+          type: 'payment_claimed',
+          message: '💰 Payment has been successfully claimed by the provider. Order is now completed.'
+        }),
+        attachments: []
+      });
+    } catch (messageError) {
+      console.error('Error adding claim system message:', messageError);
+      // Don't fail the whole process if message fails
+    }
+
+    showSuccessToast('Payment successfully claimed! Order is now completed.');
+    
+    // Reload page to reflect changes
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+
+    return sessionId;
+  } catch (error) {
+    console.error('Claim payment error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    showErrorToast(`Error claiming payment: ${errorMessage}`);
+    throw error;
+  }
+};
+
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -193,6 +279,7 @@ const OrderDetails = () => {
   const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const [isReleaseLoading, setIsReleaseLoading] = useState(false);
   const [isSubmitWorkLoading, setIsSubmitWorkLoading] = useState(false);
+  const [isClaimLoading, setIsClaimLoading] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDisputeModal, setShowDisputeModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -755,6 +842,11 @@ const OrderDetails = () => {
     order?.status === 'in_progress' &&
     order?.payment_status === 'escrowed' &&
     order?.work_status !== 'submitted';
+  const canClaimPayment = 
+    isProvider && 
+    order?.status === 'completed' && 
+    order?.payment_status === 'released' &&
+    order?.payment_status !== 'claimed';
   const canReview = 
     isClient && 
     order?.status === 'completed' && 
@@ -766,6 +858,22 @@ const OrderDetails = () => {
     order?.status !== 'cancelled';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
+
+  const handleClaimPayment = async () => {
+    if (!address || !order) {
+      showError('Please connect your wallet');
+      return;
+    }
+
+    setIsClaimLoading(true);
+    try {
+      await handleClaimPaymentWithTracking(order.id, address, network, success, showError);
+    } catch (error) {
+      // Error handling is done in the helper function
+    } finally {
+      setIsClaimLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (order && !isLoading) {
@@ -951,6 +1059,27 @@ const OrderDetails = () => {
                   >
                     <Check size={16} className="text-white" />
                     Release Payment
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {canClaimPayment && (
+              <div className="bg-blue-100 border border-blue-500 rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-gray-800 font-bold">Payment Ready to Claim</h3>
+                    <p className="text-gray-800">
+                      The payment has been released and is ready to be claimed from the smart contract.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleClaimPayment}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                    disabled={isClaimLoading}
+                  >
+                    <DollarSign size={16} className="text-white" />
+                    {isClaimLoading ? 'Claiming...' : 'Claim Payment'}
                   </Button>
                 </div>
               </div>

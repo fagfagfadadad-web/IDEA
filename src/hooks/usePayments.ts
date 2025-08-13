@@ -330,6 +330,38 @@ export const usePayments = () => {
       });
 
       console.log('Platba vyžiadaná, session ID:', sessionId);
+
+      // Update order status in database after successful claim
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          payment_status: 'claimed',
+          status: 'completed',
+          status_updated_at: new Date().toISOString()
+        })
+        .eq('id', orderId);
+
+      if (updateError) {
+        console.error('Error updating order after claim:', updateError);
+        throw new Error(`Database update failed: ${updateError.message}`);
+      }
+
+      // Add system message to chat
+      try {
+        await supabase.from('messages').insert({
+          order_id: orderId,
+          sender_id: address, // Use wallet address as sender for system messages
+          content: JSON.stringify({
+            type: 'payment_claimed',
+            message: '💰 Payment has been successfully claimed by the provider. Order is now completed.'
+          }),
+          attachments: []
+        });
+      } catch (messageError) {
+        console.error('Error adding claim system message:', messageError);
+        // Don't fail the whole process if message fails
+      }
+
       return sessionId;
     } catch (error) {
       console.error('Vyžadovanie zlyhalo:', error);
