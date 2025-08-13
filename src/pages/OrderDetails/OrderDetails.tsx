@@ -836,18 +836,18 @@ const OrderDetails = () => {
     (order?.status === 'pending_approval' || order?.status === 'in_progress') &&
     order?.payment_status === 'pending' &&
     !providerAddressError;
-  const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'escrowed';
+  const canRelease = isClient && order?.status === 'delivered' && order?.payment_status === 'paid';
   const canSubmitWork =
     isProvider &&
     order?.payment_status === 'escrowed' &&
-    order?.payment_status === 'escrowed' &&
+    order?.payment_status === 'paid' &&
     order?.work_status !== 'submitted';
   const canClaimPayment = 
     isProvider && 
     order?.status === 'completed' && 
     (order?.payment_status === 'released' || order?.payment_status === 'paid') &&
-    (order?.payment_status === 'released' || order?.payment_status === 'escrowed') &&
-    order?.payment_status !== 'claimed';
+    order?.payment_status === 'released' &&
+    order?.status === 'completed';
   const canReview = 
     isClient && 
     order?.status === 'completed' && 
@@ -856,8 +856,7 @@ const OrderDetails = () => {
     order?.status === 'delivered' && 
     order?.payment_status === 'paid' &&
     order?.payment_status === 'paid' &&
-    order?.payment_status !== 'disputed' &&
-    order?.payment_status !== 'resolved';
+    order?.status !== 'cancelled';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
