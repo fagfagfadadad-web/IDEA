@@ -499,6 +499,38 @@ Deno.serve(async (req: Request) => {
       console.log('🔗 Edge Function: ✅ Recorded transaction history successfully');
     }
 
+    // Update referrer's total_earned to include referral bonus
+    console.log('🔗 Edge Function: Updating referrer total_earned...');
+    const { error: referrerEarnedError } = await supabaseAdmin
+      .from('users')
+      .update({
+        total_earned: (referrerUser.total_earned || 0) + SIGNUP_BONUS
+      })
+      .eq('id', referrerStats.user_id);
+
+    if (referrerEarnedError) {
+      console.error('🔗 Edge Function: Error updating referrer total_earned:', referrerEarnedError);
+      // Don't fail the whole process, just log the error
+    } else {
+      console.log('🔗 Edge Function: ✅ Updated referrer total_earned successfully');
+    }
+
+    // Update new user's total_earned to include signup bonus
+    console.log('🔗 Edge Function: Updating new user total_earned...');
+    const { error: newUserEarnedError } = await supabaseAdmin
+      .from('users')
+      .update({
+        total_earned: (newUserData.total_earned || 0) + SIGNUP_BONUS
+      })
+      .eq('id', newUser.id);
+
+    if (newUserEarnedError) {
+      console.error('🔗 Edge Function: Error updating new user total_earned:', newUserEarnedError);
+      // Don't fail the whole process, just log the error
+    } else {
+      console.log('🔗 Edge Function: ✅ Updated new user total_earned successfully');
+    }
+
     // Update referral stats
     console.log('🔗 Edge Function: Updating referral stats...');
     const { error: statsError } = await supabaseAdmin

@@ -186,6 +186,10 @@ export const useReferrals = () => {
       setReferrals(userReferrals);
       setRewards(rewardHistory);
       setLeaderboard(topReferrers);
+      
+      // Calculate total IDA earned from referrals for display
+      const totalReferralEarnings = rewardHistory.reduce((sum, reward) => sum + reward.reward_amount, 0);
+      console.log('🔗 useReferrals: Total referral earnings calculated:', totalReferralEarnings);
     } catch (err) {
       console.error('Error loading referral data:', err);
       // Don't show error to user, just log it
