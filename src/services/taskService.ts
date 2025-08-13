@@ -96,7 +96,10 @@ export class TaskService {
         try {
           const { error } = await supabase
             .from('user_reward_tasks')
-            .insert(newUserRewardTasks);
+            .upsert(newUserRewardTasks, {
+              onConflict: 'user_id,task_id',
+              ignoreDuplicates: true
+            });
 
           if (error) throw error;
         } catch (insertError: any) {
@@ -136,17 +139,16 @@ export class TaskService {
         .eq('user_id', userId)
         .eq('task_id', taskId)
         .eq('status', 'available')
-        .select('*, tasks!left(*)')
-        .maybeSingle();
+        .select('*, tasks!left(*)');
 
       if (error) throw error;
       
-      if (!data) {
+      if (!data || data.length === 0) {
         console.warn(`Task ${taskId} not found in available status for user ${userId}`);
         return null;
       }
       
-      return data;
+      return data[0];
     } catch (error) {
       console.error('Error completing reward task:', error);
       throw new Error('Failed to complete task');

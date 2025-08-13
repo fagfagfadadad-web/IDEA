@@ -32,7 +32,7 @@ export class ReferralService {
 
       const { error } = await supabase
         .from('referral_stats')
-        .insert({
+        .upsert({
           user_id: userId,
           referral_code: referralCode,
           total_referrals: 0,
@@ -41,6 +41,9 @@ export class ReferralService {
           pending_earnings: 0,
           completed_earnings: 0,
           total_rewards: 0
+        }, {
+          onConflict: 'user_id',
+          ignoreDuplicates: true
         });
 
       if (error) throw error;
