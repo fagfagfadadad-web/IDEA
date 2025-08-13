@@ -166,6 +166,7 @@ export class ReferralService {
   static async getReferralRewards(address: string): Promise<ReferralReward[]> {
     try {
       const { data: user } = await supabase
+        .from('users')
         .select('id')
         .eq('wallet_address', address)
         .single();
@@ -174,6 +175,7 @@ export class ReferralService {
 
       const { data, error } = await supabase
         .from('referral_rewards')
+        .select('*')
         .eq('referrer_id', user.id)
         .eq('status', 'completed')
         .order('processed_at', { ascending: false });
@@ -198,13 +200,16 @@ export class ReferralService {
             avatar_url
           )
         `)
+        .order('total_referrals', { ascending: false })
         .limit(limit);
 
+      if (error) throw error;
       return data || [];
     } catch (error) {
       console.error('Error fetching referral leaderboard:', error);
       return [];
     }
+  }
 
   // Generate referral link
   static generateReferralLink(referralCode: string): string {
@@ -229,11 +234,12 @@ export class ReferralService {
         }
       }
       
+      console.log('🔗 ReferralService: Processing referral for new user:', newUserAddress, 'with code:', referralCode);
 
       if (!referralCode) return;
 
       // Call Edge Function to process referral with service role privileges
-      
+      console.log('🔗 ReferralService: Calling Edge Function to process referral');
       try {
         // Use direct fetch to avoid Supabase client issues
         const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -267,19 +273,21 @@ export class ReferralService {
           if (result.error.includes('Invalid referral code') ||
               result.error.includes('already processed') ||
               result.error.includes('Cannot refer yourself')) {
+            console.log('🔗 ReferralService: Expected referral error:', result.error);
             return;
           }
           throw new Error(result.error);
         }
 
-        
+        console.log('🔗 ReferralService: Successfully processed referral via Edge Function:', result);
         // Clear any pending referral code from localStorage
         localStorage.removeItem('pendingReferralCode');
         
       } catch (edgeFunctionError) {
+        console.error('🔗 ReferralService: Edge Function failed, trying fallback:', edgeFunctionError);
         
         // If Edge Function fails, try to process locally as fallback
-        
+        console.log('🔗 ReferralService: Attempting local fallback processing');
         try {
           // Find referrer by code
           const { data: referrerStats, error: referrerError } = await supabase
@@ -289,6 +297,7 @@ export class ReferralService {
             .maybeSingle();
 
           if (referrerError || !referrerStats) {
+            console.log('🔗 ReferralService: Invalid referral code or referrer not found');
             return;
           }
 
@@ -300,6 +309,7 @@ export class ReferralService {
             .maybeSingle();
 
           if (newUserError || !newUser) {
+            console.log('🔗 ReferralService: New user not found');
             return;
           }
 
@@ -311,16 +321,19 @@ export class ReferralService {
             .maybeSingle();
 
           if (existingReferral) {
+            console.log('🔗 ReferralService: Referral already exists for this user');
             return;
           }
 
           // Prevent self-referral
           if (referrerStats.user_id === newUser.id) {
+            console.log('🔗 ReferralService: Cannot refer yourself');
             return;
           }
 
-          
+          console.log('🔗 ReferralService: Local fallback validation passed, but cannot process rewards without service role');
         } catch (fallbackError) {
+          console.error('🔗 ReferralService: Local fallback also failed:', fallbackError);
         }
         
         // Don't throw error, just log and continue
