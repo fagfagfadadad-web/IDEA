@@ -18,6 +18,8 @@ export class ReferralService {
   // Initialize user referral stats
   static async initializeUserReferralStats(userId: string): Promise<boolean> {
     try {
+      console.log('🔗 ReferralService: Initializing referral stats for user:', userId);
+      
       // Check if stats already exist
       const { data: existing } = await supabase
         .from('referral_stats')
@@ -25,14 +27,18 @@ export class ReferralService {
         .eq('user_id', userId)
         .maybeSingle();
 
-      if (existing) return true;
+      if (existing) {
+        console.log('🔗 ReferralService: Referral stats already exist for user:', userId);
+        return true;
+      }
 
       // Generate unique referral code
       const referralCode = await this.generateUniqueReferralCode();
+      console.log('🔗 ReferralService: Generated referral code:', referralCode);
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('referral_stats')
-        .upsert({
+        .insert({
           user_id: userId,
           referral_code: referralCode,
           total_referrals: 0,
@@ -41,12 +47,15 @@ export class ReferralService {
           pending_earnings: 0,
           completed_earnings: 0,
           total_rewards: 0
-        }, {
-          onConflict: 'user_id',
-          ignoreDuplicates: true
-        });
+        })
+        .select()
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error && error.code !== '23505') { // Ignore duplicate key errors
+        console.error('🔗 ReferralService: Error creating referral stats:', error);
+        throw error;
+      }
+      
       return true;
     } catch (error) {
       console.error('Error initializing referral stats:', error);
@@ -214,22 +223,38 @@ export class ReferralService {
       console.log('🔗 ReferralService: Calling process-referral Edge Function...');
       
       try {
-        const { data: result, error: functionError } = await supabase.functions.invoke('process-referral', {
+        // Use direct fetch to avoid Supabase client issues
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+        const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+        
+        if (!supabaseUrl || !supabaseAnonKey) {
+          throw new Error('Missing Supabase configuration');
+        }
+        
+        const response = await fetch(`${supabaseUrl}/functions/v1/process-referral`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseAnonKey}`,
+            'Content-Type': 'application/json',
+          },
           body: {
             referralCode: referralCode,
             newUserWalletAddress: newUserAddress
           }
         });
 
-        if (functionError) {
-          console.error('🔗 ReferralService: Edge Function error:', functionError);
-          throw new Error(`Referral processing failed: ${functionError.message}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('🔗 ReferralService: Edge Function HTTP error:', response.status, errorText);
+          throw new Error(`Referral processing failed: HTTP ${response.status}`);
         }
 
-        if (result?.error) {
+        const result = await response.json();
+        
+        if (result.error) {
           console.error('🔗 ReferralService: Edge Function returned error:', result.error);
           // Don't throw error for expected cases like invalid codes or existing referrals
-          if (result.error.includes('Invalid referral code') || 
+          if (result.error.includes('Invalid referral code') ||
               result.error.includes('already processed') ||
               result.error.includes('Cannot refer yourself')) {
             console.log('🔗 ReferralService: Expected referral error, continuing:', result.error);
@@ -245,7 +270,7 @@ export class ReferralService {
         console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
         
       } catch (edgeFunctionError) {
-        console.error('🔗 ReferralService: Edge Function call failed:', edgeFunctionError);
+        console.error('🔗 ReferralService: Edge Function call failed:', edgeFunctionError.message);
         
         // If Edge Function fails, try to process locally as fallback
         console.log('🔗 ReferralService: Attempting local fallback processing...');
