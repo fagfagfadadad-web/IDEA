@@ -815,7 +815,7 @@ export const Home = () => {
 
                           <div className="p-3 space-y-2">
                             <h3 className="text-sm font-bold text-gray-800">
-                                : request.title}
+                              {request.title}
                             </h3>
                             <p className="text-xs text-gray-600">
                               {request.description.length > 60 
