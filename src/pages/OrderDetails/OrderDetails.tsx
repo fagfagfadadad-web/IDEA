@@ -852,13 +852,12 @@ const OrderDetails = () => {
     isClient && 
     order?.status === 'completed' && 
     order?.payment_status === 'released';
-  const canDispute = isClient && 
-    order?.status === 'delivered' && 
+  const canDispute = 
+    isClient && 
     order?.payment_status === 'paid' &&
-    order?.payment_status === 'paid' &&
+    (order?.status === 'delivered' || order?.status === 'in_progress') &&
     order?.status !== 'cancelled' &&
-    order?.status !== 'completed' &&
-    order?.payment_status === 'paid';
+    order?.status !== 'completed';
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
