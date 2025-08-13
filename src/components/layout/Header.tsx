@@ -494,7 +494,6 @@ export const Header = () => {
                 className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Gift size={18} />
                 Rewards
               </Link>
               
