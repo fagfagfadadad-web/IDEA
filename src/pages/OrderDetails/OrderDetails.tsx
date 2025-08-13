@@ -840,13 +840,14 @@ const OrderDetails = () => {
   const canSubmitWork =
     isProvider &&
     order?.payment_status === 'released' &&
-    order?.payment_status === 'escrowed' &&
+    order?.payment_status === 'released' &&
     order?.work_status !== 'submitted';
   const canClaimPayment = 
     isProvider && 
     order?.status === 'completed' && 
+    order?.payment_status === 'released' &&
     (order?.payment_status === 'released' || order?.payment_status === 'paid') &&
-    order?.payment_status !== 'claimed' && 
+    order?.payment_status !== 'claimed' &&
     order?.payment_status !== 'resolved';
   const canReview = 
     isClient && 
