@@ -237,10 +237,10 @@ export class ReferralService {
             'Authorization': `Bearer ${supabaseAnonKey}`,
             'Content-Type': 'application/json',
           },
-          body: {
+          body: JSON.stringify({
             referralCode: referralCode,
             newUserWalletAddress: newUserAddress
-          }
+          })
         });
 
         if (!response.ok) {
