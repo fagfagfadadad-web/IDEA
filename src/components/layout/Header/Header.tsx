@@ -185,20 +185,45 @@ export const Header = () => {
                   <button
                     onClick={() => setShowNotificationsModal(true)}
                     className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white"
+                    aria-label="Notifications"
                   >
                     <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white"
+                      aria-label="Profile menu"
+                    >
                       {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError ? (
                         <img
                           key={user.avatar_url}
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
+                          onError={() => setAvatarLoadError(true)}
+                        />
                       ) : null}
                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                      {/* Always show initials - they will be covered by image if it loads successfully */}
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                    </button>
+
+                    {isProfileMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          aria-hidden="true"
+                        />
+                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
+                            <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
                                 {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError ? (
                                   <img
@@ -206,8 +231,9 @@ export const Header = () => {
                                     src={user.avatar_url}
                                     alt={user.username || 'Profile'}
                                     className="w-full h-full object-cover absolute inset-0"
+                                    onError={() => setAvatarLoadError(true)}
+                                  />
                                 ) : null}
-                                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                 {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div>
