@@ -15,21 +15,11 @@ export const GigDetail = () => {
   const { user } = useAuth();
   const { trackView } = useTrackGigView();
   
-  useEffect(() => {
-    console.log('🔍 GigDetail: Component mounted with ID:', id);
-    console.log('🔍 GigDetail: Current URL:', window.location.href);
-  }, [id]);
-  
   // Real hooks
   const { data: gig, isLoading, error } = useGigById(id || '');
   const { data: allGigs } = useAllGigs();
   const { data: reviews, isLoading: reviewsLoading, error: reviewsError } = useReviewsByGig(id || '');
 
-  useEffect(() => {
-    console.log('🔍 GigDetail: Gig data:', gig);
-    console.log('🔍 GigDetail: Loading:', isLoading);
-    console.log('🔍 GigDetail: Error:', error);
-  }, [gig, isLoading, error]);
 
   // Get similar gigs from the same category
   const similarGigs = allGigs?.filter(g => 

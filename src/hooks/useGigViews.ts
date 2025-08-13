@@ -14,7 +14,6 @@ export const useTrackGigView = () => {
     const lastTrackTime = lastTrackTimes.get(gigId);
     
     if (lastTrackTime && (now - lastTrackTime) < TRACK_THROTTLE_MS) {
-      console.log(`View tracking throttled for gig ${gigId} - last tracked ${Math.round((now - lastTrackTime) / 1000 / 60)} minutes ago`);
       return { success: true, throttled: true };
     }
 
@@ -57,13 +56,11 @@ export const useTrackGigView = () => {
           .maybeSingle();
 
         if (existingUserView) {
-          console.log('User already viewed this gig in the last 10 minutes');
           return { success: true, alreadyViewed: true };
         }
       }
 
       if (existingView) {
-        console.log(`IP already viewed gig ${gigId} in the last 10 minutes`);
         return { success: true, alreadyViewed: true };
       }
 
@@ -84,7 +81,6 @@ export const useTrackGigView = () => {
 
       // Update throttle time only on successful track
       lastTrackTimes.set(gigId, now);
-      console.log(`Gig view tracked successfully for ${gigId}`);
       return { success: true, alreadyViewed: false };
     } catch (error) {
       console.error(`Error tracking view for gig ${gigId}:`, error);

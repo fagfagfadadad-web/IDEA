@@ -46,20 +46,6 @@ export const useReviewsByGig = (gigId: string) => {
 
       if (error) throw error;
 
-      console.log('🔍 useReviewsByGig: Fetched reviews data:', reviews);
-      console.log('🔍 useReviewsByGig: Reviews count:', reviews?.length || 0);
-      reviews?.forEach((review, index) => {
-        console.log(`🔍 Review ${index}:`, {
-          reviewId: review.id,
-          orderId: review.order_id,
-          clientData: review.order?.client,
-          hasClient: !!review.order?.client,
-          clientUsername: review.order?.client?.username,
-          clientFullName: review.order?.client?.full_name,
-          providerId: review.order?.gig?.provider_id,
-          providerUsername: review.order?.gig?.provider?.username
-        });
-      });
 
       setData(reviews || []);
     } catch (err) {
@@ -217,8 +203,6 @@ export const useReviewsForProvider = (providerId: string) => {
   const fetchProviderReviews = async () => {
     try {
       setIsLoading(true);
-      
-      console.log('🔍 useReviewsForProvider: Fetching reviews for provider:', providerId);
 
       // First get all orders where this user is the provider
       const { data: providerOrders, error: ordersError } = await supabase
@@ -262,20 +246,6 @@ export const useReviewsForProvider = (providerId: string) => {
 
       if (error) throw error;
 
-      console.log('🔍 useReviewsForProvider: Fetched provider reviews data:', reviews);
-      console.log('🔍 useReviewsForProvider: Reviews count:', reviews?.length || 0);
-      reviews?.forEach((review, index) => {
-        console.log(`🔍 Provider Review ${index}:`, {
-          reviewId: review.id,
-          orderId: review.order_id,
-          clientData: review.order?.client,
-          hasClient: !!review.order?.client,
-          clientUsername: review.order?.client?.username,
-          clientFullName: review.order?.client?.full_name,
-          providerId: review.order?.gig?.provider_id,
-          providerUsername: review.order?.gig?.provider?.username
-        });
-      });
 
       setData(reviews || []);
     } catch (err) {
