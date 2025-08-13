@@ -316,7 +316,7 @@ export const RewardsHub = () => {
             <div className="text-center">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl flex items-center justify-center">
-                  <Gift size={32} className="text-white" />
+                  <Gift size={32} className="text-grey" />
                 </div>
                 <h1 
                   className="text-3xl font-bold gradient-text cursor-pointer select-none hover:opacity-80 transition-opacity"
