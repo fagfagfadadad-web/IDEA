@@ -380,10 +380,10 @@ export const RewardsHub = () => {
                         <span className="text-purple-800 font-medium">IDA Earned</span>
                       </div>
                       <p className="text-purple-800 text-2xl font-bold">
-                        {formatCoins(taskStats.totalRewards + (referralStats?.total_referral_earnings || 0))}
+                        {formatCoins(taskStats.totalRewards + (rewards?.reduce((sum, reward) => sum + reward.reward_amount, 0) || 0))}
                       </p>
                       <p className="text-purple-600 text-xs">
-                        Tasks: {formatCoins(taskStats.totalRewards)} • Referrals: {formatCoins(referralStats?.total_referral_earnings || 0)}
+                        Tasks: {formatCoins(taskStats.totalRewards)} • Referrals: {formatCoins(rewards?.reduce((sum, reward) => sum + reward.reward_amount, 0) || 0)}
                       </p>
                     </div>
 
