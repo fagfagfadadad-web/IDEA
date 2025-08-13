@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DollarSign, BarChart3, ArrowRight, Zap, Shield, Award, Coins, Clock, TrendingUp, Users, Target } from 'lucide-react';
+import { DollarSign, BarChart3, ArrowRight, Zap, Shield, Award, Coins, Clock, TrendingUp, Users, Target, Settings } from 'lucide-react';
 import { Button, Card } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -1203,16 +1203,16 @@ export const TokenSale: React.FC = () => {
                 />
               )}
             </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Fee Reduction</h3>
-              <p className="text-gray-600">Users paying with IDEA tokens enjoy zero platform fees, compared to the standard 10% fee when paying with EGLD.</p>
+          </div>
+
           {/* Desktop Content */}
           <div className="space-y-12">
             <div className="text-center">
               <h2 className="text-5xl font-bold gradient-text mb-8">Token Sale Phases</h2>
               <p className="text-gray-600 text-xl max-w-4xl mx-auto leading-relaxed">
                 Our token sale is structured in two phases to provide early supporters with better pricing 
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Governance</h3>
-              <p className="text-gray-600">IDEA token holders can participate in platform governance decisions through voting.</p>
+                and ensure fair distribution of IDA tokens across our community.
+              </p>
             </div>
 
             {isLoading ? (
@@ -1365,44 +1365,76 @@ export const TokenSale: React.FC = () => {
                       </div>
                     </div>
                   </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Staking Rewards</h3>
-              <p className="text-gray-600">Stake IDEA tokens to earn a share of platform fees and additional token rewards.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Utilization of EGLD Payment Fees */}
-        <div className="gradient-card p-8">
-          <h2 className="text-2xl md:text-3xl font-bold gradient-text mb-8 text-center">
-            Utilization of EGLD Payment Fees
-          </h2>
-          <p className="text-gray-600 text-lg mb-8 text-center">
-            A 10% platform fee is deducted from payments made in EGLD (MultiversX native token) to support the IDEA ecosystem and its long-term sustainability. Payments made with IDEA tokens incur zero fees.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp size={32} className="text-white" />
+                </div>
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Buy-back and Burn Program (5%)</h3>
-              <p className="text-gray-600">5% of the EGLD fee is used to buy back IDEA tokens from the market. These tokens are subsequently burned, reducing the total supply and supporting the token's long-term value.</p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Settings size={32} className="text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Platform Operations (5%)</h3>
-              <p className="text-gray-600">5% of the EGLD fee is allocated to platform operations, including maintenance of the serverless infrastructure, MultiversX SDK integration, and ongoing technical support.</p>
-            </div>
-          </div>
-          
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
-            <h4 className="text-lg font-bold text-blue-800 mb-3">Example:</h4>
-            <p className="text-blue-700">
-              For a 100 EGLD payment, 10 EGLD is deducted as a fee, with 5 EGLD used for the buy-back and burn program and 5 EGLD for platform operations.
             )}
+
+            {/* Token Utility Section */}
+            <div className="gradient-card p-8">
+              <h2 className="text-2xl md:text-3xl font-bold gradient-text mb-8 text-center">
+                IDA Token Utility
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <DollarSign size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Fee Reduction</h3>
+                  <p className="text-gray-600">Users paying with IDEA tokens enjoy zero platform fees, compared to the standard 10% fee when paying with EGLD.</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Governance</h3>
+                  <p className="text-gray-600">IDEA token holders can participate in platform governance decisions through voting.</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Award size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Staking Rewards</h3>
+                  <p className="text-gray-600">Stake IDEA tokens to earn a share of platform fees and additional token rewards.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Utilization of EGLD Payment Fees */}
+            <div className="gradient-card p-8">
+              <h2 className="text-2xl md:text-3xl font-bold gradient-text mb-8 text-center">
+                Utilization of EGLD Payment Fees
+              </h2>
+              <p className="text-gray-600 text-lg mb-8 text-center">
+                A 10% platform fee is deducted from payments made in EGLD (MultiversX native token) to support the IDEA ecosystem and its long-term sustainability. Payments made with IDEA tokens incur zero fees.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <TrendingUp size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Buy-back and Burn Program (5%)</h3>
+                  <p className="text-gray-600">5% of the EGLD fee is used to buy back IDEA tokens from the market. These tokens are subsequently burned, reducing the total supply and supporting the token's long-term value.</p>
+                </div>
+                
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Settings size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Platform Operations (5%)</h3>
+                  <p className="text-gray-600">5% of the EGLD fee is allocated to platform operations, including maintenance of the serverless infrastructure, MultiversX SDK integration, and ongoing technical support.</p>
+                </div>
+              </div>
+              
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
+                <h4 className="text-lg font-bold text-blue-800 mb-3">Example:</h4>
+                <p className="text-blue-700">
+                  For a 100 EGLD payment, 10 EGLD is deducted as a fee, with 5 EGLD used for the buy-back and burn program and 5 EGLD for platform operations.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
