@@ -179,56 +179,32 @@ export const Header = () => {
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
-                    )}
-                  </button>
-
-                  {/* Profile Menu */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className={`w-10 h-10 rounded-full overflow-hidden relative flex items-center justify-center text-sm font-bold text-white transition-all duration-200 hover:scale-105 ${
-                        user?.avatar_url && user.avatar_url.length > 0 
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
-                          : 'bg-gray-400'
-                      }`}
-                      aria-label="Profile menu"
-                    >
                       {user?.avatar_url && user.avatar_url.length > 0 && (
                         <img
-                          key={user.avatar_url + '-header'}
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
                           onError={(e) => e.currentTarget.style.display = 'none'}
                         />
                       )}
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                    </button>
-
-                    {isProfileMenuOpen && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setIsProfileMenuOpen(false)}
-                          aria-hidden="true"
-                        />
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
-                          <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
-                            <div className="flex items-center gap-3">
+                      <span className="relative z-10">
+                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               <div className={`w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white ${
                                 user?.avatar_url && user.avatar_url.length > 0 
                                   ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
-                                  : 'bg-gray-400'
+                                  : 'bg-gray-500'
                               }`}>
                                 {user?.avatar_url && user.avatar_url.length > 0 && (
                                   <img
-                                    key={user.avatar_url + '-dropdown'}
                                     src={user.avatar_url}
                                     alt={user.username || 'Profile'}
                                     className="w-full h-full object-cover absolute inset-0"
                                     onError={(e) => e.currentTarget.style.display = 'none'}
                                   />
                                 )}
+                                <span className="relative z-10">
+                                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                                </span>
                                 {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div>
