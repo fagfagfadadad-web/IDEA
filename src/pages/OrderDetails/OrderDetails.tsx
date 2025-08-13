@@ -845,7 +845,7 @@ const OrderDetails = () => {
   const canClaimPayment = 
     isProvider && 
     order?.status === 'completed' && 
-    order?.payment_status === 'released' &&
+    (order?.payment_status === 'released' || order?.payment_status === 'paid') &&
     order?.payment_status !== 'claimed';
   const canReview = 
     isClient && 
