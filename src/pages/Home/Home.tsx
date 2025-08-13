@@ -391,6 +391,8 @@ export const Home = () => {
                         onClick={() => handleCategoryClick(category.slug)}
                         aria-label={`Select ${category.title} category`}
                       >
+                        <div className="mb-1 text-gray-800 relative z-10 transform group-hover:scale-110 transition-transform duration-300">
+                          {category.icon}
                         </div>
                         <p className="text-xs font-semibold text-gray-800 relative z-10 leading-tight text-center break-words px-1 hyphens-auto">
                           {category.title}
