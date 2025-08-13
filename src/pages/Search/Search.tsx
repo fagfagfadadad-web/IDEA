@@ -244,8 +244,8 @@ export const Search = () => {
                             className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors"
                             onClick={(e) => handleProfileClick(e, gig.provider.id)}
                           >
-                            <div className="w-5 h-5 bg-gray-300 rounded-full flex items-center justify-center text-xs">
-                              {gig.provider.username.charAt(0).toUpperCase()}
+                            <div className="w-6 h-6 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                              {gig.provider.username?.charAt(0)?.toUpperCase() || "U"}
                             </div>
                             <span className="text-gray-600 text-xs truncate">
                               by {gig.provider.username.substring(0, 10)}
@@ -334,12 +334,12 @@ export const Search = () => {
                                   className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
                                   style={{ display: 'none' }}
                                 >
-                                  {gig.provider.username.charAt(0).toUpperCase()}
+                                  {gig.provider.username?.charAt(0)?.toUpperCase() || "U"}
                                 </div>
                               </>
                             ) : (
-                              <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
-                                {gig.provider.username.charAt(0).toUpperCase()}
+                              <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white font-bold">
+                                {gig.provider.username?.charAt(0)?.toUpperCase() || "U"}
                               </div>
                             )}
                           </div>
