@@ -855,9 +855,8 @@ const OrderDetails = () => {
   const canDispute = 
     isClient && 
     order?.payment_status === 'paid' &&
-    (order?.status === 'delivered' || order?.status === 'in_progress') &&
-    order?.status !== 'cancelled' &&
-    order?.status !== 'completed';
+    order?.status &&
+    ['in_progress', 'delivered'].includes(order.status);
   const wasDisputed = order?.payment_status === 'disputed' || order?.payment_status === 'resolved';
   const isDisputeResolved = order?.payment_status === 'resolved';
 
