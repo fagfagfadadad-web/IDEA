@@ -768,21 +768,6 @@ const OrderDetails = () => {
   const isDisputeResolved = order?.payment_status === 'resolved';
 
   useEffect(() => {
-    console.log('🔍 OrderDetails: Provider Debug info:', {
-      userId: user?.id,
-      userWalletAddress: user?.wallet_address,
-      orderGigProviderId: order?.gig?.provider_id,
-      orderGigProviderUserId: order?.gig?.provider?.id,
-      orderProviderAddress: order?.provider_address,
-      gigProviderWalletAddress: order?.gig?.provider?.wallet_address,
-      isProvider,
-      isClient,
-      canSubmitWork,
-      orderStatus: order?.status,
-      paymentStatus: order?.payment_status,
-      workStatus: order?.work_status,
-    });
-
     if (order && !isLoading) {
       const providerAddress = order.provider_address || order.gig?.provider?.wallet_address;
       if (!isValidAddress(providerAddress) && order.gig_id) {

@@ -98,10 +98,8 @@ export const useSendMessage = () => {
       size: number;
     }>;
   }) => {
-    console.log('DEBUG: mutateAsync in useSendMessage called for orderId:', orderId);
     setIsLoading(true);
     try {
-     console.log('DEBUG: mutateAsync in useSendMessage called for orderId:', orderId);
       if (!user?.id) {
         throw new Error('Please connect your wallet first');
       }
@@ -131,7 +129,6 @@ export const useSendMessage = () => {
 
       // Send email notification to the recipient if they have email notifications enabled
       try {
-       console.log('DEBUG: Starting email notification process...');
         // Get order details to determine the recipient
         const { data: orderDetails } = await supabase
           .from('orders')
@@ -149,8 +146,6 @@ export const useSendMessage = () => {
           .eq('id', orderId)
           .single();
 
-        console.log('DEBUG: Order details fetched:', orderDetails);
-
         if (orderDetails) {
           // Determine recipient (if sender is client, notify provider and vice versa)
           const isClientSender = orderDetails.client_id === user.id;
@@ -158,15 +153,7 @@ export const useSendMessage = () => {
             (Array.isArray(orderDetails.gig) ? (orderDetails.gig as any)[0]?.provider : (orderDetails.gig as any)?.provider) : 
             orderDetails.client;
           
-          console.log('DEBUG: Is client sender:', isClientSender);
-          console.log('DEBUG: Recipient object:', recipient);
-          console.log('DEBUG: Recipient email:', recipient?.email);
-          console.log('DEBUG: Recipient email notifications enabled:', recipient?.email_notifications_enabled);
-          console.log('DEBUG: Will send email?', !!(recipient?.email && recipient?.email_notifications_enabled));
-
           if (recipient?.email && recipient?.email_notifications_enabled) {
-            console.log('DEBUG: Attempting to send email notification...');
-            
             // Prepare structured data for email template
             const templateData = {
               senderName: user.username || user.full_name || 'A user',
@@ -184,11 +171,7 @@ export const useSendMessage = () => {
               sendEmail: true,
               userEmail: recipient.email
             });
-            console.log('DEBUG: Email notification sent successfully');
           } else {
-            console.log('DEBUG: Email notification NOT sent - conditions not met');
-            console.log('DEBUG: Missing email?', !recipient?.email);
-            console.log('DEBUG: Notifications disabled?', !recipient?.email_notifications_enabled);
           }
         }
       } catch (notificationError) {

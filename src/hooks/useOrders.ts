@@ -65,23 +65,6 @@ export const sendNotification = async ({
   userEmail?: string;
 }) => {
   try {
-    console.log('DEBUG: sendNotification called with:', {
-      user_id,
-      type,
-      title,
-      sendEmail,
-      userEmail,
-      hasUserEmail: !!userEmail
-    });
-    console.log('DEBUG: sendNotification called with:', {
-      user_id,
-      type,
-      title,
-      sendEmail,
-      userEmail,
-      hasUserEmail: !!userEmail
-    });
-
     const { error } = await supabase
       .from('notifications')
       .insert({
@@ -94,12 +77,9 @@ export const sendNotification = async ({
       });
 
     if (error) throw error;
-    console.log('Notification sent successfully');
 
     // Send email notification if requested and email is provided
     if (sendEmail && userEmail) {
-      console.log('DEBUG: Conditions met for email sending, calling Supabase function...');
-      console.log('DEBUG: Conditions met for email sending, calling Supabase function...');
       try {
         // Get email templates
         const { getOrderCreatedTemplate, getMessageReceivedTemplate, getPaymentReleasedTemplate } = useEmailTemplates();
@@ -172,29 +152,12 @@ export const sendNotification = async ({
 
         if (emailError) {
           console.error('Error sending email notification:', emailError);
-          console.log('DEBUG: Email error details:', emailError);
-          console.log('DEBUG: Email error details:', emailError);
         } else {
-          console.log('Email notification sent successfully:', emailResult);
-          console.log('DEBUG: Email success details:', emailResult);
-          console.log('DEBUG: Email success details:', emailResult);
         }
       } catch (emailError) {
         console.error('Failed to send email notification:', emailError);
-        console.log('DEBUG: Email exception details:', emailError);
-        console.log('DEBUG: Email exception details:', emailError);
       }
     } else {
-      console.log('DEBUG: Email NOT sent - conditions not met:', {
-        sendEmail,
-        hasUserEmail: !!userEmail,
-        userEmail
-      });
-      console.log('DEBUG: Email NOT sent - conditions not met:', {
-        sendEmail,
-        hasUserEmail: !!userEmail,
-        userEmail
-      });
     }
   } catch (error) {
     console.error('Error sending notification:', error);
@@ -360,8 +323,6 @@ export const useCreateOrder = () => {
 
       // Send email notification to provider if they have email notifications enabled
       try {
-        console.log('DEBUG: Sending order created notification to provider...');
-        
         // Get provider details including email settings
         const { data: providerData, error: providerError } = await supabase
           .from('users')
@@ -370,8 +331,6 @@ export const useCreateOrder = () => {
           .single();
 
         if (!providerError && providerData?.email && providerData?.email_notifications_enabled) {
-          console.log('DEBUG: Provider has email notifications enabled, sending email...');
-          
           // Prepare template data for order created email
           const templateData = {
             clientName: order.client?.username || order.client?.full_name || 'A client',
@@ -391,14 +350,7 @@ export const useCreateOrder = () => {
             userEmail: providerData.email
           });
           
-          console.log('DEBUG: Order created email notification sent successfully');
         } else {
-          console.log('DEBUG: Provider email notification NOT sent:', {
-            hasProvider: !!providerData,
-            hasEmail: !!providerData?.email,
-            emailEnabled: providerData?.email_notifications_enabled,
-            providerError: providerError?.message
-          });
         }
       } catch (notificationError) {
         console.error('Error sending order created notification:', notificationError);
@@ -470,7 +422,6 @@ export const useOrderById = (orderId: string) => {
         }
 
         if (!order) throw new Error('Order not found');
-        console.log('Fetched order data:', JSON.stringify(order, null, 2));
         setData(order);
       } catch (err) {
         console.error('Error fetching order:', err);
@@ -517,8 +468,6 @@ export const useUpdateOrderStatus = () => {
 
       // Send email notifications based on status change
       try {
-        console.log('DEBUG: Sending status change notification for status:', status);
-        
         // Get order details with client and provider information
         const { data: orderDetails, error: orderError } = await supabase
           .from('orders')
@@ -597,7 +546,6 @@ export const useUpdateOrderStatus = () => {
                 sendEmail: true,
                 userEmail: provider.email
               });
-              console.log('DEBUG: Payment released email sent to provider');
             }
             
             // Notify client about completion
@@ -615,7 +563,6 @@ export const useUpdateOrderStatus = () => {
                 sendEmail: true,
                 userEmail: client.email
               });
-              console.log('DEBUG: Order completed email sent to client');
             }
             break;
             
@@ -638,12 +585,10 @@ export const useUpdateOrderStatus = () => {
                 sendEmail: true,
                 userEmail: provider.email
               });
-              console.log('DEBUG: Order started email sent to provider');
             }
             break;
             
           default:
-            console.log('DEBUG: No email notification configured for status:', status);
             break;
         }
       } catch (notificationError) {
