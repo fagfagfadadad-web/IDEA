@@ -197,43 +197,20 @@ export const Header = () => {
                       aria-label="Profile menu"
                     >
                       {user?.avatar_url && user.avatar_url.length > 0 ? (
-                        (() => {
-                          console.log('Header: Showing user avatar image for main button');
-                          return (
-                        <>
-                          <img
-                            src={user.avatar_url}
-                            alt={user.username || 'Profile'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              console.log('Header: Main button avatar image failed to load, showing fallback');
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div
-                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white absolute inset-0"
-                            style={{ display: 'none' }}
-                          >
-                            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                          </div>
-                        </>
-                          );
-                        })()
+                        <img
+                          src={user.avatar_url}
+                          alt={user.username || 'Profile'}
+                          className="w-full h-full object-cover absolute inset-0"
+                          onError={(e) => {
+                            console.log('Header: Main button avatar image failed to load, hiding image to show gradient background');
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
                       ) : (
-                        (() => {
-                          console.log('Header: No avatar URL, showing gradient fallback for main button');
-                          return (
-                        <div className="w-full h-full flex items-center justify-center text-sm font-bold text-white">
-                          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                          );
-                        })()
+                        console.log('Header: No avatar URL, showing gradient background with initials for main button')
                       )}
+                      {/* Always show initials - they will be covered by image if it loads successfully */}
+                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                     </button>
 
                     {isProfileMenuOpen && (
@@ -248,43 +225,20 @@ export const Header = () => {
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
                                 {user?.avatar_url && user.avatar_url.length > 0 ? (
-                                  (() => {
-                                    console.log('Header: Showing user avatar image for dropdown');
-                                    return (
-                                  <>
-                                    <img
-                                      src={user.avatar_url}
-                                      alt={user.username || 'Profile'}
-                                      className="w-full h-full object-cover"
-                                      onError={(e) => {
-                                        console.log('Header: Dropdown avatar image failed to load, showing fallback');
-                                        e.currentTarget.style.display = 'none';
-                                        const parent = e.currentTarget.parentElement;
-                                        if (parent) {
-                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                          if (fallback) fallback.style.display = 'flex';
-                                        }
-                                      }}
-                                    />
-                                    <div
-                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
-                                      style={{ display: 'none' }}
-                                    >
-                                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                    </div>
-                                  </>
-                                    );
-                                  })()
+                                  <img
+                                    src={user.avatar_url}
+                                    alt={user.username || 'Profile'}
+                                    className="w-full h-full object-cover absolute inset-0"
+                                    onError={(e) => {
+                                      console.log('Header: Dropdown avatar image failed to load, hiding image to show gradient background');
+                                      e.currentTarget.style.display = 'none';
+                                    }}
+                                  />
                                 ) : (
-                                  (() => {
-                                    console.log('Header: No avatar URL, showing gradient fallback for dropdown');
-                                    return (
-                                  <div className="w-full h-full flex items-center justify-center text-lg font-bold text-white">
-                                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                  </div>
-                                    );
-                                  })()
+                                  console.log('Header: No avatar URL, showing gradient background with initials for dropdown')
                                 )}
+                                {/* Always show initials - they will be covered by image if it loads successfully */}
+                                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
