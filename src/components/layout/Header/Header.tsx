@@ -192,6 +192,43 @@ export const Header = () => {
                      <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                      </div>
+                    </button>
+
+                    {isProfileMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          aria-hidden="true"
+                        />
+                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
+                            <div className="flex items-center gap-3">
+                             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
+                               <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                                 {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                               </div>
+                             </div>
+                              <div>
+                                <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
+                                <p className="text-sm text-gray-600 truncate">{user?.email || 'No email'}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <Link
+                            to="/profile"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            <User size={16} />
+                            Profile
+                          </Link>
+                          <Link
+                            to="/my-requests"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            <Briefcase size={16} />
                             My Requests
                           </Link>
                           <Link
