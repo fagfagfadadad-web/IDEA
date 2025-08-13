@@ -186,17 +186,12 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className={`w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-sm font-bold text-white ${
-                        user?.avatar_url && user.avatar_url.length > 0 
-                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
-                          : 'bg-gray-400'
-                      }`}
+                     className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-sm font-bold text-white bg-gray-500"
                       title="Click to view your profile"
                       aria-label="Profile menu"
                     >
                       {user?.avatar_url && user.avatar_url.length > 0 && (
                         <img
-                          key={user.avatar_url}
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
