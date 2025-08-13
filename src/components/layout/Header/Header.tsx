@@ -37,7 +37,7 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await authLogout();
       navigate(RouteNamesEnum.home);
     } catch (error) {
       console.error('Logout error:', error);
