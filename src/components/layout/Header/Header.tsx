@@ -121,7 +121,7 @@ export const Header = () => {
                 to="/rewards"
                 className="text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-2 text-sm font-medium"
               >
-                <Gift size={16} />
+                <Gift size={16} className="text-gray-500" />
                 Rewards
               </Link>
               {isLoggedIn && (
