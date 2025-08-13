@@ -368,7 +368,7 @@ export interface Database {
           deadline: string | null
           status_updated_at: string | null
           transaction_hash: string | null
-          payment_status: string | null
+          payment_status: 'pending' | 'paid' | 'released' | 'claimed' | 'disputed' | 'resolved' | null
           release_at: string | null
           work_status: string | null
           client_address: string
@@ -386,7 +386,7 @@ export interface Database {
           deadline?: string | null
           status_updated_at?: string | null
           transaction_hash?: string | null
-          payment_status?: string | null
+          payment_status?: 'pending' | 'paid' | 'released' | 'claimed' | 'disputed' | 'resolved' | null
           release_at?: string | null
           work_status?: string | null
           client_address: string
@@ -404,7 +404,7 @@ export interface Database {
           deadline?: string | null
           status_updated_at?: string | null
           transaction_hash?: string | null
-          payment_status?: string | null
+          payment_status?: 'pending' | 'paid' | 'released' | 'claimed' | 'disputed' | 'resolved' | null
           release_at?: string | null
           work_status?: string | null
           client_address?: string
