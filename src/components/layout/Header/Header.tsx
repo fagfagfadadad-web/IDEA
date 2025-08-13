@@ -12,14 +12,6 @@ import { useAuth } from '../../../context/AuthContext';
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user, logout: authLogout, forceReconnect } = useAuth();
-  const [avatarLoadError, setAvatarLoadError] = useState(false);
-  
-  // Debug logging for avatar issues
-  console.log('Header: User object:', user);
-  console.log('Header: User avatar_url:', user?.avatar_url);
-  console.log('Header: Avatar URL length:', user?.avatar_url?.length);
-  console.log('Header: Avatar URL type:', typeof user?.avatar_url);
-  
   const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -31,11 +23,6 @@ export const Header = () => {
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
 
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
-
-  // Reset avatar load error when avatar URL changes
-  useEffect(() => {
-    setAvatarLoadError(false);
-  }, [user?.avatar_url]);
 
   // Debug logging for notifications
   useEffect(() => {
@@ -199,18 +186,23 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white"
+                      className={`w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-sm font-bold text-white ${
+                        user?.avatar_url && user.avatar_url.length > 0 
+                          ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
+                          : 'bg-gray-400'
+                      }`}
+                      title="Click to view your profile"
                       aria-label="Profile menu"
                     >
-                      {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError ? (
+                      {user?.avatar_url && user.avatar_url.length > 0 && (
                         <img
                           key={user.avatar_url}
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
-                          onError={() => setAvatarLoadError(true)}
+                          onError={(e) => e.currentTarget.style.display = 'none'}
                         />
-                      ) : null}
+                      )}
                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                     </button>
 
@@ -224,28 +216,21 @@ export const Header = () => {
                         <div className="absolute right-0 mt-2 w-64 bg-grey rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-grey">
-                                {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError ? (
+                              <div className={`w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white ${
+                                user?.avatar_url && user.avatar_url.length > 0 
+                                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
+                                  : 'bg-gray-400'
+                              }`}>
+                                {user?.avatar_url && user.avatar_url.length > 0 && (
                                   <img
                                     key={user.avatar_url + '-dropdown'}
                                     src={user.avatar_url}
                                     alt={user.username || 'Profile'}
                                     className="w-full h-full object-cover absolute inset-0"
-                                    onError={() => setAvatarLoadError(true)}
+                                    onError={(e) => e.currentTarget.style.display = 'none'}
                                   />
-                                ) : null}
+                                )}
                                 {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
-                                <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <Link
-                            to="/profile"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-pink-50 transition-all duration-200"
-                            onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
                             Profile
