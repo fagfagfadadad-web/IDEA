@@ -189,9 +189,33 @@ export const Header = () => {
                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600"
                       aria-label="Profile menu"
                     >
-                     <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
-                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                     </div>
+                      {user?.avatar_url ? (
+                        <>
+                          <img
+                            src={user.avatar_url}
+                            alt={user.username || 'Profile'}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                          <div
+                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white absolute inset-0"
+                            style={{ display: 'none' }}
+                          >
+                            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
+                          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                        </div>
+                      )}
                     </button>
 
                     {isProfileMenuOpen && (
@@ -204,11 +228,35 @@ export const Header = () => {
                         <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
                             <div className="flex items-center gap-3">
-                             <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
-                               <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
-                                 {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                               </div>
-                             </div>
+                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
+                                {user?.avatar_url ? (
+                                  <>
+                                    <img
+                                      src={user.avatar_url}
+                                      alt={user.username || 'Profile'}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        const parent = e.currentTarget.parentElement;
+                                        if (parent) {
+                                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                          if (fallback) fallback.style.display = 'flex';
+                                        }
+                                      }}
+                                    />
+                                    <div
+                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      style={{ display: 'none' }}
+                                    >
+                                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                                  </div>
+                                )}
+                              </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
                                 <p className="text-sm text-gray-600 truncate">{user?.email || 'No email'}</p>
