@@ -38,8 +38,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    console.log('🔗 Edge Function: Request received:', req.method, req.url);
+
     // Only allow POST requests
     if (req.method !== 'POST') {
+      console.log('🔗 Edge Function: Method not allowed:', req.method);
       return new Response(
         JSON.stringify({ error: 'Method not allowed' }),
         {
@@ -53,8 +56,13 @@ Deno.serve(async (req: Request) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
+    console.log('🔗 Edge Function: Environment check:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseServiceRoleKey
+    });
+
     if (!supabaseUrl || !supabaseServiceRoleKey) {
-      console.error('Missing Supabase environment variables');
+      console.error('🔗 Edge Function: Missing Supabase environment variables');
       return new Response(
         JSON.stringify({ error: 'Service configuration error' }),
         {
@@ -66,12 +74,18 @@ Deno.serve(async (req: Request) => {
 
     // Create Supabase client with service role key
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
+    console.log('🔗 Edge Function: Supabase admin client created');
 
     // Parse request body
     const requestData: ReferralRequest = await req.json();
+    console.log('🔗 Edge Function: Request data:', {
+      referralCode: requestData.referralCode,
+      newUserAddress: requestData.newUserWalletAddress?.substring(0, 10) + '...'
+    });
 
     // Validate required fields
     if (!requestData.referralCode || !requestData.newUserWalletAddress) {
+      console.log('🔗 Edge Function: Missing required fields');
       return new Response(
         JSON.stringify({ 
           error: 'Missing required fields: referralCode, newUserWalletAddress' 
@@ -83,12 +97,13 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('🔗 Processing referral:', {
+    console.log('🔗 Edge Function: Processing referral:', {
       referralCode: requestData.referralCode,
       newUserAddress: requestData.newUserWalletAddress
     });
 
     // Find referrer by code
+    console.log('🔗 Edge Function: Looking for referrer with code:', requestData.referralCode);
     const { data: referrerStats, error: referrerError } = await supabaseAdmin
       .from('referral_stats')
       .select('user_id, total_referrals, active_referrals, total_referral_earnings, completed_earnings, total_rewards')
@@ -96,7 +111,7 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (referrerError) {
-      console.error('Error finding referrer:', referrerError);
+      console.error('🔗 Edge Function: Error finding referrer:', referrerError);
       return new Response(
         JSON.stringify({ error: 'Database error while finding referrer' }),
         {
@@ -107,7 +122,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!referrerStats) {
-      console.log('🔗 Referrer not found for code:', requestData.referralCode);
+      console.log('🔗 Edge Function: Referrer not found for code:', requestData.referralCode);
       return new Response(
         JSON.stringify({ error: 'Invalid referral code' }),
         {
@@ -117,9 +132,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('🔗 Found referrer:', referrerStats.user_id);
+    console.log('🔗 Edge Function: Found referrer:', referrerStats.user_id);
 
     // Get new user
+    console.log('🔗 Edge Function: Looking for new user with address:', requestData.newUserWalletAddress);
     const { data: newUser, error: newUserError } = await supabaseAdmin
       .from('users')
       .select('id, wallet_address')
@@ -127,7 +143,7 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (newUserError) {
-      console.error('Error finding new user:', newUserError);
+      console.error('🔗 Edge Function: Error finding new user:', newUserError);
       return new Response(
         JSON.stringify({ error: 'Database error while finding new user' }),
         {
@@ -138,7 +154,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!newUser) {
-      console.log('🔗 New user not found for address:', requestData.newUserWalletAddress);
+      console.log('🔗 Edge Function: New user not found for address:', requestData.newUserWalletAddress);
       return new Response(
         JSON.stringify({ error: 'User not found' }),
         {
@@ -148,9 +164,10 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('🔗 Found new user:', newUser.id);
+    console.log('🔗 Edge Function: Found new user:', newUser.id);
 
     // Check if referral already exists
+    console.log('🔗 Edge Function: Checking for existing referral...');
     const { data: existingReferral, error: existingReferralError } = await supabaseAdmin
       .from('referrals')
       .select('id')
@@ -158,7 +175,7 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
 
     if (existingReferralError) {
-      console.error('Error checking existing referral:', existingReferralError);
+      console.error('🔗 Edge Function: Error checking existing referral:', existingReferralError);
       return new Response(
         JSON.stringify({ error: 'Database error while checking existing referral' }),
         {
@@ -169,7 +186,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (existingReferral) {
-      console.log('🔗 Referral already exists for user:', newUser.id);
+      console.log('🔗 Edge Function: Referral already exists for user:', newUser.id);
       return new Response(
         JSON.stringify({ message: 'Referral already processed' }),
         {
@@ -181,7 +198,7 @@ Deno.serve(async (req: Request) => {
 
     // Prevent self-referral
     if (referrerStats.user_id === newUser.id) {
-      console.log('🔗 Self-referral attempt detected');
+      console.log('🔗 Edge Function: Self-referral attempt detected');
       return new Response(
         JSON.stringify({ error: 'Cannot refer yourself' }),
         {
@@ -192,6 +209,7 @@ Deno.serve(async (req: Request) => {
     }
 
     // Create referral record
+    console.log('🔗 Edge Function: Creating referral record...');
     const { data: referral, error: referralError } = await supabaseAdmin
       .from('referrals')
       .insert({
@@ -204,7 +222,7 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (referralError) {
-      console.error('Error creating referral:', referralError);
+      console.error('🔗 Edge Function: Error creating referral:', referralError);
       return new Response(
         JSON.stringify({ error: 'Failed to create referral record' }),
         {
@@ -214,12 +232,34 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log('🔗 Created referral record:', referral.id);
+    console.log('🔗 Edge Function: Created referral record:', referral.id);
 
     // Reward amounts
     const SIGNUP_BONUS = 1000;
 
+    // Get referrer wallet address for transaction history
+    console.log('🔗 Edge Function: Getting referrer wallet address...');
+    const { data: referrerWalletData, error: referrerWalletError } = await supabaseAdmin
+      .from('users')
+      .select('wallet_address')
+      .eq('id', referrerStats.user_id)
+      .single();
+
+    if (referrerWalletError) {
+      console.error('🔗 Edge Function: Error fetching referrer wallet address:', referrerWalletError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch referrer wallet address' }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    console.log('🔗 Edge Function: Referrer wallet address:', referrerWalletData.wallet_address);
+
     // Give signup bonus to both users
+    console.log('🔗 Edge Function: Creating reward records...');
     const rewardPromises = [
       // Referrer reward
       supabaseAdmin.from('referral_rewards').insert({
@@ -250,14 +290,14 @@ Deno.serve(async (req: Request) => {
     // Check if any reward creation failed
     const failedRewards = rewardResults.filter(result => result.status === 'rejected');
     if (failedRewards.length > 0) {
-      console.error('Some rewards failed to create:', failedRewards);
+      console.error('🔗 Edge Function: Some rewards failed to create:', failedRewards);
       // Continue anyway, don't fail the whole process
+    } else {
+      console.log('🔗 Edge Function: ✅ Created reward records successfully');
     }
 
-    console.log('🔗 Created reward records');
-
     // Update user balances - get current balances first
-    console.log('🔗 Updating user balances...');
+    console.log('🔗 Edge Function: Getting current user balances...');
     
     // Get current balances for both users
     const { data: referrerUser, error: referrerUserError } = await supabaseAdmin
@@ -273,20 +313,45 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (referrerUserError) {
-      console.error('Error fetching referrer user:', referrerUserError);
-      throw new Error(`Failed to fetch referrer user: ${referrerUserError.message}`);
+      console.error('🔗 Edge Function: Error fetching referrer user:', referrerUserError);
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch referrer user: ${referrerUserError.message}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     if (newUserError) {
-      console.error('Error fetching new user:', newUserError);
-      throw new Error(`Failed to fetch new user: ${newUserError.message}`);
+      console.error('🔗 Edge Function: Error fetching new user:', newUserError);
+      return new Response(
+        JSON.stringify({ error: `Failed to fetch new user: ${newUserError.message}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
+
+    console.log('🔗 Edge Function: Current balances:', {
+      referrer: {
+        id: referrerStats.user_id,
+        currentBalance: referrerUser.ida_balance || 0,
+        currentEarned: referrerUser.total_earned || 0
+      },
+      newUser: {
+        id: newUser.id,
+        currentBalance: newUserData.ida_balance || 0,
+        currentEarned: newUserData.total_earned || 0
+      }
+    });
 
     // Update referrer balance
     const referrerNewBalance = (referrerUser.ida_balance || 0) + SIGNUP_BONUS;
     const referrerNewEarned = (referrerUser.total_earned || 0) + SIGNUP_BONUS;
     
-    console.log('🔗 Updating referrer balance:', {
+    console.log('🔗 Edge Function: Updating referrer balance:', {
       userId: referrerStats.user_id,
       oldBalance: referrerUser.ida_balance || 0,
       newBalance: referrerNewBalance,
@@ -304,17 +369,23 @@ Deno.serve(async (req: Request) => {
       .eq('id', referrerStats.user_id);
 
     if (referrerUpdateError) {
-      console.error('Error updating referrer balance:', referrerUpdateError);
-      throw new Error(`Failed to update referrer balance: ${referrerUpdateError.message}`);
+      console.error('🔗 Edge Function: Error updating referrer balance:', referrerUpdateError);
+      return new Response(
+        JSON.stringify({ error: `Failed to update referrer balance: ${referrerUpdateError.message}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
-    console.log('🔗 ✅ Referrer balance updated successfully');
+    console.log('🔗 Edge Function: ✅ Referrer balance updated successfully');
 
     // Update new user balance
     const newUserNewBalance = (newUserData.ida_balance || 0) + SIGNUP_BONUS;
     const newUserNewEarned = (newUserData.total_earned || 0) + SIGNUP_BONUS;
     
-    console.log('🔗 Updating new user balance:', {
+    console.log('🔗 Edge Function: Updating new user balance:', {
       userId: newUser.id,
       oldBalance: newUserData.ida_balance || 0,
       newBalance: newUserNewBalance,
@@ -332,29 +403,20 @@ Deno.serve(async (req: Request) => {
       .eq('id', newUser.id);
 
     if (newUserUpdateError) {
-      console.error('Error updating new user balance:', newUserUpdateError);
-      throw new Error(`Failed to update new user balance: ${newUserUpdateError.message}`);
+      console.error('🔗 Edge Function: Error updating new user balance:', newUserUpdateError);
+      return new Response(
+        JSON.stringify({ error: `Failed to update new user balance: ${newUserUpdateError.message}` }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
-    console.log('🔗 ✅ New user balance updated successfully');
-
-    console.log('🔗 Updated user balances');
-
-    // Get referrer wallet address for transaction history
-    const { data: referrerWalletData, error: referrerWalletError } = await supabaseAdmin
-      .from('users')
-      .select('wallet_address')
-      .eq('id', referrerStats.user_id)
-      .single();
-
-    if (referrerWalletError) {
-      console.error('Error fetching referrer wallet address:', referrerWalletError);
-      throw new Error(`Failed to fetch referrer wallet address: ${referrerWalletError.message}`);
-    }
-
-    console.log('🔗 Referrer wallet address:', referrerWalletData.wallet_address);
+    console.log('🔗 Edge Function: ✅ New user balance updated successfully');
 
     // Record transactions
+    console.log('🔗 Edge Function: Recording transaction history...');
     const transactionPromises = [
       // Referrer transaction
       supabaseAdmin.from('transaction_history').insert({
@@ -383,18 +445,20 @@ Deno.serve(async (req: Request) => {
     // Check if any transaction recording failed
     const failedTransactions = transactionResults.filter(result => result.status === 'rejected');
     if (failedTransactions.length > 0) {
-      console.error('Some transaction records failed to create:', failedTransactions);
+      console.error('🔗 Edge Function: Some transaction records failed to create:', failedTransactions);
       failedTransactions.forEach((result, index) => {
         if (result.status === 'rejected') {
-          console.error(`Transaction ${index} failed:`, result.reason);
+          console.error(`🔗 Edge Function: Transaction ${index} failed:`, result.reason);
         }
       });
-      throw new Error('Failed to record transaction history');
+      // Don't fail the whole process, just log the error
+      console.log('🔗 Edge Function: Continuing despite transaction history errors');
+    } else {
+      console.log('🔗 Edge Function: ✅ Recorded transaction history successfully');
     }
 
-    console.log('🔗 Recorded transaction history');
-
     // Update referral stats
+    console.log('🔗 Edge Function: Updating referral stats...');
     const { error: statsError } = await supabaseAdmin
       .from('referral_stats')
       .update({
@@ -408,18 +472,27 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', referrerStats.user_id);
 
     if (statsError) {
-      console.error('Error updating referral stats:', statsError);
+      console.error('🔗 Edge Function: Error updating referral stats:', statsError);
       // Don't fail the whole process if stats update fails
+      console.log('🔗 Edge Function: Continuing despite stats update error');
+    } else {
+      console.log('🔗 Edge Function: ✅ Updated referral stats successfully');
     }
 
-    console.log('🔗 Updated referral stats');
+    console.log('🔗 Edge Function: ✅ Referral processing completed successfully');
 
     return new Response(
       JSON.stringify({ 
         success: true,
         message: 'Referral processed successfully',
         referralId: referral.id,
-        bonusAmount: SIGNUP_BONUS
+        bonusAmount: SIGNUP_BONUS,
+        debug: {
+          referrerUpdated: !referrerUpdateError,
+          newUserUpdated: !newUserUpdateError,
+          statsUpdated: !statsError,
+          transactionRecorded: failedTransactions.length === 0
+        }
       }),
       {
         status: 200,
@@ -428,12 +501,13 @@ Deno.serve(async (req: Request) => {
     );
 
   } catch (error) {
-    console.error('Error in process-referral function:', error);
+    console.error('🔗 Edge Function: Unexpected error:', error);
     
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       }),
       {
         status: 500,

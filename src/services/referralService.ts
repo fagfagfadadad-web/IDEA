@@ -210,35 +210,96 @@ export class ReferralService {
       // Call Edge Function to process referral with service role privileges
       console.log('🔗 ReferralService: Calling process-referral Edge Function...');
       
-      const { data: result, error: functionError } = await supabase.functions.invoke('process-referral', {
-        body: {
-          referralCode: referralCode,
-          newUserWalletAddress: newUserAddress
+      try {
+        const { data: result, error: functionError } = await supabase.functions.invoke('process-referral', {
+          body: {
+            referralCode: referralCode,
+            newUserWalletAddress: newUserAddress
+          }
+        });
+
+        if (functionError) {
+          console.error('🔗 ReferralService: Edge Function error:', functionError);
+          throw new Error(`Referral processing failed: ${functionError.message}`);
         }
-      });
 
-      if (functionError) {
-        console.error('🔗 ReferralService: Edge Function error:', functionError);
-        throw new Error(`Referral processing failed: ${functionError.message}`);
-      }
-
-      if (result?.error) {
-        console.error('🔗 ReferralService: Edge Function returned error:', result.error);
-        // Don't throw error for expected cases like invalid codes or existing referrals
-        if (result.error.includes('Invalid referral code') || 
-            result.error.includes('already processed') ||
-            result.error.includes('Cannot refer yourself')) {
-          console.log('🔗 ReferralService: Expected referral error, continuing:', result.error);
-          return;
+        if (result?.error) {
+          console.error('🔗 ReferralService: Edge Function returned error:', result.error);
+          // Don't throw error for expected cases like invalid codes or existing referrals
+          if (result.error.includes('Invalid referral code') || 
+              result.error.includes('already processed') ||
+              result.error.includes('Cannot refer yourself')) {
+            console.log('🔗 ReferralService: Expected referral error, continuing:', result.error);
+            return;
+          }
+          throw new Error(result.error);
         }
-        throw new Error(result.error);
-      }
 
-      console.log('🔗 ReferralService: Referral processed successfully:', result);
-      
-      // Clear any pending referral code from localStorage
-      localStorage.removeItem('pendingReferralCode');
-      console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
+        console.log('🔗 ReferralService: Referral processed successfully:', result);
+        
+        // Clear any pending referral code from localStorage
+        localStorage.removeItem('pendingReferralCode');
+        console.log('🔗 ReferralService: Cleared pending referral code from localStorage');
+        
+      } catch (edgeFunctionError) {
+        console.error('🔗 ReferralService: Edge Function call failed:', edgeFunctionError);
+        
+        // If Edge Function fails, try to process locally as fallback
+        console.log('🔗 ReferralService: Attempting local fallback processing...');
+        
+        try {
+          // Find referrer by code
+          const { data: referrerStats, error: referrerError } = await supabase
+            .from('referral_stats')
+            .select('user_id, referral_code')
+            .eq('referral_code', referralCode)
+            .maybeSingle();
+
+          if (referrerError || !referrerStats) {
+            console.log('🔗 ReferralService: Invalid referral code in fallback:', referralCode);
+            return;
+          }
+
+          // Get new user
+          const { data: newUser, error: newUserError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('wallet_address', newUserAddress)
+            .maybeSingle();
+
+          if (newUserError || !newUser) {
+            console.log('🔗 ReferralService: New user not found in fallback');
+            return;
+          }
+
+          // Check if referral already exists
+          const { data: existingReferral } = await supabase
+            .from('referrals')
+            .select('id')
+            .eq('referred_user_id', newUser.id)
+            .maybeSingle();
+
+          if (existingReferral) {
+            console.log('🔗 ReferralService: Referral already exists (fallback)');
+            return;
+          }
+
+          // Prevent self-referral
+          if (referrerStats.user_id === newUser.id) {
+            console.log('🔗 ReferralService: Self-referral attempt (fallback)');
+            return;
+          }
+
+          console.log('🔗 ReferralService: ✅ Fallback validation passed, but cannot create referral without service role');
+          console.log('🔗 ReferralService: Please check Edge Function deployment and try again later');
+          
+        } catch (fallbackError) {
+          console.error('🔗 ReferralService: Fallback processing also failed:', fallbackError);
+        }
+        
+        // Don't throw error, just log and continue
+        console.log('🔗 ReferralService: Referral processing failed, but continuing with normal auth flow');
+      }
     } catch (error) {
       console.error('Error processing referral:', error);
       // Clear pending referral code even on error to prevent repeated attempts
