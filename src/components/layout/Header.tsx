@@ -91,7 +91,21 @@ export const Header = () => {
                   src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
                   alt="IDEA Logo"
                   className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      const fallback = parent.querySelector('.fallback-logo') as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }
+                  }}
                 />
+                <div
+                  className="fallback-logo w-full h-full bg-gray-500 flex items-center justify-center text-white text-xs absolute inset-0"
+                  style={{ display: 'none' }}
+                >
+                  I
+                </div>
               </Link>
 
               {/* Desktop Navigation */}
