@@ -186,36 +186,12 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200"
+                      className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 bg-gradient-to-r from-indigo-500 to-purple-600"
                       aria-label="Profile menu"
                     >
-                      {user?.avatar_url ? (
-                        <>
-                          <img
-                            src={user.avatar_url}
-                            alt={user.username || 'Profile'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div
-                            className="fallback-avatar w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white absolute inset-0"
-                            style={{ display: 'none' }}
-                          >
-                            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full h-full bg-gray-500 flex items-center justify-center text-xs text-white">
-                          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                      )}
+                      <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xs text-white">
+                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
                     </button>
 
                     {isProfileMenuOpen && (

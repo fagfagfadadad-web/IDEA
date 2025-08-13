@@ -151,33 +151,9 @@ export const Header = () => {
                 <form onSubmit={handleSearch} className="max-w-xs hidden xl:block">
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search size={18} className="text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search gigs or bids..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm transition-all duration-200"
-                      aria-label="Search gigs or bids"
-                    />
-                  </div>
-                </form>
-
-                {isLoggedIn ? (
-                  <div className="flex items-center space-x-3">
-                    {/* Notifications Button */}
-                    <button
-                      onClick={() => setShowNotificationsModal(true)}
-                      className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
-                      aria-label="Notifications"
-                    >
-                      <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
-                          {unreadCount > 99 ? '99+' : unreadCount}
-                        </span>
-                      )}
+                      <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
+                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                      </div>
                     </button>
 
                     {/* Profile Menu */}
@@ -232,33 +208,9 @@ export const Header = () => {
                             <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
                               <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
-                                  {user?.avatar_url ? (
-                                    <>
-                                      <img
-                                        src={user.avatar_url}
-                                        alt={user.username || 'Profile'}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          e.currentTarget.style.display = 'none';
-                                          const parent = e.currentTarget.parentElement;
-                                          if (parent) {
-                                            const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                            if (fallback) fallback.style.display = 'flex';
-                                          }
-                                        }}
-                                      />
-                                      <div
-                                        className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
-                                        style={{ display: 'none' }}
-                                      >
-                                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                      </div>
-                                    </>
-                                  ) : (
-                                    <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
-                                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                    </div>
-                                  )}
+                                  <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                                  </div>
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-gray-900 font-semibold truncate">
