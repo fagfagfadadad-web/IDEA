@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from 'lib';
 import { supabase } from '../lib/supabase';
 import { ReferralService } from '../services/referralService';
-import { ReferralService } from '../services/referralService';
 
 interface AuthContextType {
   user: any | null;
