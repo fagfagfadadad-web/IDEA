@@ -178,7 +178,7 @@ export class ReferralService {
       const { data, error } = await supabase
         .from('referral_rewards')
         .select('*')
-        .or(`referrer_id.eq.${user.id},referred_user_id.eq.${user.id}`)
+        .eq('referrer_id', user.id)
         .eq('status', 'completed')
         .order('processed_at', { ascending: false });
 
