@@ -221,7 +221,7 @@ export const Header = () => {
                           onClick={() => setIsProfileMenuOpen(false)}
                           aria-hidden="true"
                         />
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                        <div className="absolute right-0 mt-2 w-64 bg-grey rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
