@@ -155,32 +155,21 @@ export const useReferrals = () => {
 
     try {
       console.log('🔗 useReferrals: Loading referral data for user:', user.id);
-      
-      // Initialize user referral stats if needed
       const initialized = await ReferralService.initializeUserReferralStats(user.id);
       if (!initialized) {
         console.warn('Could not initialize referral stats');
-        console.log('🔗 useReferrals: Failed to initialize referral stats');
         setReferralStats(null);
         setReferrals([]);
         setRewards([]);
         return;
       }
       
-      console.log('🔗 useReferrals: Fetching referral data...');
       const [stats, userReferrals, rewardHistory, topReferrers] = await Promise.all([
         ReferralService.getUserReferralStats(user.wallet_address),
         ReferralService.getUserReferrals(user.wallet_address),
         ReferralService.getReferralRewards(user.wallet_address),
         ReferralService.getReferralLeaderboard(10)
       ]);
-
-      console.log('🔗 useReferrals: Fetched data:', {
-        stats,
-        userReferrals: userReferrals?.length || 0,
-        rewardHistory: rewardHistory?.length || 0,
-        topReferrers: topReferrers?.length || 0
-      });
 
       setReferralStats(stats);
       setReferrals(userReferrals);
