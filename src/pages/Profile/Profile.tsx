@@ -103,6 +103,19 @@ export const Profile = () => {
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { claimPayment } = usePayments();
 
+  // Filter orders for "Waiting for Claim" section
+  const ordersWaitingForClaim = orders?.filter(order => {
+    const isProvider = user?.id === order.gig?.provider?.id || 
+                      user?.id === order.gig?.provider_id ||
+                      (user?.wallet_address && order.provider_address && user.wallet_address === order.provider_address);
+    
+    // Only show orders that are completed, payment released, but not yet claimed
+    return isProvider && 
+           order.status === 'completed' && 
+           order.payment_status === 'released' &&
+           order.payment_status !== 'claimed';
+  }) || [];
+
   // Initialize edit form when profile loads
   useEffect(() => {
     if (profile) {
@@ -974,45 +987,13 @@ export const Profile = () => {
                 <div className="gradient-card p-6">
                   {/* Orders Waiting for Claim */}
                   <h3 className="text-lg font-bold text-gray-800 mb-6">Orders Waiting for Claim</h3>
-                  {orders?.filter(order => {
-                    const isCompleted = order.status === 'completed';
-                    const completionDate = new Date(order.status_updated_at);
-                    const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                    const now = new Date();
-                    const canClaim = isCompleted && now >= threeDaysLater;
-                    const isProvider = user?.id === order.gig?.provider?.id || user?.id === order.gig?.provider_id;
-                    return isCompleted && canClaim && isProvider;
-                  }).length === 0 ? (
+                  {ordersWaitingForClaim.length === 0 ? (
                     <div className="text-center py-8">
                       <p className="text-gray-600 mb-4">No orders ready to claim.</p>
                     </div>
                   ) : (
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {orders?.filter(order => {
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const isProvider = user?.id === order.gig?.provider?.id || user?.id === order.gig?.provider_id;
-                        return isCompleted && canClaim && isProvider;
-                      }).map((order) => {
-                        // Calculate claim status (already filtered, but included for consistency)
-                        const isCompleted = order.status === 'completed';
-                        const completionDate = new Date(order.status_updated_at);
-                        const threeDaysLater = new Date(completionDate.getTime() + 3 * 24 * 60 * 60 * 1000);
-                        const now = new Date();
-                        const canClaim = isCompleted && now >= threeDaysLater;
-                        const timeUntilClaim = isCompleted && !canClaim ? threeDaysLater.getTime() - now.getTime() : 0;
-                        
-                        // Format countdown (not used here but kept for consistency)
-                        const formatCountdown = (ms: number) => {
-                          const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-                          const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                          const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-                          return days > 0 ? `${days}d ${hours}h` : hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-                        };
-                        
+                      {ordersWaitingForClaim.map((order) => {
                         return (
                           <div
                             key={order.id}
@@ -1043,16 +1024,9 @@ export const Profile = () => {
                                 <Button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    if (canClaim) {
-                                      handleClaimPayment(order.id);
-                                    }
+                                    handleClaimPayment(order.id);
                                   }}
-                                  disabled={!canClaim}
-                                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                    canClaim 
-                                      ? 'bg-green-600 hover:bg-green-700 text-white' 
-                                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                  }`}
+                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                                 >
                                   Claim Payment
                                 </Button>
