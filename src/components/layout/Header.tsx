@@ -24,19 +24,6 @@ export const Header = () => {
 
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
-  // Debug logging for notifications
-  useEffect(() => {
-    console.log('🔔 Header: Notifications state:', {
-      isLoggedIn,
-      userId: user?.id,
-      notificationsCount: notifications?.length || 0,
-      unreadCount,
-      notifications: notifications?.slice(0, 3),
-      hasUser: !!user,
-      userReady: !!user?.id,
-    });
-  }, [notifications, unreadCount, isLoggedIn, user?.id]);
-
   useEffect(() => {
     const searchParam = searchParams.get('search');
     if (searchParam) {
@@ -65,12 +52,8 @@ export const Header = () => {
   };
 
   const handleConnect = () => {
-    console.log('Connect button clicked!');
-    console.log('Current isLoggedIn:', isLoggedIn);
-    console.log('Navigating to /unlock...');
     try {
       navigate('/unlock');
-      console.log('Navigation completed');
     } catch (error) {
       console.error('Navigation error:', error);
       window.location.href = '/unlock';
