@@ -72,6 +72,7 @@ export const useEmailTemplates = () => {
         </head>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+            <img src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png" alt="IDEA Platform Logo" style="height: 60px; width: auto; margin-bottom: 20px;" />
             <h1 style="color: white; margin: 0; font-size: 28px;">🎉 New Order Created!</h1>
           </div>
           
