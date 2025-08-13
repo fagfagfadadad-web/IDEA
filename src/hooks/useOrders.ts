@@ -1,3 +1,5 @@
+// src/hooks/useOrders.ts
+
 import { useState, useEffect } from 'react';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { supabase } from '../lib/supabase';
@@ -39,7 +41,7 @@ interface Order {
   created_at: string;
   amount: number;
   status: string;
-  payment_status: OrderPaymentStatus;
+  payment_status: OrderPaymentStatus; // Používame špecifický typ tu
   work_status: string;
   client_address: string;
   provider_address: string;
