@@ -216,30 +216,6 @@ export const Header = () => {
                           {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                         </div>
                       )}
-                            src={user.avatar_url}
-                            alt={user.username || 'Profile'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div
-                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white absolute inset-0"
-                            style={{ display: 'none' }}
-                          >
-                            {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white">
-                          {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                        </div>
-                      )}
                     </button>
 
                     {isProfileMenuOpen && (
@@ -282,33 +258,9 @@ export const Header = () => {
                                 )}
                               </div>
                               <div>
-                              {(user?.avatar_url && user.avatar_url.length > 0) ? (
-                                <>
-                                  <img
-                                    src={user.avatar_url}
-                                    alt={user.username || 'Profile'}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                      const parent = e.currentTarget.parentElement;
-                                      if (parent) {
-                                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                        if (fallback) fallback.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
-                                  <div
-                                    className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
-                                    style={{ display: 'none' }}
-                                  >
-                                    {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                  </div>
-                                </>
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
-                                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                </div>
-                              )}
+                                <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
+                                <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
+                              </div>
                             </div>
                           </div>
                           <Link
