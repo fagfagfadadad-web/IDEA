@@ -164,14 +164,14 @@ export const ProposalChat: React.FC<ProposalChatProps> = ({
                       }}
                     />
                     <div 
-                      className="fallback-avatar w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700 absolute inset-0"
+                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white font-bold absolute inset-0"
                       style={{ display: 'none' }}
                     >
                       {msg.sender?.username?.charAt(0)?.toUpperCase() || "?"}
                     </div>
                   </>
                 ) : (
-                  <div className="w-full h-full bg-gray-300 flex items-center justify-center text-xs text-gray-700">
+                  <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xs text-white font-bold">
                     {msg.sender?.username?.charAt(0)?.toUpperCase() || "?"}
                   </div>
                 )}

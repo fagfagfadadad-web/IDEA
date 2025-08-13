@@ -279,7 +279,7 @@ export const OrderChat: React.FC<OrderChatProps> = ({ orderId }) => {
             : 'bg-gray-200 text-gray-800'
         }`}>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs">
+            <div className="w-6 h-6 bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full flex items-center justify-center text-xs text-white font-bold">
               {message.sender?.username?.charAt(0)?.toUpperCase() || "?"}
             </div>
             <span className="font-medium text-sm">

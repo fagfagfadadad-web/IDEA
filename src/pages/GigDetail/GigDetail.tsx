@@ -292,14 +292,14 @@ export const GigDetail = () => {
                           }}
                         />
                         <div 
-                          className="fallback-avatar w-full h-full bg-gray-600 flex items-center justify-center text-xl text-white absolute inset-0"
+                          className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white font-bold absolute inset-0"
                           style={{ display: 'none' }}
                         >
                           {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
                         </div>
                       </>
                     ) : (
-                      <div className="w-full h-full bg-gray-600 flex items-center justify-center text-xl text-white">
+                      <div className="w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white font-bold">
                         {gig.provider?.username?.charAt(0)?.toUpperCase() || "?"}
                       </div>
                     )}
