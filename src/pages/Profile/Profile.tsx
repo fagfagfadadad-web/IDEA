@@ -72,8 +72,6 @@ export const Profile = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const { uploadFile } = useFileUpload();
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
