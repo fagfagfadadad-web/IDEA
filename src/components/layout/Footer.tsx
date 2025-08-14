@@ -205,6 +205,18 @@ export const Footer = () => {
                   Documentation
                 </Link>
                 <Link 
+                  to="/privacy-policy" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Privacy Policy
+                </Link>
+                <Link 
+                  to="/terms-of-service" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Terms of Service
+                </Link>
+                <Link 
                   to="#" 
                   className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
                 >

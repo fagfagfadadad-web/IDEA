@@ -11,7 +11,9 @@ import {
   Gigs, 
   MyRequests, 
   OrderDetails, 
+  PrivacyPolicy,
   RewardsHub,
+  TermsOfService,
   TokenSale,
   Unlock
 } from 'pages';
@@ -139,5 +141,15 @@ export const routes: RouteWithTitleType[] = [
     title: 'Rewards Hub',
     component: RewardsHub,
     authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.privacyPolicy,
+    title: 'Privacy Policy',
+    component: PrivacyPolicy
+  },
+  {
+    path: RouteNamesEnum.termsOfService,
+    title: 'Terms of Service',
+    component: TermsOfService
   }
 ];

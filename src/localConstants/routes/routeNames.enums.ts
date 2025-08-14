@@ -18,5 +18,7 @@ export enum RouteNamesEnum {
   documentation = '/documentation',
   search = '/search',
   tokenSale = '/token-sale',
-  rewardsHub = '/rewards'
+  rewardsHub = '/rewards',
+  privacyPolicy = '/privacy-policy',
+  termsOfService = '/terms-of-service'
 }

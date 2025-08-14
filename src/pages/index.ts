@@ -17,3 +17,5 @@ export * from './ProposalDetail';
 export * from './RewardsHub';
 export * from './Search';
 export * from './TokenSale';
+export * from './PrivacyPolicy';
+export * from './TermsOfService';
