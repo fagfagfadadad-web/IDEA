@@ -106,6 +106,7 @@ export const Profile = () => {
   const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
   const [isLoadingIda, setIsLoadingIda] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [removeCurrentPicture, setRemoveCurrentPicture] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -120,7 +121,7 @@ export const Profile = () => {
   });
 
   const updateProfile = useUpdateProfile();
-  const { uploadFile, isUploading } = useFileUpload();
+  const { uploadFile, isUploading: fileUploading } = useFileUpload();
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
@@ -196,9 +197,9 @@ export const Profile = () => {
       return;
     }
 
-    // Validate file size (5MB max)
+    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      showErrorToast('File size must be less than 5MB');
+      showErrorToast('Image must be smaller than 5MB');
       return;
     }
 
@@ -220,8 +221,8 @@ export const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       let avatarUrl = editForm.avatar_url;
-      
-      // Upload new file if selected
+
+      // Handle file upload if a new file was selected
       if (selectedFile) {
         try {
           avatarUrl = await uploadFile(selectedFile, 'gig-media', 'profile_pictures');
@@ -1554,7 +1555,7 @@ export const Profile = () => {
                       {/* Current avatar preview */}
                       <div className="flex items-center gap-4">
                         <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
-                          {previewUrl ? (
+                          {selectedFile ? (
                             <img
                               src={previewUrl}
                               alt="Preview"
@@ -1592,10 +1593,10 @@ export const Profile = () => {
                           <Button
                             type="button"
                             onClick={() => document.getElementById('avatar-upload-input')?.click()}
-                            disabled={isUploading}
+                            disabled={fileUploading}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                           >
-                            {isUploading ? (
+                            {fileUploading ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                                 Uploading...
@@ -1768,10 +1769,10 @@ export const Profile = () => {
                   </Button>
                   <Button
                     onClick={handleSaveProfile}
-                    disabled={updateProfile.isLoading || isUploading}
+                    disabled={updateProfile.isLoading || fileUploading}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
                   >
-                    {updateProfile.isLoading || isUploading ? 'Saving...' : 'Save Changes'}
+                    {updateProfile.isLoading || fileUploading ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </div>
