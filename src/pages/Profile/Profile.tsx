@@ -125,7 +125,6 @@ export const Profile = () => {
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { claimPayment } = usePayments();
-  const { uploadFile } = useFileUpload();
 
   // Initialize edit form when profile loads
   useEffect(() => {
@@ -197,9 +196,9 @@ export const Profile = () => {
       return;
     }
 
-    // Validate file size (max 5MB)
+    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      showErrorToast('Image must be smaller than 5MB');
+      showErrorToast('File size must be less than 5MB');
       return;
     }
 
@@ -221,8 +220,8 @@ export const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       let avatarUrl = editForm.avatar_url;
-
-      // Handle file upload if a new file was selected
+      
+      // Upload new file if selected
       if (selectedFile) {
         try {
           avatarUrl = await uploadFile(selectedFile, 'gig-media', 'profile_pictures');
@@ -1554,18 +1553,17 @@ export const Profile = () => {
                     <div className="space-y-4">
                       {/* Current avatar preview */}
                       <div className="flex items-center gap-4">
-                        {selectedFile ? (
-                          <img
-                            src={editForm.avatar_url}
-                            alt="Current avatar"
-                            className="w-full h-full object-cover"
-                          />
-                        ) : editForm.avatar_url && editForm.avatar_url.trim() !== '' ? (
+                        <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
                           {previewUrl ? (
+                            <img
+                              src={previewUrl}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                            />
                           ) : editForm.avatar_url && !removeCurrentPicture ? (
                             <>
                               <img
-                          <span className="text-xl">{getEmojiAvatar(user?.id || editForm.username || '')}</span>
+                                src={editForm.avatar_url}
                                 alt="Current avatar"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
