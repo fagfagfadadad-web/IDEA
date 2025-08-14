@@ -202,9 +202,8 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-white font-bold text-sm"
-                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
-                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-white font-bold text-sm bg-[var(--avatar-color)]"
+                      style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
                       aria-label="Profile menu"
                     >
                       {/* Always show initials as background */}
@@ -242,8 +241,8 @@ export const Header = () => {
                           <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center gap-3">
                               <div 
-                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-lg"
-                                style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-lg bg-[var(--avatar-color)]"
+                                style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
                               >
                                 {/* Always show initials as background */}
                                 <span className="relative z-10">
