@@ -400,7 +400,7 @@ export const Profile = () => {
           <div className="gradient-card p-8">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
-                {profile.avatar_url ? (
+                {profile.avatar_url && profile.avatar_url.trim() !== '' ? (
                   <>
                     <img
                       src={profile.avatar_url}
@@ -409,22 +409,11 @@ export const Profile = () => {
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
                       }}
                     />
-                    <div 
-                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white absolute inset-0"
-                      style={{ display: 'none' }}
-                    >
-                      {getEmojiAvatar(profile.id)}
-                    </div>
                   </>
                 ) : (
-                  <span className="text-3xl">{getEmojiAvatar(profile.id)}</span>
+                  <span className="text-2xl">{getEmojiAvatar(profile.id || profile.username || '')}</span>
                 )}
               </div>
               
@@ -1564,17 +1553,18 @@ export const Profile = () => {
                     <div className="space-y-4">
                       {/* Current avatar preview */}
                       <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0">
+                        {selectedFile ? (
+                          <img
+                            src={editForm.avatar_url}
+                            alt="Current avatar"
+                            className="w-full h-full object-cover"
+                          />
+                        ) : editForm.avatar_url && editForm.avatar_url.trim() !== '' ? (
                           {previewUrl ? (
-                            <img
-                              src={previewUrl}
-                              alt="Preview"
-                              className="w-full h-full object-cover"
-                            />
                           ) : editForm.avatar_url && !removeCurrentPicture ? (
                             <>
                               <img
-                                src={editForm.avatar_url}
+                          <span className="text-xl">{getEmojiAvatar(user?.id || editForm.username || '')}</span>
                                 alt="Current avatar"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
