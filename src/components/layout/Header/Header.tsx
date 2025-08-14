@@ -9,6 +9,24 @@ import { useNotifications, Notification as CustomNotification } from '../../../h
 import { useWindowSize } from '../../../hooks/useWindowSize';
 import { useAuth } from '../../../context/AuthContext';
 
+// Emoji avatars for users without profile pictures
+const emojiAvatars = [
+  '👨‍💻', '👩‍💻', '🧑‍💻', '👨‍🎨', '👩‍🎨', '🧑‍🎨', 
+  '👨‍💼', '👩‍💼', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
+  '🦸‍♂️', '🦸‍♀️', '🦸', '🧙‍♂️', '🧙‍♀️', '🧙',
+  '👑', '🎯', '🚀', '⭐', '💎', '🔥'
+];
+
+// Function to get consistent emoji based on user ID
+const getEmojiAvatar = (userId: string) => {
+  if (!userId) return '👤';
+  const hash = userId.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  return emojiAvatars[Math.abs(hash) % emojiAvatars.length];
+};
+
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user, logout: authLogout, forceReconnect } = useAuth();
@@ -172,40 +190,43 @@ export const Header = () => {
                   <button
                     onClick={() => setShowNotificationsModal(true)}
                     className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
-                    aria-label="Notifications"
-                  >
-                    <Bell size={20} className="text-gray-600 hover:text-indigo-600 transition-colors" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
+                     className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gray-500 flex items-center justify-center text-lg font-bold text-white"
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
-                      {user?.avatar_url && user.avatar_url.length > 0 && (
+                     {user?.avatar_url ? (
                         <img
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
-                          className="w-full h-full object-cover absolute inset-0"
-                          onError={(e) => e.currentTarget.style.display = 'none'}
+                         className="w-full h-full object-cover"
+                         onError={(e) => {
+                           const target = e.target as HTMLImageElement;
+                           target.style.display = 'none';
+                         }}
                         />
-                      )}
-                      <span className="relative z-10">
-                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                              <div className={`w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white ${
-                                user?.avatar_url && user.avatar_url.length > 0 
-                                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600' 
-                                  : 'bg-gray-500'
-                              }`}>
-                                {user?.avatar_url && user.avatar_url.length > 0 && (
+                     ) : null}
+                     <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
+                       {user?.avatar_url ? 
+                         getEmojiAvatar(user.id) : 
+                         (user?.username?.charAt(0)?.toUpperCase() || '👤')
+                       }
+                             <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white">
+                               {user?.avatar_url ? (
                                   <img
                                     src={user.avatar_url}
                                     alt={user.username || 'Profile'}
-                                    className="w-full h-full object-cover absolute inset-0"
-                                    onError={(e) => e.currentTarget.style.display = 'none'}
+                                   className="w-full h-full object-cover"
+                                   onError={(e) => {
+                                     const target = e.target as HTMLImageElement;
+                                     target.style.display = 'none';
+                                   }}
                                   />
-                                )}
-                                <span className="relative z-10">
-                                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
-                                </span>
-                                {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                               ) : null}
+                               <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
+                                 {user?.avatar_url ? 
+                                   getEmojiAvatar(user.id) : 
+                                   (user?.username?.charAt(0)?.toUpperCase() || '👤')
+                                 }
+                               </span>
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
