@@ -244,19 +244,15 @@ export const Header = () => {
                                         target.style.display = 'none';
                                       }}
                                     />
-                                    <div
-                                      className="fallback-avatar w-full h-full flex items-center justify-center text-lg font-bold text-white absolute inset-0"
-                                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
-                                    >
-                                      {getUserInitials(user?.username, user?.full_name)}
-                                    </div>
                                   </>
                                 ) : (
-                                  getUserInitials(user?.username, user?.full_name)
+                                <span className={`${user?.avatar_url && user.avatar_url.trim() !== '' ? 'absolute inset-0 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-xl' : 'text-xl'}`}>
+                                  {getEmojiAvatar(user?.id || '')}
+                                </span>
                                 )}
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
+                                <p className="font-semibold text-gray-800">{user?.username || 'Anonymous'}</p>
                                 <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
                               </div>
                             </div>
