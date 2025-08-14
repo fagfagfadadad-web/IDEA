@@ -6,6 +6,24 @@ import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useAuth } from '../../context/AuthContext';
 
+// Emoji avatars for users without profile pictures
+const emojiAvatars = [
+  '👨‍💻', '👩‍💻', '🧑‍💻', '👨‍🎨', '👩‍🎨', '🧑‍🎨', 
+  '👨‍💼', '👩‍💼', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
+  '🦸‍♂️', '🦸‍♀️', '🦸', '🧙‍♂️', '🧙‍♀️', '🧙',
+  '👑', '🎯', '🚀', '⭐', '💎', '🔥'
+];
+
+// Function to get consistent emoji based on user ID
+const getEmojiAvatar = (userId: string) => {
+  if (!userId) return '👤';
+  const hash = userId.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  return emojiAvatars[Math.abs(hash) % emojiAvatars.length];
+};
+
 export const MobileBottomNav = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user, logout } = useAuth();

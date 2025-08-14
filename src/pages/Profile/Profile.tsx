@@ -125,6 +125,7 @@ export const Profile = () => {
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { claimPayment } = usePayments();
+  const { uploadFile } = useFileUpload();
 
   // Initialize edit form when profile loads
   useEffect(() => {

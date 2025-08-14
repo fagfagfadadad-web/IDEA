@@ -244,25 +244,22 @@ export const Header = () => {
                         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white">
+                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
                                 {user?.avatar_url && user.avatar_url.trim() !== '' ? (
-                                  <img
-                                    src={user.avatar_url}
-                                    alt={user.username || 'Profile'}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                      const parent = e.currentTarget.parentElement;
-                                      if (parent) {
-                                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                        if (fallback) fallback.style.display = 'flex';
-                                      }
-                                    }}
-                                  />
-                                ) : null}
-                                <span className={`${user?.avatar_url && user.avatar_url.trim() !== '' ? 'absolute inset-0 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-xl' : 'text-xl'}`}>
-                                  {getEmojiAvatar(user?.id || '')}
-                                </span>
+                                  <>
+                                    <img
+                                      src={user.avatar_url}
+                                      alt={user.username || 'Profile'}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.style.display = 'none';
+                                      }}
+                                    />
+                                  </>
+                                ) : (
+                                  <span className="text-xl select-none">{getEmojiAvatar(user?.id || '')}</span>
+                                )}
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
