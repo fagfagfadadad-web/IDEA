@@ -5,6 +5,7 @@ import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, Calen
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
 import { useFileUpload } from '../../hooks/useFileUpload';
+import { getEmojiAvatar } from '../../utils/avatars';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
@@ -78,24 +79,6 @@ const calculateReviewStats = (reviews: any[]) => {
       averageRating: 0,
       totalReviews: 0,
       ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
-    };
-  }
-  
-  const totalReviews = reviews.length;
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
-  
-  const ratingDistribution = reviews.reduce((dist, review) => {
-    dist[review.rating] = (dist[review.rating] || 0) + 1;
-    return dist;
-  }, { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
-  
-  return {
-    averageRating,
-    totalReviews,
-    ratingDistribution
-  };
-};
-
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
