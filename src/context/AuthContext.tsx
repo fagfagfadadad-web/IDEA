@@ -4,9 +4,9 @@ import { supabase } from '../lib/supabase';
 import { ReferralService } from '../services/referralService';
 
 interface AuthContextType {
+  isAuthenticated: boolean;
   user: any | null;
   loading: boolean;
-  isAuthenticated: boolean;
   isProfileReady: boolean;
   authMessage: string;
   logout: () => Promise<void>;
@@ -14,9 +14,9 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
   user: null,
   loading: true,
-  isAuthenticated: false,
   isProfileReady: false,
   authMessage: '',
   logout: async () => {},
@@ -24,72 +24,84 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { address } = useGetAccount();
   const isLoggedIn = useGetIsLoggedIn();
+  const { address } = useGetAccount();
   const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileReady, setIsProfileReady] = useState(false);
   const [authMessage, setAuthMessage] = useState('');
   const [lastAddress, setLastAddress] = useState<string | null>(null);
   
+  // CRITICAL: Add refs to prevent multiple auth attempts
   const isAuthenticating = useRef(false);
 
+  // Helper function to validate and reinitialize provider if needed
   const validateAndReinitializeProvider = async () => {
     try {
+      console.log('🔧 AuthContext: Validating wallet provider...');
       const provider = getAccountProvider();
       
       // Check if provider exists and has required methods
       if (!provider || typeof provider.signTransactions !== 'function') {
+        console.log('⚠️ AuthContext: Provider is invalid, attempting reinitialization...');
+        
         // Try to reinitialize UnlockPanelManager which should restore provider state
         try {
           const unlockPanelManager = UnlockPanelManager.init({
             loginHandler: () => {
+              console.log('🔧 AuthContext: Provider reinitialized via login handler');
             },
             onClose: () => {
+              console.log('🔧 AuthContext: Provider reinitialization closed');
             }
           });
           
           // Don't actually open the panel, just initialize the manager
+          console.log('✅ AuthContext: UnlockPanelManager reinitialized');
           
           // Check if provider is now valid
           const newProvider = getAccountProvider();
           if (newProvider && typeof newProvider.signTransactions === 'function') {
+            console.log('✅ AuthContext: Provider successfully reinitialized');
             return true;
           } else {
+            console.log('❌ AuthContext: Provider still invalid after reinitialization');
             // Don't fail immediately, just log and continue
+            console.log('⚠️ AuthContext: Continuing with potentially invalid provider');
             return true;
           }
         } catch (reinitError) {
           console.error('❌ AuthContext: Provider reinitialization failed:', reinitError);
           // Don't fail immediately, just log and continue
+          console.log('⚠️ AuthContext: Continuing despite reinitialization failure');
           return true;
         }
       } else {
+        // Provider seems valid, test if getAccount actually works
         try {
           // Skip getAccount test since provider property is private
+          console.log('✅ AuthContext: Provider is valid and functional');
           return true;
         } catch (accountError) {
           console.error('⚠️ AuthContext: Provider getAccount failed:', accountError);
           // Don't fail immediately, just log and continue
+          console.log('⚠️ AuthContext: Continuing despite getAccount failure');
           return true;
         }
       }
     } catch (error) {
       console.error('❌ AuthContext: Provider validation failed:', error);
       // Don't fail immediately, just log and continue
+      console.log('⚠️ AuthContext: Continuing despite validation failure');
       return true;
     }
   };
 
   // Generate a valid email from MultiversX address using first 6 characters
   const generateValidEmail = (address: string) => {
-    // Use a hash of the address to create a shorter but unique identifier
-    const hash = address.split('').reduce((a, b) => {
-      a = ((a << 5) - a) + b.charCodeAt(0);
-      return a & a;
-    }, 0);
-    const shortId = Math.abs(hash).toString(36).substring(0, 8);
-    return `user_${shortId}@multiversx.com`;
+    // Take first 6 characters after 'erd1' prefix
+    const addressPart = address.startsWith('erd1') ? address.substring(4, 10) : address.substring(0, 6);
+    return `${addressPart}@multiversx.com`;
   };
 
   const handleSupabaseSignOut = async () => {
@@ -150,6 +162,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const syncAuth = async () => {
     // CRITICAL: Prevent multiple simultaneous auth attempts
     if (isAuthenticating.current) {
+      console.log('🔒 Auth already in progress, skipping...');
       return;
     }
 
@@ -159,15 +172,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       setLoading(true);
+      console.log('🔄 AuthContext: Starting auth sync...');
+      console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
+      console.log('📍 AuthContext: address:', address);
 
       // CRITICAL: Validate wallet provider state when user is logged in
       if (isLoggedIn && address) {
         const isProviderValid = await validateAndReinitializeProvider();
         // Provider validation is now more tolerant, continue with auth flow
+        console.log('🔧 AuthContext: Provider validation completed, continuing with auth flow');
       }
 
       // CRITICAL: Detect desynchronized state and clear Supabase session
       if (isLoggedIn && !user && address && address === lastAddress) {
+        console.log('🧹 AuthContext: Detected desynchronized state, clearing Supabase session');
         await handleSupabaseSignOut();
       }
 
@@ -178,6 +196,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const tokenData = JSON.parse(storedToken);
           // Check if token is expired or invalid
           if (!tokenData.refresh_token || !tokenData.access_token) {
+            console.log('🧹 AuthContext: Clearing invalid stored token');
             Object.keys(localStorage).forEach(key => {
               if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
                 localStorage.removeItem(key);
@@ -187,6 +206,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         }
       } catch (tokenError) {
+        console.log('🧹 AuthContext: Error checking stored token, clearing:', tokenError);
         Object.keys(localStorage).forEach(key => {
           if (key.startsWith('sb-xumzvxrjfqwewbyaqcxa-')) {
             localStorage.removeItem(key);
@@ -205,6 +225,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             sessionError.message?.includes('Invalid Refresh Token') ||
             sessionError.message?.includes('Refresh Token Not Found') ||
             sessionError.message?.includes('refresh_token_not_found')) {
+          console.log('🧹 AuthContext: Clearing invalid refresh token');
           await handleSupabaseSignOut();
         }
         
@@ -216,25 +237,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       } else {
         currentSession = session;
+        console.log('✅ AuthContext: Current session:', !!currentSession);
       }
 
       // Handle stale sessions - if session exists but user is null, clear it
       if (currentSession && !currentSession.user) {
+        console.log('🧹 AuthContext: Clearing stale session');
         await handleSupabaseSignOut();
         currentSession = null;
       }
 
       if (!isLoggedIn || !address) {
+        console.log('❌ AuthContext: Not logged in or no address');
+        setUser(null);
+        setIsProfileReady(false);
+        setAuthMessage('Please log in using your MultiversX wallet.');
         if (currentSession && currentSession.user) {
           await handleSupabaseSignOut();
         }
-        setUser(null);
-        setIsProfileReady(false);
         return;
       }
 
       // Check for address change
       if (lastAddress && lastAddress !== address) {
+        console.log('🔄 AuthContext: Address changed, clearing session');
         await handleSupabaseSignOut();
         currentSession = null;
       }
@@ -242,6 +268,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Use existing session if it's valid
       if (currentSession && currentSession.user) {
+        console.log('🔍 AuthContext: Checking existing session user profile...');
         const { data: profile, error: profileError } = await supabase
           .from('users')
           .select('id, wallet_address, is_admin')
@@ -249,7 +276,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           .maybeSingle();
 
         if (!profileError && profile && profile.wallet_address === address) {
+          console.log('✅ AuthContext: Existing session valid, setting user');
+          console.log('👤 AuthContext: User profile:', profile);
           
+          // Enhance user object with profile data
           const enhancedUser = {
             ...currentSession.user,
             is_admin: profile.is_admin
@@ -260,25 +290,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
       }
+
       // CRITICAL: Only proceed with new auth if we don't have a valid session
       if (!currentSession || !currentSession.user) {
         setAuthMessage('Connecting wallet...');
         const generatedEmail = generateValidEmail(address);
-        const generatedPassword = generateSupabasePassword(address);
 
+        console.log('🔐 AuthContext: Using email:', generatedEmail);
 
         // Attempt sign in
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: generatedEmail,
-          password: generatedPassword,
+          password: address,
         });
 
         let authUser = signInData?.user;
 
         if (signInError && signInError.message.includes('Invalid login credentials')) {
+          console.log('🆕 AuthContext: Creating new user account...');
+          setAuthMessage('Setting up account...');
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: generatedEmail,
-            password: generatedPassword,
+            password: address,
             options: {
               data: {
                 multiversx_address: address,
@@ -288,45 +321,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (signUpError) {
             console.error('❌ AuthContext: Sign up error:', signUpError);
-            if (signUpError.message.includes('User already registered')) {
-              // User exists but with different credentials - clear and retry
-              await handleSupabaseSignOut();
-              setAuthMessage('Authentication conflict detected. Please reconnect your wallet.');
-              return;
-            } else {
-              throw new Error(`Failed to sign up: ${signUpError.message}`);
-            }
+            throw new Error(`Failed to sign up: ${signUpError.message}`);
           }
           authUser = signUpData?.user;
         } else if (signInError) {
           console.error('❌ AuthContext: Sign in error:', signInError);
-          if (signInError.message.includes('Invalid login credentials')) {
-            // Clear any stale auth data and provide specific guidance
-            await handleSupabaseSignOut();
-            setAuthMessage('Wallet authentication failed. Please disconnect and reconnect your wallet.');
-            return;
-          } else {
-            throw new Error(`Failed to sign in: ${signInError.message}`);
-          }
+          throw new Error(`Failed to sign in: ${signInError.message}`);
         }
+
         if (authUser) {
+          console.log('✅ AuthContext: Auth user obtained, setting up profile...');
           await setupProfile(authUser, address);
         } else {
           setUser(null);
           setIsProfileReady(false);
+          setAuthMessage('Authentication completed but no user data received. Please try reconnecting your wallet.');
         }
       }
     } catch (error: any) {
       console.error('❌ AuthContext: Auth sync error:', error);
       if (isMounted) {
-        if (error.message?.includes('Invalid login credentials') || 
-            error.message?.includes('User already registered')) {
-          setAuthMessage('Wallet authentication conflict. Please disconnect your wallet and reconnect.');
-        } else if (error.message?.includes('Failed to fetch')) {
-          setAuthMessage('Network connection error. Please check your internet connection and try again.');
-        } else {
-          setAuthMessage(`Authentication failed: ${error.message}. Please try reconnecting your wallet.`);
-        }
+        setUser(null);
+        setIsProfileReady(false);
+        setAuthMessage('Failed to authenticate. Please try reconnecting your wallet.');
       }
     } finally {
       if (isMounted) {
@@ -338,11 +355,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const setupProfile = async (authUser: any, walletAddress: string) => {
     setAuthMessage('Setting up profile...');
+    console.log('🔧 AuthContext: Setting up profile for user:', authUser.id);
     
     try {
       const { data: existingUserByWallet, error: fetchWalletError } = await supabase
         .from('users')
-        .select('id, username, full_name, avatar_url, wallet_address, is_admin, ida_balance, total_earned, level, xp')
+        .select('id, username, full_name, avatar_url, wallet_address, email, is_admin, ida_balance, total_earned, level, xp')
         .eq('wallet_address', walletAddress)
         .maybeSingle();
 
@@ -351,6 +369,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (existingUserByWallet) {
+        console.log('✅ AuthContext: Existing user found by wallet:', existingUserByWallet);
+        
         // Enhance auth user with profile data
         const enhancedUser = {
           ...authUser,
@@ -362,6 +382,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ida_balance: existingUserByWallet.ida_balance,
           total_earned: existingUserByWallet.total_earned,
           level: existingUserByWallet.level,
+          xp: existingUserByWallet.xp
         };
         
         setUser(enhancedUser);
@@ -369,6 +390,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setAuthMessage('');
         return;
       }
+
       const { data: existingUserById, error: fetchIdError } = await supabase
         .from('users')
         .select('id, username, full_name, avatar_url, wallet_address, is_admin, ida_balance, total_earned, level, xp')
@@ -380,6 +402,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (existingUserById) {
+        console.log('🔄 AuthContext: Updating existing user wallet address');
         const { error: updateError } = await supabase
           .from('users')
           .update({ wallet_address: walletAddress })
@@ -409,6 +432,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
+      console.log('🆕 AuthContext: Creating new user profile...');
       let username = walletAddress.slice(0, 8);
       let isUnique = false;
       let counter = 1;
@@ -434,7 +458,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       if (!isUnique) {
-        throw new Error('Failed to generate unique username');
+        throw new Error('Unable to generate a unique username');
       }
 
       const { data: profile, error: profileError } = await supabase
@@ -454,6 +478,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(`Failed to set up profile: ${profileError.message}`);
       }
 
+      console.log('✅ AuthContext: New profile created:', profile);
       
       // Enhance auth user with profile data
       const enhancedUser = {
@@ -479,20 +504,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Process referral code after profile is fully set up
       try {
         const pendingReferralCode = localStorage.getItem('pendingReferralCode');
+        console.log('🔗 AuthContext: Checking for pending referral code:', pendingReferralCode);
+        console.log('🔗 AuthContext: Current wallet address:', walletAddress);
         
         if (pendingReferralCode && walletAddress) {
+          console.log('🔗 AuthContext: Processing pending referral code:', pendingReferralCode);
           
           // Call ReferralService to process the referral code
           await ReferralService.checkReferralFromUrl(walletAddress, pendingReferralCode);
           
           // Clear the pending referral code after successful processing
           localStorage.removeItem('pendingReferralCode');
+          console.log('🔗 AuthContext: Cleared pending referral code after processing');
+        } else {
+          console.log('🔗 AuthContext: No pending referral code to process', {
+            hasPendingCode: !!pendingReferralCode,
+            hasWalletAddress: !!walletAddress
+          });
         }
       } catch (referralError) {
         console.error('🔗 AuthContext: Error processing referral:', referralError);
         // Don't fail the auth process if referral processing fails
         // But still clear the pending code to prevent repeated attempts
         localStorage.removeItem('pendingReferralCode');
+        console.log('🔗 AuthContext: Cleared pending referral code after error');
       }
     }
   };
@@ -504,12 +539,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     syncAuth();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 AuthContext: Auth state change:', event);
       
       // CRITICAL: Only handle specific auth events to prevent loops
       if (event === 'SIGNED_IN' && session?.user && address && isMounted && !isAuthenticating.current) {
+        console.log('✅ AuthContext: User signed in, setting up profile...');
         setUser(session.user);
         setupProfile(session.user, address);
       } else if (event === 'SIGNED_OUT' && isMounted) {
+        console.log('👋 AuthContext: User signed out');
         setUser(null);
         setIsProfileReady(false);
         setLastAddress(null); // Force full re-authentication on next login
@@ -520,15 +558,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [isLoggedIn, address]);
+  }, [isLoggedIn, address]); // CRITICAL: Only depend on essential values
 
   const logout = async () => {
     try {
+      console.log('👋 AuthContext: Logging out...');
+      isAuthenticating.current = true; // Prevent new auth attempts during logout
+      
       // Clear MultiversX SDK state by calling provider logout
       try {
         const provider = getAccountProvider();
         if (provider && typeof provider.logout === 'function') {
           await provider.logout();
+          console.log('✅ AuthContext: Provider logout successful');
         }
       } catch (sdkError) {
         console.error('⚠️ AuthContext: Error calling provider logout:', sdkError);
@@ -538,10 +580,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await handleSupabaseSignOut();
       setUser(null);
       setIsProfileReady(false);
+      setLastAddress(null);
       setAuthMessage('Successfully logged out');
       
+      // Clear MultiversX SDK state from localStorage
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('sdk-dapp-') || 
+            key.startsWith('dapp-') || 
             key.includes('multiversx') || 
             key.includes('elrond') ||
             key.includes('wallet') ||
@@ -555,6 +600,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Also clear sessionStorage
       Object.keys(sessionStorage).forEach(key => {
         if (key.startsWith('sdk-dapp-') || 
+            key.startsWith('dapp-') || 
             key.includes('multiversx') || 
             key.includes('elrond') ||
             key.includes('wallet') ||
@@ -584,6 +630,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const forceReconnect = async () => {
     try {
+      console.log('🔄 AuthContext: Force reconnecting wallet...');
       isAuthenticating.current = true; // Prevent new auth attempts during reconnect
       
       // Clear MultiversX SDK state by calling provider logout
@@ -591,6 +638,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const provider = getAccountProvider();
         if (provider && typeof provider.logout === 'function') {
           await provider.logout();
+          console.log('✅ AuthContext: Provider logout successful for reconnect');
         }
       } catch (sdkError) {
         console.error('⚠️ AuthContext: Error calling provider logout for reconnect:', sdkError);
@@ -601,6 +649,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       setIsProfileReady(false);
       setLastAddress(null);
+      setAuthMessage('Reconnecting wallet...');
       
       // Clear Supabase session
       await handleSupabaseSignOut();
@@ -609,7 +658,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const provider = getAccountProvider();
         await provider.logout();
+        console.log('✅ AuthContext: Wallet provider logout successful');
       } catch (providerError: any) {
+        console.log('⚠️ AuthContext: Wallet provider logout failed, continuing anyway:', providerError.message);
       }
       
       // Clear any cached wallet state in localStorage
@@ -620,6 +671,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       setAuthMessage('Wallet disconnected. Redirecting to connection page...');
+      
       // Small delay to ensure cleanup is complete
       setTimeout(() => {
         window.location.href = '/unlock';
@@ -652,20 +704,6 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
-
-// Generate a robust password that meets Supabase password policy requirements
-const generateSupabasePassword = (address: string): string => {
-  // Create a deterministic password from the wallet address
-  // that includes uppercase, lowercase, numbers, and special characters
-  const hash = address.split('').reduce((a, b) => {
-    a = ((a << 5) - a) + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-  
-  const basePassword = Math.abs(hash).toString(36);
-  // Ensure it meets password requirements: min 8 chars, mixed case, numbers, special chars
-  return `Mx${basePassword}${address.slice(-4).toUpperCase()}!`;
 };
 
 export const updateUserEmail = async (userId: string, email: string) => {
