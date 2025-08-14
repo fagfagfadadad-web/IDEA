@@ -190,43 +190,70 @@ export const Header = () => {
                   <button
                     onClick={() => setShowNotificationsModal(true)}
                     className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]"
-                     className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gray-500 flex items-center justify-center text-lg font-bold text-white"
+                    aria-label="Notifications"
+                  >
+                    <Bell size={20} className="text-gray-600" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
-                     {user?.avatar_url ? (
+                    )}
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gray-500 flex items-center justify-center text-lg font-bold text-white"
+                      aria-label="Profile menu"
+                    >
+                      {user?.avatar_url ? (
                         <img
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
-                         className="w-full h-full object-cover"
-                         onError={(e) => {
-                           const target = e.target as HTMLImageElement;
-                           target.style.display = 'none';
-                         }}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                          }}
                         />
-                     ) : null}
-                     <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
-                       {user?.avatar_url ? 
-                         getEmojiAvatar(user.id) : 
-                         (user?.username?.charAt(0)?.toUpperCase() || '👤')
-                       }
-                             <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white">
-                               {user?.avatar_url ? (
+                      ) : null}
+                      <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
+                        {user?.avatar_url ? 
+                          getEmojiAvatar(user.id) : 
+                          (user?.username?.charAt(0)?.toUpperCase() || '👤')
+                        }
+                      </span>
+                    </button>
+
+                    {isProfileMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setIsProfileMenuOpen(false)}
+                          aria-hidden="true"
+                        />
+                        <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
+                          <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white">
+                                {user?.avatar_url ? (
                                   <img
                                     src={user.avatar_url}
                                     alt={user.username || 'Profile'}
-                                   className="w-full h-full object-cover"
-                                   onError={(e) => {
-                                     const target = e.target as HTMLImageElement;
-                                     target.style.display = 'none';
-                                   }}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                    }}
                                   />
-                               ) : null}
-                               <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
-                                 {user?.avatar_url ? 
-                                   getEmojiAvatar(user.id) : 
-                                   (user?.username?.charAt(0)?.toUpperCase() || '👤')
-                                 }
-                               </span>
+                                ) : null}
+                                <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
+                                  {user?.avatar_url ? 
+                                    getEmojiAvatar(user.id) : 
+                                    (user?.username?.charAt(0)?.toUpperCase() || '👤')
+                                  }
+                                </span>
                               </div>
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
