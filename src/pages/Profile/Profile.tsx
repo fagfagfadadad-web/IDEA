@@ -1,3 +1,6 @@
+Looking at this React component file, I can see several syntax errors where closing brackets are missing. Here's the corrected version:
+
+```typescript
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus } from 'lucide-react';
@@ -1718,116 +1721,14 @@ export const Profile = () => {
                         <label className="block text-gray-800 text-sm font-medium mb-2">
                           Website URL
                         </label>
-                          <img
-                            src={editForm.avatar_url}
-                            alt="Avatar preview"
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              const parent = target.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                        ) : (
-                          <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
-                        )}
-                      </div>
-                      
-                      {/* URL input */}
-                      <div className="flex-1">
                         <input
-                          type="url"
-                          name="avatar_url"
-                          value={editForm.avatar_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://example.com/your-avatar.jpg"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <p className="text-gray-600 text-xs mt-1">
-                          Enter a direct URL to your profile image
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Username
-                    </label>
-                    <input
-                      type="text"
-                      name="username"
-                      value={editForm.username}
-                      onChange={handleEditFormChange}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="full_name"
-                      value={editForm.full_name}
-                      onChange={handleEditFormChange}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2">
-                      Bio
-                    </label>
-                    <textarea
-                      name="bio"
-                      value={editForm.bio}
-                      onChange={handleEditFormChange}
-                      rows={4}
-                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Tell others about yourself..."
-                    />
-                  </div>
-
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-800 mb-3">Social Media Links</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          Twitter URL
-                        </label>
-                        <input
-                          type="url"
-                          name="twitter_url"
-                          value={editForm.twitter_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://twitter.com/yourusername"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-800 text-sm font-medium mb-2">
-                          GitHub URL
-                        </label>
-                        <input
-                          type="url"
-                          name="github_url"
-                          value={editForm.github_url}
-                          onChange={handleEditFormChange}
-                          placeholder="https://github.com/yourusername"
                           type="url"
                           name="website_url"
                           value={editForm.website_url}
                           onChange={handleEditFormChange}
                           placeholder="https://yourwebsite.com"
                           className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          onChange={handleEditFormChange}
+                        />
                       </div>
                     </div>
                   </div>
@@ -1886,3 +1787,4 @@ export const Profile = () => {
     </div>
   );
 };
+```
