@@ -73,7 +73,7 @@ export const MobileBottomNav = () => {
             active ? 'bg-gradient-to-r from-indigo-100 to-pink-100 text-indigo-600' : 'text-gray-500'
           }`}>
             <div 
-              className="w-8 h-8 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-xs"
+              className="w-8 h-8 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-xs border border-gray-300"
               style={{ backgroundColor: getAvatarColor(user?.id || '') }}
             >
               {/* Always show initials as background */}
