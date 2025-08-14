@@ -227,23 +227,25 @@ export const Header = () => {
                         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                              <div 
+                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white"
+                                style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                              >
                                 {user?.avatar_url && user.avatar_url.trim() !== '' ? (
                                   <>
                                     <img
                                       src={user.avatar_url}
                                       alt={user.username || 'Profile'}
                                       className="w-full h-full object-cover"
-                                      onError={(e) => {
+                                      className="fallback-avatar w-full h-full flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                                         const target = e.target as HTMLImageElement;
                                         target.style.display = 'none';
-                                      }}
+                                      {getUserInitials(user?.username, user?.full_name)}
                                     />
                                   </>
                                 ) : (
-                                  <span className="text-xl select-none">{getEmojiAvatar(user?.id || '')}</span>
-                                )}
-                              </div>
+                                  {getUserInitials(user?.username, user?.full_name)}
                               <div>
                                 <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
                                 <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
