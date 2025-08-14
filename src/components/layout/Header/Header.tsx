@@ -201,12 +201,12 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border border-gray-300"
+                      className="w-10 h-10 rounded-full border border-gray-300 overflow-hidden relative hover:scale-105 transition-all duration-200 flex items-center justify-center text-white font-bold text-sm"
                       style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                       aria-label="Profile menu"
                     >
                       {/* Always show initials as background */}
-                      <span className="relative z-10 text-white font-bold text-sm">
+                      <span className="relative z-10">
                         {getUserInitials(user?.username, user?.full_name)}
                       </span>
                       
@@ -240,7 +240,7 @@ export const Header = () => {
                           <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center gap-3">
                               <div 
-                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-lg border border-gray-300"
+                                className="w-12 h-12 rounded-full border border-gray-300 overflow-hidden relative flex items-center justify-center text-white font-bold text-lg"
                                 style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                               >
                                 {/* Always show initials as background */}
