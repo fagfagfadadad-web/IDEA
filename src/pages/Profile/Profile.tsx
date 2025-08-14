@@ -106,7 +106,6 @@ export const Profile = () => {
   const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
   const [isLoadingIda, setIsLoadingIda] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [removeCurrentPicture, setRemoveCurrentPicture] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -121,7 +120,7 @@ export const Profile = () => {
   });
 
   const updateProfile = useUpdateProfile();
-  const { uploadFile, isUploading: fileUploading } = useFileUpload();
+  const { uploadFile, isUploading } = useFileUpload();
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
@@ -1593,10 +1592,10 @@ export const Profile = () => {
                           <Button
                             type="button"
                             onClick={() => document.getElementById('avatar-upload-input')?.click()}
-                            disabled={fileUploading}
+                            disabled={isUploading}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
                           >
-                            {fileUploading ? (
+                            {isUploading ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                                 Uploading...
@@ -1769,10 +1768,10 @@ export const Profile = () => {
                   </Button>
                   <Button
                     onClick={handleSaveProfile}
-                    disabled={updateProfile.isLoading || fileUploading}
+                    disabled={updateProfile.isLoading || isUploading}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
                   >
-                    {updateProfile.isLoading || fileUploading ? 'Saving...' : 'Save Changes'}
+                    {updateProfile.isLoading || isUploading ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </div>
