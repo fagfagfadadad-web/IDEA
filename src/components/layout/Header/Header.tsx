@@ -230,7 +230,7 @@ export const Header = () => {
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
                               <div 
-                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white"
+                                className="w-12 h-12 rounded-full overflow-hidden relative"
                                 style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                               >
                                 {user?.avatar_url && user.avatar_url.trim() !== '' ? (
@@ -244,15 +244,21 @@ export const Header = () => {
                                         target.style.display = 'none';
                                       }}
                                     />
+                                    <div
+                                      className="fallback-avatar w-full h-full flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                                    >
+                                      <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
+                                    </div>
                                   </>
                                 ) : (
-                                <span className={`${user?.avatar_url && user.avatar_url.trim() !== '' ? 'absolute inset-0 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-xl' : 'text-xl'}`}>
-                                  {getEmojiAvatar(user?.id || '')}
-                                </span>
+                                  <div className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white absolute inset-0">
+                                    <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
+                                  </div>
                                 )}
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-800">{user?.username || 'Anonymous'}</p>
+                                <p className="font-semibold text-gray-800">{user?.username || 'User'}</p>
                                 <p className="text-sm text-gray-600">{user?.email || 'No email'}</p>
                               </div>
                             </div>
