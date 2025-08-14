@@ -245,8 +245,8 @@ export const Header = () => {
                           <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
                             <div className="flex items-center gap-3">
                               <div 
-                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-lg bg-[var(--avatar-color)]"
-                                style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
+                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-lg"
+                                style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                               >
                                 {/* Always show initials as background */}
                                 <span className="relative z-10">
