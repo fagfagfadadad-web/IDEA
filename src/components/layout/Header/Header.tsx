@@ -187,8 +187,7 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-sm font-bold text-white"
-                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                      className="w-10 h-10 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white hover:ring-2 hover:ring-indigo-500 transition-all duration-200"
                       aria-label="Profile menu"
                     >
                       {user?.avatar_url ? (
@@ -207,10 +206,10 @@ export const Header = () => {
                             }}
                           />
                           <div
-                            className="fallback-avatar w-full h-full flex items-center justify-center text-sm font-bold text-white absolute inset-0"
-                            style={{ backgroundColor: getAvatarColor(user?.id || ''), display: 'none' }}
+                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                            style={{ display: 'none' }}
                           >
-                            {getUserInitials(user?.username, user?.full_name)}
+                            <span className="text-xl">{getEmojiAvatar(user.id)}</span>
                           </div>
                         </>
                       ) : (
@@ -228,7 +227,10 @@ export const Header = () => {
                         <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 overflow-hidden">
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                              <div 
+                                className="w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center text-lg font-bold text-white"
+                                style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                              >
                                 {user?.avatar_url && user.avatar_url.trim() !== '' ? (
                                   <>
                                     <img
@@ -240,9 +242,15 @@ export const Header = () => {
                                         target.style.display = 'none';
                                       }}
                                     />
+                                    <div
+                                      className="fallback-avatar w-full h-full flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                                    >
+                                      {getUserInitials(user?.username, user?.full_name)}
+                                    </div>
                                   </>
                                 ) : (
-                                  <span className="text-xl select-none">{getEmojiAvatar(user?.id || '')}</span>
+                                  getUserInitials(user?.username, user?.full_name)
                                 )}
                               </div>
                               <div>
