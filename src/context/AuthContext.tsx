@@ -288,12 +288,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (signUpError) {
             console.error('❌ AuthContext: Sign up error:', signUpError);
-            throw new Error(`Failed to sign up: ${signUpError.message}`);
+            if (signUpError.message.includes('User already registered')) {
+              // User exists but with different credentials - clear and retry
+              await handleSupabaseSignOut();
+              setAuthMessage('Authentication conflict detected. Please reconnect your wallet.');
+              return;
+            } else {
+              throw new Error(`Failed to sign up: ${signUpError.message}`);
+            }
           }
           authUser = signUpData?.user;
         } else if (signInError) {
           console.error('❌ AuthContext: Sign in error:', signInError);
-          throw new Error(`Failed to sign in: ${signInError.message}`);
+          if (signInError.message.includes('Invalid login credentials')) {
+            // Clear any stale auth data and provide specific guidance
+            await handleSupabaseSignOut();
+            setAuthMessage('Wallet authentication failed. Please disconnect and reconnect your wallet.');
+            return;
+          } else {
+            throw new Error(`Failed to sign in: ${signInError.message}`);
+          }
         }
         if (authUser) {
           await setupProfile(authUser, address);
@@ -305,7 +319,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error: any) {
       console.error('❌ AuthContext: Auth sync error:', error);
       if (isMounted) {
-        setAuthMessage('Failed to authenticate. Please try reconnecting your wallet.');
+        if (error.message?.includes('Invalid login credentials') || 
+            error.message?.includes('User already registered')) {
+          setAuthMessage('Wallet authentication conflict. Please disconnect your wallet and reconnect.');
+        } else if (error.message?.includes('Failed to fetch')) {
+          setAuthMessage('Network connection error. Please check your internet connection and try again.');
+        } else {
+          setAuthMessage(`Authentication failed: ${error.message}. Please try reconnecting your wallet.`);
+        }
       }
     } finally {
       if (isMounted) {
