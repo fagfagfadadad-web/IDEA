@@ -5,8 +5,14 @@ import { Button } from 'components';
 import { NotificationsDropdown } from '../../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
+import { useNotifications, Notification as CustomNotification } from '../../../hooks/useNotifications';
+import { useWindowSize } from '../../../hooks/useWindowSize';
+import { useAuth } from '../../../context/AuthContext';
+import { getEmojiAvatar } from '../../../utils/avatars';
 
 export const Header = () => {
+  const isLoggedIn = useGetIsLoggedIn();
+  const { user, logout: authLogout, forceReconnect } = useAuth();
   const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -15,7 +21,11 @@ export const Header = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
+
+  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
+
   // Debug logging for notifications
   useEffect(() => {
   }, [notifications, unreadCount, isLoggedIn, user?.id]);
@@ -188,25 +198,25 @@ export const Header = () => {
                     )}
                   </button>
 
-                  {/* Profile Dropdown */}
+                  {/* Profile Button */}
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white"
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:ring-2 hover:ring-indigo-500 transition-all duration-200 flex items-center justify-center text-white font-bold text-sm"
+                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                      aria-label="Profile menu"
                     >
-                      {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError && (
+                      {user?.avatar_url && user.avatar_url.length > 0 && (
                         <img
-                          key={user.avatar_url}
                           src={user.avatar_url}
                           alt={user.username || 'Profile'}
                           className="w-full h-full object-cover absolute inset-0"
-                          onError={() => {
-                            console.log('Header: Main button avatar image failed to load, setting error state');
-                            setAvatarLoadError(true);
-                          }}
+                          onError={(e) => e.currentTarget.style.display = 'none'}
                         />
                       )}
-                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                      <span className="relative z-10">
+                        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                      </span>
                     </button>
 
                     {isProfileMenuOpen && (
