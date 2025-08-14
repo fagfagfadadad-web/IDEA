@@ -5,7 +5,7 @@ import { Button } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useAuth } from '../../context/AuthContext';
-import { getEmojiAvatar } from '../../utils/avatars';
+import { getAvatarColor, getUserInitials } from '../../utils/avatars';
 
 export const MobileBottomNav = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -72,34 +72,26 @@ export const MobileBottomNav = () => {
           <div className={`p-2 rounded-xl transition-all duration-200 hover:-translate-y-0.5 ${
             active ? 'bg-gradient-to-r from-indigo-100 to-pink-100 text-indigo-600' : 'text-gray-500'
           }`}>
-            <div className="w-8 h-8 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-500 to-purple-600">
-              {(user?.avatar_url && user.avatar_url.length > 0) ? (
-                <>
-                  <img
-                    src={user.avatar_url}
-                    alt={user.username || "Profile"}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                        if (fallback) fallback.style.display = 'flex';
-                      }
-                    }}
-                  />
-                  <div 
-                    className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xs text-white font-bold absolute inset-0"
-                    style={{ display: 'none' }}
-                  >
-                    {user?.username?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-                </>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xs text-white font-bold">
-                  {user?.username?.charAt(0)?.toUpperCase() || "U"}
-                </div>
+            <div 
+              className="w-8 h-8 rounded-full overflow-hidden relative flex items-center justify-center text-white font-bold text-xs"
+              style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+            >
+              {/* Always show initials as background */}
+              <span className="relative z-10">
+                {getUserInitials(user?.username, user?.full_name)}
+              </span>
+              
+              {/* Conditionally show avatar image on top */}
+              {user?.avatar_url && user.avatar_url.trim() !== '' && (
+                <img
+                  src={user.avatar_url}
+                  alt={user.username || "Profile"}
+                  className="w-full h-full object-cover absolute inset-0 z-20"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
               )}
             </div>
           </div>
