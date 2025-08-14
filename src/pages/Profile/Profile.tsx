@@ -49,7 +49,7 @@ const getEmojiAvatar = (userId: string) => {
   return emojiAvatars[Math.abs(hash) % emojiAvatars.length];
 };
 
-const Profile = () => {
+export const Profile = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -779,5 +779,3 @@ const Profile = () => {
     </div>
   );
 };
-
-export default Profile;

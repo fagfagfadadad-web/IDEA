@@ -19,7 +19,7 @@ import { RouteType } from 'types';
 import React from 'react';
 
 const Home = React.lazy(() => import('pages/Home').then(module => ({ default: module.Home })));
-const Profile = React.lazy(() => import('pages/Profile'));
+const Profile = React.lazy(() => import('pages/Profile').then(module => ({ default: module.Profile })));
 const Search = React.lazy(() => import('pages/Search').then(module => ({ default: module.Search })));
 const ProposalDetail = React.lazy(() => import('pages/ProposalDetail').then(module => ({ default: module.ProposalDetail })));
 
