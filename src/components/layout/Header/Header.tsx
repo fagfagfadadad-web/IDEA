@@ -22,6 +22,7 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [avatarLoadError, setAvatarLoadError] = useState(false);
 
   const unreadCount = notifications?.filter((n) => !n.read).length || 0;
 
@@ -77,6 +78,20 @@ export const Header = () => {
 
   const handleSearchButtonClick = () => {
     navigate('/search');
+  };
+
+  const getAvatarColor = (id: string) => {
+    const colors = ['#3B82F6', '#8B5CF6', '#EF4444', '#10B981', '#F59E0B', '#EC4899'];
+    const index = id ? id.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
+
+  const getUserInitials = (username?: string, fullName?: string) => {
+    if (fullName) {
+      const names = fullName.split(' ');
+      return names.length > 1 ? `${names[0][0]}${names[1][0]}`.toUpperCase() : names[0][0].toUpperCase();
+    }
+    return username ? username.charAt(0).toUpperCase() : 'U';
   };
 
   return (
@@ -187,34 +202,21 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white hover:ring-2 hover:ring-indigo-500 transition-all duration-200"
-                      aria-label="Profile menu"
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold text-white"
                     >
-                      {user?.avatar_url ? (
-                        <>
-                          <img
-                            src={user.avatar_url}
-                            alt={user.username || 'Profile'}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              const parent = e.currentTarget.parentElement;
-                              if (parent) {
-                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
-                              }
-                            }}
-                          />
-                          <div
-                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
-                            style={{ display: 'none' }}
-                          >
-                            <span className="text-xl">{getEmojiAvatar(user.id)}</span>
-                          </div>
-                        </>
-                      ) : (
-                        <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
+                      {user?.avatar_url && user.avatar_url.length > 0 && !avatarLoadError && (
+                        <img
+                          key={user.avatar_url}
+                          src={user.avatar_url}
+                          alt={user.username || 'Profile'}
+                          className="w-full h-full object-cover absolute inset-0"
+                          onError={() => {
+                            console.log('Header: Main button avatar image failed to load, setting error state');
+                            setAvatarLoadError(true);
+                          }}
+                        />
                       )}
+                      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                     </button>
 
                     {isProfileMenuOpen && (
