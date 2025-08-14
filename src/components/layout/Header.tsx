@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch, Gift } from 'lucide-react';
+import {
+  Search,
+  User,
+  Settings,
+  LogOut,
+  Bell,
+  Coins,
+  Wallet,
+  Gift,
+} from 'lucide-react';
 import { Button } from 'components';
-import { NotificationsDropdown } from '../NotificationsMenu';
 import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -12,7 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user, logout: authLogout, forceReconnect } = useAuth();
-  const { data: notifications, isLoading, error } = useNotifications(user?.id);
+  const { data: notifications } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
   const isMobile = width < 768;
@@ -65,27 +73,25 @@ export const Header = () => {
     }
   };
 
-  const handleSearchButtonClick = () => {
-    navigate('/search');
-  };
-
-  // 🔹 Komponent pre avatar, aby bol kód na jednom mieste
+  // 🔹 Avatar komponent – písmeno a farba sú vždy viditeľné
   const AvatarCircle = ({ size = 40 }: { size?: number }) => (
     <div
-      className={`rounded-full overflow-hidden relative flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold`}
+      className="rounded-full overflow-hidden relative flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold"
       style={{ width: size, height: size }}
     >
-      {user?.username?.charAt(0)?.toUpperCase() || 'U'}
       {user?.avatar_url && (
         <img
           src={user.avatar_url}
           alt={user.username || 'Profile'}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover z-0"
           onError={(e) => {
             e.currentTarget.style.display = 'none';
           }}
         />
       )}
+      <span className="relative z-10">
+        {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+      </span>
     </div>
   );
 
@@ -96,7 +102,10 @@ export const Header = () => {
           <div className="flex justify-between items-center">
             {/* Logo */}
             <div className="flex items-center space-x-4">
-              <Link to="/" className="h-8 md:h-10 w-8 md:w-10 flex items-center hover:scale-105 transition-transform">
+              <Link
+                to="/"
+                className="h-8 md:h-10 w-8 md:w-10 flex items-center hover:scale-105 transition-transform"
+              >
                 <img
                   src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
                   alt="IDEA Logo"
@@ -105,12 +114,28 @@ export const Header = () => {
               </Link>
               {/* Navigation */}
               <nav className="hidden lg:flex items-center space-x-6">
-                <Link to="/gigs" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg">Browse Gigs</Link>
-                <Link to="/requests" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg">Open Bids</Link>
-                <Link to="/token-sale" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg flex items-center gap-2">
+                <Link
+                  to="/gigs"
+                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg"
+                >
+                  Browse Gigs
+                </Link>
+                <Link
+                  to="/requests"
+                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg"
+                >
+                  Open Bids
+                </Link>
+                <Link
+                  to="/token-sale"
+                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg flex items-center gap-2"
+                >
                   <Coins size={16} /> Token Sale
                 </Link>
-                <Link to="/rewards" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg flex items-center gap-2">
+                <Link
+                  to="/rewards"
+                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-lg flex items-center gap-2"
+                >
                   <Gift size={16} /> Rewards
                 </Link>
               </nav>
@@ -121,7 +146,10 @@ export const Header = () => {
               {/* Search */}
               <form onSubmit={handleSearch} className="hidden xl:block">
                 <div className="relative">
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  />
                   <input
                     type="text"
                     value={searchTerm}
@@ -150,7 +178,10 @@ export const Header = () => {
               {/* Avatar / Connect */}
               {isLoggedIn ? (
                 <div className="relative">
-                  <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} aria-label="Profile menu">
+                  <button
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    aria-label="Profile menu"
+                  >
                     <AvatarCircle size={40} />
                   </button>
                   {isProfileMenuOpen && (
@@ -158,25 +189,42 @@ export const Header = () => {
                       <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
                         <AvatarCircle size={48} />
                         <div>
-                          <p className="font-semibold">{user?.full_name || user?.username || 'User'}</p>
+                          <p className="font-semibold">
+                            {user?.full_name || user?.username || 'User'}
+                          </p>
                           <p className="text-sm text-gray-500">
                             {user?.wallet_address
-                              ? `${user.wallet_address.slice(0, 6)}...${user.wallet_address.slice(-4)}`
+                              ? `${user.wallet_address.slice(
+                                  0,
+                                  6
+                                )}...${user.wallet_address.slice(-4)}`
                               : 'Wallet connected'}
                           </p>
                         </div>
                       </div>
                       <div className="py-2">
-                        <Link to="/profile" className="flex items-center gap-3 px-6 py-3 hover:bg-indigo-50">
+                        <Link
+                          to="/profile"
+                          className="flex items-center gap-3 px-6 py-3 hover:bg-indigo-50"
+                        >
                           <User size={16} /> My Profile
                         </Link>
-                        <Link to="/profile?tab=settings" className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50">
+                        <Link
+                          to="/profile?tab=settings"
+                          className="flex items-center gap-3 px-6 py-3 hover:bg-gray-50"
+                        >
                           <Settings size={16} /> Settings
                         </Link>
-                        <button onClick={handleForceReconnect} className="flex items-center gap-3 px-6 py-3 hover:bg-orange-50 w-full">
+                        <button
+                          onClick={handleForceReconnect}
+                          className="flex items-center gap-3 px-6 py-3 hover:bg-orange-50 w-full"
+                        >
                           <Wallet size={16} /> Reconnect Wallet
                         </button>
-                        <button onClick={handleLogout} className="flex items-center gap-3 px-6 py-3 hover:bg-red-50 w-full text-red-600">
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center gap-3 px-6 py-3 hover:bg-red-50 w-full text-red-600"
+                        >
                           <LogOut size={16} /> Logout
                         </button>
                       </div>
