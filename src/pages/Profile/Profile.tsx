@@ -1,14 +1,9 @@
-Looking at this React component file, I can see several syntax errors where closing brackets are missing. Here's the corrected version:
-
-```typescript
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus } from 'lucide-react';
-import { Upload, Image as ImageIcon } from 'lucide-react';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus, Upload } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
-import { useFileUpload } from '../../hooks/useFileUpload';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
@@ -16,8 +11,10 @@ import { useOrders } from 'hooks';
 import { useNotifications, useMarkAllNotificationsAsRead } from 'hooks';
 import { useReviewsForProvider } from 'hooks';
 import { usePayments } from 'hooks';
+import { useFileUpload } from '../../hooks/useFileUpload';
 import { ProfileService } from '../../services/profileService';
 import { TransactionService } from '../../services/transactionService';
+import { getAvatarColor, getUserInitials } from '../../utils/avatars';
 
 // Helper function to calculate earnings from orders
 const calculateEarnings = (orders: any[]) => {
@@ -70,6 +67,7 @@ export const Profile = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
   const { success, error: showErrorToast } = useToast();
+  const { uploadFile, isUploading } = useFileUpload();
   
   // Use the id from params if viewing someone else's profile, otherwise use current user
   const { data: profile, isLoading, error, refetch } = useProfile(id);
@@ -92,7 +90,7 @@ export const Profile = () => {
   const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
   const [isLoadingIda, setIsLoadingIda] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [filePreview, setFilePreview] = useState<string>('');
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
@@ -109,7 +107,6 @@ export const Profile = () => {
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
   const { claimPayment } = usePayments();
-  const { uploadFile, isUploading } = useFileUpload();
 
   // Initialize edit form when profile loads
   useEffect(() => {
@@ -124,8 +121,6 @@ export const Profile = () => {
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
       });
-      setPreviewUrl(profile.avatar_url || '');
-      setSelectedFile(null);
     }
   }, [profile]);
 
@@ -172,57 +167,60 @@ export const Profile = () => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        showErrorToast('Please select an image file');
-        return;
-      }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        showErrorToast('File size must be less than 5MB');
-        return;
-      }
-      
-      setSelectedFile(file);
-      
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showErrorToast('Please select an image file');
+      return;
     }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      showErrorToast('File size must be less than 5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFilePreview(e.target?.result as string);
+      // Clear URL field when file is selected
+      setEditForm(prev => ({ ...prev, avatar_url: '' }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemovePhoto = () => {
     setSelectedFile(null);
-    setPreviewUrl('');
+    setFilePreview('');
     setEditForm(prev => ({ ...prev, avatar_url: '' }));
   };
 
   const handleSaveProfile = async () => {
     try {
       let avatarUrl = editForm.avatar_url;
-      
-      // Upload new file if selected
+
+      // Upload file if selected
       if (selectedFile) {
         try {
           avatarUrl = await uploadFile(selectedFile, 'avatars', 'profile-photos');
         } catch (uploadError) {
-          showErrorToast('Failed to upload profile photo');
+          showErrorToast('Failed to upload profile photo. Please try again.');
           return;
         }
       }
-      
+
       await updateProfile.mutateAsync({
         ...editForm,
         avatar_url: avatarUrl
       });
+      
       setIsEditModalOpen(false);
       setSelectedFile(null);
-      setPreviewUrl('');
+      setFilePreview('');
       refetch();
       success('Profile updated successfully');
     } catch (error) {
@@ -377,32 +375,26 @@ export const Profile = () => {
           {/* Profile Header */}
           <div className="gradient-card p-8">
             <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-24 h-24 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white">
-                {profile.avatar_url ? (
-                  <>
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.username || "Profile"}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
-                    />
-                    <div 
-                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white absolute inset-0"
-                      style={{ display: 'none' }}
-                    >
-                      {profile.username?.charAt(0)?.toUpperCase() || "U"}
-                    </div>
-                  </>
-                ) : (
-                  <span>{profile.username?.charAt(0)?.toUpperCase() || "U"}</span>
+              <div 
+                className="w-24 h-24 rounded-full overflow-hidden relative border border-gray-300 flex items-center justify-center text-2xl text-white font-bold"
+                style={{ backgroundColor: getAvatarColor(profile?.id || '') }}
+              >
+                {/* Always show initials as background */}
+                <span className="relative z-10">
+                  {getUserInitials(profile?.username, profile?.full_name)}
+                </span>
+                
+                {/* Conditionally show avatar image on top */}
+                {profile?.avatar_url && profile.avatar_url.trim() !== '' && (
+                  <img
+                    src={profile.avatar_url}
+                    alt={profile.username || "Profile"}
+                    className="w-full h-full object-cover absolute inset-0 z-20"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
                 )}
               </div>
               
@@ -554,14 +546,14 @@ export const Profile = () => {
                       </div>
                       <p className="text-2xl font-bold text-gray-800">
                         {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                          const reviewStats = calculateReviewStats(providerReviews || []);
+                          return reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : '0.0';
                         })()}
                       </p>
                       <p className="text-gray-600 text-xs">
                         {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                          const reviewStats = calculateReviewStats(providerReviews || []);
+                          return `${reviewStats.totalReviews} review${reviewStats.totalReviews !== 1 ? 's' : ''}`;
                         })()}
                       </p>
                     </div>
@@ -652,14 +644,14 @@ export const Profile = () => {
 
                   {/* Rating Distribution */}
                   {(() => {
-                    const stats = calculateReviewStats(providerReviews || []);
-                    return stats.totalReviews > 0 ? (
+                    const reviewStats = calculateReviewStats(providerReviews || []);
+                    return reviewStats.totalReviews > 0 ? (
                       <div className="space-y-4">
                         <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
                         <div className="space-y-2">
                           {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = stats.ratingDistribution[rating] || 0;
-                            const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                            const count = reviewStats.ratingDistribution[rating as keyof typeof reviewStats.ratingDistribution] || 0;
+                            const percentage = reviewStats.totalReviews > 0 ? (count / reviewStats.totalReviews) * 100 : 0;
                             
                             return (
                               <div key={rating} className="flex items-center gap-3">
@@ -859,27 +851,6 @@ export const Profile = () => {
                       ))}
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Dashboard Tab */}
-              {activeTab === 'dashboard' && (
-                <div className="space-y-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Task Manager */}
-                    <TaskManager />
-                    
-                    {/* Calendar Widget */}
-                    <CalendarWidget />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Financial Overview */}
-                    <FinancialOverview />
-                    
-                    {/* External Tools */}
-                    <ExternalToolsWidget />
-                  </div>
                 </div>
               )}
 
@@ -1233,14 +1204,14 @@ export const Profile = () => {
                       </div>
                       <p className="text-2xl font-bold text-gray-800">
                         {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                          const reviewStats = calculateReviewStats(providerReviews || []);
+                          return reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : '0.0';
                         })()}
                       </p>
                       <p className="text-gray-600 text-xs">
                         {(() => {
-                          const stats = calculateReviewStats(providerReviews || []);
-                          return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                          const reviewStats = calculateReviewStats(providerReviews || []);
+                          return `${reviewStats.totalReviews} review${reviewStats.totalReviews !== 1 ? 's' : ''}`;
                         })()}
                       </p>
                     </div>
@@ -1331,14 +1302,14 @@ export const Profile = () => {
 
                   {/* Rating Distribution */}
                   {(() => {
-                    const stats = calculateReviewStats(providerReviews || []);
-                    return stats.totalReviews > 0 ? (
+                    const reviewStats = calculateReviewStats(providerReviews || []);
+                    return reviewStats.totalReviews > 0 ? (
                       <div className="space-y-4">
                         <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
                         <div className="space-y-2">
                           {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = stats.ratingDistribution[rating] || 0;
-                            const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                            const count = reviewStats.ratingDistribution[rating as keyof typeof reviewStats.ratingDistribution] || 0;
+                            const percentage = reviewStats.totalReviews > 0 ? (count / reviewStats.totalReviews) * 100 : 0;
                             
                             return (
                               <div key={rating} className="flex items-center gap-3">
@@ -1449,14 +1420,14 @@ export const Profile = () => {
                     </div>
                     <p className="text-2xl font-bold text-gray-800">
                       {(() => {
-                        const stats = calculateReviewStats(providerReviews || []);
-                        return stats.averageRating > 0 ? stats.averageRating.toFixed(1) : '0.0';
+                        const reviewStats = calculateReviewStats(providerReviews || []);
+                        return reviewStats.averageRating > 0 ? reviewStats.averageRating.toFixed(1) : '0.0';
                       })()}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {(() => {
-                        const stats = calculateReviewStats(providerReviews || []);
-                        return `${stats.totalReviews} review${stats.totalReviews !== 1 ? 's' : ''}`;
+                        const reviewStats = calculateReviewStats(providerReviews || []);
+                        return `${reviewStats.totalReviews} review${reviewStats.totalReviews !== 1 ? 's' : ''}`;
                       })()}
                     </p>
                   </div>
@@ -1478,14 +1449,14 @@ export const Profile = () => {
 
                 {/* Rating Distribution for Public Profile */}
                 {(() => {
-                  const stats = calculateReviewStats(providerReviews || []);
-                  return stats.totalReviews > 0 ? (
+                  const reviewStats = calculateReviewStats(providerReviews || []);
+                  return reviewStats.totalReviews > 0 ? (
                     <div className="space-y-4">
                       <h4 className="text-md font-bold text-gray-800">Rating Distribution</h4>
                       <div className="space-y-2">
                         {[5, 4, 3, 2, 1].map((rating) => {
-                          const count = stats.ratingDistribution[rating] || 0;
-                          const percentage = stats.totalReviews > 0 ? (count / stats.totalReviews) * 100 : 0;
+                          const count = reviewStats.ratingDistribution[rating as keyof typeof reviewStats.ratingDistribution] || 0;
+                          const percentage = reviewStats.totalReviews > 0 ? (count / reviewStats.totalReviews) * 100 : 0;
                           
                           return (
                             <div key={rating} className="flex items-center gap-3">
@@ -1539,60 +1510,43 @@ export const Profile = () => {
                     <label className="block text-gray-800 text-sm font-medium mb-2">
                       Profile Picture
                     </label>
-                    <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                       {/* Current avatar preview */}
-                      <div className="flex items-center gap-4">
-                        <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0 border border-gray-300">
-                          {previewUrl ? (
-                            <>
-                              <img
-                                src={previewUrl}
-                                alt="Avatar preview"
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
-                                    if (fallback) fallback.style.display = 'flex';
-                                  }
-                                }}
-                              />
-                              <div 
-                                className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white absolute inset-0"
-                                style={{ display: 'none' }}
-                              >
-                                {editForm.username?.charAt(0)?.toUpperCase() || "U"}
-                              </div>
-                            </>
-                          ) : (
-                            <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
-                          )}
-                        </div>
+                      <div 
+                        className="w-20 h-20 rounded-full overflow-hidden relative border border-gray-300 flex items-center justify-center text-xl text-white font-bold flex-shrink-0"
+                        style={{ backgroundColor: getAvatarColor(user?.id || '') }}
+                      >
+                        {/* Always show initials as background */}
+                        <span className="relative z-10">
+                          {getUserInitials(editForm.username, editForm.full_name)}
+                        </span>
                         
-                        <div className="flex-1">
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => document.getElementById('avatar-file-input')?.click()}
-                              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                              disabled={isUploading}
-                            >
-                              <Upload size={16} />
-                              {isUploading ? 'Uploading...' : 'Upload Photo'}
-                            </Button>
-                            
-                            {previewUrl && (
-                              <Button
-                                onClick={handleRemovePhoto}
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
-                              >
-                                <X size={16} />
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                          
+                        {/* Show file preview or current avatar */}
+                        {(filePreview || editForm.avatar_url) && (
+                          <img
+                            src={filePreview || editForm.avatar_url}
+                            alt="Avatar preview"
+                            className="w-full h-full object-cover absolute inset-0 z-20"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Upload and URL options */}
+                      <div className="flex-1 space-y-3">
+                        {/* File upload option */}
+                        <div>
+                          <Button
+                            onClick={() => document.getElementById('avatar-file-input')?.click()}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+                            disabled={isUploading}
+                          >
+                            <Upload size={16} />
+                            {isUploading ? 'Uploading...' : 'Upload Photo'}
+                          </Button>
                           <input
                             id="avatar-file-input"
                             type="file"
@@ -1600,34 +1554,44 @@ export const Profile = () => {
                             onChange={handleFileSelect}
                             className="hidden"
                           />
-                          
-                          <p className="text-gray-600 text-xs mt-2">
-                            Upload an image file (max 5MB). Supported formats: JPG, PNG, GIF
+                          <p className="text-gray-600 text-xs mt-1">
+                            Upload from your computer (JPG, PNG, max 5MB)
                           </p>
                         </div>
-                      </div>
-                      
-                      {/* Alternative: URL input */}
-                      <div className="border-t border-gray-200 pt-4">
-                        <label className="block text-gray-700 text-sm font-medium mb-2">
-                          Or enter image URL
-                        </label>
-                        <input
-                          type="url"
-                          name="avatar_url"
-                          value={editForm.avatar_url}
-                          onChange={(e) => {
-                            handleEditFormChange(e);
-                            if (e.target.value && !selectedFile) {
-                              setPreviewUrl(e.target.value);
-                            }
-                          }}
-                          placeholder="https://example.com/your-avatar.jpg"
-                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <p className="text-gray-600 text-xs mt-1">
-                          Enter a direct URL to your profile image
-                        </p>
+                        
+                        {/* OR divider */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 border-t border-gray-300"></div>
+                          <span className="text-gray-500 text-sm">OR</span>
+                          <div className="flex-1 border-t border-gray-300"></div>
+                        </div>
+                        
+                        {/* URL input option */}
+                        <div>
+                          <input
+                            type="url"
+                            name="avatar_url"
+                            value={editForm.avatar_url}
+                            onChange={handleEditFormChange}
+                            placeholder="https://example.com/your-avatar.jpg"
+                            className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            disabled={!!selectedFile}
+                          />
+                          <p className="text-gray-600 text-xs mt-1">
+                            Enter a direct URL to your profile image
+                          </p>
+                        </div>
+                        
+                        {/* Remove photo button */}
+                        {(selectedFile || editForm.avatar_url) && (
+                          <Button
+                            onClick={handleRemovePhoto}
+                            className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+                          >
+                            <X size={16} />
+                            Remove Photo
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1787,4 +1751,3 @@ export const Profile = () => {
     </div>
   );
 };
-```
