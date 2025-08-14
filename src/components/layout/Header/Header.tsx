@@ -206,8 +206,8 @@ export const Header = () => {
                       aria-label="Profile menu"
                     >
                       <div 
-                        className="w-full h-full flex items-center justify-center text-white font-bold text-sm bg-[var(--avatar-color)]"
-                        style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
+                        className="w-full h-full flex items-center justify-center text-white font-bold text-sm"
+                        style={{ backgroundColor: getAvatarColor(user?.id || '') }}
                       >
                         {/* Always show initials as background */}
                         <span className="relative z-10">
