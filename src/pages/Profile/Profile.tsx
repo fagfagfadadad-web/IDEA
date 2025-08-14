@@ -224,7 +224,7 @@ export const Profile = () => {
       // Handle file upload if a new file was selected
       if (selectedFile) {
         try {
-          avatarUrl = await uploadFile(selectedFile, 'avatars', 'profile_pictures');
+          avatarUrl = await uploadFile(selectedFile, 'gig-media', 'profile_pictures');
         } catch (uploadError) {
           showErrorToast('Failed to upload image. Please try again.');
           return;

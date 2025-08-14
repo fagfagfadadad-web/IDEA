@@ -234,7 +234,7 @@ export const Header = () => {
                       )}
                     </button>
 
-                    {isProfileMenuOpen && (
+                    {user?.avatar_url && user.avatar_url.trim() !== '' ? (
                       <>
                         <div
                           className="fixed inset-0 z-40"
@@ -327,15 +327,15 @@ export const Header = () => {
                               setIsProfileMenuOpen(false);
                             }}
                             className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-200 w-full text-left"
-                          >
+                          className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white absolute inset-0"
                             <LogOut size={16} />
                             Disconnect
-                          </button>
+                          <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
                         </div>
                       </>
                     )}
-                  </div>
-                </div>
+                      <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white">
+                        <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
               ) : (
                 <Button
                   onClick={handleConnect}
