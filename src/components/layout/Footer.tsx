@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Github, Twitter, X, Send, Mail } from 'lucide-react';
-import { Button, Card } from 'components';
+import { Button } from 'components';
 import { useToast } from '../../context/ToastContext';
 import { supabase } from '../../lib/supabase';
 
@@ -73,86 +73,174 @@ const HowItWorksModal = () => {
 };
 
 export const Footer = () => {
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [supportForm, setSupportForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const { success: showSuccessToast, error: showErrorToast } = useToast();
+
+  const handleSupportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!supportForm.name.trim() || !supportForm.email.trim() || !supportForm.subject.trim() || !supportForm.message.trim()) {
+      showErrorToast('Please fill in all fields');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(supportForm.email)) {
+      showErrorToast('Please enter a valid email address');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Send email using the send-email edge function
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: 'support@ideagigs.store',
+          subject: `Support Request: ${supportForm.subject}`,
+          html: `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Support Request</title>
+            </head>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                <img src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png" alt="IDEA Platform Logo" style="height: 60px; width: auto; margin-bottom: 20px;" />
+                <h1 style="color: white; margin: 0; font-size: 28px;">📧 Support Request</h1>
+              </div>
+              
+              <div style="background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef;">
+                <h2 style="color: #495057; margin-top: 0;">Contact Information</h2>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #007bff;">
+                  <p><strong>Name:</strong> ${supportForm.name}</p>
+                  <p><strong>Email:</strong> ${supportForm.email}</p>
+                  <p><strong>Subject:</strong> ${supportForm.subject}</p>
+                </div>
+                
+                <h3 style="color: #495057;">Message:</h3>
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
+                  <p style="white-space: pre-wrap;">${supportForm.message}</p>
+                </div>
+                
+                <p style="color: #6c757d; font-size: 14px; text-align: center; margin-top: 30px;">
+                  This support request was sent from IDEA Platform.<br>
+                  Reply directly to this email to respond to the user.
+                </p>
+              </div>
+            </body>
+            </html>
+          `
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to send support request');
+      }
+
+      showSuccessToast('Support request sent successfully! We will get back to you soon.');
+      setSupportModalOpen(false);
+      setSupportForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Error sending support request:', error);
+      showErrorToast('Failed to send support request. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="bg-white py-8 border-t border-gray-200">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand Section */}
-          <div className="flex flex-col items-center md:items-start space-y-4">
-            <img
-              src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
-              alt="IDEA Logo"
-              className="h-10 w-auto"
-            />
-            <p className="text-gray-600 max-w-xs text-center md:text-left">
-              The premier marketplace for Web3 talent on MultiversX blockchain
-            </p>
-          </div>
-
-          {/* Links Section */}
-          <div className="grid grid-cols-2 gap-8">
-            <div className="flex flex-col items-center md:items-start space-y-3">
-              <h3 className="font-bold text-gray-800">Platform</h3>
-              <Link 
-                to="/gigs" 
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Browse Gigs
-              </Link>
-              <Link 
-                to="/create-gig" 
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Create Gig
-              </Link>
-              <HowItWorksModal />
+    <>
+      <div className="bg-white py-8 border-t border-gray-200">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Brand Section */}
+            <div className="flex flex-col items-center md:items-start space-y-4">
+              <img
+                src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
+                alt="IDEA Logo"
+                className="h-10 w-auto"
+              />
+              <p className="text-gray-600 max-w-xs text-center md:text-left">
+                The premier marketplace for Web3 talent on MultiversX blockchain
+              </p>
             </div>
 
-            <div className="flex flex-col items-center md:items-start space-y-3">
-              <h3 className="font-bold text-gray-800">Resources</h3>
-              <Link 
-                to="/documentation" 
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Documentation
-              </Link>
-              <Link 
-                to="#" 
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Blog
-              </Link>
-              <button
-                onClick={() => setSupportModalOpen(true)}
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                Support
-              </button>
-            </div>
-          </div>
+            {/* Links Section */}
+            <div className="grid grid-cols-2 gap-8">
+              <div className="flex flex-col items-center md:items-start space-y-3">
+                <h3 className="font-bold text-gray-800">Platform</h3>
+                <Link 
+                  to="/gigs" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Browse Gigs
+                </Link>
+                <Link 
+                  to="/create-gig" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Create Gig
+                </Link>
+                <HowItWorksModal />
+              </div>
 
-          {/* Social Links */}
-          <div className="flex flex-col items-center md:items-start space-y-4">
-            <h3 className="font-bold text-gray-800">Connect</h3>
-            <div className="flex items-center justify-center md:justify-start space-x-4">
-              <a 
-                href="https://x.com/xIdeaMarket" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                <Twitter size={20} />
-              </a>
-              <a 
-                href="#"
-                className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
-              >
-                <Github size={20} />
-              </a>
+              <div className="flex flex-col items-center md:items-start space-y-3">
+                <h3 className="font-bold text-gray-800">Resources</h3>
+                <Link 
+                  to="/documentation" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Documentation
+                </Link>
+                <Link 
+                  to="#" 
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Blog
+                </Link>
+                <button
+                  onClick={() => setSupportModalOpen(true)}
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  Support
+                </button>
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="flex flex-col items-center md:items-start space-y-4">
+              <h3 className="font-bold text-gray-800">Connect</h3>
+              <div className="flex items-center justify-center md:justify-start space-x-4">
+                <a 
+                  href="https://x.com/xIdeaMarket" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  <Twitter size={20} />
+                </a>
+                <a 
+                  href="#"
+                  className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                >
+                  <Github size={20} />
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Support Modal */}
@@ -172,6 +260,12 @@ export const Footer = () => {
                 </div>
                 <button
                   onClick={() => setSupportModalOpen(false)}
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
               <form onSubmit={handleSupportSubmit} className="space-y-4">
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2">
@@ -186,7 +280,7 @@ export const Footer = () => {
                     required
                   />
                 </div>
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2">
                     Email Address *
@@ -200,7 +294,7 @@ export const Footer = () => {
                     required
                   />
                 </div>
-                >
+
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2">
                     Subject *
@@ -214,7 +308,7 @@ export const Footer = () => {
                     required
                   />
                 </div>
-                  <X size={20} />
+
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2">
                     Message *
@@ -228,7 +322,7 @@ export const Footer = () => {
                     required
                   />
                 </div>
-                </button>
+
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <div className="flex items-start gap-2">
                     <div className="text-blue-600 mt-0.5">ℹ️</div>
@@ -240,7 +334,7 @@ export const Footer = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+
                 <div className="flex gap-3 pt-4">
                   <Button
                     type="button"
@@ -262,9 +356,7 @@ export const Footer = () => {
             </div>
           </div>
         </div>
-      )
       )}
     </>
-  )
   );
 };
