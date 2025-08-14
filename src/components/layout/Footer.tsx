@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, X } from 'lucide-react';
+import { Github, Twitter, X, Send, Mail } from 'lucide-react';
 import { Button, Card } from 'components';
+import { useToast } from '../../context/ToastContext';
+import { supabase } from '../../lib/supabase';
 
 const HowItWorksModal = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -120,12 +122,12 @@ export const Footer = () => {
               >
                 Blog
               </Link>
-              <Link 
-                to="#" 
+              <button
+                onClick={() => setSupportModalOpen(true)}
                 className="text-gray-600 hover:text-blue-600 transition-colors duration-200"
               >
                 Support
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -151,6 +153,116 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* Support Modal */}
+      {supportModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Mail size={20} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">Contact Support</h3>
+                    <p className="text-gray-600 text-sm">We're here to help you</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSupportModalOpen(false)}
+              <form onSubmit={handleSupportSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={supportForm.name}
+                    onChange={(e) => setSupportForm({ ...supportForm, name: e.target.value })}
+                    placeholder="Enter your full name"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={supportForm.email}
+                    onChange={(e) => setSupportForm({ ...supportForm, email: e.target.value })}
+                    placeholder="your.email@example.com"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                >
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Subject *
+                  </label>
+                  <input
+                    type="text"
+                    value={supportForm.subject}
+                    onChange={(e) => setSupportForm({ ...supportForm, subject: e.target.value })}
+                    placeholder="Brief description of your issue"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    required
+                  />
+                </div>
+                  <X size={20} />
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    value={supportForm.message}
+                    onChange={(e) => setSupportForm({ ...supportForm, message: e.target.value })}
+                    placeholder="Please describe your issue or question in detail..."
+                    rows={5}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
+                    required
+                  />
+                </div>
+                </button>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <div className="text-blue-600 mt-0.5">ℹ️</div>
+                    <div>
+                      <p className="text-blue-800 font-medium text-sm">Support Information</p>
+                      <p className="text-blue-700 text-xs">
+                        We typically respond within 24 hours. For urgent issues, please include "URGENT" in your subject line.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    type="button"
+                    onClick={() => setSupportModalOpen(false)}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <Send size={16} />
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
