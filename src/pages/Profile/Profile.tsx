@@ -79,6 +79,25 @@ const calculateReviewStats = (reviews: any[]) => {
       averageRating: 0,
       totalReviews: 0,
       ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    };
+  }
+  
+  const totalReviews = reviews.length;
+  const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+  const averageRating = totalRating / totalReviews;
+  
+  const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  reviews.forEach(review => {
+    ratingDistribution[review.rating]++;
+  });
+  
+  return {
+    averageRating,
+    totalReviews,
+    ratingDistribution
+  };
+};
+
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
