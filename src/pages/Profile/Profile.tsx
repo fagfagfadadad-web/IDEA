@@ -25,11 +25,11 @@ import {
 import { Button, Card, ReviewsList, StarRating, EmailNotificationsToggle } from 'components';
 import { TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components/ProfileDashboard';
 import { useGetIsLoggedIn, useGetAccount } from 'lib';
-import { useProfile, useUpdateProfile } from '../hooks/useProfile';
-import { useReviewsForProvider } from '../hooks/useReviews';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
-import { useFileUpload } from '../hooks/useFileUpload';
+import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
+import { useReviewsForProvider } from '../../hooks/useReviews';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { useFileUpload } from '../../hooks/useFileUpload';
 
 // Emoji avatars for users without profile pictures
 const emojiAvatars = [
