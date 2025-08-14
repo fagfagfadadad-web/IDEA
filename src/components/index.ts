@@ -26,3 +26,4 @@ export * from './layout';
 export * from './GigViewsStats';
 export * from './ProfileDashboard';
 export * from './AdminTasks';
+export * from './CookieConsent';

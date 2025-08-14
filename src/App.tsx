@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
+import { CookieConsent } from './components/CookieConsent';
 
 const AppContent = () => {
   const location = useLocation();
@@ -61,6 +62,7 @@ const AppContent = () => {
         </Suspense>
       </Layout>
       <MobileBottomNav />
+      <CookieConsent />
     </>
   );
 };
