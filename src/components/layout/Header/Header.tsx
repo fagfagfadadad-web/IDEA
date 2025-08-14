@@ -204,6 +204,10 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      className="w-10 h-10 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white hover:ring-2 hover:ring-indigo-500 transition-all duration-200"
+                      aria-label="Profile menu"
+                    >
+                      {user?.avatar_url ? (
                         <>
                           <img
                             src={user.avatar_url}
@@ -225,7 +229,9 @@ export const Header = () => {
                             <span className="text-xl">{getEmojiAvatar(user.id)}</span>
                           </div>
                         </>
-                      ) : null}
+                      ) : (
+                        <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
+                      )}
                     </button>
 
                     {isProfileMenuOpen && (
@@ -320,7 +326,12 @@ export const Header = () => {
                               handleLogout();
                               setIsProfileMenuOpen(false);
                             }}
-                        <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
+                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-200 w-full text-left"
+                          >
+                            <LogOut size={16} />
+                            Disconnect
+                          </button>
+                        </div>
                       </>
                     )}
                   </div>
