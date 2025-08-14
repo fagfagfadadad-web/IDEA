@@ -80,6 +80,9 @@ const calculateReviewStats = (reviews: any[]) => {
       totalReviews: 0,
       ratingDistribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
     };
+  }
+};
+
 export const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
