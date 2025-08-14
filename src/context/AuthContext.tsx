@@ -264,12 +264,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!currentSession || !currentSession.user) {
         setAuthMessage('Connecting wallet...');
         const generatedEmail = generateValidEmail(address);
+        const generatedPassword = generateSupabasePassword(address);
 
 
         // Attempt sign in
         const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email: generatedEmail,
-          password: address,
+          password: generatedPassword,
         });
 
         let authUser = signInData?.user;
@@ -277,7 +278,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (signInError && signInError.message.includes('Invalid login credentials')) {
           const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
             email: generatedEmail,
-            password: address,
+            password: generatedPassword,
             options: {
               data: {
                 multiversx_address: address,
@@ -630,6 +631,20 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+// Generate a robust password that meets Supabase password policy requirements
+const generateSupabasePassword = (address: string): string => {
+  // Create a deterministic password from the wallet address
+  // that includes uppercase, lowercase, numbers, and special characters
+  const hash = address.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  
+  const basePassword = Math.abs(hash).toString(36);
+  // Ensure it meets password requirements: min 8 chars, mixed case, numbers, special chars
+  return `Mx${basePassword}${address.slice(-4).toUpperCase()}!`;
 };
 
 export const updateUserEmail = async (userId: string, email: string) => {
