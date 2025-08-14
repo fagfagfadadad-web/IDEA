@@ -667,26 +667,34 @@ export const Profile = () => {
                                       </span>
                                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                         gig.status === 'active' ? 'bg-green-100 text-green-800' :
-                                        gig.status === 'paused' ? 'bg-yellow-100 text-yellow-800' :
+                      Profile Picture
                                         'bg-red-100 text-red-800'
                                       }`}>
                                         {gig.status}
                                       </span>
                                     </div>
-                                  </div>
-                                </div>
-                              ))}
+                          <>
+                            <img
+                              src={editForm.avatar_url}
+                              alt="Avatar preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                  if (fallback) fallback.style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <div 
+                              className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white absolute inset-0"
+                              style={{ display: 'none' }}
+                            >
+                              {editForm.username?.charAt(0)?.toUpperCase() || "U"}
                             </div>
-                            {profile.gigs.length > 6 && (
-                              <div className="text-center mt-4">
-                                <Button
-                                  onClick={() => navigate('/gigs')}
-                                  variant="outline"
-                                  size="sm"
-                                >
-                                  View All Gigs
-                                </Button>
-                              </div>
+                          </>
                             )}
                           </div>
                         )}
@@ -703,16 +711,46 @@ export const Profile = () => {
                       
                       {/* Email Notifications */}
                       <div className="bg-white border border-gray-200 rounded-lg p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">Email Notifications</h3>
+                      {/* Upload controls */}
                         <EmailNotificationsToggle
-                          enabled={profile?.email_notifications_enabled || false}
-                          currentEmail={profile?.email || ''}
-                          onEmailUpdated={(email) => {
-                            if (profile) {
-                              setEditForm({...editForm, email});
-                            }
-                          }}
-                        />
+                        <div className="space-y-3">
+                          <Button
+                            onClick={() => document.getElementById('avatar-upload-input')?.click()}
+                            disabled={isUploadingAvatar}
+                            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-lg flex items-center justify-center gap-2"
+                          >
+                            {isUploadingAvatar ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Upload size={16} />
+                                Upload New Picture
+                              </>
+                            )}
+                          </Button>
+                          
+                          <input
+                            id="avatar-upload-input"
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                          />
+                          
+                          {editForm.avatar_url && (
+                            <Button
+                              onClick={() => setEditForm(prev => ({ ...prev, avatar_url: '' }))}
+                              className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+                            >
+                              <X size={16} />
+                              Remove Picture
+                            </Button>
+                          )}
+                        </div>
+                        
                       </div>
 
                       {/* Account Information */}
@@ -730,7 +768,7 @@ export const Profile = () => {
                           <div>
                             <p className="text-gray-600 text-sm font-medium">Account Created</p>
                             <p className="text-gray-800">{new Date(profile?.created_at || '').toLocaleDateString()}</p>
-                          </div>
+                          Upload an image file (max 5MB). Supported formats: JPG, PNG, GIF
                         </div>
                       </div>
                     </div>
