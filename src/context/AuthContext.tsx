@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Generate a valid email from MultiversX address using first 6 characters
   const generateValidEmail = (address: string) => {
-    const addressPart = address.startsWith('erd1') ? address.substring(4, 10) : address.substring(0, 6);
-    return `${addressPart}@multiversx.com`;
+    // Use the full wallet address to ensure uniqueness
+    return `${address}@multiversx.com`;
   };
 
   const handleSupabaseSignOut = async () => {
