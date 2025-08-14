@@ -73,10 +73,10 @@ export const Header = () => {
     }
   };
 
-  // 🔹 Avatar komponent – písmeno a farba sú vždy viditeľné
+  // 🔹 Avatar komponent – písmeno čierne, vždy nad obrázkom
   const AvatarCircle = ({ size = 40 }: { size?: number }) => (
     <div
-      className="rounded-full overflow-hidden relative flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold"
+      className="rounded-full overflow-hidden relative flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-black font-bold"
       style={{ width: size, height: size }}
     >
       {user?.avatar_url && (
