@@ -271,7 +271,7 @@ export const Header = () => {
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                                  <div className="w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-grey">
                                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                                   </div>
                                 )}
