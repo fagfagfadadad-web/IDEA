@@ -24,16 +24,17 @@ import {
 } from 'lucide-react';
 import { Button, Card, ReviewsList, StarRating, EmailNotificationsToggle } from 'components';
 import { TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components/ProfileDashboard';
-import { useGetIsLoggedIn, useGetAccount } from 'lib';
+import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
-import { useReviewsForProvider } from '../../hooks/useReviews';
+import { useProfile, useUpdateProfile } from '../../hooks/useProfile';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { useGigs, useDeleteGig, useUpdateGigStatus } from '../../hooks/useGigs';
+import { useOrders } from '../../hooks/useOrders';
+import { useNotifications, useMarkAllNotificationsAsRead } from '../../hooks/useNotifications';
+import { useReviewsForProvider } from '../../hooks/useReviews';
+import { usePayments } from '../../hooks/usePayments';
 import { useFileUpload } from '../../hooks/useFileUpload';
-
-// Emoji avatars for users without profile pictures
-const emojiAvatars = [
-  '👨‍💻', '👩‍💻', '🧑‍💻', '👨‍🎨', '👩‍🎨', '🧑‍🎨', 
   '👨‍💼', '👩‍💼', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
   '🦸‍♂️', '🦸‍♀️', '🦸', '🧙‍♂️', '🧙‍♀️', '🧙',
   '👑', '🎯', '🚀', '⭐', '💎', '🔥'
@@ -69,6 +70,8 @@ export const Profile = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const { uploadFile } = useFileUpload();
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
