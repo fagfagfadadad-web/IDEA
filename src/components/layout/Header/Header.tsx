@@ -202,27 +202,31 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 flex items-center justify-center text-white font-bold text-sm bg-[var(--avatar-color)]"
-                      style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300"
                       aria-label="Profile menu"
                     >
-                      {/* Always show initials as background */}
-                      <span className="relative z-10">
-                        {getUserInitials(user?.username, user?.full_name)}
-                      </span>
-                      
-                      {/* Conditionally show avatar image on top */}
-                      {user?.avatar_url && user.avatar_url.trim() !== '' && (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.username || 'Profile'}
-                          className="w-full h-full object-cover absolute inset-0 z-20"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                      )}
+                      <div 
+                        className="w-full h-full flex items-center justify-center text-white font-bold text-sm bg-[var(--avatar-color)]"
+                        style={{ '--avatar-color': getAvatarColor(user?.id || '') } as React.CSSProperties}
+                      >
+                        {/* Always show initials as background */}
+                        <span className="relative z-10">
+                          {getUserInitials(user?.username, user?.full_name)}
+                        </span>
+                        
+                        {/* Conditionally show avatar image on top */}
+                        {user?.avatar_url && user.avatar_url.trim() !== '' && (
+                          <img
+                            src={user.avatar_url}
+                            alt={user.username || 'Profile'}
+                            className="w-full h-full object-cover absolute inset-0 z-20"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
                     </button>
 
                     {/* Desktop Profile Dropdown */}
