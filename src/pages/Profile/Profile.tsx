@@ -5,7 +5,7 @@ import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, Calen
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
 import { useFileUpload } from '../../hooks/useFileUpload';
-import { getEmojiAvatar } from '../../utils/avatars';
+import { getAvatarColor, getUserInitials } from '../../utils/avatars';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
