@@ -5,14 +5,8 @@ import { Button } from 'components';
 import { NotificationsDropdown } from '../../NotificationsMenu';
 import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { useNotifications, Notification as CustomNotification } from '../../../hooks/useNotifications';
-import { useWindowSize } from '../../../hooks/useWindowSize';
-import { useAuth } from '../../../context/AuthContext';
-import { getEmojiAvatar } from '../../../utils/avatars';
 
 export const Header = () => {
-  const isLoggedIn = useGetIsLoggedIn();
-  const { user, logout: authLogout, forceReconnect } = useAuth();
   const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -21,11 +15,7 @@ export const Header = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-  const [avatarLoadError, setAvatarLoadError] = useState(false);
-
-  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
-
+  
   // Debug logging for notifications
   useEffect(() => {
   }, [notifications, unreadCount, isLoggedIn, user?.id]);
