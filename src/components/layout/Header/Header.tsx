@@ -204,26 +204,28 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 ring-2 ring-transparent hover:ring-indigo-200 focus:ring-indigo-300 bg-gray-500 flex items-center justify-center text-lg font-bold text-white"
-                      aria-label="Profile menu"
-                    >
-                      {user?.avatar_url ? (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.username || 'Profile'}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
+                        <>
+                          <img
+                            src={user.avatar_url}
+                            alt={user.username || 'Profile'}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              const parent = e.currentTarget.parentElement;
+                              if (parent) {
+                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                          <div
+                            className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                            style={{ display: 'none' }}
+                          >
+                            <span className="text-xl">{getEmojiAvatar(user.id)}</span>
+                          </div>
+                        </>
                       ) : null}
-                      <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
-                        {user?.avatar_url ? 
-                          getEmojiAvatar(user.id) : 
-                          (user?.username?.charAt(0)?.toUpperCase() || '👤')
-                        }
-                      </span>
                     </button>
 
                     {isProfileMenuOpen && (
@@ -318,12 +320,7 @@ export const Header = () => {
                               handleLogout();
                               setIsProfileMenuOpen(false);
                             }}
-                            className="flex items-center gap-2 px-4 py-3 text-gray-800 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-200 w-full text-left"
-                          >
-                            <LogOut size={16} />
-                            Disconnect
-                          </button>
-                        </div>
+                        <span className="text-xl">{getEmojiAvatar(user?.id || '')}</span>
                       </>
                     )}
                   </div>

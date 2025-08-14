@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus } from 'lucide-react';
+import { User, Settings, Star, Calendar, DollarSign, Clock, Bell, BellOff, Edit, Save, X, Plus, Briefcase, FileText, Eye, AlertTriangle, Shield, MoreVertical, Twitter, Github, Linkedin, Globe, Coins, Check, Trash2, Pause, Play, BarChart3, Package, UserPlus, Camera, Upload } from 'lucide-react';
 import { Button, Card, EmailNotificationsToggle, ReviewsList, TaskManager, CalendarWidget, FinancialOverview, ExternalToolsWidget } from 'components';
 import { useGetIsLoggedIn } from 'lib';
 import { useProfile, useUpdateProfile } from 'hooks';
+import { useFileUpload } from '../../hooks/useFileUpload';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useGigs, useDeleteGig, useUpdateGigStatus } from 'hooks';
@@ -13,6 +14,24 @@ import { useReviewsForProvider } from 'hooks';
 import { usePayments } from 'hooks';
 import { ProfileService } from '../../services/profileService';
 import { TransactionService } from '../../services/transactionService';
+
+// Emoji avatars for users without profile pictures
+const emojiAvatars = [
+  '👨‍💻', '👩‍💻', '🧑‍💻', '👨‍🎨', '👩‍🎨', '🧑‍🎨', 
+  '👨‍💼', '👩‍💼', '🧑‍💼', '👨‍🔬', '👩‍🔬', '🧑‍🔬',
+  '🦸‍♂️', '🦸‍♀️', '🦸', '🧙‍♂️', '🧙‍♀️', '🧙',
+  '👑', '🎯', '🚀', '⭐', '💎', '🔥'
+];
+
+// Function to get consistent emoji based on user ID
+const getEmojiAvatar = (userId: string) => {
+  if (!userId) return '👤';
+  const hash = userId.split('').reduce((a, b) => {
+    a = ((a << 5) - a) + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+  return emojiAvatars[Math.abs(hash) % emojiAvatars.length];
+};
 
 // Helper function to calculate earnings from orders
 const calculateEarnings = (orders: any[]) => {
@@ -86,6 +105,9 @@ export const Profile = () => {
   const [idaBalance, setIdaBalance] = useState<number>(0);
   const [idaTransactions, setIdaTransactions] = useState<any[]>([]);
   const [isLoadingIda, setIsLoadingIda] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [removeCurrentPicture, setRemoveCurrentPicture] = useState(false);
   const [editForm, setEditForm] = useState({
     username: '',
     full_name: '',
@@ -98,6 +120,7 @@ export const Profile = () => {
   });
 
   const updateProfile = useUpdateProfile();
+  const { uploadFile, isUploading } = useFileUpload();
   const deleteGig = useDeleteGig();
   const updateGigStatus = useUpdateGigStatus();
   const markAllAsRead = useMarkAllNotificationsAsRead();
@@ -116,6 +139,9 @@ export const Profile = () => {
         linkedin_url: profile.linkedin_url || '',
         website_url: profile.website_url || '',
       });
+      setSelectedFile(null);
+      setPreviewUrl('');
+      setRemoveCurrentPicture(false);
     }
   }, [profile]);
 
@@ -160,12 +186,65 @@ export const Profile = () => {
     setEditForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showErrorToast('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      showErrorToast('Image must be smaller than 5MB');
+      return;
+    }
+
+    setSelectedFile(file);
+    setRemoveCurrentPicture(false);
+    
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+  };
+
+  const handleRemovePicture = () => {
+    setSelectedFile(null);
+    setPreviewUrl('');
+    setRemoveCurrentPicture(true);
+    setEditForm(prev => ({ ...prev, avatar_url: '' }));
+  };
+
   const handleSaveProfile = async () => {
     try {
+      let avatarUrl = editForm.avatar_url;
+
+      // Handle file upload if a new file was selected
+      if (selectedFile) {
+        try {
+          avatarUrl = await uploadFile(selectedFile, 'avatars', 'profile_pictures');
+        } catch (uploadError) {
+          showErrorToast('Failed to upload image. Please try again.');
+          return;
+        }
+      }
+
+      // Handle picture removal
+      if (removeCurrentPicture) {
+        avatarUrl = '';
+      }
+
       await updateProfile.mutateAsync({
-        ...editForm
+        ...editForm,
+        avatar_url: avatarUrl
       });
+      
       setIsEditModalOpen(false);
+      setSelectedFile(null);
+      setPreviewUrl('');
+      setRemoveCurrentPicture(false);
       refetch();
       success('Profile updated successfully');
     } catch (error) {
@@ -341,11 +420,11 @@ export const Profile = () => {
                       className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-2xl text-white absolute inset-0"
                       style={{ display: 'none' }}
                     >
-                      {profile.username?.charAt(0)?.toUpperCase() || "U"}
+                      {getEmojiAvatar(profile.id)}
                     </div>
                   </>
                 ) : (
-                  <span>{profile.username?.charAt(0)?.toUpperCase() || "U"}</span>
+                  <span className="text-3xl">{getEmojiAvatar(profile.id)}</span>
                 )}
               </div>
               
@@ -1480,12 +1559,469 @@ export const Profile = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Profile Picture
+                    </label>
+                    <div className="space-y-4">
+                      {/* Current avatar preview */}
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0">
+                          {previewUrl ? (
+                            <img
+                              src={previewUrl}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : editForm.avatar_url && !removeCurrentPicture ? (
+                            <>
+                              <img
+                                src={editForm.avatar_url}
+                                alt="Current avatar"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }
+                                }}
+                              />
+                              <div 
+                                className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white absolute inset-0"
+                                style={{ display: 'none' }}
+                              >
+                                <span className="text-2xl">{getEmojiAvatar(profile?.id || '')}</span>
+                              </div>
+                            </>
+                          ) : (
+                            <span className="text-2xl">{getEmojiAvatar(profile?.id || '')}</span>
+                          )}
+                        </div>
+                        
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => document.getElementById('avatar-upload-input')?.click()}
+                            disabled={isUploading}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                          >
+                            {isUploading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <Camera size={16} />
+                                Upload New Picture
+                              </>
+                            )}
+                          </Button>
+                          
+                          {(editForm.avatar_url || selectedFile) && (
+                            <Button
+                              type="button"
+                              onClick={handleRemovePicture}
+                              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            >
+                              <X size={16} />
+                              Remove Picture
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Hidden file input */}
+                      <input
+                        id="avatar-upload-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                      />
+                      
+                      {selectedFile && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center gap-2">
+                            <Upload size={16} className="text-blue-600" />
+                            <span className="text-blue-800 text-sm font-medium">
+                              Selected: {selectedFile.name}
+                            </span>
+                          </div>
+                          <p className="text-blue-700 text-xs mt-1">
+                            Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      )}
+                      
+                      {removeCurrentPicture && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                          <div className="flex items-center gap-2">
+                            <X size={16} className="text-orange-600" />
+                            <span className="text-orange-800 text-sm font-medium">
+                              Current picture will be removed
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={editForm.username}
+                      onChange={handleEditFormChange}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={editForm.full_name}
+                      onChange={handleEditFormChange}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={editForm.bio}
+                      onChange={handleEditFormChange}
+                      rows={4}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Tell others about yourself..."
+                    />
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-800 mb-3">Social Media Links</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          Twitter URL
+                        </label>
+                        <input
+                          type="url"
+                          name="twitter_url"
+                          value={editForm.twitter_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://twitter.com/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          GitHub URL
+                        </label>
+                        <input
+                          type="url"
+                          name="github_url"
+                          value={editForm.github_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://github.com/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          LinkedIn URL
+                        </label>
+                        <input
+                          type="url"
+                          name="linkedin_url"
+                          value={editForm.linkedin_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://linkedin.com/in/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          Website URL
+                        </label>
+                        <input
+                          type="url"
+                          name="website_url"
+                          value={editForm.website_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://yourwebsite.com"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={updateProfile.isLoading || isUploading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    {updateProfile.isLoading || isUploading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete "{selectedGig?.title}"?
+              </p>
+              <p className="text-red-600 mb-4 text-sm">
+                This action cannot be undone. All related orders and messages will also be deleted.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteGig}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                  disabled={deleteGig.isLoading}
+                >
+                  {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
                       Profile Picture URL
                     </label>
                     <div className="flex flex-col md:flex-row gap-4">
                       {/* Current avatar preview */}
                       <div className="w-20 h-20 rounded-full overflow-hidden relative bg-gradient-to-r from-indigo-400 to-pink-400 flex items-center justify-center text-xl text-white flex-shrink-0">
                         {editForm.avatar_url ? (
+                          <img
+                            src={editForm.avatar_url}
+                            alt="Avatar preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                const fallback = parent.querySelector('.fallback-avatar') as HTMLElement;
+                                if (fallback) fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span>{editForm.username?.charAt(0)?.toUpperCase() || "U"}</span>
+                        )}
+                      </div>
+                      
+                      {/* URL input */}
+                      <div className="flex-1">
+                        <input
+                          type="url"
+                          name="avatar_url"
+                          value={editForm.avatar_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://example.com/your-avatar.jpg"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <p className="text-gray-600 text-xs mt-1">
+                          Enter a direct URL to your profile image
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Username
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={editForm.username}
+                      onChange={handleEditFormChange}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={editForm.full_name}
+                      onChange={handleEditFormChange}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-800 text-sm font-medium mb-2">
+                      Bio
+                    </label>
+                    <textarea
+                      name="bio"
+                      value={editForm.bio}
+                      onChange={handleEditFormChange}
+                      rows={4}
+                      className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Tell others about yourself..."
+                    />
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-800 mb-3">Social Media Links</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          Twitter URL
+                        </label>
+                        <input
+                          type="url"
+                          name="twitter_url"
+                          value={editForm.twitter_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://twitter.com/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          GitHub URL
+                        </label>
+                        <input
+                          type="url"
+                          name="github_url"
+                          value={editForm.github_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://github.com/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          LinkedIn URL
+                        </label>
+                        <input
+                          type="url"
+                          name="linkedin_url"
+                          value={editForm.linkedin_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://linkedin.com/in/yourusername"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-800 text-sm font-medium mb-2">
+                          Website URL
+                        </label>
+                        <input
+                          type="url"
+                          name="website_url"
+                          value={editForm.website_url}
+                          onChange={handleEditFormChange}
+                          placeholder="https://yourwebsite.com"
+                          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={updateProfile.isLoading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    {updateProfile.isLoading ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl p-6 max-w-md w-full">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Delete Gig</h3>
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete "{selectedGig?.title}"?
+              </p>
+              <p className="text-red-600 mb-4 text-sm">
+                This action cannot be undone. All related orders and messages will also be deleted.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-lg"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDeleteGig}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg"
+                  disabled={deleteGig.isLoading}
+                >
+                  {deleteGig.isLoading ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
                           <img
                             src={editForm.avatar_url}
                             alt="Avatar preview"
