@@ -264,7 +264,7 @@ export const Header = () => {
                                       }}
                                     />
                                     <div
-                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white absolute inset-0"
+                                      className="fallback-avatar w-full h-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-grey absolute inset-0"
                                       style={{ display: 'none' }}
                                     >
                                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
