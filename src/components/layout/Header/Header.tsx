@@ -245,22 +245,13 @@ export const Header = () => {
                           <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-pink-50">
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full overflow-hidden relative bg-gray-500 flex items-center justify-center text-lg font-bold text-white">
-                                {user?.avatar_url ? (
+                                {user?.avatar_url && user.avatar_url.trim() !== '' ? (
                                   <img
                                     src={user.avatar_url}
-                                    alt={user.username || 'Profile'}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                    }}
                                   />
                                 ) : null}
-                                <span className={`${user?.avatar_url ? 'absolute inset-0 flex items-center justify-center' : ''}`}>
-                                  {user?.avatar_url ? 
-                                    getEmojiAvatar(user.id) : 
-                                    (user?.username?.charAt(0)?.toUpperCase() || '👤')
-                                  }
+                                <span className={`${user?.avatar_url && user.avatar_url.trim() !== '' ? 'absolute inset-0 flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 text-xl' : 'text-xl'}`}>
+                                  {getEmojiAvatar(user?.id || '')}
                                 </span>
                               </div>
                               <div>
