@@ -19,14 +19,7 @@ const PHASE_1_END = '2025-08-15T23:59:59+02:00';
 const PHASE_2_SUPPLY = 4000000;
 const PHASE_2_PRICE_EGLD = 0.0006;
 const PHASE_2_END = '2025-08-30T23:59:59+02:00';
-const MINIMUM_PURCHASE_EGLD = 1;
-const MINIMUM_PURCHASE_IDA = 5000;
 const LOGO_URL = 'https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png';
-
-// Realistic data
-const REALISTIC_TOTAL_SOLD = 5000000;
-const REALISTIC_TOKENS_AVAILABLE = 0;
-const SALE_IS_COMPLETE = true;
 
 // Utility function to shorten hash
 const shortenHash = (hash: string, length: number = 8): string => {
@@ -194,7 +187,7 @@ const MobilePhaseCard: React.FC<{
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg ${
               isActive 
-                ? 'bg-gray-700 text-grey border-2 border-indigo-400' 
+                ? 'bg-gray-700 text-white border-2 border-indigo-400' 
                 : isCompleted
                 ? 'bg-gray-700 text-white border-2 border-green-400'
                 : 'bg-gray-700 text-white border-2 border-gray-400'
@@ -202,8 +195,8 @@ const MobilePhaseCard: React.FC<{
               <span className="text-xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-grey">{title}</h3>
-              <p className="text-grey text-sm font-medium">Phase {phase} Sale</p>
+              <h3 className="text-lg font-bold text-white">{title}</h3>
+              <p className="text-gray-300 text-sm font-medium">Phase {phase} Sale</p>
             </div>
           </div>
         </div>
@@ -223,7 +216,7 @@ const MobilePhaseCard: React.FC<{
               <span className="text-green-300 text-xs font-medium uppercase tracking-wide">Price</span>
             </div>
             <p className="text-white text-lg font-bold">{price.toFixed(6)} EGLD</p>
-            <p className="text-gray-300 text-xs">per IDA token</p>
+            <p className="text-gray-300 text-xs">per IDA token (~{(1 / price).toFixed(2)} IDA per EGLD)</p>
           </div>
         </div>
 
@@ -318,7 +311,7 @@ const DesktopPhaseCard: React.FC<{
               <span className="text-3xl font-bold">{phase}</span>
             </div>
             <div>
-              <h3 className="text-3xl font-bold text-grey-600">{title}</h3>
+              <h3 className="text-3xl font-bold text-white">{title}</h3>
               <p className="text-gray-500 text-lg font-medium">Phase {phase} Token Sale</p>
             </div>
           </div>
@@ -339,7 +332,7 @@ const DesktopPhaseCard: React.FC<{
               <span className="text-green-300 text-sm font-medium uppercase tracking-wide">Price</span>
             </div>
             <p className="text-white text-2xl font-bold">{price.toFixed(6)} EGLD</p>
-            <p className="text-gray-300 text-sm">per IDA token</p>
+            <p className="text-gray-300 text-sm">per IDA token (~{(1 / price).toFixed(2)} IDA per EGLD)</p>
           </div>
         </div>
 
@@ -402,6 +395,7 @@ const MobileBuyForm: React.FC<{
   transactionHash: string | null;
   isPurchaseSuccessful: boolean;
   isPhaseActive: boolean;
+  minPurchaseEgld: number;
 }> = ({
   currentPhase,
   currentPrice,
@@ -416,6 +410,7 @@ const MobileBuyForm: React.FC<{
   transactionHash,
   isPurchaseSuccessful,
   isPhaseActive,
+  minPurchaseEgld,
 }) => {
   const isValidAddress = (address?: string): boolean => {
     if (!address) return false;
@@ -445,6 +440,11 @@ const MobileBuyForm: React.FC<{
             <p className="text-white text-sm font-medium">⚠️ This phase is not active</p>
           </div>
         )}
+        {availableTokens === 0 && (
+          <div className="bg-red-600 border border-red-400 rounded-xl p-3 mt-3">
+            <p className="text-white text-sm font-medium">⚠️ Sale is complete - no tokens available</p>
+          </div>
+        )}
       </div>
 
       <div className="p-6 space-y-6">
@@ -454,14 +454,14 @@ const MobileBuyForm: React.FC<{
           </label>
           <input
             type="number"
-            placeholder={`Min: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA`}
+            placeholder={`Min: ${(minPurchaseEgld / currentPrice).toLocaleString()} IDA`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
             className="w-full p-3 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-base font-medium"
-            disabled={!isPhaseActive}
+            disabled={!isPhaseActive || availableTokens === 0}
           />
           <p className="text-gray-300 text-sm">
-            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
+            Minimum: {minPurchaseEgld} EGLD ({(minPurchaseEgld / currentPrice).toLocaleString()} IDA)
           </p>
         </div>
 
@@ -477,6 +477,10 @@ const MobileBuyForm: React.FC<{
               <span className="text-indigo-400 font-bold text-base">{Number(buyAmount || 0).toLocaleString()} IDA</span>
             </div>
             <div className="flex justify-between">
+              <span className="text-gray-300 font-medium text-sm">Price per IDA:</span>
+              <span className="text-white text-sm">{currentPrice.toFixed(6)} EGLD (~{(1 / currentPrice).toFixed(2)} IDA per EGLD)</span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-gray-300 font-medium text-sm">Available:</span>
               <span className="text-white text-sm">{availableTokens.toLocaleString()} IDA</span>
             </div>
@@ -487,15 +491,16 @@ const MobileBuyForm: React.FC<{
           onClick={handleBuy}
           disabled={
             !isPhaseActive ||
+            availableTokens === 0 ||
             !buyAmount ||
-            Number(buyAmount) < MINIMUM_PURCHASE_IDA ||
+            Number(buyAmount) < minPurchaseEgld / currentPrice ||
             pending ||
-            availableTokens < MINIMUM_PURCHASE_IDA ||
+            availableTokens < minPurchaseEgld / currentPrice ||
             !isLoggedIn ||
             !isValidAddress(userAddress)
           }
           className={`w-full py-4 text-lg font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
-            isPhaseActive && !pending && isLoggedIn
+            isPhaseActive && !pending && isLoggedIn && availableTokens > 0
               ? 'bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white shadow-xl'
               : 'bg-gray-600 text-gray-300 cursor-not-allowed'
           }`}
@@ -504,10 +509,12 @@ const MobileBuyForm: React.FC<{
             ? 'Connect Wallet'
             : !isPhaseActive
             ? 'Phase Not Active'
+            : availableTokens === 0
+            ? 'Sale Complete'
             : pending
             ? 'Processing...'
             : 'BUY IDA TOKENS'}
-          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={20} />}
+          {!pending && isPhaseActive && isLoggedIn && availableTokens > 0 && <ArrowRight size={20} />}
         </Button>
 
         {!isLoggedIn && (
@@ -535,6 +542,7 @@ const DesktopBuyForm: React.FC<{
   transactionHash: string | null;
   isPurchaseSuccessful: boolean;
   isPhaseActive: boolean;
+  minPurchaseEgld: number;
 }> = ({
   currentPhase,
   currentPrice,
@@ -549,6 +557,7 @@ const DesktopBuyForm: React.FC<{
   transactionHash,
   isPurchaseSuccessful,
   isPhaseActive,
+  minPurchaseEgld,
 }) => {
   const isValidAddress = (address?: string): boolean => {
     if (!address) return false;
@@ -580,6 +589,13 @@ const DesktopBuyForm: React.FC<{
             </p>
           </div>
         )}
+        {availableTokens === 0 && (
+          <div className="bg-red-600 border border-red-400 rounded-xl p-4 mt-4">
+            <p className="text-white text-base font-medium">
+              ⚠️ Sale is complete - no tokens available
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="p-8 space-y-8">
@@ -589,14 +605,14 @@ const DesktopBuyForm: React.FC<{
           </label>
           <input
             type="number"
-            placeholder={`Minimum: ${MINIMUM_PURCHASE_IDA.toLocaleString()} IDA (1 EGLD)`}
+            placeholder={`Minimum: ${(minPurchaseEgld / currentPrice).toLocaleString()} IDA (${minPurchaseEgld} EGLD)`}
             value={buyAmount}
             onChange={(e) => setBuyAmount(e.target.value)}
             className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-300 text-xl font-medium"
-            disabled={!isPhaseActive}
+            disabled={!isPhaseActive || availableTokens === 0}
           />
           <p className="text-gray-300 text-lg">
-            Minimum: {MINIMUM_PURCHASE_EGLD} EGLD ({MINIMUM_PURCHASE_IDA.toLocaleString()} IDA)
+            Minimum: {minPurchaseEgld} EGLD ({(minPurchaseEgld / currentPrice).toLocaleString()} IDA)
           </p>
         </div>
 
@@ -613,7 +629,7 @@ const DesktopBuyForm: React.FC<{
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-300 font-medium text-lg">Price per IDA:</span>
-              <span className="text-white text-lg">{currentPrice.toFixed(6)} EGLD</span>
+              <span className="text-white text-lg">{currentPrice.toFixed(6)} EGLD (~{(1 / currentPrice).toFixed(2)} IDA per EGLD)</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-300 font-medium text-lg">Available:</span>
@@ -626,15 +642,16 @@ const DesktopBuyForm: React.FC<{
           onClick={handleBuy}
           disabled={
             !isPhaseActive ||
+            availableTokens === 0 ||
             !buyAmount ||
-            Number(buyAmount) < MINIMUM_PURCHASE_IDA ||
+            Number(buyAmount) < minPurchaseEgld / currentPrice ||
             pending ||
-            availableTokens < MINIMUM_PURCHASE_IDA ||
+            availableTokens < minPurchaseEgld / currentPrice ||
             !isLoggedIn ||
             !isValidAddress(userAddress)
           }
           className={`w-full py-6 text-2xl font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${
-            isPhaseActive && !pending && isLoggedIn
+            isPhaseActive && !pending && isLoggedIn && availableTokens > 0
               ? 'bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transform'
               : 'bg-gray-600 text-gray-300 cursor-not-allowed'
           }`}
@@ -643,10 +660,12 @@ const DesktopBuyForm: React.FC<{
             ? 'Connect Wallet to Buy'
             : !isPhaseActive
             ? 'Phase Not Active'
+            : availableTokens === 0
+            ? 'Sale Complete'
             : pending
             ? 'Processing...'
             : 'BUY IDA TOKENS'}
-          {!pending && isPhaseActive && isLoggedIn && <ArrowRight size={28} />}
+          {!pending && isPhaseActive && isLoggedIn && availableTokens > 0 && <ArrowRight size={28} />}
         </Button>
 
         {!isLoggedIn && (
@@ -706,7 +725,8 @@ const DesktopStatsOverview: React.FC<{
   currentPhase: number;
   isPhase1Active: boolean;
   isPhase2Active: boolean;
-}> = ({ phase1Sold, phase2Sold, egldPriceUsd, currentPhase, isPhase1Active, isPhase2Active }) => {
+  isSaleComplete: boolean;
+}> = ({ phase1Sold, phase2Sold, egldPriceUsd, currentPhase, isPhase1Active, isPhase2Active, isSaleComplete }) => {
   return (
     <div className="bg-gray-900 rounded-3xl shadow-2xl border border-gray-700 p-10">
       <div className="grid grid-cols-4 gap-8">
@@ -743,7 +763,7 @@ const DesktopStatsOverview: React.FC<{
           <p className="text-blue-300 text-sm font-medium uppercase tracking-wide">Current Phase</p>
           <p className="text-3xl font-bold text-white mt-2">Phase {currentPhase}</p>
           <p className="text-gray-300 text-sm mt-1">
-            {isPhase1Active ? 'Active Now' : isPhase2Active ? 'Active Now' : 'Upcoming'}
+            {isSaleComplete ? 'Sale Complete' : isPhase1Active || isPhase2Active ? 'Active Now' : 'Ended'}
           </p>
         </div>
         
@@ -771,14 +791,13 @@ export const TokenSale: React.FC = () => {
   const [contractTokenPrice, setContractTokenPrice] = useState(0);
   const [contractMinBuyLimit, setContractMinBuyLimit] = useState(0);
   const [egldPriceUsd, setEgldPriceUsd] = useState(0);
-  const [totalBoughtFromContract, setTotalBoughtFromContract] = useState(REALISTIC_TOTAL_SOLD);
-  const [tokensAvailableInContract, setTokensAvailableInContract] = useState(REALISTIC_TOKENS_AVAILABLE);
+  const [totalBoughtFromContract, setTotalBoughtFromContract] = useState(0);
+  const [tokensAvailableInContract, setTokensAvailableInContract] = useState(0);
   const [egldCost, setEgldCost] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isPurchaseSuccessful, setIsPurchaseSuccessful] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Update mobile state on window resize
@@ -786,12 +805,27 @@ export const TokenSale: React.FC = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Výpočet dát pre fázy na základe údajov z kontraktu
+  // Determine current phase and sale status
+  const now = new Date();
+  const phase1End = new Date(PHASE_1_END);
+  const phase2End = new Date(PHASE_2_END);
+  
+  const isPhase1Active = now < phase1End;
+  const isPhase1Completed = now > phase1End;
+  const isPhase2Active = now > phase1End && now < phase2End;
+  const isPhase2Completed = now > phase2End;
+  
+  const currentPhase = isPhase1Active ? 1 : isPhase2Active ? 2 : 2;
+  const currentPrice = contractTokenPrice > 0 ? contractTokenPrice : (isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD);
+  const currentSupply = isPhase1Active ? PHASE_1_SUPPLY : PHASE_2_SUPPLY;
+  const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
+  const isSaleComplete = tokensAvailableInContract === 0 || (!isPhase1Active && !isPhase2Active);
+
+  // Calculate phase data based on contract data
   const calculatePhaseData = (totalBought: number) => {
     let phase1Sold = 0;
     let phase2Sold = 0;
@@ -806,26 +840,11 @@ export const TokenSale: React.FC = () => {
     return { phase1Sold, phase2Sold };
   };
 
-  // Určenie aktuálnej fázy na základe času
-  const now = new Date();
-  const phase1End = new Date('2025-08-15T23:59:59+02:00');
-  const phase2End = new Date('2025-08-30T23:59:59+02:00');
-  
-  const isPhase1Active = now < phase1End;
-  const isPhase1Completed = now > phase1End;
-  const isPhase2Active = now > phase1End && now < phase2End;
-  const isPhase2Completed = now > phase2End;
-  
-  const currentPhase = isPhase1Active ? 1 : 2;
-  const currentPrice = isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
-  const currentSupply = isPhase1Active ? PHASE_1_SUPPLY : PHASE_2_SUPPLY;
   const { phase1Sold, phase2Sold } = calculatePhaseData(totalBoughtFromContract);
   const currentSold = isPhase1Active ? phase1Sold : phase2Sold;
-  const currentAvailable = currentSupply - currentSold;
+  const currentAvailable = tokensAvailableInContract;
 
-  const isCurrentPhaseActive = isPhase1Active || isPhase2Active;
-
-  // Získanie ceny EGLD v USD
+  // Fetch EGLD price in USD
   const fetchEgldPrice = async () => {
     try {
       const response = await axios.get(
@@ -839,7 +858,7 @@ export const TokenSale: React.FC = () => {
     }
   };
 
-  // Získanie dát z kontraktu
+  // Fetch sale data from contract
   const fetchSaleData = async () => {
     try {
       setIsLoading(true);
@@ -851,52 +870,49 @@ export const TokenSale: React.FC = () => {
       try {
         const queryPrice = contract.createQuery({ func: new ContractFunction('getTokenPrice') });
         const priceResponse = await networkProvider.queryContract(queryPrice);
-
-        if (priceResponse && priceResponse.returnData && priceResponse.returnData.length > 0) {
+        if (priceResponse?.returnData?.length > 0) {
           const priceWei = Buffer.from(priceResponse.returnData[0], 'base64').toString('hex');
           const priceEgld = Number(BigInt('0x' + priceWei)) / 1e18;
           console.log('Contract token price:', priceEgld, 'EGLD');
           setContractTokenPrice(priceEgld);
         } else {
-          console.log('No valid token price data returned from contract, using default:', PHASE_1_PRICE_EGLD);
-          setContractTokenPrice(PHASE_1_PRICE_EGLD);
+          console.log('No valid token price data, using default:', isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD);
+          setContractTokenPrice(isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD);
         }
       } catch (error) {
         console.error('Error querying token price:', error);
-        setContractTokenPrice(PHASE_1_PRICE_EGLD);
+        setContractTokenPrice(isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD);
       }
 
       // Query minimum buy limit
       try {
         const queryMinBuyLimit = contract.createQuery({ func: new ContractFunction('getMinBuyLimit') });
         const minBuyResponse = await networkProvider.queryContract(queryMinBuyLimit);
-
-        if (minBuyResponse && minBuyResponse.returnData && minBuyResponse.returnData.length > 0) {
+        if (minBuyResponse?.returnData?.length > 0) {
           const minBuyWei = Buffer.from(minBuyResponse.returnData[0], 'base64').toString('hex');
           const minBuyEgld = Number(BigInt('0x' + minBuyWei)) / 1e18;
           console.log('Contract minimum buy limit:', minBuyEgld, 'EGLD');
           setContractMinBuyLimit(minBuyEgld);
         } else {
-          console.log('No valid minimum buy limit data returned from contract, using default:', MINIMUM_PURCHASE_EGLD);
-          setContractMinBuyLimit(MINIMUM_PURCHASE_EGLD);
+          console.log('No valid minimum buy limit data, using default:', isPhase1Active ? 0.2 : 3);
+          setContractMinBuyLimit(isPhase1Active ? 0.2 : 3); // 5000 IDA * price
         }
       } catch (error) {
         console.error('Error querying minimum buy limit:', error);
-        setContractMinBuyLimit(MINIMUM_PURCHASE_EGLD);
+        setContractMinBuyLimit(isPhase1Active ? 0.2 : 3);
       }
 
       // Query total bought amount
       try {
         const queryTotalBought = contract.createQuery({ func: new ContractFunction('getTotalBoughtAmountOfEsdt') });
         const totalBoughtResponse = await networkProvider.queryContract(queryTotalBought);
-
-        if (totalBoughtResponse && totalBoughtResponse.returnData && totalBoughtResponse.returnData.length > 0) {
+        if (totalBoughtResponse?.returnData?.length > 0) {
           const totalBoughtWei = Buffer.from(totalBoughtResponse.returnData[0], 'base64').toString('hex');
           const totalBoughtTokens = Number(BigInt('0x' + totalBoughtWei)) / 1e18;
-          console.log('Total bought IDA tokens from contract:', totalBoughtTokens);
+          console.log('Total bought IDA tokens:', totalBoughtTokens);
           setTotalBoughtFromContract(totalBoughtTokens);
         } else {
-          console.log('No valid total bought amount data returned from contract');
+          console.log('No valid total bought amount data');
           setTotalBoughtFromContract(0);
         }
       } catch (error) {
@@ -910,14 +926,13 @@ export const TokenSale: React.FC = () => {
           `https://api.multiversx.com/accounts/${saleContractAddress}/tokens/${TOKEN_ID}`,
           { timeout: 15000 }
         );
-
-        if (response.data && response.data.balance) {
+        if (response.data?.balance) {
           const balanceWei = response.data.balance;
           const balanceTokens = Number(balanceWei) / 1e18;
           console.log('Available IDA tokens in contract:', balanceTokens);
           setTokensAvailableInContract(balanceTokens);
         } else {
-          console.log('No token balance data returned from API');
+          console.log('No token balance data returned');
           setTokensAvailableInContract(0);
         }
       } catch (error) {
@@ -933,41 +948,40 @@ export const TokenSale: React.FC = () => {
     }
   };
 
-  // Výpočet EGLD ceny
+  // Calculate EGLD cost
   useEffect(() => {
     const idaAmount = Number(buyAmount);
-    const priceToUse = currentPhase === 1 ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD;
-
+    const priceToUse = contractTokenPrice > 0 ? contractTokenPrice : (isPhase1Active ? PHASE_1_PRICE_EGLD : PHASE_2_PRICE_EGLD);
     if (!isNaN(idaAmount) && idaAmount > 0 && priceToUse > 0) {
       const cost = idaAmount * priceToUse;
       setEgldCost(cost);
     } else {
       setEgldCost(0);
     }
-  }, [buyAmount, currentPhase]);
+  }, [buyAmount, contractTokenPrice, isPhase1Active]);
 
-  // Spracovanie nákupu tokenov
+  // Handle token purchase
   const handleBuy = async () => {
     if (!isAuthenticated || !address) {
       showErrorToast('Please connect your MultiversX wallet to proceed.');
       return;
     }
 
-    if (!isCurrentPhaseActive) {
-      showErrorToast('No active token sale phase at the moment.');
+    if (!isCurrentPhaseActive || isSaleComplete) {
+      showErrorToast('No active token sale phase or sale is complete.');
       return;
     }
 
     const idaAmount = Number(buyAmount);
-    const minTokens = currentPhase === 1 ? 5000 : MINIMUM_PURCHASE_EGLD / currentPrice;
+    const minTokens = contractMinBuyLimit > 0 ? contractMinBuyLimit / currentPrice : (isPhase1Active ? 5000 : 5000);
 
     if (!buyAmount || isNaN(idaAmount) || idaAmount < minTokens) {
-      showErrorToast(`Minimum purchase is ${MINIMUM_PURCHASE_EGLD} EGLD (${minTokens.toLocaleString()} IDA tokens).`);
+      showErrorToast(`Minimum purchase is ${contractMinBuyLimit || (isPhase1Active ? 0.2 : 3)} EGLD (${minTokens.toLocaleString()} IDA tokens).`);
       return;
     }
 
     if (idaAmount > tokensAvailableInContract) {
-      showErrorToast(`Only ${tokensAvailableInContract.toLocaleString()} IDA tokens available in contract.`);
+      showErrorToast(`Only ${tokensAvailableInContract.toLocaleString()} IDA tokens available.`);
       return;
     }
 
@@ -977,7 +991,6 @@ export const TokenSale: React.FC = () => {
       setIsPurchaseSuccessful(false);
 
       const paymentAtomic = BigInt(Math.floor(egldCost * 1e18));
-
       const transaction = new Transaction({
         value: paymentAtomic,
         data: Buffer.from('buy'),
@@ -1014,11 +1027,8 @@ export const TokenSale: React.FC = () => {
           if (response.data.status === 'success') {
             setIsPurchaseSuccessful(true);
             showSuccessToast(`Successfully purchased ${Number(buyAmount).toLocaleString()} IDA tokens!`);
-
             await fetchSaleData();
-
             setBuyAmount('');
-
             setTimeout(() => {
               setIsPurchaseSuccessful(false);
               setTransactionHash(null);
@@ -1028,7 +1038,6 @@ export const TokenSale: React.FC = () => {
           console.error('Error checking transaction status:', error);
         }
       }, 3000);
-
     } catch (error) {
       console.error('Error during purchase:', error);
       showErrorToast(error instanceof Error ? error.message : 'Purchase failed');
@@ -1040,14 +1049,15 @@ export const TokenSale: React.FC = () => {
   useEffect(() => {
     fetchEgldPrice();
     fetchSaleData();
-
     const interval = setInterval(() => {
       fetchEgldPrice();
       fetchSaleData();
     }, 60000);
-
     return () => clearInterval(interval);
   }, []);
+
+  // Use contract minimum buy limit or fallback
+  const minPurchaseEgld = contractMinBuyLimit > 0 ? contractMinBuyLimit : (isPhase1Active ? 0.2 : 3);
 
   if (isMobile) {
     return (
@@ -1108,7 +1118,7 @@ export const TokenSale: React.FC = () => {
                     phase={2}
                     title="Public Sale"
                     supply={PHASE_2_SUPPLY}
-                    price={PHASE_2_PRICE_EGLD}
+                    price={contractTokenPrice > 0 ? contractTokenPrice : PHASE_2_PRICE_EGLD}
                     sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
                     isActive={isPhase2Active}
                     isCompleted={isPhase2Completed}
@@ -1131,6 +1141,7 @@ export const TokenSale: React.FC = () => {
                   transactionHash={transactionHash}
                   isPurchaseSuccessful={isPurchaseSuccessful}
                   isPhaseActive={isCurrentPhaseActive}
+                  minPurchaseEgld={minPurchaseEgld}
                 />
 
                 {/* Mobile Transaction Status */}
@@ -1200,6 +1211,7 @@ export const TokenSale: React.FC = () => {
                   currentPhase={currentPhase}
                   isPhase1Active={isPhase1Active}
                   isPhase2Active={isPhase2Active}
+                  isSaleComplete={isSaleComplete}
                 />
               )}
             </div>
@@ -1241,7 +1253,7 @@ export const TokenSale: React.FC = () => {
                     phase={2}
                     title="Public Sale Phase"
                     supply={PHASE_2_SUPPLY}
-                    price={PHASE_2_PRICE_EGLD}
+                    price={contractTokenPrice > 0 ? contractTokenPrice : PHASE_2_PRICE_EGLD}
                     sold={Math.max(0, totalBoughtFromContract - PHASE_1_SUPPLY)}
                     isActive={isPhase2Active}
                     isCompleted={isPhase2Completed}
@@ -1266,6 +1278,7 @@ export const TokenSale: React.FC = () => {
                     transactionHash={transactionHash}
                     isPurchaseSuccessful={isPurchaseSuccessful}
                     isPhaseActive={isCurrentPhaseActive}
+                    minPurchaseEgld={minPurchaseEgld}
                   />
 
                   {/* Desktop Transaction Status */}
