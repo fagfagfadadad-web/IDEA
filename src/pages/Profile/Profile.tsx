@@ -1232,7 +1232,7 @@ export const Profile = () => {
                     <div className="bg-purple-50 border border-purple-200 p-6 rounded-xl">
                       <div className="flex items-center gap-3 mb-2">
                         <Coins size={20} className="text-purple-600" />
-                        <span className="text-purple-800 font-medium">IDA Balance</span>
+                        <span className="text-purple-800 font-medium">AirDrop IDA Balance</span>
                       </div>
                       {isLoadingIda ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
