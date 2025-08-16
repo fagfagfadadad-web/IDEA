@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Optimalizovaný title -->
     <title>Xidea: Web3 Freelancing Marketplace on MultiversX</title>
 
     <!-- SEO Meta tagy -->
@@ -49,21 +48,50 @@
     }
     </script>
 
-    <!-- Štýl pre skrytie SEO hlavičky -->
     <style>
-      header {
+      /* Skryj SEO text, ale nech zostane pre vyhľadávače */
+      .seo-hidden {
         display: none;
+      }
+
+      /* Príklad štýlov pre menu */
+      nav ul {
+        list-style: none;
+        display: flex;
+        gap: 1rem;
+        padding: 0;
+      }
+
+      nav a {
+        text-decoration: none;
+        font-weight: 600;
+        color: #111;
       }
     </style>
   </head>
+
   <body class="bg-slate-200">
-    <!-- Skrytý obsah pre SEO -->
-    <header>
+    <!-- Skrytý SEO obsah -->
+    <div class="seo-hidden">
       <h1>Xidea: Web3 Freelancing Marketplace on MultiversX</h1>
       <p>Hire top Web3 freelancers for your projects. Find developers, artists, and blockchain experts on Xidea, powered by MultiversX.</p>
+    </div>
+
+    <!-- Viditeľná hlavička s menu -->
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/freelancers">Freelancers</a></li>
+          <li><a href="/projects">Projects</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
     </header>
 
     <noscript>You need to enable JavaScript to run this app.</noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
