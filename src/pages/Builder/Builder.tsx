@@ -2,14 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, Eye, Upload, Download, LogOut, Rocket } from 'lucide-react';
-import { 
-  Save, 
-  Eye, 
-  Download, 
-  Upload, 
-  Trash2, 
-  Copy, 
-  Settings, 
   Palette, 
   Type, 
   Image as ImageIcon,
