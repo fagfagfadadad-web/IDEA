@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { BuilderData } from '../lib/schema';
+import { generateProjectFiles } from './gitDeploy';
 
 // Your Netlify OAuth Client ID - replace with your actual Client ID
 const NETLIFY_CLIENT_ID = '44KA5odL7EffIH4g6DyCELlcK1aHaH7T4VJzFofh-uQ';
@@ -18,6 +19,7 @@ export const deployToNetlify = async (projectData: BuilderData, netlifyToken: st
   success: boolean;
   url?: string;
   error?: string;
+  isFullDapp?: boolean;
 }> => {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -39,7 +41,8 @@ export const deployToNetlify = async (projectData: BuilderData, netlifyToken: st
       },
       body: JSON.stringify({
         projectData,
-        netlifyToken
+        netlifyToken,
+        deployType: 'static' // For now, deploy static version
       })
     });
     
@@ -53,12 +56,90 @@ export const deployToNetlify = async (projectData: BuilderData, netlifyToken: st
     return {
       success: result.success,
       url: result.url,
-      error: result.error
+      error: result.error,
+      isFullDapp: false
     };
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Deployment failed'
+      error: error instanceof Error ? error.message : 'Deployment failed',
+      isFullDapp: false
+    };
+  }
+};
+
+// Deploy full React dApp to Netlify (requires external build service)
+export const deployFullDappToNetlify = async (projectData: BuilderData, netlifyToken: string): Promise<{
+  success: boolean;
+  url?: string;
+  error?: string;
+  isFullDapp?: boolean;
+}> => {
+  try {
+    // Generate complete React project files
+    const projectFiles = generateProjectFiles(projectData);
+    
+    // Create site on Netlify
+    const siteResponse = await fetch('https://api.netlify.com/api/v1/sites', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${netlifyToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: `${projectData.slug}-full-${Date.now()}`,
+        repo: {
+          provider: 'manual',
+          repo: `${projectData.slug}-dapp`
+        }
+      }),
+    });
+
+    if (!siteResponse.ok) {
+      const errorText = await siteResponse.text();
+      throw new Error(`Failed to create site: ${siteResponse.status} ${errorText}`);
+    }
+
+    const site = await siteResponse.json();
+    
+    // Create a ZIP file with all project files
+    const zip = new JSZip();
+    
+    // Add all generated project files to ZIP
+    Object.entries(projectFiles).forEach(([filePath, content]) => {
+      zip.file(filePath, content);
+    });
+    
+    // Generate ZIP as base64
+    const zipContent = await zip.generateAsync({ type: 'base64' });
+    
+    // Deploy the ZIP file to Netlify
+    const deployResponse = await fetch(`https://api.netlify.com/api/v1/sites/${site.id}/deploys`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${netlifyToken}`,
+        'Content-Type': 'application/zip',
+      },
+      body: zipContent,
+    });
+
+    if (!deployResponse.ok) {
+      const errorText = await deployResponse.text();
+      throw new Error(`Failed to deploy: ${deployResponse.status} ${errorText}`);
+    }
+
+    const deployment = await deployResponse.json();
+
+    return {
+      success: true,
+      url: site.url,
+      isFullDapp: true
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Full dApp deployment failed',
+      isFullDapp: true
     };
   }
 };
