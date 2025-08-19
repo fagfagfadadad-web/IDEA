@@ -117,7 +117,7 @@ export const StakingWidget: React.FC<StakingWidgetProps> = ({
                 value={amount}
                 onChange={(e) => setAmount(Number(e.target.value))}
                 className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:border-transparent"
-                style={{ focusRingColor: theme.primary }}
+                style={{ '--focus-ring-color': theme.primary } as React.CSSProperties}
                 placeholder={`Min: ${minStake}, Max: ${maxStake}`}
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -150,10 +150,6 @@ export const StakingWidget: React.FC<StakingWidgetProps> = ({
               onClick={handleStake}
               disabled={isStaking || isUnstaking || amount < minStake || amount > maxStake}
               className="py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
-              style={{ 
-                backgroundColor: theme.primary,
-                color: '#ffffff'
-              }}
             >
               {isStaking ? (
                 <div className="flex items-center gap-2">
@@ -168,7 +164,11 @@ export const StakingWidget: React.FC<StakingWidgetProps> = ({
             <Button
               onClick={handleUnstake}
               disabled={isStaking || isUnstaking}
-              className="py-3 px-4 rounded-lg font-medium bg-gray-600 hover:bg-gray-700 text-white transition-all duration-200 disabled:opacity-50"
+              className="py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
+              style={{ 
+                backgroundColor: '#4b5563',
+                color: '#ffffff'
+              }}
             >
               {isUnstaking ? (
                 <div className="flex items-center gap-2">

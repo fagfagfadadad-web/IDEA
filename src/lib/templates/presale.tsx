@@ -249,7 +249,7 @@ export const PresaleTemplate: React.FC<PresaleTemplateProps> = ({
                       value={amount}
                       onChange={(e) => setAmount(Number(e.target.value))}
                       className="w-full px-4 py-3 bg-black/30 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:border-transparent"
-                      style={{ focusRingColor: theme.primary }}
+                      style={{ '--focus-ring-color': theme.primary } as React.CSSProperties}
                       placeholder="Enter EGLD amount"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -277,10 +277,6 @@ export const PresaleTemplate: React.FC<PresaleTemplateProps> = ({
                   onClick={handleBuy}
                   disabled={isBuying || amount <= 0}
                   className="w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
-                  style={{ 
-                    backgroundColor: theme.primary,
-                    color: '#ffffff'
-                  }}
                 >
                   {isBuying ? (
                     <div className="flex items-center gap-2">

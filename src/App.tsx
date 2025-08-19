@@ -1,5 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { Suspense } from 'react';
+import { ToastProvider } from './context/ToastContext';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
 import { Layout } from './components';
@@ -33,8 +34,10 @@ const AppContent = () => {
 
 export const App = () => {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </ToastProvider>
   );
 };

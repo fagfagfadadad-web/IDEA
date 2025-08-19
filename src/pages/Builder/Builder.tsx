@@ -21,12 +21,12 @@ import {
 import { Button, Field, ColorPicker, ImagePicker } from 'components';
 import { BuilderSchema, BuilderData } from '../../lib/schema';
 import { useBuilder } from '../../lib/store';
-import { useToast } from '../../context/ToastContext';
+import { useCustomToast } from '../../hooks/useCustomToast';
 
 export const Builder = () => {
   const navigate = useNavigate();
   const { data, setData, saveProject, loadProject, deleteProject, getAllProjects } = useBuilder();
-  const { success: showSuccessToast, error: showErrorToast } = useToast();
+  const { showToast } = useCustomToast();
   const [activeTab, setActiveTab] = useState(0);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -87,9 +87,9 @@ export const Builder = () => {
   const onSubmit = (formData: BuilderData) => {
     try {
       saveProject(formData.slug, formData);
-      showSuccessToast(`Project "${formData.slug}" saved successfully!`);
+      showToast(`Project "${formData.slug}" saved successfully!`, { type: 'success' });
     } catch (error) {
-      showErrorToast('Failed to save project');
+      showToast('Failed to save project', { type: 'error' });
     }
   };
 
@@ -108,7 +108,7 @@ export const Builder = () => {
     link.download = `${values.slug}-config.json`;
     link.click();
     URL.revokeObjectURL(url);
-    showSuccessToast('Project exported successfully!');
+    showToast('Project exported successfully!', { type: 'success' });
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,9 +122,9 @@ export const Builder = () => {
         const validatedData = BuilderSchema.parse(importedData);
         reset(validatedData);
         setData(validatedData);
-        showSuccessToast('Project imported successfully!');
+        showToast('Project imported successfully!', { type: 'success' });
       } catch (error) {
-        showErrorToast('Invalid project file');
+        showToast('Invalid project file', { type: 'error' });
       }
     };
     reader.readAsText(file);
@@ -134,7 +134,7 @@ export const Builder = () => {
     const project = loadProject(slug);
     if (project) {
       reset(project);
-      showSuccessToast(`Project "${slug}" loaded successfully!`);
+      showToast(`Project "${slug}" loaded successfully!`, { type: 'success' });
       setShowLoadModal(false);
     }
   };
@@ -142,7 +142,7 @@ export const Builder = () => {
   const handleDeleteProject = (slug: string) => {
     if (confirm(`Are you sure you want to delete project "${slug}"?`)) {
       deleteProject(slug);
-      showSuccessToast(`Project "${slug}" deleted successfully!`);
+      showToast(`Project "${slug}" deleted successfully!`, { type: 'success' });
     }
   };
 
@@ -556,7 +556,7 @@ export const Builder = () => {
                             type="button"
                             onClick={() => {
                               navigator.clipboard.writeText(JSON.stringify(values, null, 2));
-                              showSuccessToast('Configuration copied to clipboard!');
+                              showToast('Configuration copied to clipboard!', { type: 'success' });
                             }}
                             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
                           >
