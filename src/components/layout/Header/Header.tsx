@@ -1,434 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, User, Settings, LogOut, Menu as MenuIcon, Bell, Briefcase, Plus, Coins, X, Wallet, FileSearch, Gift } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu as MenuIcon, X, Layers, Code, Eye, Settings } from 'lucide-react';
 import { Button } from 'components';
-import { NotificationsDropdown } from '../../NotificationsMenu';
-import { useGetIsLoggedIn, getAccountProvider, UnlockPanelManager } from 'lib';
-import { RouteNamesEnum } from 'localConstants';
-import { useNotifications, Notification as CustomNotification } from '../../../hooks/useNotifications';
+import { WalletConnect } from '../../WalletConnect';
 import { useWindowSize } from '../../../hooks/useWindowSize';
-import { useAuth } from '../../../context/AuthContext';
-import { getAvatarColor, getUserInitials } from '../../../utils/avatars';
 
 export const Header = () => {
-  const isLoggedIn = useGetIsLoggedIn();
-  const { user, logout: authLogout, forceReconnect } = useAuth();
-  const { data: notifications, isLoading, error } = useNotifications(user?.id);
   const navigate = useNavigate();
   const { width } = useWindowSize();
   const isMobile = width < 768;
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
-
-  const unreadCount = notifications?.filter((n) => !n.read).length || 0;
-
-  useEffect(() => {
-    const searchParam = searchParams.get('search');
-    if (searchParam) {
-      setSearchTerm(searchParam);
-    }
-  }, [searchParams]);
-
-  const handleLogout = async () => {
-    try {
-      await authLogout();
-      navigate(RouteNamesEnum.home);
-    } catch (error) {
-      console.error('Logout error:', error);
-      navigate(RouteNamesEnum.home);
-    }
-    setIsProfileMenuOpen(false);
-  };
-
-  const handleForceReconnect = async () => {
-    try {
-      await forceReconnect();
-    } catch (error) {
-      console.error('Force reconnect error:', error);
-    }
-    setIsProfileMenuOpen(false);
-  };
-
-  const handleConnect = () => {
-    try {
-      navigate('/unlock');
-    } catch (error) {
-      console.error('Navigation error:', error);
-      window.location.href = '/unlock';
-    }
-  };
-
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/search?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm('');
-    } else {
-      navigate('/search');
-    }
-  };
-
-  const handleSearchButtonClick = () => {
-    navigate('/search');
-  };
 
   return (
     <div className="relative">
       {/* Main Header */}
-      <header className="bg-white py-3 md:py-4 border-b border-gray-200 shadow-sm sticky top-0 z-40">
+      <header className="bg-gray-900/80 backdrop-blur-sm py-4 border-b border-white/10 sticky top-0 z-40">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           <div className="flex justify-between items-center">
             {/* Logo and Desktop Navigation */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-8">
               <Link
                 to="/"
-                className="h-8 md:h-10 w-8 md:w-10 flex items-center hover:scale-105 transition-transform"
+                className="flex items-center gap-3 hover:scale-105 transition-transform"
                 aria-label="Home"
               >
-                <img
-                  src="https://i.postimg.cc/SQ6SC8H8/3359571c-471b-4fe3-a3bd-eabf94fbdd6b.png"
-                  alt="IDEA Logo"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const parent = e.currentTarget.parentElement;
-                    if (parent) {
-                      const fallback = parent.querySelector('.fallback-logo') as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
-                    }
-                  }}
-                />
-                <div
-                  className="fallback-logo w-full h-full bg-gray-500 flex items-center justify-center text-white text-xs absolute inset-0"
-                  style={{ display: 'none' }}
-                >
-                  I
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Layers size={20} className="text-white" />
                 </div>
+                <span className="text-xl font-bold text-white">MX Builder</span>
               </Link>
 
               {/* Desktop Navigation */}
               <nav className="hidden lg:flex items-center space-x-6">
                 <Link
-                  to="/gigs"
-                  className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                  to="/builder"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium flex items-center gap-2"
                 >
-                  Browse Gigs
+                  <Code size={16} />
+                  Builder
                 </Link>
                 <Link
-                  to="/requests"
-                  className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                  to="/preview/demo"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium flex items-center gap-2"
                 >
-                  Open Bids
+                  <Eye size={16} />
+                  Demo
                 </Link>
-                <Link
-                  to="/token-sale"
-                  className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
+                <a
+                  href="https://docs.multiversx.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
                 >
-                  <Coins size={16} />
-                  Token Sale
-                </Link>
-                <Link
-                  to="/rewards"
-                  className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
-                >
-                  <Gift size={16} />
-                  Rewards
-                </Link>
-                {isLoggedIn && (
-                  <>
-                    <Link
-                      to="/my-requests"
-                      className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
-                    >
-                      <Briefcase size={16} />
-                      My Requests
-                    </Link>
-                    <Link
-                      to="/create-gig"
-                      className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm font-medium"
-                    >
-                      <Plus size={16} />
-                      Create Gig
-                    </Link>
-                  </>
-                )}
+                  Docs
+                </a>
               </nav>
             </div>
 
-            {/* Desktop and Mobile Actions */}
-            <div className="flex items-center space-x-3">
-              {/* Desktop Actions */}
-              <div className="hidden lg:flex items-center space-x-3">
-                {/* Search Form */}
-                <form onSubmit={handleSearch} className="max-w-xs hidden xl:block">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Search size={16} className="text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search gigs..."
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    />
-                  </div>
-                </form>
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center space-x-4">
+              <WalletConnect />
+              <Button
+                onClick={() => navigate('/builder')}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium"
+              >
+                Start Building
+              </Button>
+            </div>
 
-                {/* Notifications */}
-                {isLoggedIn && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowNotificationsModal(true)}
-                      className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      aria-label="Notifications"
-                    >
-                      <Bell size={20} className="text-gray-600" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
-                          {unreadCount > 99 ? '99+' : unreadCount}
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                )}
-
-                {/* Profile or Connect Button */}
-                {isLoggedIn ? (
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full border border-gray-300 overflow-hidden relative hover:scale-105 transition-all duration-200 flex items-center justify-center text-white font-bold text-sm"
-                      style={{ backgroundColor: getAvatarColor(user?.id || '') }}
-                      aria-label="Profile menu"
-                    >
-                      {/* Always show initials as background */}
-                      <span className="relative z-10">
-                        {getUserInitials(user?.username, user?.full_name)}
-                      </span>
-                      
-                      {/* Conditionally show avatar image on top */}
-                      {user?.avatar_url && user.avatar_url.trim() !== '' && (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.username || 'Profile'}
-                          className="w-full h-full object-cover absolute inset-0 z-20"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                          }}
-                        />
-                      )}
-                    </button>
-
-                    {/* Desktop Profile Dropdown */}
-                    {isProfileMenuOpen && (
-                      <>
-                        {/* Backdrop */}
-                        <div
-                          className="fixed inset-0 z-[998]"
-                          onClick={() => setIsProfileMenuOpen(false)}
-                          aria-hidden="true"
-                        />
-                        
-                        {/* Dropdown Menu */}
-                        <div className="fixed top-[70px] right-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[999] min-h-[400px]">
-                          {/* User Info Header */}
-                          <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
-                            <div className="flex items-center gap-3">
-                              <div 
-                                className="w-12 h-12 rounded-full border border-gray-300 overflow-hidden relative flex items-center justify-center text-white font-bold text-lg"
-                                style={{ backgroundColor: getAvatarColor(user?.id || '') }}
-                              >
-                                {/* Always show initials as background */}
-                                <span className="relative z-10">
-                                  {getUserInitials(user?.username, user?.full_name)}
-                                </span>
-                                
-                                {/* Conditionally show avatar image on top */}
-                                {user?.avatar_url && user.avatar_url.trim() !== '' && (
-                                  <img
-                                    src={user.avatar_url}
-                                    alt={user.username || 'Profile'}
-                                    className="w-full h-full object-cover absolute inset-0 z-20"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.style.display = 'none';
-                                    }}
-                                  />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-gray-900 font-semibold truncate">
-                                  {user?.full_name || user?.username || 'User'}
-                                </p>
-                                <p className="text-gray-500 text-sm truncate">
-                                  {user?.wallet_address ? 
-                                    `${user.wallet_address.slice(0, 6)}...${user.wallet_address.slice(-4)}` : 
-                                    'Wallet connected'
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Menu Items */}
-                          <div className="py-2">
-                            <Link
-                              to="/profile"
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 group"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                                <User size={16} className="text-indigo-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">My Profile</p>
-                                <p className="text-xs text-gray-500">View and edit profile</p>
-                              </div>
-                            </Link>
-                            
-                            <Link
-                              to="/my-requests"
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 group"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                                <Briefcase size={16} className="text-blue-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">My Requests</p>
-                                <p className="text-xs text-gray-500">Manage orders & proposals</p>
-                              </div>
-                            </Link>
-                            
-                            <Link
-                              to="/create-gig"
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-green-50 hover:text-green-700 transition-all duration-200 group"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                <Plus size={16} className="text-green-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Create Gig</p>
-                                <p className="text-xs text-gray-500">Offer your services</p>
-                              </div>
-                            </Link>
-                            
-                            <a
-                              href="https://ideagigs.store/token-sale"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-yellow-50 hover:text-yellow-700 transition-all duration-200 group"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                                <Coins size={16} className="text-yellow-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Token Sale</p>
-                                <p className="text-xs text-gray-500">Buy IDA tokens</p>
-                              </div>
-                            </a>
-                            
-                            <div className="border-t border-gray-100 my-2"></div>
-                            
-                            <Link
-                              to="/profile?tab=settings"
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors">
-                                <Settings size={16} className="text-gray-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Settings</p>
-                                <p className="text-xs text-gray-500">Account preferences</p>
-                              </div>
-                            </Link>
-                            
-                            <button
-                              onClick={handleForceReconnect}
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 w-full text-left group"
-                            >
-                              <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                                <Wallet size={16} className="text-orange-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Reconnect Wallet</p>
-                                <p className="text-xs text-gray-500">Refresh connection</p>
-                              </div>
-                            </button>
-                            
-                            <div className="border-t border-gray-100 my-2"></div>
-                            
-                            <button
-                              onClick={handleLogout}
-                              className="flex items-center gap-3 px-6 py-3 text-gray-700 hover:bg-red-50 hover:text-red-700 transition-all duration-200 w-full text-left group"
-                            >
-                              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center group-hover:bg-red-200 transition-colors">
-                                <LogOut size={16} className="text-red-600" />
-                              </div>
-                              <div>
-                                <p className="font-medium">Logout</p>
-                                <p className="text-xs text-gray-500">Disconnect wallet</p>
-                              </div>
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <Button
-                    onClick={handleConnect}
-                    variant="outline"
-                    size="md"
-                    className="border-2 border-gray-800 text-gray-800 bg-white hover:bg-gray-50"
-                  >
-                    <Wallet size={16} />
-                    Connect Wallet
-                  </Button>
-                )}
-              </div>
-
-              {/* Mobile Actions */}
-              <div className="flex lg:hidden items-center space-x-2">
-                <button
-                  onClick={handleSearchButtonClick}
-                  className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label="Search"
-                >
-                  <Search size={20} />
-                </button>
-
-                {isLoggedIn && (
-                  <button
-                    onClick={() => setShowNotificationsModal(true)}
-                    className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    aria-label="Notifications"
-                  >
-                    <Bell size={20} className="text-gray-600" />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold shadow-lg border-2 border-white">
-                        {unreadCount > 99 ? '99+' : unreadCount}
-                      </span>
-                    )}
-                  </button>
-                )}
-
-                <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="p-2 text-gray-600 hover:text-indigo-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-50"
-                  aria-label="Toggle menu"
-                >
-                  <MenuIcon size={20} />
-                </button>
-              </div>
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden">
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-gray-300 hover:text-white transition-colors"
+                aria-label="Toggle menu"
+              >
+                <MenuIcon size={24} />
+              </button>
             </div>
           </div>
         </div>
@@ -438,22 +86,27 @@ export const Header = () => {
       <div className={`lg:hidden fixed inset-0 z-50 ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
+          className="absolute inset-0 bg-black/50"
           onClick={() => setIsMobileMenuOpen(false)}
           aria-hidden="true"
         />
         
         {/* Menu Panel */}
-        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out ${
+        <div className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-gray-900 shadow-2xl transform transition-transform duration-300 ease-in-out ${
           isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}>
           {/* Menu Header */}
-          <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
+          <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-4 border-b border-white/10">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-800">Menu</h2>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Layers size={16} className="text-white" />
+                </div>
+                <span className="text-lg font-bold text-white">MX Builder</span>
+              </div>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white rounded-lg transition-colors"
+                className="p-2 text-gray-400 hover:text-white rounded-lg transition-colors"
                 aria-label="Close menu"
               >
                 <X size={20} />
@@ -462,173 +115,127 @@ export const Header = () => {
           </div>
 
           {/* Menu Content */}
-          <div className="p-4 space-y-2 overflow-y-auto h-full pb-20">
-            {/* Navigation Links */}
-            <div className="space-y-1">
-              <Link
-                to="/gigs"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Briefcase size={18} />
-                Browse Gigs
-              </Link>
-              <Link
-                to="/requests"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <FileSearch size={18} />
-                Open Bids
-              </Link>
-              <Link
-                to="/token-sale"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Coins size={18} />
-                Token Sale
-              </Link>
-              <Link
-                to="/rewards"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Gift size={18} />
-                Rewards
-              </Link>
-              
-              {isLoggedIn && (
-                <>
-                  <Link
-                    to="/my-requests"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Briefcase size={18} />
-                    My Requests
-                  </Link>
-                  <Link
-                    to="/create-gig"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Plus size={18} />
-                    Create Gig
-                  </Link>
-                </>
-              )}
-              
-              <button
-                onClick={() => {
-                  handleSearchButtonClick();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors w-full text-left"
-              >
-                <Search size={18} />
-                Search
-              </button>
-            </div>
+          <div className="p-4 space-y-2">
+            <Link
+              to="/builder"
+              className="flex items-center gap-3 py-3 px-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Code size={18} />
+              Builder
+            </Link>
+            
+            <Link
+              to="/preview/demo"
+              className="flex items-center gap-3 py-3 px-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Eye size={18} />
+              Demo
+            </Link>
+            
+            <a
+              href="https://docs.multiversx.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 py-3 px-3 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Settings size={18} />
+              Documentation
+            </a>
 
-            {/* User Section */}
-            {isLoggedIn ? (
-              <div className="pt-4 border-t border-gray-200 mt-4 space-y-1">
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <User size={18} />
-                  Profile
-                </Link>
-                <Link
-                  to="/profile?tab=settings"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <Settings size={18} />
-                  Settings
-                </Link>
-                <button
-                  onClick={() => {
-                    handleForceReconnect();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 py-3 px-3 text-base text-orange-600 hover:bg-orange-50 rounded-lg transition-colors w-full text-left"
-                >
-                  <Wallet size={18} />
-                  Reconnect Wallet
-                </button>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="flex items-center gap-3 py-3 px-3 text-base text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full text-left"
-                >
-                  <LogOut size={18} />
-                  Disconnect
-                </button>
-              </div>
-            ) : (
-              <div className="pt-4 border-t border-gray-200 mt-4">
-                <Button
-                  onClick={() => {
-                    handleConnect();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  variant="outline"
-                  fullWidth
-                >
-                  <Wallet size={18} />
-                  Connect Wallet
-                </Button>
-              </div>
-            )}
+            <div className="border-t border-white/10 my-4 pt-4">
+              <WalletConnect />
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Notifications Modal */}
-      {showNotificationsModal && (
-        <div className="fixed inset-0 z-[900]">
-          <div
-            className="absolute inset-0 bg-black bg-opacity-50"
-            onClick={() => setShowNotificationsModal(false)}
-            aria-hidden="true"
-          />
-          <div className="absolute top-16 right-4 w-96 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-2xl border border-gray-200 z-[901] max-h-[80vh] overflow-hidden">
-            <div className="bg-gradient-to-r from-indigo-50 to-pink-50 p-4 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800">Notifications</h3>
-                  {unreadCount > 0 && (
-                    <p className="text-sm text-gray-600">
-                      {unreadCount} new notification{unreadCount !== 1 ? 's' : ''}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => setShowNotificationsModal(false)}
-                  className="text-gray-400 hover:text-gray-600 p-2 hover:bg-white rounded-lg transition-colors"
-                  aria-label="Close notifications"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-            <div className="overflow-y-auto max-h-[60vh]">
-              <NotificationsDropdown
-                notifications={notifications}
-                isLoading={isLoading}
-                error={error}
-                onClose={() => setShowNotificationsModal(false)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
+if (!projectData) {
+  return (
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-bold text-white">Project Not Found</h1>
+        <p className="text-gray-400">The project "{slug}" could not be found.</p>
+        <Button
+          onClick={() => navigate('/builder')}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+        >
+          Go to Builder
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+return (
+  <div className="relative">
+    {/* Preview Controls */}
+    <div className="fixed top-4 left-4 right-4 z-50">
+      <div className="bg-black/80 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={() => navigate('/builder')}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <ArrowLeft size={16} />
+              Back to Builder
+            </Button>
+            <div className="text-white">
+              <span className="text-sm opacity-60">Previewing: </span>
+              <span className="font-medium">{projectData.content.projectName}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => navigate(`/builder?project=${slug}`)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Edit size={16} />
+              Edit
+            </Button>
+            
+            <Button
+              onClick={handleShare}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Share size={16} />
+              Share
+            </Button>
+            
+            <Button
+              onClick={handleExport}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+            >
+              <Download size={16} />
+              Export
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Template Render */}
+    <div className="pt-20">
+      {projectData.template === 'staking' ? (
+        <StakingTemplate
+          theme={projectData.theme}
+          content={projectData.content}
+          web3={projectData.web3}
+        />
+      ) : (
+        <PresaleTemplate
+          theme={projectData.theme}
+          content={projectData.content}
+          web3={projectData.web3}
+        />
+      )}
+    </div>
+  </div>
+);

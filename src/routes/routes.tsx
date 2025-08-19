@@ -1,29 +1,13 @@
 import { RouteNamesEnum } from 'localConstants';
 import {
-  Admin,
-  ClientRequestDetail, 
-  ClientRequests, 
-  CreateClientRequest, 
-  CreateGig, 
-  Disclaimer, 
-  Documentation, 
-  GigDetail, 
-  Gigs, 
-  MyRequests, 
-  OrderDetails, 
-  PrivacyPolicy,
-  RewardsHub,
-  TermsOfService,
-  TokenSale,
-  Unlock
+  Disclaimer
 } from 'pages';
 import { RouteType } from 'types';
 import React from 'react';
 
 const Home = React.lazy(() => import('pages/Home').then(module => ({ default: module.Home })));
-const Profile = React.lazy(() => import('pages/Profile').then(module => ({ default: module.Profile })));
-const Search = React.lazy(() => import('pages/Search').then(module => ({ default: module.Search })));
-const ProposalDetail = React.lazy(() => import('pages/ProposalDetail').then(module => ({ default: module.ProposalDetail })));
+const Builder = React.lazy(() => import('pages/Builder').then(module => ({ default: module.Builder })));
+const Preview = React.lazy(() => import('pages/Preview').then(module => ({ default: module.Preview })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -38,118 +22,18 @@ export const routes: RouteWithTitleType[] = [
     component: Home,
   },
   {
-    path: RouteNamesEnum.unlock,
-    title: 'Unlock',
-    component: Unlock,
-    authenticatedRoute: false
+    path: RouteNamesEnum.builder,
+    title: 'Builder',
+    component: Builder
+  },
+  {
+    path: RouteNamesEnum.preview,
+    title: 'Preview',
+    component: Preview
   },
   {
     path: RouteNamesEnum.disclaimer,
     title: 'Disclaimer',
     component: Disclaimer
-  }
-  ,
-  {
-    path: RouteNamesEnum.gigs,
-    title: 'Browse Gigs',
-    component: Gigs
-  },
-  {
-    path: RouteNamesEnum.gigDetail,
-    title: 'Gig Detail',
-    component: GigDetail
-  },
-  {
-    path: RouteNamesEnum.createGig,
-    title: 'Create Gig',
-    component: CreateGig,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.editGig,
-    title: 'Edit Gig',
-    component: () => <CreateGig isEditing={true} />,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.profile,
-    title: 'My Profile',
-    component: Profile,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.profileDetail,
-    title: 'User Profile',
-    component: Profile
-  },
-  {
-    path: RouteNamesEnum.clientRequests,
-    title: 'Open Bids',
-    component: ClientRequests
-  },
-  {
-    path: RouteNamesEnum.createClientRequest,
-    title: 'Create Request',
-    component: CreateClientRequest,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.clientRequestDetail,
-    title: 'Request Detail',
-    component: ClientRequestDetail
-  },
-  {
-    path: RouteNamesEnum.proposalDetail,
-    title: 'Proposal Detail',
-    component: ProposalDetail
-  },
-  {
-    path: RouteNamesEnum.myRequests,
-    title: 'My Requests',
-    component: MyRequests,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.orderDetails,
-    title: 'Order Details',
-    component: OrderDetails,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.admin,
-    title: 'Admin Panel',
-    component: Admin,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.documentation,
-    title: 'Documentation',
-    component: Documentation
-  },
-  {
-    path: RouteNamesEnum.search,
-    title: 'Search',
-    component: Search
-  },
-  {
-    path: RouteNamesEnum.tokenSale,
-    title: 'Token Sale',
-    component: TokenSale
-  },
-  {
-    path: RouteNamesEnum.rewardsHub,
-    title: 'Rewards Hub',
-    component: RewardsHub,
-    authenticatedRoute: true
-  },
-  {
-    path: RouteNamesEnum.privacyPolicy,
-    title: 'Privacy Policy',
-    component: PrivacyPolicy
-  },
-  {
-    path: RouteNamesEnum.termsOfService,
-    title: 'Terms of Service',
-    component: TermsOfService
   }
 ];
