@@ -14,7 +14,15 @@ import {
   ExternalLink,
   Twitter,
   MessageSquare,
-  LogOut
+  LogOut,
+  Type,
+  Palette,
+  Settings,
+  FolderOpen,
+  Zap,
+  Trash2,
+  Copy,
+  Github
 } from 'lucide-react';
 import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
