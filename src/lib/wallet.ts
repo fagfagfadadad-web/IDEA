@@ -2,7 +2,7 @@ import {
   useGetIsLoggedIn, 
   useGetAccount,
   getAccountProvider
-} from '@multiversx/sdk-dapp/lib';
+} from 'lib';
 
 export function useWallet() {
   const isLoggedIn = useGetIsLoggedIn();
