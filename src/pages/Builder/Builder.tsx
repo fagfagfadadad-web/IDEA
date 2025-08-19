@@ -478,13 +478,6 @@ export const Builder = () => {
 
                       <Field label="Smart Contract Address" required error={errors.web3?.contractAddress?.message}>
                         <div className="space-y-3">
-                          <input
-                            {...register('web3.contractAddress')}
-                            className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                            placeholder="erd1qqqqqqqqqqqqqpgq..."
-                            readOnly={isDeploying}
-                          />
-                          
                           <div className="flex gap-2">
                             <Button
                               type="button"
@@ -514,8 +507,15 @@ export const Builder = () => {
                           
                           {deployedAddress && (
                             <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-3">
-                              <p className="text-green-300 text-sm font-medium mb-1">✅ Contract Deployed!</p>
+                              <p className="text-green-300 text-sm font-medium mb-1">✅ Contract Successfully Deployed!</p>
                               <p className="text-green-200 text-xs font-mono break-all">{deployedAddress}</p>
+                            </div>
+                          )}
+                          
+                          {values.web3.contractAddress && values.web3.contractAddress !== 'erd1qqqqqqqqqqqqqpgqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqthllllls0lczs7' && (
+                            <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
+                              <p className="text-blue-300 text-sm font-medium mb-1">📋 Current Contract</p>
+                              <p className="text-blue-200 text-xs font-mono break-all">{values.web3.contractAddress}</p>
                             </div>
                           )}
                           
@@ -526,7 +526,8 @@ export const Builder = () => {
                               2. Click "Deploy Contract" to create your {values.template} contract<br/>
                               3. Sign transaction in xPortal wallet<br/>
                               4. Get your contract address automatically<br/>
-                              Deployment fee: ~0.05 EGLD
+                              5. Your site will use the deployed contract<br/>
+                              <strong>Deployment fee: ~0.05 EGLD</strong>
                             </p>
                           </div>
                         </div>
