@@ -27,7 +27,7 @@ import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
-import { deployToNetlify, exportForNetlify } from '../../utils/netlifyDeploy';
+import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl } from '../../utils/netlifyDeploy';
 
 export const Builder = () => {
   const navigate = useNavigate();
@@ -122,18 +122,25 @@ export const Builder = () => {
 
   const handlePublishToNetlify = async () => {
     const currentData = values;
+    
+    // Check if user has Netlify token
+    const netlifyToken = localStorage.getItem('netlify_token');
+    
+    if (!netlifyToken) {
+      // Show authorization modal
+      setNetlifyAuthUrl(getNetlifyAuthUrl());
+      setShowNetlifyAuth(true);
+      return;
+    }
+    
     setIsPublishing(true);
     
     try {
       showToast('Publishing to Netlify...', { type: 'info' });
       
-      const result = await deployToNetlify(currentData);
+      const result = await deployToNetlify(currentData, netlifyToken);
       
-      if (result.needsAuth && result.authUrl) {
-        setNetlifyAuthUrl(result.authUrl);
-        setShowNetlifyAuth(true);
-        showToast('Please authorize with Netlify to continue', { type: 'warning' });
-      } else if (result.success && result.url) {
+      if (result.success && result.url) {
         setPublishedUrl(result.url);
         showToast(`Successfully published! Your site is live at: ${result.url}`, { type: 'success' });
       } else {
@@ -145,19 +152,14 @@ export const Builder = () => {
       // Handle specific Netlify errors
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      if (errorMessage.includes('exceeded usage limit')) {
+      if (errorMessage.includes('exceeded usage limit') || errorMessage.includes('422')) {
         showToast(
-          'Netlify account has reached the site limit. Please upgrade your Netlify plan or delete existing sites from your Netlify dashboard.',
-          { type: 'error' }
-        );
-      } else if (errorMessage.includes('422')) {
-        showToast(
-          'Netlify deployment failed due to account limitations. Please check your Netlify account settings.',
+          'Your Netlify account has reached the site limit. Please upgrade your Netlify plan or delete existing sites from your Netlify dashboard.',
           { type: 'error' }
         );
       } else if (errorMessage.includes('401') || errorMessage.includes('403')) {
         showToast(
-          'Netlify authorization failed. Please try authorizing again.',
+          'Your Netlify authorization has expired. Please authorize again.',
           { type: 'error' }
         );
         // Clear stored token to force re-authorization
@@ -171,12 +173,10 @@ export const Builder = () => {
   };
 
   const handleNetlifyAuth = () => {
-    if (netlifyAuthUrl) {
-      // Open Netlify OAuth in new window
-      window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
-      // Show token input field
-      setShowTokenInput(true);
-    }
+    // Open Netlify OAuth in new window
+    window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+    // Show token input field
+    setShowTokenInput(true);
   };
 
   const handleTokenSubmit = async () => {
@@ -899,8 +899,8 @@ export const Builder = () => {
                 <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-500/50 rounded-lg p-3">
                   <p className="text-green-300 text-sm font-medium mb-1">⚡ One-Click Deploy</p>
                   <p className="text-blue-200 text-xs">
-                    Click "Publish to Netlify" to deploy your site instantly. 
-                    Get a live URL in seconds!
+                    Click "Publish" to deploy your site to <strong>your own</strong> Netlify account. 
+                    Get a live URL in seconds! (Uses your Netlify limits, not ours)
                   </p>
                 </div>
                 
@@ -908,7 +908,7 @@ export const Builder = () => {
                   <p className="text-orange-300 text-sm font-medium mb-1">📦 Alternative: Manual Deploy</p>
                   <p className="text-orange-200 text-xs">
                     Use "Export for Netlify" to download a ZIP file, 
-                    then drag & drop it to Netlify dashboard.
+                    then drag & drop it to your Netlify dashboard.
                   </p>
                 </div>
                 
@@ -916,8 +916,8 @@ export const Builder = () => {
                   <p className="text-blue-300 text-sm font-medium mb-1">💡 How it works</p>
                   <p className="text-blue-200 text-xs">
                     1. Configure your project<br/>
-                    2. Click "Publish to Netlify"<br/>
-                    3. Your site gets deployed automatically<br/>
+                    2. Click "Publish" and authorize your Netlify account<br/>
+                    3. Your site gets deployed to <strong>your account</strong><br/>
                     4. Share your live URL with the world!
                   </p>
                 </div>
@@ -936,16 +936,16 @@ export const Builder = () => {
                 
                 {!showTokenInput ? (
                   <>
-                    <h3 className="text-xl font-bold text-white">Connect to Netlify</h3>
+                    <h3 className="text-xl font-bold text-white">Connect Your Netlify Account</h3>
                     <p className="text-gray-300">
-                      To publish your site, you need to authorize MX Builder to deploy to your Netlify account.
+                      To publish your site, you need to authorize MX Builder to deploy to <strong>your own</strong> Netlify account.
                     </p>
                     <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
                       <p className="text-blue-300 text-sm font-medium mb-1">📋 How it works:</p>
                       <p className="text-blue-200 text-xs">
-                        1. Click "Authorize with Netlify"<br/>
-                        2. Sign in to your Netlify account<br/>
-                        3. Grant permission to deploy sites<br/>
+                        1. Click "Authorize with Your Netlify"<br/>
+                        2. Sign in to <strong>your own</strong> Netlify account<br/>
+                        3. Grant permission to deploy sites to <strong>your account</strong><br/>
                         4. Copy the access token from Netlify<br/>
                         5. Paste it in the next step
                       </p>
@@ -956,7 +956,7 @@ export const Builder = () => {
                         className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
                       >
                         <ExternalLink size={16} />
-                        Authorize with Netlify
+                        Authorize with Your Netlify
                       </Button>
                       <Button
                         onClick={() => setShowNetlifyAuth(false)}
@@ -970,12 +970,12 @@ export const Builder = () => {
                   <>
                     <h3 className="text-xl font-bold text-white">Enter Access Token</h3>
                     <p className="text-gray-300">
-                      Copy the access token from Netlify and paste it below:
+                      Copy the access token from your Netlify account and paste it below:
                     </p>
                     <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
                       <p className="text-yellow-300 text-sm font-medium mb-1">🔑 Where to find your token:</p>
                       <p className="text-yellow-200 text-xs">
-                        After authorizing, Netlify will show you an access token.<br/>
+                        After authorizing on <strong>your Netlify account</strong>, Netlify will show you an access token.<br/>
                         Copy the entire token and paste it in the field below.
                       </p>
                     </div>

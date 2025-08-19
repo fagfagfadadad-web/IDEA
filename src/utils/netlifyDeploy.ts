@@ -2,13 +2,22 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { BuilderData } from '../lib/schema';
 
+// Your Netlify OAuth Client ID - replace with your actual Client ID
+const NETLIFY_CLIENT_ID = 'your-netlify-client-id';
+
+// Generate Netlify OAuth URL for user authorization
+export const getNetlifyAuthUrl = (): string => {
+  const redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
+  const scope = 'deploy';
+  
+  return `https://app.netlify.com/authorize?client_id=${NETLIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}`;
+};
+
 // Real Netlify deployment via Supabase Edge Function
-export const deployToNetlify = async (projectData: BuilderData): Promise<{
+export const deployToNetlify = async (projectData: BuilderData, netlifyToken: string): Promise<{
   success: boolean;
   url?: string;
   error?: string;
-  needsAuth?: boolean;
-  authUrl?: string;
 }> => {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -18,8 +27,9 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
       throw new Error('Supabase configuration missing');
     }
     
-    // Try to get stored Netlify token
-    const netlifyToken = localStorage.getItem('netlify_token');
+    if (!netlifyToken) {
+      throw new Error('Netlify access token is required');
+    }
     
     const response = await fetch(`${supabaseUrl}/functions/v1/deploy-netlify`, {
       method: 'POST',
@@ -40,27 +50,6 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     
     const result = await response.json();
     
-    // Handle specific HTTP status codes
-    if (!response.ok) {
-      if (response.status === 422) {
-        throw new Error('Netlify account has exceeded usage limit. Please upgrade your plan or delete existing sites.');
-      } else if (response.status === 401 || response.status === 403) {
-        throw new Error('Netlify authorization failed. Please re-authorize your account.');
-      } else {
-        throw new Error(`HTTP ${response.status}: ${result.error || 'Deployment failed'}`);
-      }
-    }
-    
-    // If needs authentication, handle OAuth flow
-    if (result.needsAuth) {
-      return {
-        success: false,
-        needsAuth: true,
-        authUrl: result.authUrl,
-        error: 'Netlify authorization required'
-      };
-    }
-    
     return {
       success: result.success,
       url: result.url,
@@ -70,14 +59,7 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Deployment failed'
-    }
-    
-    // Re-throw with more specific error messages
-    if (error instanceof Error) {
-      throw error;
-    } else {
-      throw new Error('Network error occurred during deployment');
-    }
+    };
   }
 };
 

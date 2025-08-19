@@ -6,10 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const NETLIFY_CLIENT_ID = 'R2TnAioMNRFS8juEh_f8swXbAQ-GbzsTYI0nsIEUG38'
-const NETLIFY_CLIENT_SECRET = 'AHV--1P1UWnWyrJCdMqcyGrrR5CZcB-jJRxVfjXWU3k'
-const NETLIFY_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
-
 interface DeployRequest {
   projectData: {
     slug: string;
@@ -45,7 +41,7 @@ interface DeployRequest {
       totalSupply: number;
     };
   };
-  netlifyToken?: string;
+  netlifyToken: string;
 }
 
 serve(async (req) => {
@@ -56,18 +52,15 @@ serve(async (req) => {
   try {
     const { projectData, netlifyToken }: DeployRequest = await req.json()
 
-    // If no token provided, return OAuth URL for user to authorize
+    // Validate that token is provided
     if (!netlifyToken) {
-      const authUrl = `https://app.netlify.com/authorize?client_id=${NETLIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(NETLIFY_REDIRECT_URI)}&scope=deploy`
-      
       return new Response(
         JSON.stringify({
           success: false,
-          needsAuth: true,
-          authUrl: authUrl,
-          message: 'Please authorize with Netlify first'
+          error: 'Netlify access token is required'
         }),
         {
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         },
       )
