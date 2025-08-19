@@ -19,7 +19,9 @@ import {
   FolderOpen,
   Zap,
   Globe,
-  ExternalLink
+  ExternalLink,
+  LogOut,
+  Github
 } from 'lucide-react';
 import { Button, Field, ColorPicker, ImagePicker } from 'components';
 import { BuilderSchema, BuilderData } from '../../lib/schema';
@@ -28,6 +30,7 @@ import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
 import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
+import { deployFullDApp, hasGitHubToken, clearGitHubToken, getGitHubAuthUrl } from '../../utils/gitDeploy';
 
 export const Builder = () => {
   const navigate = useNavigate();
@@ -39,8 +42,11 @@ export const Builder = () => {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [showNetlifyAuth, setShowNetlifyAuth] = useState(false);
-  const [netlifyAuthUrl, setNetlifyAuthUrl] = useState<string | null>(null);
+  const [showGitHubAuth, setShowGitHubAuth] = useState(false);
   const [showTokenInput, setShowTokenInput] = useState(false);
+  const [isDeployingFullDApp, setIsDeployingFullDApp] = useState(false);
+  const [fullDAppUrl, setFullDAppUrl] = useState<string | null>(null);
+  const [netlifyAuthUrl, setNetlifyAuthUrl] = useState<string | null>(null);
   const [tokenInput, setTokenInput] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -170,6 +176,59 @@ export const Builder = () => {
     } finally {
       setIsPublishing(false);
     }
+  };
+
+  const handlePublishFullDApp = async () => {
+    const githubToken = localStorage.getItem('github_token');
+    
+    if (!githubToken) {
+      setShowGitHubAuth(true);
+      return;
+    }
+
+    setIsDeployingFullDApp(true);
+    try {
+      const result = await deployFullDApp(values, githubToken);
+      
+      if (result.success) {
+        setFullDAppUrl(result.netlifyUrl || '');
+        showToast('Full dApp repository created! Connect it to Netlify for automatic deployment.', { type: 'success' });
+        
+        // Open Netlify deployment URL
+        if (result.netlifyUrl) {
+          window.open(result.netlifyUrl, '_blank');
+        }
+      } else {
+        showToast(`Deployment failed: ${result.error}`, { type: 'error' });
+      }
+    } catch (error) {
+      showToast(`Deployment error: ${error instanceof Error ? error.message : 'Unknown error'}`, { type: 'error' });
+    } finally {
+      setIsDeployingFullDApp(false);
+    }
+  };
+
+  const handleGitHubAuth = () => {
+    const authUrl = getGitHubAuthUrl();
+    window.open(authUrl, '_blank', 'width=600,height=700');
+    setShowTokenInput(true);
+  };
+
+  const handleGitHubTokenSubmit = (token: string) => {
+    if (token.trim()) {
+      localStorage.setItem('github_token', token.trim());
+      setShowGitHubAuth(false);
+      setShowTokenInput(false);
+      showToast('GitHub token saved! You can now deploy your full dApp.', { type: 'success' });
+      // Automatically trigger deployment after token is saved
+      setTimeout(() => handlePublishFullDApp(), 500);
+    }
+  };
+
+  const handleGitHubLogout = () => {
+    clearGitHubToken();
+    setFullDAppUrl(null);
+    showToast('GitHub account disconnected', { type: 'info' });
   };
 
   const handleNetlifyAuth = () => {
@@ -343,6 +402,34 @@ export const Builder = () => {
                 <Eye size={16} />
                 Preview
               </Button>
+
+              <Button
+                onClick={handlePublishFullDApp}
+                disabled={isDeployingFullDApp}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                {isDeployingFullDApp ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Deploying...
+                  </>
+                ) : (
+                  <>
+                    <Github size={16} />
+                    Deploy Full dApp
+                  </>
+                )}
+              </Button>
+
+              {hasGitHubToken() && (
+                <Button
+                  onClick={handleGitHubLogout}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <LogOut size={16} />
+                  Logout GitHub
+                </Button>
+              )}
               
               <Button
                 onClick={handlePublishToNetlify}
@@ -400,6 +487,29 @@ export const Builder = () => {
               </label>
             </div>
           </div>
+
+            {fullDAppUrl && (
+              <div className="mt-4 p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Github size={16} className="text-green-400" />
+                  <span className="font-medium text-green-400">Full dApp Repository Created!</span>
+                </div>
+                <p className="text-sm text-gray-300 mb-3">
+                  Your complete React dApp has been created and is ready for deployment.
+                </p>
+                <div className="flex gap-2">
+                  <a
+                    href={fullDAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+                  >
+                    <Rocket size={14} />
+                    Deploy to Netlify
+                  </a>
+                </div>
+              </div>
+            )}
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
@@ -1026,6 +1136,89 @@ export const Builder = () => {
             </div>
           </div>
         )}
+
+      {/* GitHub Authorization Modal */}
+      {showGitHubAuth && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-bold mb-4">Deploy Full dApp to GitHub + Netlify</h3>
+            
+            {!showTokenInput ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-300">
+                  To deploy your complete React dApp with full functionality:
+                </p>
+                <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
+                  <li>Authorize GitHub access to create a repository</li>
+                  <li>We'll generate the complete React project</li>
+                  <li>Connect the repository to Netlify for automatic deployment</li>
+                  <li>Your dApp will have full wallet integration and smart contract functionality</li>
+                </ol>
+                
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleGitHubAuth}
+                    className="bg-gray-900 hover:bg-black text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Github size={16} />
+                    Authorize GitHub
+                  </Button>
+                  <Button
+                    onClick={() => setShowGitHubAuth(false)}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-300 mb-3">
+                    🔑 <strong>Where to find your token:</strong>
+                  </p>
+                  <p className="text-xs text-gray-400 mb-4">
+                    After authorizing on GitHub, copy the access token and paste it below.
+                  </p>
+                  <input
+                    type="text"
+                    placeholder="Paste your GitHub access token here"
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const token = (e.target as HTMLInputElement).value;
+                        handleGitHubTokenSubmit(token);
+                      }
+                    }}
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button
+                    onClick={(e) => {
+                      const input = e.currentTarget.parentElement?.parentElement?.querySelector('input') as HTMLInputElement;
+                      const token = input?.value || '';
+                      handleGitHubTokenSubmit(token);
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Save Token & Deploy
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowGitHubAuth(false);
+                      setShowTokenInput(false);
+                    }}
+                    className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
         {/* Load Project Modal */}
         {showLoadModal && (
