@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'components';
-import { useGetIsLoggedIn } from '@multiversx/sdk-dapp/hooks';
-import { ExtensionProvider } from '@multiversx/sdk-dapp/providers';
+import { useGetIsLoggedIn } from 'lib';
+import { getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 
 export const Unlock = () => {
@@ -14,8 +14,7 @@ export const Unlock = () => {
   const handleOpenUnlockPanel = async () => {
     setIsLoading(true);
     try {
-      const provider = ExtensionProvider.getInstance();
-      await provider.init();
+      const provider = getAccountProvider();
       await provider.login();
       navigate(RouteNamesEnum.home);
     } catch (error) {

@@ -31,6 +31,7 @@ export const Web3Schema = z.object({
   minStake: z.coerce.number().min(0).default(1),
   maxStake: z.coerce.number().min(0).default(1000),
   totalSupply: z.coerce.number().min(0).default(1000000),
+  pricePerToken: z.coerce.number().min(0).default(0.001),
 });
 
 export const BuilderSchema = z.object({

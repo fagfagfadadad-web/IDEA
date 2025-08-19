@@ -12,7 +12,7 @@ export interface GitDeployConfig {
 export interface DeploymentResult {
   success: boolean;
   repoUrl?: string;
-  netlifyUrl?: string;
+  url?: string;
   error?: string;
 }
 

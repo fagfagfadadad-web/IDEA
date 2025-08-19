@@ -52,8 +52,9 @@ export class ContractFactory {
     senderAddress: string,
     deploymentFee: string = '0.05' // 0.05 EGLD deployment fee
   ): Promise<string> {
-    const transaction = this.transactionFactory.createTransactionForExecute({
-      sender: new Address(senderAddress),
+    const transaction = this.transactionFactory.createTransactionForExecute(
+      new Address(senderAddress),
+      {
       contract: this.factory.getAddress(),
       function: 'createStaking',
       gasLimit: 100000000,
@@ -87,8 +88,9 @@ export class ContractFactory {
     senderAddress: string,
     deploymentFee: string = '0.05' // 0.05 EGLD deployment fee
   ): Promise<string> {
-    const transaction = this.transactionFactory.createTransactionForExecute({
-      sender: new Address(senderAddress),
+    const transaction = this.transactionFactory.createTransactionForExecute(
+      new Address(senderAddress),
+      {
       contract: this.factory.getAddress(),
       function: 'createPresale',
       gasLimit: 100000000,
