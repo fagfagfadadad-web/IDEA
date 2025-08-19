@@ -16,11 +16,23 @@ import {
   Code,
   Rocket,
   Plus,
+  Globe,
+  ExternalLink,
+  FolderOpen,
+  Github,
+  Zap
+} from 'lucide-react';
 import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
 import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
+import { useNavigate } from 'react-router-dom';
+import { BuilderData, BuilderSchema } from '../../types/builder';
+import { Button } from '../../components/ui/Button';
+import { Field } from '../../components/ui/Field';
+import { ColorPicker } from '../../components/ui/ColorPicker';
+import { ImagePicker } from '../../components/ui/ImagePicker';
 
 export const Builder = () => {
   const navigate = useNavigate();
