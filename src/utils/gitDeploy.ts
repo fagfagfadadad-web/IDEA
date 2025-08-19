@@ -1025,7 +1025,7 @@ export const deployFullDApp = async (
     return {
       success: true,
       repoUrl: repoResult.repoUrl,
-      netlifyUrl: `https://app.netlify.com/start/deploy?repository=${repoResult.repoUrl}`
+      url: `https://app.netlify.com/start/deploy?repository=${repoResult.repoUrl}`
     };
   } catch (error) {
     return {

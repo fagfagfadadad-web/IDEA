@@ -57,7 +57,7 @@ export class ContractFactory {
       {
       contract: this.factory.getAddress(),
       function: 'createStaking',
-      gasLimit: 100000000,
+      gasLimit: BigInt(100000000),
       arguments: [
         params.tokenId,
         params.apyBps,
@@ -93,7 +93,7 @@ export class ContractFactory {
       {
       contract: this.factory.getAddress(),
       function: 'createPresale',
-      gasLimit: 100000000,
+      gasLimit: BigInt(100000000),
       arguments: [
         params.tokenId,
         params.pricePerToken,

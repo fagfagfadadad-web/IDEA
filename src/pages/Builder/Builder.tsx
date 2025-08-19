@@ -178,7 +178,9 @@ export const Builder = () => {
   };
 
   const handleNetlifyAuth = () => {
-    window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+    if (netlifyAuthUrl) {
+      window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+    }
     setShowTokenInput(true);
   };
 

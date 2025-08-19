@@ -66,7 +66,8 @@ export const Preview = () => {
           endTs: Math.floor(Date.now() / 1000) + 86400 * 30,
           minStake: 1,
           maxStake: 1000,
-          totalSupply: 1000000
+          totalSupply: 1000000,
+          pricePerToken: 0.001
         }
       };
       setProjectData(demoData);
