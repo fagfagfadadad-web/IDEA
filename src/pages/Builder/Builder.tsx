@@ -22,7 +22,7 @@ import {
   FolderOpen,
   Zap,
   Copy,
-  Trash2
+  Trash2,
   Type,
   Palette,
   Settings,
