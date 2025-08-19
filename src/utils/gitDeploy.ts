@@ -1130,8 +1130,8 @@ async function uploadFilesToRepo(config: {
 
 // GitHub OAuth URL
 export const getGitHubAuthUrl = (): string => {
-  const clientId = 'Iv1.b507a08c87ecfe98'; // GitHub OAuth App Client ID for MX Builder
-  const redirectUri = encodeURIComponent('urn:ietf:wg:oauth:2.0:oob');
+  const clientId = 'Ov23liAqGJvF8zKqJQpE'; // GitHub OAuth App Client ID for MX Builder
+  const redirectUri = encodeURIComponent(window.location.origin);
   const scope = 'repo';
   
   return `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
