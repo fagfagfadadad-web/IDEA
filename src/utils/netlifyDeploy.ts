@@ -64,11 +64,10 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
 };
 
 // Handle Netlify OAuth callback
-export const handleNetlifyCallback = (code: string): Promise<boolean> => {
+export const handleNetlifyCallback = (token: string): Promise<boolean> => {
   return new Promise((resolve) => {
-    // In a real implementation, you would exchange the code for an access token
-    // For now, we'll simulate this by storing a mock token
-    localStorage.setItem('netlify_token', `netlify_token_${code}`);
+    // Store the actual access token from Netlify OAuth
+    localStorage.setItem('netlify_token', token);
     resolve(true);
   });
 };

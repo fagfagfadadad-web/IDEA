@@ -147,18 +147,29 @@ export const Builder = () => {
 
   const handleNetlifyAuth = () => {
     if (netlifyAuthUrl) {
-      // Open Netlify OAuth in new window
-      const authWindow = window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+      // Open Netlify OAuth in new window with proper dimensions
+      const authWindow = window.open(
+        netlifyAuthUrl, 
+        'netlify-auth', 
+        'width=600,height=700,scrollbars=yes,resizable=yes'
+      );
       
-      // Listen for the auth code (in real implementation, you'd handle the callback)
+      // Listen for the access token from the OAuth flow
       const checkClosed = setInterval(() => {
         if (authWindow?.closed) {
           clearInterval(checkClosed);
-          // Simulate successful auth
-          const mockToken = `netlify_token_${Date.now()}`;
-          localStorage.setItem('netlify_token', mockToken);
-          setShowNetlifyAuth(false);
-          showToast('Netlify authorization successful! You can now publish.', { type: 'success' });
+          
+          // Check if we received a token (this would be handled differently in production)
+          // For now, we'll prompt the user to paste their token
+          const token = prompt('Please paste your Netlify access token from the authorization page:');
+          if (token) {
+            localStorage.setItem('netlify_token', token);
+            setShowNetlifyAuth(false);
+            showToast('Netlify authorization successful! You can now publish.', { type: 'success' });
+          } else {
+            showToast('Authorization cancelled', { type: 'warning' });
+            setShowNetlifyAuth(false);
+          }
         }
       }, 1000);
     }
