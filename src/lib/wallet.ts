@@ -1,5 +1,9 @@
-import { useGetIsLoggedIn, useGetAccount, getAccountProvider, UnlockPanelManager } from './sdkDapp';
-import { RouteNamesEnum } from '../localConstants';
+import { 
+  useGetIsLoggedIn, 
+  useGetAccount, 
+  logout as dappLogout 
+} from '@multiversx/sdk-dapp/hooks';
+import { ExtensionProvider } from '@multiversx/sdk-dapp/providers';
 
 export function useWallet() {
   const isLoggedIn = useGetIsLoggedIn();
@@ -7,16 +11,10 @@ export function useWallet() {
 
   const login = async () => {
     try {
-      const unlockPanelManager = UnlockPanelManager.init({
-        loginHandler: () => {
-          console.log('Wallet connected successfully');
-        },
-        onClose: () => {
-          console.log('Login panel closed');
-        }
-      });
-      
-      await unlockPanelManager.openUnlockPanel();
+      const provider = ExtensionProvider.getInstance();
+      await provider.init();
+      await provider.login();
+      console.log('Wallet connected successfully');
     } catch (error) {
       console.error('Error opening wallet panel:', error);
       alert('Error connecting wallet: ' + (error as Error).message);
@@ -25,19 +23,10 @@ export function useWallet() {
 
   const logout = async () => {
     try {
-      const provider = getAccountProvider();
-      await provider.logout();
-      
-      // Clear any cached data
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Refresh page to reset state
-      window.location.reload();
+      await dappLogout();
+      console.log('Wallet disconnected successfully');
     } catch (error) {
       console.error('Logout error:', error);
-      // Force refresh even if logout fails
-      window.location.reload();
     }
   };
 

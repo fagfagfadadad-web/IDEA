@@ -1,29 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from 'components';
-import { UnlockPanelManager, useGetLoginInfo, useGetIsLoggedIn } from 'lib';
+import { useGetIsLoggedIn } from '@multiversx/sdk-dapp/hooks';
+import { ExtensionProvider } from '@multiversx/sdk-dapp/providers';
 import { RouteNamesEnum } from 'localConstants';
 
 export const Unlock = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useGetLoginInfo();
-  const isUserLoggedIn = useGetIsLoggedIn();
+  const isLoggedIn = useGetIsLoggedIn();
   const [isLoading, setIsLoading] = useState(false);
 
 
   const handleOpenUnlockPanel = async () => {
     setIsLoading(true);
     try {
-      const unlockPanelManager = UnlockPanelManager.init({
-        loginHandler: () => {
-          navigate(RouteNamesEnum.home);
-        },
-        onClose: () => {
-          navigate(RouteNamesEnum.home);
-        }
-      });
-      
-      await unlockPanelManager.openUnlockPanel();
+      const provider = ExtensionProvider.getInstance();
+      await provider.init();
+      await provider.login();
+      navigate(RouteNamesEnum.home);
     } catch (error) {
       console.error('Error opening unlock panel:', error);
       alert('Error opening wallet panel: ' + (error as Error).message);
@@ -34,7 +28,7 @@ export const Unlock = () => {
 
   useEffect(() => {
     
-    if (isLoggedIn || isUserLoggedIn) {
+    if (isLoggedIn) {
       navigate(RouteNamesEnum.home);
       return;
     }
@@ -45,7 +39,7 @@ export const Unlock = () => {
     }, 500); // Small delay to ensure DOM is ready
 
     return () => clearTimeout(timer);
-  }, [isLoggedIn, isUserLoggedIn, navigate]);
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-200">
