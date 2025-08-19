@@ -40,6 +40,17 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     
     const result = await response.json();
     
+    // Handle specific HTTP status codes
+    if (!response.ok) {
+      if (response.status === 422) {
+        throw new Error('Netlify account has exceeded usage limit. Please upgrade your plan or delete existing sites.');
+      } else if (response.status === 401 || response.status === 403) {
+        throw new Error('Netlify authorization failed. Please re-authorize your account.');
+      } else {
+        throw new Error(`HTTP ${response.status}: ${result.error || 'Deployment failed'}`);
+      }
+    }
+    
     // If needs authentication, handle OAuth flow
     if (result.needsAuth) {
       return {
@@ -59,7 +70,13 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Deployment failed'
-    };
+    
+    // Re-throw with more specific error messages
+    if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('Network error occurred during deployment');
+    }
   }
 };
 

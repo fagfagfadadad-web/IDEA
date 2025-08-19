@@ -141,7 +141,30 @@ export const Builder = () => {
       }
     } catch (error) {
       console.error('Publish error:', error);
-      showToast(`Publishing failed: ${error instanceof Error ? error.message : 'Unknown error'}`, { type: 'error' });
+      
+      // Handle specific Netlify errors
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (errorMessage.includes('exceeded usage limit')) {
+        showToast(
+          'Netlify account has reached the site limit. Please upgrade your Netlify plan or delete existing sites from your Netlify dashboard.',
+          { type: 'error' }
+        );
+      } else if (errorMessage.includes('422')) {
+        showToast(
+          'Netlify deployment failed due to account limitations. Please check your Netlify account settings.',
+          { type: 'error' }
+        );
+      } else if (errorMessage.includes('401') || errorMessage.includes('403')) {
+        showToast(
+          'Netlify authorization failed. Please try authorizing again.',
+          { type: 'error' }
+        );
+        // Clear stored token to force re-authorization
+        localStorage.removeItem('netlify_token');
+      } else {
+        showToast(`Publishing failed: ${errorMessage}`, { type: 'error' });
+      }
     } finally {
       setIsPublishing(false);
     }
