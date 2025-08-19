@@ -241,7 +241,7 @@ function generateStaticHTML(projectData: DeployRequest['projectData']): string {
         .widget-header { text-align: center; margin-bottom: 48px; }
         .widget-title { font-size: 32px; font-weight: bold; margin-bottom: 16px; }
         .widget-subtitle { font-size: 18px; opacity: 0.8; }
-        .footer { border-top: 1px solid rgba(255,255,255,0.1); padding: 32px 0; text-align: center; }
+        .footer { border-top: 1px solid rgba(255,255,255,0.1); padding: 32px 0; text-center; }
         .footer-text { opacity: 0.6; font-size: 14px; }
         @media (max-width: 768px) {
             .hero-grid { grid-template-columns: 1fr; gap: 32px; }
