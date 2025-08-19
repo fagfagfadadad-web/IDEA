@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 import { BuilderData } from '../lib/schema';
 
 // Your Netlify OAuth Client ID - replace with your actual Client ID
-const NETLIFY_CLIENT_ID = 'your-netlify-client-id';
+const NETLIFY_CLIENT_ID = '44KA5odL7EffIH4g6DyCELlcK1aHaH7T4VJzFofh-uQ';
 
 // Generate Netlify OAuth URL for user authorization
 export const getNetlifyAuthUrl = (): string => {
