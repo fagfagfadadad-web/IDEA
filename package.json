@@ -1,20 +1,20 @@
 {
-  "name": "@multiversx/mx-template-dapp",
-  "description": "xIdea Web3 Marketplace",
+  "name": "mx-builder",
+  "description": "No-code staking/presale site builder for MultiversX",
   "version": "1.0.0",
   "author": "MultiversX",
   "license": "GPL-3.0-or-later",
-  "repository": "@multiversx/mx-template-dapp",
+  "repository": "mx-builder",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "6.5.1",
     "@fortawesome/free-solid-svg-icons": "6.5.1",
     "@fortawesome/react-fontawesome": "0.2.0",
+    "@hookform/resolvers": "^3.3.4",
     "@multiversx/sdk-core": "14.2.6",
     "@multiversx/sdk-dapp": "^5.x",
     "@multiversx/sdk-dapp-ui": "^0.x",
     "@multiversx/sdk-dapp-utils": "2.0.2",
     "@multiversx/sdk-network-providers": "^2.4.0",
-    "@supabase/supabase-js": "^2.52.0",
     "axios": "1.10.0",
     "classnames": "2.3.2",
     "js-confetti": "^0.12.0",
@@ -22,7 +22,10 @@
     "moment": "2.29.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "6.16.0"
+    "react-hook-form": "^7.49.3",
+    "react-router-dom": "6.16.0",
+    "zod": "^3.22.4",
+    "zustand": "^4.4.7"
   },
   "scripts": {
     "dev": "yarn copy-mainnet-config && yarn vite dev",
