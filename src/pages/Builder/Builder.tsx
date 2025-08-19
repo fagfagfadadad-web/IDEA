@@ -152,9 +152,9 @@ export const Builder = () => {
       // Handle specific Netlify errors
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      if (errorMessage.includes('exceeded usage limit') || errorMessage.includes('422')) {
+      if (errorMessage.includes('exceeded usage limit') || errorMessage.includes('422') || errorMessage.includes('Cannot create more sites')) {
         showToast(
-          'Your Netlify account has reached the site limit. Please upgrade your Netlify plan or delete existing sites from your Netlify dashboard.',
+          'Your Netlify account has reached the site limit. Please upgrade your Netlify plan or delete existing sites from your Netlify dashboard to continue publishing.',
           { type: 'error' }
         );
       } else if (errorMessage.includes('401') || errorMessage.includes('403')) {
