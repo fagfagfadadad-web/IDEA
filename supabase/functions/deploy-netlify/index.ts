@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
+const NETLIFY_CLIENT_ID = 'R2TnAioMNRFS8juEh_f8swXbAQ-GbzsTYI0nsIEUG38'
+const NETLIFY_CLIENT_SECRET = 'AHV--1P1UWnWyrJCdMqcyGrrR5CZcB-jJRxVfjXWU3k'
+
 interface DeployRequest {
   projectData: {
     slug: string;
@@ -52,6 +55,23 @@ serve(async (req) => {
   try {
     const { projectData, netlifyToken }: DeployRequest = await req.json()
 
+    // If no token provided, return OAuth URL for user to authorize
+    if (!netlifyToken) {
+      const authUrl = `https://app.netlify.com/authorize?client_id=${NETLIFY_CLIENT_ID}&response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&scope=deploy`
+      
+      return new Response(
+        JSON.stringify({
+          success: false,
+          needsAuth: true,
+          authUrl: authUrl,
+          message: 'Please authorize with Netlify first'
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
     // Generate static HTML content
     const htmlContent = generateStaticHTML(projectData)
     
@@ -59,7 +79,7 @@ serve(async (req) => {
     const siteResponse = await fetch('https://api.netlify.com/api/v1/sites', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${netlifyToken || Deno.env.get('NETLIFY_TOKEN')}`,
+        'Authorization': `Bearer ${netlifyToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -69,23 +89,35 @@ serve(async (req) => {
     })
 
     if (!siteResponse.ok) {
-      throw new Error(`Failed to create site: ${siteResponse.statusText}`)
+      const errorText = await siteResponse.text()
+      throw new Error(`Failed to create site: ${siteResponse.status} ${errorText}`)
     }
 
     const site = await siteResponse.json()
     
-    // Create deployment
+    // Create deployment with files
+    const files = {
+      'index.html': htmlContent,
+      '_redirects': '/*    /index.html   200',
+      'README.md': generateReadme(projectData)
+    }
+
     const deployResponse = await fetch(`https://api.netlify.com/api/v1/sites/${site.id}/deploys`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${netlifyToken || Deno.env.get('NETLIFY_TOKEN')}`,
-        'Content-Type': 'application/zip',
+        'Authorization': `Bearer ${netlifyToken}`,
+        'Content-Type': 'application/json',
       },
-      body: await createDeploymentZip(htmlContent, projectData),
+      body: JSON.stringify({
+        files: files,
+        draft: false,
+        branch: 'main'
+      }),
     })
 
     if (!deployResponse.ok) {
-      throw new Error(`Failed to deploy: ${deployResponse.statusText}`)
+      const errorText = await deployResponse.text()
+      throw new Error(`Failed to deploy: ${deployResponse.status} ${errorText}`)
     }
 
     const deployment = await deployResponse.json()
@@ -97,6 +129,8 @@ serve(async (req) => {
         deployUrl: deployment.deploy_url,
         siteId: site.id,
         deployId: deployment.id,
+        adminUrl: site.admin_url,
+        message: `Successfully deployed to ${site.url}`
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -478,12 +512,8 @@ function generatePresaleWidget(theme: any, web3: any): string {
   `;
 }
 
-async function createDeploymentZip(htmlContent: string, projectData: any): Promise<Uint8Array> {
-  // Create a simple ZIP structure
-  const files = new Map();
-  files.set('index.html', htmlContent);
-  files.set('_redirects', '/*    /index.html   200');
-  files.set('README.md', `# ${projectData.content.projectName}
+function generateReadme(projectData: DeployRequest['projectData']): string {
+  return `# ${projectData.content.projectName}
 
 This is a static export of your Web3 application built with MX Builder.
 
@@ -505,18 +535,5 @@ This site has been automatically deployed to Netlify.
 ${projectData.template === 'staking' ? `- APY: ${(projectData.web3.apyBps / 100).toFixed(2)}%` : `- Total Supply: ${projectData.web3.totalSupply.toLocaleString()}`}
 
 Built with MX Builder
-`);
-
-  // Simple ZIP creation (basic implementation)
-  const zipData = new Uint8Array(1024 * 1024); // 1MB buffer
-  let offset = 0;
-  
-  // Add files to ZIP (simplified - in production use proper ZIP library)
-  for (const [filename, content] of files) {
-    const fileData = new TextEncoder().encode(content);
-    zipData.set(fileData, offset);
-    offset += fileData.length;
-  }
-  
-  return zipData.slice(0, offset);
+`;
 }

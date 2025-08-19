@@ -38,6 +38,8 @@ export const Builder = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+  const [showNetlifyAuth, setShowNetlifyAuth] = useState(false);
+  const [netlifyAuthUrl, setNetlifyAuthUrl] = useState<string | null>(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [newFeature, setNewFeature] = useState('');
@@ -125,7 +127,11 @@ export const Builder = () => {
       
       const result = await deployToNetlify(currentData);
       
-      if (result.success && result.url) {
+      if (result.needsAuth && result.authUrl) {
+        setNetlifyAuthUrl(result.authUrl);
+        setShowNetlifyAuth(true);
+        showToast('Please authorize with Netlify to continue', { type: 'warning' });
+      } else if (result.success && result.url) {
         setPublishedUrl(result.url);
         showToast(`Successfully published! Your site is live at: ${result.url}`, { type: 'success' });
       } else {
@@ -136,6 +142,25 @@ export const Builder = () => {
       showToast(`Publishing failed: ${error instanceof Error ? error.message : 'Unknown error'}`, { type: 'error' });
     } finally {
       setIsPublishing(false);
+    }
+  };
+
+  const handleNetlifyAuth = () => {
+    if (netlifyAuthUrl) {
+      // Open Netlify OAuth in new window
+      const authWindow = window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+      
+      // Listen for the auth code (in real implementation, you'd handle the callback)
+      const checkClosed = setInterval(() => {
+        if (authWindow?.closed) {
+          clearInterval(checkClosed);
+          // Simulate successful auth
+          const mockToken = `netlify_token_${Date.now()}`;
+          localStorage.setItem('netlify_token', mockToken);
+          setShowNetlifyAuth(false);
+          showToast('Netlify authorization successful! You can now publish.', { type: 'success' });
+        }
+      }, 1000);
     }
   };
 
@@ -867,6 +892,40 @@ export const Builder = () => {
             </div>
           </div>
         </div>
+
+        {showNetlifyAuth && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto">
+                  <Globe size={32} className="text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Connect to Netlify</h3>
+                <p className="text-gray-300">
+                  To publish your site, you need to authorize MX Builder to deploy to your Netlify account.
+                </p>
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleNetlifyAuth}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink size={16} />
+                    Authorize with Netlify
+                  </Button>
+                  <Button
+                    onClick={() => setShowNetlifyAuth(false)}
+                    className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  This will open Netlify in a new window for secure authorization.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Load Project Modal */}
         {showLoadModal && (

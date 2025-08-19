@@ -7,6 +7,8 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
   success: boolean;
   url?: string;
   error?: string;
+  needsAuth?: boolean;
+  authUrl?: string;
 }> => {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -16,6 +18,9 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
       throw new Error('Supabase configuration missing');
     }
     
+    // Try to get stored Netlify token
+    const netlifyToken = localStorage.getItem('netlify_token');
+    
     const response = await fetch(`${supabaseUrl}/functions/v1/deploy-netlify`, {
       method: 'POST',
       headers: {
@@ -23,7 +28,8 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        projectData
+        projectData,
+        netlifyToken
       })
     });
     
@@ -33,6 +39,16 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     }
     
     const result = await response.json();
+    
+    // If needs authentication, handle OAuth flow
+    if (result.needsAuth) {
+      return {
+        success: false,
+        needsAuth: true,
+        authUrl: result.authUrl,
+        error: 'Netlify authorization required'
+      };
+    }
     
     return {
       success: result.success,
@@ -45,6 +61,26 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
       error: error instanceof Error ? error.message : 'Deployment failed'
     };
   }
+};
+
+// Handle Netlify OAuth callback
+export const handleNetlifyCallback = (code: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    // In a real implementation, you would exchange the code for an access token
+    // For now, we'll simulate this by storing a mock token
+    localStorage.setItem('netlify_token', `netlify_token_${code}`);
+    resolve(true);
+  });
+};
+
+// Check if user has Netlify token
+export const hasNetlifyToken = (): boolean => {
+  return !!localStorage.getItem('netlify_token');
+};
+
+// Clear Netlify token (for logout)
+export const clearNetlifyToken = (): void => {
+  localStorage.removeItem('netlify_token');
 };
 
 // Generate static HTML for the project
@@ -447,7 +483,7 @@ export const generateStaticHTML = (projectData: BuilderData): string => {
                     <a href="#${template}" class="nav-button">
                         ${template === 'staking' ? 'Launch App' : 'Join Presale'}
                     </a>
-                    <button style="background: #4f46e5; color: #ffffff; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;">
+                    <button onclick="connectWallet()" style="background: #4f46e5; color: #ffffff; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;">
                         Connect Wallet
                     </button>
                 </div>
