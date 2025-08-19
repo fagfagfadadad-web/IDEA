@@ -40,6 +40,8 @@ export const Builder = () => {
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [showNetlifyAuth, setShowNetlifyAuth] = useState(false);
   const [netlifyAuthUrl, setNetlifyAuthUrl] = useState<string | null>(null);
+  const [showTokenInput, setShowTokenInput] = useState(false);
+  const [tokenInput, setTokenInput] = useState('');
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [newFeature, setNewFeature] = useState('');
@@ -148,20 +150,28 @@ export const Builder = () => {
   const handleNetlifyAuth = () => {
     if (netlifyAuthUrl) {
       // Open Netlify OAuth in new window
-      const authWindow = window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
-      
-      // Listen for the auth code (in real implementation, you'd handle the callback)
-      const checkClosed = setInterval(() => {
-        if (authWindow?.closed) {
-          clearInterval(checkClosed);
-          // Simulate successful auth
-          const mockToken = `netlify_token_${Date.now()}`;
-          localStorage.setItem('netlify_token', mockToken);
-          setShowNetlifyAuth(false);
-          showToast('Netlify authorization successful! You can now publish.', { type: 'success' });
-        }
-      }, 1000);
+      window.open(netlifyAuthUrl, 'netlify-auth', 'width=600,height=700');
+      // Show token input field
+      setShowTokenInput(true);
     }
+  };
+
+  const handleTokenSubmit = async () => {
+    if (!tokenInput.trim()) {
+      showToast('Please enter the access token', { type: 'error' });
+      return;
+    }
+
+    // Save token and close modal
+    localStorage.setItem('netlify_token', tokenInput.trim());
+    setShowNetlifyAuth(false);
+    setShowTokenInput(false);
+    setTokenInput('');
+    
+    showToast('Netlify authorization successful! Publishing your site...', { type: 'success' });
+    
+    // Retry publishing with the new token
+    await handlePublishToNetlify();
   };
 
   const handleExportForNetlify = async () => {
@@ -900,38 +910,79 @@ export const Builder = () => {
                 <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto">
                   <Globe size={32} className="text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Connect to Netlify</h3>
-                <p className="text-gray-300">
-                  To publish your site, you need to authorize MX Builder to deploy to your Netlify account.
-                </p>
-                <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
-                  <p className="text-blue-300 text-sm font-medium mb-1">📋 How it works:</p>
-                  <p className="text-blue-200 text-xs">
-                    1. Click "Authorize with Netlify"<br/>
-                    2. Sign in to your Netlify account<br/>
-                    3. Grant permission to deploy sites<br/>
-                    4. Copy the access token and paste it when prompted<br/>
-                    5. Your site will be deployed automatically!
-                  </p>
-                </div>
-                <div className="space-y-3">
-                  <Button
-                    onClick={handleNetlifyAuth}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
-                  >
-                    <ExternalLink size={16} />
-                    Authorize with Netlify
-                  </Button>
-                  <Button
-                    onClick={() => setShowNetlifyAuth(false)}
-                    className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                <p className="text-xs text-gray-400">
-                  This will open Netlify in a new window for secure authorization.
-                </p>
+                
+                {!showTokenInput ? (
+                  <>
+                    <h3 className="text-xl font-bold text-white">Connect to Netlify</h3>
+                    <p className="text-gray-300">
+                      To publish your site, you need to authorize MX Builder to deploy to your Netlify account.
+                    </p>
+                    <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
+                      <p className="text-blue-300 text-sm font-medium mb-1">📋 How it works:</p>
+                      <p className="text-blue-200 text-xs">
+                        1. Click "Authorize with Netlify"<br/>
+                        2. Sign in to your Netlify account<br/>
+                        3. Grant permission to deploy sites<br/>
+                        4. Copy the access token from Netlify<br/>
+                        5. Paste it in the next step
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={handleNetlifyAuth}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                      >
+                        <ExternalLink size={16} />
+                        Authorize with Netlify
+                      </Button>
+                      <Button
+                        onClick={() => setShowNetlifyAuth(false)}
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xl font-bold text-white">Enter Access Token</h3>
+                    <p className="text-gray-300">
+                      Copy the access token from Netlify and paste it below:
+                    </p>
+                    <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
+                      <p className="text-yellow-300 text-sm font-medium mb-1">🔑 Where to find your token:</p>
+                      <p className="text-yellow-200 text-xs">
+                        After authorizing, Netlify will show you an access token.<br/>
+                        Copy the entire token and paste it in the field below.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={tokenInput}
+                        onChange={(e) => setTokenInput(e.target.value)}
+                        placeholder="Paste your Netlify access token here..."
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                      />
+                      <Button
+                        onClick={handleTokenSubmit}
+                        disabled={!tokenInput.trim()}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg disabled:opacity-50"
+                      >
+                        Save Token & Deploy
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowTokenInput(false);
+                          setTokenInput('');
+                        }}
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                      >
+                        Back
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

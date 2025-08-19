@@ -8,7 +8,7 @@ const corsHeaders = {
 
 const NETLIFY_CLIENT_ID = 'R2TnAioMNRFS8juEh_f8swXbAQ-GbzsTYI0nsIEUG38'
 const NETLIFY_CLIENT_SECRET = 'AHV--1P1UWnWyrJCdMqcyGrrR5CZcB-jJRxVfjXWU3k'
-const NETLIFY_REDIRECT_URI = 'https://app.netlify.com/authorize'
+const NETLIFY_REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 interface DeployRequest {
   projectData: {
@@ -58,7 +58,7 @@ serve(async (req) => {
 
     // If no token provided, return OAuth URL for user to authorize
     if (!netlifyToken) {
-      const authUrl = `https://app.netlify.com/authorize?client_id=${NETLIFY_CLIENT_ID}&response_type=token&scope=deploy`
+      const authUrl = `https://app.netlify.com/authorize?client_id=${NETLIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(NETLIFY_REDIRECT_URI)}&scope=deploy`
       
       return new Response(
         JSON.stringify({
