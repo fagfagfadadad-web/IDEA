@@ -23,7 +23,7 @@ import {
   Zap,
   Copy,
   Trash2,
-  Type,
+  Type as TypeIcon,
   Palette,
   Settings,
   FolderOpen,
@@ -319,7 +319,7 @@ export const Builder = () => {
   };
 
   const tabs = [
-    { id: 0, label: 'Content', icon: <Type size={16} /> },
+    { id: 0, label: 'Content', icon: <TypeIcon size={16} /> },
     { id: 1, label: 'Theme', icon: <Palette size={16} /> },
     { id: 2, label: 'Web3', icon: <Code size={16} /> },
     { id: 3, label: 'Settings', icon: <Settings size={16} /> }
