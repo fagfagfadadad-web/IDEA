@@ -79,11 +79,6 @@ export const Builder = () => {
     }
   }, [data, reset]);
 
-  // Update store when form values change
-  useEffect(() => {
-    setData(values);
-  }, [values, setData]);
-
   const onSubmit = (formData: BuilderData) => {
     try {
       saveProject(formData.slug, formData);
