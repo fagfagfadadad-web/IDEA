@@ -17,7 +17,9 @@ import {
   Rocket,
   Plus,
   FolderOpen,
-  Zap
+  Zap,
+  Globe,
+  ExternalLink
 } from 'lucide-react';
 import { Button, Field, ColorPicker, ImagePicker } from 'components';
 import { BuilderSchema, BuilderData } from '../../lib/schema';
@@ -25,6 +27,7 @@ import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
+import { deployToNetlify, exportForNetlify } from '../../utils/netlifyDeploy';
 
 export const Builder = () => {
   const navigate = useNavigate();
@@ -33,6 +36,8 @@ export const Builder = () => {
   const { deployStakingContract, deployPresaleContract, isDeploying, deployedAddress } = useContractDeployment();
   const isLoggedIn = useGetIsLoggedIn();
   const [activeTab, setActiveTab] = useState(0);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [newFeature, setNewFeature] = useState('');
@@ -109,6 +114,38 @@ export const Builder = () => {
     link.click();
     URL.revokeObjectURL(url);
     showToast('Project exported successfully!', { type: 'success' });
+  };
+
+  const handlePublishToNetlify = async () => {
+    const currentData = values;
+    setIsPublishing(true);
+    
+    try {
+      showToast('Publishing to Netlify...', { type: 'info' });
+      
+      const result = await deployToNetlify(currentData);
+      
+      if (result.success && result.url) {
+        setPublishedUrl(result.url);
+        showToast(`Successfully published! Your site is live at: ${result.url}`, { type: 'success' });
+      } else {
+        throw new Error(result.error || 'Deployment failed');
+      }
+    } catch (error) {
+      console.error('Publish error:', error);
+      showToast(`Publishing failed: ${error instanceof Error ? error.message : 'Unknown error'}`, { type: 'error' });
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleExportForNetlify = async () => {
+    try {
+      await exportForNetlify(values);
+      showToast('Project exported for Netlify! Check your downloads folder.', { type: 'success' });
+    } catch (error) {
+      showToast('Export failed', { type: 'error' });
+    }
   };
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -244,11 +281,37 @@ export const Builder = () => {
               </Button>
               
               <Button
+                onClick={handlePublishToNetlify}
+                disabled={isPublishing}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+              >
+                {isPublishing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <Globe size={16} />
+                    Publish
+                  </>
+                )}
+              </Button>
+              
+              <Button
                 onClick={handleExport}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
               >
                 <Download size={16} />
                 Export
+              </Button>
+              
+              <Button
+                onClick={handleExportForNetlify}
+                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              >
+                <ExternalLink size={16} />
+                Export for Netlify
               </Button>
               
               <label className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer transition-colors">
@@ -731,6 +794,20 @@ export const Builder = () => {
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
               <h3 className="text-lg font-bold text-white mb-4">Project Stats</h3>
               <div className="space-y-3">
+                {publishedUrl && (
+                  <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-3 mb-4">
+                    <p className="text-green-300 text-sm font-medium mb-2">🚀 Published Successfully!</p>
+                    <a 
+                      href={publishedUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-green-200 text-xs font-mono break-all hover:underline"
+                    >
+                      {publishedUrl}
+                    </a>
+                  </div>
+                )}
+                
                 <div className="flex justify-between">
                   <span className="text-gray-400">Template:</span>
                   <span className="text-white capitalize">{values.template}</span>
@@ -753,6 +830,36 @@ export const Builder = () => {
                 <div className="flex justify-between">
                   <span className="text-gray-400">Features:</span>
                   <span className="text-white">{values.content.features?.length || 0}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Deployment Guide */}
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-white mb-4">Deployment Options</h3>
+              <div className="space-y-4">
+                <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
+                  <p className="text-blue-300 text-sm font-medium mb-1">🚀 Quick Publish</p>
+                  <p className="text-blue-200 text-xs">
+                    Click "Publish" to deploy directly to Netlify. 
+                    You'll get a live URL instantly!
+                  </p>
+                </div>
+                
+                <div className="bg-orange-900/50 border border-orange-500/50 rounded-lg p-3">
+                  <p className="text-orange-300 text-sm font-medium mb-1">📦 Manual Deploy</p>
+                  <p className="text-orange-200 text-xs">
+                    Use "Export for Netlify" to download a ZIP file, 
+                    then drag & drop it to Netlify dashboard.
+                  </p>
+                </div>
+                
+                <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
+                  <p className="text-yellow-300 text-sm font-medium mb-1">⚠️ Note</p>
+                  <p className="text-yellow-200 text-xs">
+                    Exported sites are static HTML for preview. 
+                    For full Web3 functionality, deploy the complete React app.
+                  </p>
                 </div>
               </div>
             </div>
