@@ -70,6 +70,7 @@ export const deployToNetlify = async (projectData: BuilderData): Promise<{
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Deployment failed'
+    }
     
     // Re-throw with more specific error messages
     if (error instanceof Error) {
