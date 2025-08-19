@@ -24,10 +24,8 @@ import {
   Copy,
   Trash2,
   Type as TypeIcon,
-  Palette,
   Settings,
   Zap,
-  Trash2,
   Copy,
   Github
 } from 'lucide-react';
