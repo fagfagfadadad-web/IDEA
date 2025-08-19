@@ -15,6 +15,14 @@ import {
   Twitter,
   MessageSquare,
   LogOut,
+  Github,
+  Palette,
+  Settings,
+  Type,
+  FolderOpen,
+  Zap,
+  Copy,
+  Trash2
   Type,
   Palette,
   Settings,
@@ -29,6 +37,7 @@ import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
 import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
+import { deployFullDApp, getGitHubAuthUrl, hasGitHubToken, clearGitHubToken } from '../../utils/gitDeploy';
 import { useNavigate } from 'react-router-dom';
 import { BuilderData, BuilderSchema } from '../../lib/schema';
 import { Button } from '../../components/Button';
