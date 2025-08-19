@@ -1,9 +1,8 @@
 import { 
   useGetIsLoggedIn, 
-  useGetAccount, 
-  logout as dappLogout 
-} from '@multiversx/sdk-dapp/hooks';
-import { ExtensionProvider } from '@multiversx/sdk-dapp/providers';
+  useGetAccount,
+  getAccountProvider
+} from '@multiversx/sdk-dapp/lib';
 
 export function useWallet() {
   const isLoggedIn = useGetIsLoggedIn();
@@ -11,8 +10,7 @@ export function useWallet() {
 
   const login = async () => {
     try {
-      const provider = ExtensionProvider.getInstance();
-      await provider.init();
+      const provider = getAccountProvider();
       await provider.login();
       console.log('Wallet connected successfully');
     } catch (error) {
@@ -23,7 +21,7 @@ export function useWallet() {
 
   const logout = async () => {
     try {
-      await dappLogout();
+      await getAccountProvider().logout();
       console.log('Wallet disconnected successfully');
     } catch (error) {
       console.error('Logout error:', error);
