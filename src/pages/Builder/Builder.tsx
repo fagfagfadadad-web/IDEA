@@ -1048,6 +1048,93 @@ export const Builder = () => {
           </div>
         )}
 
+        {/* GitHub Authorization Modal */}
+        {showGithubAuth && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-900 rounded-2xl p-6 max-w-md w-full">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto">
+                  <Github size={32} className="text-white" />
+                </div>
+                
+                {!showGithubTokenInput ? (
+                  <>
+                    <h3 className="text-xl font-bold text-white">Connect Your GitHub Account</h3>
+                    <p className="text-gray-300">
+                      To deploy your full DApp, you need to authorize MX Builder to create repositories in <strong>your own</strong> GitHub account.
+                    </p>
+                    <div className="bg-purple-900/50 border border-purple-500/50 rounded-lg p-3">
+                      <p className="text-purple-300 text-sm font-medium mb-1">📋 How it works:</p>
+                      <p className="text-purple-200 text-xs">
+                        1. Click "Authorize with Your GitHub"<br/>
+                        2. Sign in to <strong>your own</strong> GitHub account<br/>
+                        3. Grant permission to create repositories in <strong>your account</strong><br/>
+                        4. Copy the access token from GitHub<br/>
+                        5. Paste it in the next step<br/>
+                        6. Get a complete React DApp repository
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <Button
+                        onClick={handleGithubAuth}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2"
+                      >
+                        <Github size={16} />
+                        Authorize with Your GitHub
+                      </Button>
+                      <Button
+                        onClick={() => setShowGithubAuth(false)}
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xl font-bold text-white">Enter GitHub Access Token</h3>
+                    <p className="text-gray-300">
+                      Copy the access token from your GitHub account and paste it below:
+                    </p>
+                    <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
+                      <p className="text-yellow-300 text-sm font-medium mb-1">🔑 Where to find your token:</p>
+                      <p className="text-yellow-200 text-xs">
+                        After authorizing on <strong>your GitHub account</strong>, GitHub will show you a personal access token.<br/>
+                        Copy the entire token and paste it in the field below.
+                      </p>
+                    </div>
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={githubTokenInput}
+                        onChange={(e) => setGithubTokenInput(e.target.value)}
+                        placeholder="Paste your GitHub access token here..."
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                      />
+                      <Button
+                        onClick={handleGithubTokenSubmit}
+                        disabled={!githubTokenInput.trim()}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg disabled:opacity-50"
+                      >
+                        Save Token & Deploy Full DApp
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowGithubTokenInput(false);
+                          setGithubTokenInput('');
+                        }}
+                        className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                      >
+                        Back
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Load Project Modal */}
         {showLoadModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
