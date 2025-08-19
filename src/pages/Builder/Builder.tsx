@@ -16,14 +16,6 @@ import {
   Code,
   Rocket,
   Plus,
-  FolderOpen,
-  Zap,
-  Globe,
-  ExternalLink,
-  Github
-} from 'lucide-react';
-import { Button, Field, ColorPicker, ImagePicker } from 'components';
-import { BuilderSchema, BuilderData } from '../../lib/schema';
 import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
