@@ -23,10 +23,10 @@ import { useGetIsLoggedIn } from 'lib';
 import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
 import { useNavigate } from 'react-router-dom';
 import { BuilderData, BuilderSchema } from '../../lib/schema';
-import { Button } from '../../components/ui/Button';
-import { Field } from '../../components/ui/Field';
-import { ColorPicker } from '../../components/ui/ColorPicker';
-import { ImagePicker } from '../../components/ui/ImagePicker';
+import { Button } from '../../components/Button';
+import { Field } from '../../components/Field';
+import { ColorPicker } from '../../components/ColorPicker';
+import { ImagePicker } from '../../components/ImagePicker';
 
 export const Builder = () => {
   const navigate = useNavigate();
