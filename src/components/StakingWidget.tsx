@@ -11,8 +11,9 @@ interface StakingWidgetProps {
   maxStake?: number;
   theme: {
     primary: string;
-    background: string;
+    background?: string;
     text: string;
+    accent?: string;
   };
 }
 
