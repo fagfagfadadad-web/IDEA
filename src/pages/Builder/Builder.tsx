@@ -27,7 +27,7 @@ import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
 import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
-import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl } from '../../utils/netlifyDeploy';
+import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
 
 export const Builder = () => {
   const navigate = useNavigate();
@@ -197,6 +197,12 @@ export const Builder = () => {
     await handlePublishToNetlify();
   };
 
+  const handleNetlifyLogout = () => {
+    clearNetlifyToken();
+    setPublishedUrl(null);
+    showToast('Logged out from Netlify successfully!', { type: 'success' });
+  };
+
   const handleExportForNetlify = async () => {
     try {
       await exportForNetlify(values);
@@ -355,6 +361,16 @@ export const Builder = () => {
                   </>
                 )}
               </Button>
+              
+              {hasNetlifyToken() && (
+                <Button
+                  onClick={handleNetlifyLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <ExternalLink size={16} />
+                  Logout Netlify
+                </Button>
+              )}
               
               <Button
                 onClick={handleExport}
