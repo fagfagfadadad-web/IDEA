@@ -1,0 +1,11 @@
+[workspace]
+members = [
+    "factory",
+    "staking", 
+    "presale"
+]
+
+[workspace.dependencies]
+multiversx-sc = "0.50.0"
+multiversx-sc-derive = "0.50.0"
+multiversx-sc-modules = "0.50.0"

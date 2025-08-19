@@ -16,17 +16,22 @@ import {
   Code,
   Rocket,
   Plus,
-  FolderOpen
+  FolderOpen,
+  Zap
 } from 'lucide-react';
 import { Button, Field, ColorPicker, ImagePicker } from 'components';
 import { BuilderSchema, BuilderData } from '../../lib/schema';
 import { useBuilder } from '../../lib/store';
 import { useCustomToast } from '../../hooks/useCustomToast';
+import { useContractDeployment } from '../../hooks/useContractDeployment';
+import { useGetIsLoggedIn } from 'lib';
 
 export const Builder = () => {
   const navigate = useNavigate();
   const { data, setData, saveProject, loadProject, deleteProject, getAllProjects } = useBuilder();
   const { showToast } = useCustomToast();
+  const { deployStakingContract, deployPresaleContract, isDeploying, deployedAddress } = useContractDeployment();
+  const isLoggedIn = useGetIsLoggedIn();
   const [activeTab, setActiveTab] = useState(0);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -138,6 +143,48 @@ export const Builder = () => {
     if (confirm(`Are you sure you want to delete project "${slug}"?`)) {
       deleteProject(slug);
       showToast(`Project "${slug}" deleted successfully!`, { type: 'success' });
+    }
+  };
+
+  const handleDeployContract = async () => {
+    if (!isLoggedIn) {
+      showToast('Please connect your wallet to deploy contracts', { type: 'error' });
+      return;
+    }
+
+    const currentData = values;
+    let contractAddress: string | null = null;
+
+    if (currentData.template === 'staking') {
+      contractAddress = await deployStakingContract({
+        tokenId: currentData.web3.tokenTicker,
+        apyBps: currentData.web3.apyBps,
+        minStake: currentData.web3.minStake.toString(),
+        maxStake: currentData.web3.maxStake.toString(),
+        startTime: currentData.web3.startTs,
+        endTime: currentData.web3.endTs
+      });
+    } else {
+      contractAddress = await deployPresaleContract({
+        tokenId: currentData.web3.tokenTicker,
+        pricePerToken: '1000000000000000', // 0.001 EGLD per token
+        totalSupply: currentData.web3.totalSupply.toString(),
+        startTime: currentData.web3.startTs,
+        endTime: currentData.web3.endTs,
+        minContribution: '100000000000000000', // 0.1 EGLD
+        maxContribution: '10000000000000000000' // 10 EGLD
+      });
+    }
+
+    if (contractAddress) {
+      // Update the contract address in the form
+      setValue('web3.contractAddress', contractAddress);
+      
+      // Save the project with the new contract address
+      const updatedData = { ...currentData, web3: { ...currentData.web3, contractAddress } };
+      saveProject(updatedData.slug, updatedData);
+      
+      showToast(`Contract deployed! Address: ${contractAddress}`, { type: 'success' });
     }
   };
 
@@ -430,11 +477,55 @@ export const Builder = () => {
                       </Field>
 
                       <Field label="Smart Contract Address" required error={errors.web3?.contractAddress?.message}>
-                        <input
-                          {...register('web3.contractAddress')}
-                          className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-                          placeholder="erd1qqqqqqqqqqqqqpgq..."
-                        />
+                        <div className="space-y-3">
+                          <input
+                            {...register('web3.contractAddress')}
+                            className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                            placeholder="erd1qqqqqqqqqqqqqpgq..."
+                          />
+                          
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              onClick={handleDeployContract}
+                              disabled={isDeploying || !isLoggedIn}
+                              className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                            >
+                              {isDeploying ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                  Deploying...
+                                </>
+                              ) : (
+                                <>
+                                  <Zap size={16} />
+                                  Deploy New Contract
+                                </>
+                              )}
+                            </Button>
+                            
+                            {!isLoggedIn && (
+                              <p className="text-yellow-400 text-sm flex items-center">
+                                Connect wallet to deploy
+                              </p>
+                            )}
+                          </div>
+                          
+                          {deployedAddress && (
+                            <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-3">
+                              <p className="text-green-300 text-sm font-medium mb-1">✅ Contract Deployed!</p>
+                              <p className="text-green-200 text-xs font-mono break-all">{deployedAddress}</p>
+                            </div>
+                          )}
+                          
+                          <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
+                            <p className="text-blue-300 text-sm font-medium mb-1">💡 Deploy Your Own Contract</p>
+                            <p className="text-blue-200 text-xs">
+                              Deploy a new {values.template} contract with your custom parameters. 
+                              Deployment fee: ~0.05 EGLD
+                            </p>
+                          </div>
+                        </div>
                       </Field>
 
                       <Field label="Token Ticker" required error={errors.web3?.tokenTicker?.message}>

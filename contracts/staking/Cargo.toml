@@ -1,0 +1,16 @@
+[package]
+name = "staking"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "staking"
+path = "src/lib.rs"
+
+[dependencies]
+multiversx-sc = { workspace = true }
+multiversx-sc-derive = { workspace = true }
+multiversx-sc-modules = { workspace = true }
+
+[dev-dependencies]
+multiversx-sc-scenario = "0.50.0"
