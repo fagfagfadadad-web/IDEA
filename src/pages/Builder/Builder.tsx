@@ -22,7 +22,7 @@ import { useContractDeployment } from '../../hooks/useContractDeployment';
 import { useGetIsLoggedIn } from 'lib';
 import { deployToNetlify, exportForNetlify, getNetlifyAuthUrl, hasNetlifyToken, clearNetlifyToken } from '../../utils/netlifyDeploy';
 import { useNavigate } from 'react-router-dom';
-import { BuilderData, BuilderSchema } from '../../types/builder';
+import { BuilderData, BuilderSchema } from '../../lib/schema';
 import { Button } from '../../components/ui/Button';
 import { Field } from '../../components/ui/Field';
 import { ColorPicker } from '../../components/ui/ColorPicker';
