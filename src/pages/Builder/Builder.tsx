@@ -482,6 +482,7 @@ export const Builder = () => {
                             {...register('web3.contractAddress')}
                             className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
                             placeholder="erd1qqqqqqqqqqqqqpgq..."
+                            readOnly={isDeploying}
                           />
                           
                           <div className="flex gap-2">
@@ -499,7 +500,7 @@ export const Builder = () => {
                               ) : (
                                 <>
                                   <Zap size={16} />
-                                  Deploy New Contract
+                                  Deploy Contract
                                 </>
                               )}
                             </Button>
@@ -519,9 +520,12 @@ export const Builder = () => {
                           )}
                           
                           <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
-                            <p className="text-blue-300 text-sm font-medium mb-1">💡 Deploy Your Own Contract</p>
+                            <p className="text-blue-300 text-sm font-medium mb-1">💡 How it works</p>
                             <p className="text-blue-200 text-xs">
-                              Deploy a new {values.template} contract with your custom parameters. 
+                              1. Set your token parameters below<br/>
+                              2. Click "Deploy Contract" to create your {values.template} contract<br/>
+                              3. Sign transaction in xPortal wallet<br/>
+                              4. Get your contract address automatically<br/>
                               Deployment fee: ~0.05 EGLD
                             </p>
                           </div>
@@ -532,7 +536,7 @@ export const Builder = () => {
                         <input
                           {...register('web3.tokenTicker')}
                           className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                          placeholder="STAKE"
+                          placeholder="Enter your existing token ID (e.g. MYTOKEN-abc123)"
                         />
                       </Field>
 
@@ -575,6 +579,17 @@ export const Builder = () => {
                         </>
                       ) : (
                         <>
+                          <Field label="Price per Token (in EGLD)" description="How much EGLD for 1 token" error={errors.web3?.totalSupply?.message}>
+                            <input
+                              type="number"
+                              step="0.000001"
+                              min="0"
+                              defaultValue="0.001"
+                              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="0.001"
+                            />
+                          </Field>
+
                           <Field label="Total Supply" error={errors.web3?.totalSupply?.message}>
                             <input
                               type="number"
@@ -586,7 +601,7 @@ export const Builder = () => {
                           </Field>
 
                           <div className="grid grid-cols-2 gap-4">
-                            <Field label="Start Timestamp">
+                            <Field label="Presale Start">
                               <input
                                 type="datetime-local"
                                 value={new Date(values.web3.startTs * 1000).toISOString().slice(0, 16)}
@@ -595,7 +610,7 @@ export const Builder = () => {
                               />
                             </Field>
 
-                            <Field label="End Timestamp">
+                            <Field label="Presale End">
                               <input
                                 type="datetime-local"
                                 value={new Date(values.web3.endTs * 1000).toISOString().slice(0, 16)}
@@ -603,6 +618,17 @@ export const Builder = () => {
                                 className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               />
                             </Field>
+                          </div>
+
+                          <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
+                            <p className="text-yellow-300 text-sm font-medium mb-1">📋 Presale Setup</p>
+                            <p className="text-yellow-200 text-xs">
+                              1. Enter your existing token ID<br/>
+                              2. Set price (how much EGLD per 1 token)<br/>
+                              3. Set total tokens for sale<br/>
+                              4. Choose start/end dates<br/>
+                              5. Deploy contract with these parameters
+                            </p>
                           </div>
                         </>
                       )}
