@@ -2,29 +2,42 @@ import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { BuilderData } from '../lib/schema';
 
-// Simulate Netlify deployment (in production, this would be handled by your backend)
+// Real Netlify deployment via Supabase Edge Function
 export const deployToNetlify = async (projectData: BuilderData): Promise<{
   success: boolean;
   url?: string;
   error?: string;
 }> => {
   try {
-    // Simulate deployment process
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulate API calls
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
-    // Generate a mock Netlify URL
-    const randomId = Math.random().toString(36).substring(2, 8);
-    const netlifyUrl = `https://${projectData.slug}-${randomId}.netlify.app`;
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration missing');
+    }
     
-    // In production, this would:
-    // 1. Send projectData to your backend
-    // 2. Backend would generate static files
-    // 3. Backend would use Netlify API to create site and deploy
-    // 4. Return the actual Netlify URL
+    const response = await fetch(`${supabaseUrl}/functions/v1/deploy-netlify`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        projectData
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Deployment failed');
+    }
+    
+    const result = await response.json();
     
     return {
-      success: true,
-      url: netlifyUrl
+      success: result.success,
+      url: result.url,
+      error: result.error
     };
   } catch (error) {
     return {

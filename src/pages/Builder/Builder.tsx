@@ -836,29 +836,31 @@ export const Builder = () => {
 
             {/* Deployment Guide */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Deployment Options</h3>
+              <h3 className="text-lg font-bold text-white mb-4">🚀 Deployment</h3>
               <div className="space-y-4">
-                <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
-                  <p className="text-blue-300 text-sm font-medium mb-1">🚀 Quick Publish</p>
+                <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/50 border border-green-500/50 rounded-lg p-3">
+                  <p className="text-green-300 text-sm font-medium mb-1">⚡ One-Click Deploy</p>
                   <p className="text-blue-200 text-xs">
-                    Click "Publish" to deploy directly to Netlify. 
-                    You'll get a live URL instantly!
+                    Click "Publish to Netlify" to deploy your site instantly. 
+                    Get a live URL in seconds!
                   </p>
                 </div>
                 
                 <div className="bg-orange-900/50 border border-orange-500/50 rounded-lg p-3">
-                  <p className="text-orange-300 text-sm font-medium mb-1">📦 Manual Deploy</p>
+                  <p className="text-orange-300 text-sm font-medium mb-1">📦 Alternative: Manual Deploy</p>
                   <p className="text-orange-200 text-xs">
                     Use "Export for Netlify" to download a ZIP file, 
                     then drag & drop it to Netlify dashboard.
                   </p>
                 </div>
                 
-                <div className="bg-yellow-900/50 border border-yellow-500/50 rounded-lg p-3">
-                  <p className="text-yellow-300 text-sm font-medium mb-1">⚠️ Note</p>
-                  <p className="text-yellow-200 text-xs">
-                    Exported sites are static HTML for preview. 
-                    For full Web3 functionality, deploy the complete React app.
+                <div className="bg-blue-900/50 border border-blue-500/50 rounded-lg p-3">
+                  <p className="text-blue-300 text-sm font-medium mb-1">💡 How it works</p>
+                  <p className="text-blue-200 text-xs">
+                    1. Configure your project<br/>
+                    2. Click "Publish to Netlify"<br/>
+                    3. Your site gets deployed automatically<br/>
+                    4. Share your live URL with the world!
                   </p>
                 </div>
               </div>
