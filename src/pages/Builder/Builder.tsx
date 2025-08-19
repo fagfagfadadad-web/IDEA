@@ -26,7 +26,6 @@ import {
   Type as TypeIcon,
   Palette,
   Settings,
-  FolderOpen,
   Zap,
   Trash2,
   Copy,
@@ -320,7 +319,7 @@ export const Builder = () => {
 
   const tabs = [
     { id: 0, label: 'Content', icon: <TypeIcon size={16} /> },
-    { id: 1, label: 'Theme', icon: <Palette size={16} /> },
+    { id: 1, label: 'Theme', icon: <Settings size={16} /> },
     { id: 2, label: 'Web3', icon: <Code size={16} /> },
     { id: 3, label: 'Settings', icon: <Settings size={16} /> }
   ];
