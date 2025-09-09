@@ -27,15 +27,5 @@ if (import.meta.env.DEV) {
     if (!db._delegate._databaseId.projectId.includes('demo-')) {
       connectFirestoreEmulator(db, 'localhost', 8080);
     }
-    if (!auth.config.emulator) {
-      connectAuthEmulator(auth, 'http://localhost:9099');
-    }
-    if (!storage._delegate._host.includes('localhost')) {
-      connectStorageEmulator(storage, 'localhost', 9199);
-    }
-  } catch (error) {
-    console.log('Firebase emulators not available, using production services');
-  }
-}
 
 export default app;
