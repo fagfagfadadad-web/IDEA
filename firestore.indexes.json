@@ -55,5 +55,23 @@
       ]
     }
   ],
+  "fieldOverrides": [],
+  "indexes": [
+    {
+      "collectionGroup": "tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isActive",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ]
+}
   "fieldOverrides": []
 }
