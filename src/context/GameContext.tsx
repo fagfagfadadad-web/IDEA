@@ -124,10 +124,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map field names to match component expectations
       const mappedStats = {
         ...stats,
-        zen_balance: stats.zenBalance || 0,
+        zen_balance: stats.zenBalance || 1000,
         total_mined: stats.totalMined || 0,
         mining_level: stats.miningLevel || 1,
-        zenBalance: stats.zenBalance || 0,
+        // Keep both naming conventions for compatibility
+        zenBalance: stats.zenBalance || 1000,
         totalMined: stats.totalMined || 0,
         miningLevel: stats.miningLevel || 1
       };
@@ -142,13 +143,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map ship field names to match component expectations
       const mappedShips = userShips.map(ship => ({
         ...ship,
-        current_energy: ship.currentEnergy || 0,
+        current_energy: ship.currentEnergy || ship.energyCapacity || 100,
         energy_capacity: ship.energyCapacity || 100,
         mining_power: ship.miningPower || 10,
         last_mining: ship.lastMining || new Date(),
         ship_type: ship.shipType || 'basic',
         // Keep original fields too
-        currentEnergy: ship.currentEnergy || 0,
+        currentEnergy: ship.currentEnergy || ship.energyCapacity || 100,
         energyCapacity: ship.energyCapacity || 100,
         miningPower: ship.miningPower || 10,
         lastMining: ship.lastMining || new Date(),

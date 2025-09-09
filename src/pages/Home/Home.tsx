@@ -30,8 +30,8 @@ export const Home = () => {
   useEffect(() => {
     console.log('🏠 Home: gameStats changed:', gameStats);
     if (gameStats) {
-      const zenTarget = gameStats.zen_balance || gameStats.zenBalance || 0;
-      const minedTarget = gameStats.total_mined || gameStats.totalMined || 0;
+      const zenTarget = gameStats.zenBalance || gameStats.zen_balance || 1000;
+      const minedTarget = gameStats.totalMined || gameStats.total_mined || 0;
       
       console.log('🏠 Home: Animation targets - ZEN:', zenTarget, 'Mined:', minedTarget);
       
