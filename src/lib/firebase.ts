@@ -20,16 +20,4 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// Connect to emulators in development
-if (import.meta.env.DEV) {
-  try {
-    // Only connect if not already connected
-    if (!db._delegate._databaseId.projectId.includes('demo-')) {
-      connectFirestoreEmulator(db, 'localhost', 8080);
-    }
-  } catch (e) {
-    console.error("Error connecting to Firestore emulator:", e);
-  }
-}
-
 export default app;
