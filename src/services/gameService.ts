@@ -111,17 +111,42 @@ export class GameService {
 
   // Ships
   static async getUserShips(userId: string): Promise<Ship[]> {
-    const q = query(
-      collection(db, 'ships'),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'asc')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Ship[];
+    try {
+      const q = query(
+        collection(db, 'ships'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'asc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Ship[];
+    } catch (error: any) {
+      // If index doesn't exist yet, fall back to simple query
+      if (error.code === 'failed-precondition') {
+        console.log('Using fallback query for ships (index not ready)');
+        const q = query(
+          collection(db, 'ships'),
+          where('userId', '==', userId)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const ships = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Ship[];
+        
+        // Sort manually by createdAt
+        return ships.sort((a, b) => {
+          const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt);
+          const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt);
+          return aTime.getTime() - bTime.getTime();
+        });
+      }
+      throw error;
+    }
   }
 
   static async createShip(ship: Omit<Ship, 'id'>): Promise<string> {

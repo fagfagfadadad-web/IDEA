@@ -29,8 +29,8 @@ export const Home = () => {
   // Animate numbers
   useEffect(() => {
     if (gameStats) {
-      const zenTarget = gameStats.zen_balance;
-      const minedTarget = gameStats.total_mined;
+      const zenTarget = gameStats.zenBalance || 0;
+      const minedTarget = gameStats.totalMined || 0;
       
       const duration = 1000;
       const steps = 60;
@@ -111,19 +111,19 @@ export const Home = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
-                      {animatedStats.zen.toLocaleString()}
+                    {(gameStats.zenBalance || 0).toLocaleString()}
                     </div>
                     <div className="text-gray-400 text-sm">ZEN Balance</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
-                      {animatedStats.mined.toLocaleString()}
+                      {(animatedStats.mined || 0).toLocaleString()}
                     </div>
                     <div className="text-gray-400 text-sm">Total Mined</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
-                      {gameStats.mining_level}
+                      {gameStats.miningLevel || 1}
                     </div>
                     <div className="text-gray-400 text-sm">Mining Level</div>
                   </div>

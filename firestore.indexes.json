@@ -1,4 +1,59 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "ships",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "gameStats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "totalMined",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "gameStats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "zenBalance",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "gameStats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "miningLevel",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "gameStats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "totalReferrals",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
