@@ -28,7 +28,7 @@ const GameContext = createContext<GameContextType>({
 });
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { success, error: showError } = useToast();
   const [gameStats, setGameStats] = useState<GameStats | null>(null);
   const [ships, setShips] = useState<Ship[]>([]);
@@ -38,11 +38,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const miningInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (user?.id && isAuthenticated && !loading) {
+    if (user?.id && isAuthenticated && !authLoading) {
       console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
       startMiningLoop();
-    } else if (!loading && !user?.id && !isAuthenticated) {
+    } else if (!authLoading && !user?.id && !isAuthenticated) {
       console.log('🎮 GameContext: User definitely logged out, clearing data');
       if (gameStats || ships.length > 0) {
         setGameStats(null);
@@ -55,7 +55,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       stopMiningLoop();
     };
-  }, [user?.id, isAuthenticated, loading]);
+  }, [user?.id, isAuthenticated, authLoading]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;
