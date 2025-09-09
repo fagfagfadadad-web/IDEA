@@ -108,17 +108,23 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!user?.id) return;
 
+      console.log('🔄 GameContext: Fetching game data for user:', user.id);
+
       // Fetch or create game stats
       let stats = await GameService.getGameStats(user.id);
       if (!stats) {
+        console.log('🆕 GameContext: Creating new game stats...');
         stats = await GameService.createGameStats(user.id);
         await GameService.createStarterShip(user.id);
+        console.log('✅ GameContext: Game stats and starter ship created');
       }
       setGameStats(stats);
+      console.log('📊 GameContext: Game stats loaded:', stats);
 
       // Fetch ships
       const userShips = await GameService.getUserShips(user.id);
       setShips(userShips);
+      console.log('🚀 GameContext: Ships loaded:', userShips.length);
 
     } catch (err) {
       console.error('Error fetching game data:', err);

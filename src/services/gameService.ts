@@ -83,7 +83,7 @@ export class GameService {
     const referralCode = this.generateReferralCode();
     const gameStats: Omit<GameStats, 'id'> = {
       userId,
-      zenBalance: 1000,
+      zenBalance: 1000, // Starting balance
       totalMined: 0,
       miningLevel: 1,
       experience: 0,
@@ -138,7 +138,7 @@ export class GameService {
   }
 
   static async createStarterShip(userId: string): Promise<void> {
-    await this.createShip({
+    const shipId = await this.createShip({
       userId,
       name: 'Starter Miner',
       level: 1,
@@ -150,6 +150,8 @@ export class GameService {
       lastMining: serverTimestamp(),
       createdAt: serverTimestamp()
     });
+    
+    console.log('✅ GameService: Starter ship created with ID:', shipId);
   }
 
   // Mining

@@ -107,7 +107,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Create game stats and starter ship
         await GameService.createGameStats(userProfile.id!);
+        
+        // Create starter ship
+        console.log('🚀 AuthContext: Creating starter ship...');
         await GameService.createStarterShip(userProfile.id!);
+        console.log('✅ AuthContext: Starter ship created');
       }
 
       // Sign in to Firebase with custom token (simulate with wallet address)
