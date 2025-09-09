@@ -122,13 +122,17 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map field names to match component expectations
       const mappedStats = {
         ...stats,
-        zen_balance: stats.zenBalance,
-        total_mined: stats.totalMined,
-        mining_level: stats.miningLevel
+        zen_balance: stats.zenBalance || 0,
+        total_mined: stats.totalMined || 0,
+        mining_level: stats.miningLevel || 1,
+        zenBalance: stats.zenBalance || 0,
+        totalMined: stats.totalMined || 0,
+        miningLevel: stats.miningLevel || 1
       };
       
-      setGameStats(mappedStats as any);
+      setGameStats(mappedStats);
       console.log('📊 GameContext: Game stats loaded:', stats);
+      console.log('🗺️ GameContext: Mapped stats:', mappedStats);
 
       // Fetch ships
       const userShips = await GameService.getUserShips(user.id);
@@ -136,15 +140,22 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map ship field names to match component expectations
       const mappedShips = userShips.map(ship => ({
         ...ship,
-        current_energy: ship.currentEnergy,
-        energy_capacity: ship.energyCapacity,
-        mining_power: ship.miningPower,
-        last_mining: ship.lastMining,
-        ship_type: ship.shipType
+        current_energy: ship.currentEnergy || 0,
+        energy_capacity: ship.energyCapacity || 100,
+        mining_power: ship.miningPower || 10,
+        last_mining: ship.lastMining || new Date(),
+        ship_type: ship.shipType || 'basic',
+        // Keep original fields too
+        currentEnergy: ship.currentEnergy || 0,
+        energyCapacity: ship.energyCapacity || 100,
+        miningPower: ship.miningPower || 10,
+        lastMining: ship.lastMining || new Date(),
+        shipType: ship.shipType || 'basic'
       }));
       
-      setShips(mappedShips as any);
+      setShips(mappedShips);
       console.log('🚀 GameContext: Ships loaded:', userShips.length);
+      console.log('🗺️ GameContext: Mapped ships:', mappedShips);
 
     } catch (err) {
       console.error('Error fetching game data:', err);
