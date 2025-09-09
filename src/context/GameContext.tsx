@@ -124,12 +124,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map field names to match component expectations
       const mappedStats = {
         ...stats,
-        zen_balance: stats.zenBalance || 0,
-        total_mined: stats.totalMined || 0,
-        mining_level: stats.miningLevel || 1,
-        zenBalance: stats.zenBalance || 0,
-        totalMined: stats.totalMined || 0,
-        miningLevel: stats.miningLevel || 1
+        zen_balance: Number(stats.zenBalance) || 0,
+        total_mined: Number(stats.totalMined) || 0,
+        mining_level: Number(stats.miningLevel) || 1,
+        zenBalance: Number(stats.zenBalance) || 0,
+        totalMined: Number(stats.totalMined) || 0,
+        miningLevel: Number(stats.miningLevel) || 1
       };
       
       setGameStats(mappedStats);
