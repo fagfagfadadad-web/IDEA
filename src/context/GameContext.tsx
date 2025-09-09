@@ -39,9 +39,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (isAuthenticated && user?.id) {
+      console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
       startMiningLoop();
     } else {
+      console.log('🎮 GameContext: User not authenticated, clearing data');
       setGameStats(null);
       setShips([]);
       setIsLoading(false);
@@ -51,7 +53,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       stopMiningLoop();
     };
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, user]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;

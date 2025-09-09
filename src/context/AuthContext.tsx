@@ -136,6 +136,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(userProfile);
       setIsProfileReady(true);
       setAuthMessage('');
+      
+      console.log('🎮 AuthContext: Profile ready, user data:', {
+        id: userProfile.id,
+        username: userProfile.username,
+        isAdmin: userProfile.isAdmin
+      });
 
     } catch (error: any) {
       console.error('❌ AuthContext: Auth sync error:', error);

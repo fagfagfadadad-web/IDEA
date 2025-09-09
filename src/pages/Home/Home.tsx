@@ -28,9 +28,12 @@ export const Home = () => {
 
   // Animate numbers
   useEffect(() => {
+    console.log('🏠 Home: gameStats changed:', gameStats);
     if (gameStats) {
-      const zenTarget = gameStats.zenBalance || 0;
-      const minedTarget = gameStats.totalMined || 0;
+      const zenTarget = gameStats.zen_balance || gameStats.zenBalance || 0;
+      const minedTarget = gameStats.total_mined || gameStats.totalMined || 0;
+      
+      console.log('🏠 Home: Animation targets - ZEN:', zenTarget, 'Mined:', minedTarget);
       
       const duration = 1000;
       const steps = 60;
