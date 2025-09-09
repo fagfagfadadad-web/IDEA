@@ -27,5 +27,7 @@ if (import.meta.env.DEV) {
     if (!db._delegate._databaseId.projectId.includes('demo-')) {
       connectFirestoreEmulator(db, 'localhost', 8080);
     }
+  }
+}
 
 export default app;
