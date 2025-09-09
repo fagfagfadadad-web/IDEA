@@ -1,20 +1,12 @@
 export enum RouteNamesEnum {
   home = '/',
   unlock = '/unlock',
-  disclaimer = '/disclaimer',
-  gigs = '/gigs',
-  gigDetail = '/gigs/:id',
-  createGig = '/create-gig',
-  editGig = '/gigs/:id/edit',
+  mining = '/mining',
+  ships = '/ships',
+  shop = '/shop',
+  tasks = '/tasks',
+  referrals = '/referrals',
+  leaderboard = '/leaderboard',
   profile = '/profile',
-  profileDetail = '/profile/:id',
-  clientRequests = '/requests',
-  createClientRequest = '/create-request',
-  clientRequestDetail = '/requests/:id',
-  proposalDetail = '/proposals/:id',
-  myRequests = '/my-requests',
-  orderDetails = '/orders/:id',
-  admin = '/admin',
-  documentation = '/documentation',
-  search = '/search'
+  admin = '/admin'
 }

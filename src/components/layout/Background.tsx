@@ -1,31 +1,22 @@
 import { useEffect, useRef } from 'react';
 
-const colorPalette = ['#7B61FF', '#38BDF8', '#FF6B6B', '#FFD93D', '#6BCB77'];
+const spaceColors = ['#06b6d4', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
 
 export const Background = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const hexagonGridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const cvs = canvasRef.current;
-    if (!cvs) {
-      console.error('Canvas element not found');
-      return;
-    }
-    const ctx = cvs.getContext('2d');
-    if (!ctx) {
-      console.error('Canvas context not found');
-      return;
-    }
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const canvas = cvs as HTMLCanvasElement;
-    const context = ctx as CanvasRenderingContext2D;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    let particlesArray: Particle[] = [];
-    let mouse: { x: number | null; y: number | null; radius: number } = { x: null, y: null, radius: 170 };
+    let particles: Particle[] = [];
+    let mouse = { x: null as number | null, y: null as number | null, radius: 150 };
 
     class Particle {
       x: number;
@@ -45,13 +36,19 @@ export const Background = () => {
       }
 
       draw() {
-        context.beginPath();
-        context.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
         const r = parseInt(this.color.slice(1, 3), 16);
         const g = parseInt(this.color.slice(3, 5), 16);
         const b = parseInt(this.color.slice(5, 7), 16);
-        context.fillStyle = `rgba(${r}, ${g}, ${b}, 0.4)`; // Opacita 0.4
-        context.fill();
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
+        ctx.fill();
+        
+        // Add glow effect
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
       }
 
       update() {
@@ -62,21 +59,25 @@ export const Background = () => {
           this.directionY = -this.directionY;
         }
 
-        let dx = mouse.x !== null ? mouse.x - this.x : 0;
-        let dy = mouse.y !== null ? mouse.y - this.y : 0;
-        let distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance < mouse.radius + this.size) {
-          if (mouse.x !== null && mouse.x < this.x && this.x < canvas.width - this.size * 10) {
-            this.x += 10;
-          }
-          if (mouse.x !== null && mouse.x > this.x && this.x > this.size * 10) {
-            this.x -= 10;
-          }
-          if (mouse.y !== null && mouse.y < this.y && this.y < canvas.height - this.size * 10) {
-            this.y += 10;
-          }
-          if (mouse.y !== null && mouse.y > this.y && this.y > this.size * 10) {
-            this.y -= 10;
+        // Mouse interaction
+        if (mouse.x !== null && mouse.y !== null) {
+          let dx = mouse.x - this.x;
+          let dy = mouse.y - this.y;
+          let distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < mouse.radius + this.size) {
+            if (mouse.x < this.x && this.x < canvas.width - this.size * 10) {
+              this.x += 10;
+            }
+            if (mouse.x > this.x && this.x > this.size * 10) {
+              this.x -= 10;
+            }
+            if (mouse.y < this.y && this.y < canvas.height - this.size * 10) {
+              this.y += 10;
+            }
+            if (mouse.y > this.y && this.y > this.size * 10) {
+              this.y -= 10;
+            }
           }
         }
 
@@ -87,38 +88,34 @@ export const Background = () => {
     }
 
     function init() {
-      particlesArray = [];
-      let numberOfParticles = (canvas.height * canvas.width) / 9000;
-      for (let i = 0; i < numberOfParticles * 0.25; i++) {
-        let size = Math.random() * 35 + 1;
-        let x = Math.random() * (innerWidth - size * 2 - size * 2) + size * 2;
-        let y = Math.random() * (innerWidth - size * 2 - size * 2) + size * 2;
-        let directionX = Math.random() * 2 - 1;
-        let directionY = Math.random() * 2 - 1;
-        let color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-        particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+      particles = [];
+      let numberOfParticles = (canvas.width * canvas.height) / 15000;
+      
+      for (let i = 0; i < numberOfParticles; i++) {
+        let size = Math.random() * 3 + 1;
+        let x = Math.random() * (canvas.width - size * 2 - size * 2) + size * 2;
+        let y = Math.random() * (canvas.height - size * 2 - size * 2) + size * 2;
+        let directionX = (Math.random() * 2 - 1) * 0.5;
+        let directionY = (Math.random() * 2 - 1) * 0.5;
+        let color = spaceColors[Math.floor(Math.random() * spaceColors.length)];
+        
+        particles.push(new Particle(x, y, directionX, directionY, size, color));
       }
     }
 
     function connect() {
-      let opacityValue = 1;
-      for (let i = 0; i < particlesArray.length; i++) {
-        for (let j = i; j < particlesArray.length; j++) {
-          let distance =
-            (particlesArray[i].x - particlesArray[j].x) ** 2 +
-            (particlesArray[i].y - particlesArray[j].y) ** 2;
-
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i; j < particles.length; j++) {
+          let distance = (particles[i].x - particles[j].x) ** 2 + (particles[i].y - particles[j].y) ** 2;
+          
           if (distance < (canvas.width / 7) * (canvas.height / 7)) {
-            opacityValue = 1 - distance / 20000;
-            context.strokeStyle = `rgba(${parseInt(particlesArray[i].color.slice(1, 3), 16)}, ${parseInt(
-              particlesArray[i].color.slice(3, 5),
-              16
-            )}, ${parseInt(particlesArray[i].color.slice(5, 7), 16)}, ${opacityValue})`;
-            context.lineWidth = 1;
-            context.beginPath();
-            context.moveTo(particlesArray[i].x, particlesArray[i].y);
-            context.lineTo(particlesArray[j].x, particlesArray[j].y);
-            context.stroke();
+            let opacityValue = 1 - distance / 20000;
+            ctx.strokeStyle = `rgba(6, 182, 212, ${opacityValue * 0.5})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
           }
         }
       }
@@ -127,119 +124,49 @@ export const Background = () => {
     let animationFrameId: number;
     function animate() {
       animationFrameId = requestAnimationFrame(animate);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
       }
       connect();
-    }
-
-    function hexagonGrid() {
-      const HEXAGON_GRID = hexagonGridRef.current;
-      if (!HEXAGON_GRID) return;
-
-      const CONTAINER = HEXAGON_GRID.parentNode as HTMLElement;
-      let wall = {
-        width: CONTAINER.offsetWidth,
-        height: CONTAINER.offsetHeight,
-      };
-
-      let rowsNumber = Math.ceil(wall.height / 80);
-      let columnsNumber = Math.ceil(wall.width / 100) + 1;
-
-      HEXAGON_GRID.innerHTML = '';
-
-      for (let i = 0; i < rowsNumber; i++) {
-        let row = document.createElement('div');
-        row.className = 'row';
-        HEXAGON_GRID.appendChild(row);
-      }
-
-      let rows = HEXAGON_GRID.querySelectorAll('.row');
-      for (let i = 0; i < rows.length; i++) {
-        for (let j = 0; j < columnsNumber; j++) {
-          let hexagon = document.createElement('div');
-          hexagon.className = 'hexagon';
-          hexagon.dataset.x = (j * 100 + (i % 2 === 0 ? 0 : 50)).toString();
-          hexagon.dataset.y = (i * 80).toString();
-          rows[i].appendChild(hexagon);
-        }
-      }
-    }
-
-    function updateHexagons() {
-      const hexagons = document.querySelectorAll('.hexagon') as NodeListOf<HTMLElement>;
-      hexagons.forEach((hex) => {
-        const hexX = parseFloat(hex.dataset.x!) + 50;
-        const hexY = parseFloat(hex.dataset.y!) + 55;
-        let distance = mouse.x && mouse.y ? Math.sqrt((mouse.x - hexX) ** 2 + (mouse.y - hexY) ** 2) : Infinity;
-
-        if (distance < mouse.radius) {
-          const delay = (distance / mouse.radius) * 300;
-          setTimeout(() => {
-            const randomColor = colorPalette[Math.floor(Math.random() * colorPalette.length)];
-            hex.style.setProperty('--hover-color', randomColor);
-          }, delay);
-        } else {
-          setTimeout(() => {
-            hex.style.setProperty('--hover-color', '#FFFFFF');
-          }, 500);
-        }
-      });
     }
 
     const handleMouseMove = (event: MouseEvent) => {
       mouse.x = event.x;
       mouse.y = event.y;
-      mouse.radius = 170;
-      updateHexagons();
     };
 
-    const handleMouseStop = () => {
-      mouse.radius = 0;
-      updateHexagons();
+    const handleMouseOut = () => {
+      mouse.x = null;
+      mouse.y = null;
     };
 
-    let thread: NodeJS.Timeout;
-    const handleMouseMoveWithStop = () => {
-      clearTimeout(thread);
-      thread = setTimeout(handleMouseStop, 10);
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      init();
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    document.onmousemove = handleMouseMoveWithStop;
+    window.addEventListener('mouseout', handleMouseOut);
+    window.addEventListener('resize', handleResize);
 
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      mouse.radius = 170;
-      init();
-      hexagonGrid();
-    });
-
-    window.addEventListener('mouseout', () => {
-      mouse.x = null;
-      mouse.y = null;
-      updateHexagons();
-    });
-
-    hexagonGrid();
     init();
     animate();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', () => {});
-      window.removeEventListener('mouseout', () => {});
-      document.onmousemove = null;
+      window.removeEventListener('mouseout', handleMouseOut);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
   return (
     <section className="absolute top-0 left-0 w-full h-full">
-      <canvas id="particles" ref={canvasRef}></canvas>
-      <div id="hexagonGrid" ref={hexagonGridRef}></div>
+      <canvas id="particles" ref={canvasRef} className="absolute inset-0"></canvas>
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-800/60 to-indigo-900/80"></div>
     </section>
   );
 };

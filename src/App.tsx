@@ -6,6 +6,7 @@ import { routes } from 'routes';
 import { BatchTransactionsContextProvider } from 'wrappers';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { GameProvider } from './context/GameContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
@@ -20,7 +21,14 @@ const AppContent = () => {
   return (
     <>
       <Layout>
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="text-lg">Loading...</div></div>}>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen bg-slate-900">
+            <div className="text-center space-y-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto"></div>
+              <div className="text-lg text-cyan-400 font-orbitron">Loading ZEN Mining...</div>
+            </div>
+          </div>
+        }>
           <Routes>
             {routes.map((route) => (
               <Route
@@ -47,14 +55,15 @@ const AppContent = () => {
 };
 
 export const App = () => {
-
   return (
     <Router>
       <ToastProvider>
         <AuthProvider>
-          <BatchTransactionsContextProvider>
-            <AppContent />
-          </BatchTransactionsContextProvider>
+          <GameProvider>
+            <BatchTransactionsContextProvider>
+              <AppContent />
+            </BatchTransactionsContextProvider>
+          </GameProvider>
         </AuthProvider>
       </ToastProvider>
     </Router>

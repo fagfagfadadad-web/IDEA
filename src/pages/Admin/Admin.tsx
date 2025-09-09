@@ -1,34 +1,29 @@
 import React, { useState } from 'react';
-import { Card, AdminDisputes, AdminUsers, AdminGigs } from 'components';
-import { useGetIsLoggedIn } from 'lib';
-import { useAdminStats } from '../../hooks/useUsers';
 import { useAuth } from '../../context/AuthContext';
+import { AdminTasks } from '../../components/AdminTasks';
+import { AdminStats } from '../../components/AdminStats';
+import { AdminUsers } from '../../components/AdminUsers';
+import { Settings, BarChart3, Users, Target } from 'lucide-react';
 
 export const Admin: React.FC = () => {
-  const isLoggedIn = useGetIsLoggedIn();
   const { user, loading: authLoading } = useAuth();
-  const { data: stats, isLoading: statsLoading, error: statsError } = useAdminStats();
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, label: 'Disputes Management', component: AdminDisputes },
-    { id: 1, label: 'User Management', component: AdminUsers },
-    { id: 2, label: 'Gig Management', component: AdminGigs },
-    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-white">System settings coming soon...</div> }
+    { id: 0, label: 'Statistics', component: AdminStats, icon: <BarChart3 size={16} /> },
+    { id: 1, label: 'Task Management', component: AdminTasks, icon: <Target size={16} /> },
+    { id: 2, label: 'User Management', component: AdminUsers, icon: <Users size={16} /> },
+    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-white">System settings coming soon...</div>, icon: <Settings size={16} /> }
   ];
 
   // Show loading while auth is still loading
   if (authLoading) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Loading Authentication" reference="#">
-          <div className="flex justify-center">
-            <div className="space-y-4 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-white">Loading authentication...</p>
-            </div>
-          </div>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
+          <div className="text-xl text-cyan-400 font-orbitron">Loading Authentication...</div>
+        </div>
       </div>
     );
   }
@@ -36,15 +31,14 @@ export const Admin: React.FC = () => {
   // Show access denied if not logged in
   if (!user) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Access Denied" reference="#">
-          <div className="bg-red-900 border border-red-500 rounded-md p-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">⚠️</span>
-              <span className="text-white">Please log in to access admin panel.</span>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+        <div className="container mx-auto px-6 py-8">
+          <div className="bg-red-900/50 backdrop-blur-lg border border-red-500/50 rounded-xl p-8 text-center">
+            <div className="text-red-400 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-orbitron font-bold text-white mb-4">Access Denied</h2>
+            <p className="text-gray-300">Please log in to access the admin panel.</p>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -52,104 +46,60 @@ export const Admin: React.FC = () => {
   // Show access denied if not admin
   if (!user.is_admin) {
     return (
-      <div className="container mx-auto max-w-7xl px-6 py-8">
-        <Card className="p-8" title="Admin Access Required" reference="#">
-          <div className="bg-red-900 border border-red-500 rounded-md p-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-red-400 mr-2">⚠️</span>
-              <span className="text-white">Access denied. Admin privileges required.</span>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+        <div className="container mx-auto px-6 py-8">
+          <div className="bg-red-900/50 backdrop-blur-lg border border-red-500/50 rounded-xl p-8 text-center">
+            <div className="text-red-400 text-6xl mb-4">🔒</div>
+            <h2 className="text-2xl font-orbitron font-bold text-white mb-4">Admin Access Required</h2>
+            <p className="text-gray-300">You need administrator privileges to access this panel.</p>
           </div>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto max-w-7xl px-6 py-8">
-      <div className="space-y-8">
-        <Card className="p-8" title="Admin Dashboard" reference="#">
-          <div className="bg-green-900 border border-green-500 rounded-md p-4 mb-6">
-            <div className="flex items-center">
-              <span className="text-green-400 mr-2">✅</span>
-              <span className="text-white">Welcome Admin! Dashboard loaded in optimized mode.</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+      <div className="container mx-auto px-6 py-8">
+        <div className="space-y-8">
+          {/* Header */}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+              Admin Control Center
+            </h1>
+            <p className="text-gray-400 text-lg">
+              Manage the ZEN Mining ecosystem
+            </p>
+            <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-4 max-w-md mx-auto">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-green-400 text-2xl">✅</span>
+                <span className="text-white font-medium">Admin Access Granted</span>
+              </div>
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-white mb-6">Admin Dashboard</h1>
-          
-          {statsError ? (
-            <div className="bg-red-900 border border-red-500 rounded-md p-4 mb-6">
-              <div className="flex items-center">
-                <span className="text-red-400 mr-2">⚠️</span>
-                <span className="text-white">Error loading statistics: {(statsError as Error)?.message}</span>
-              </div>
-            </div>
-          ) : statsLoading ? (
-            <div className="flex justify-center py-4">
-              <div className="space-y-2 text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-white text-sm">Loading statistics...</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-              <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
-                <p className="text-gray-400 text-sm">Total Users</p>
-                <p className="text-white text-2xl font-bold">{stats?.totalUsers || 0}</p>
-                <p className="text-gray-400 text-xs">Registered users</p>
-              </div>
 
-              <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
-                <p className="text-gray-400 text-sm">Total Gigs</p>
-                <p className="text-white text-2xl font-bold">{stats?.totalGigs || 0}</p>
-                <p className="text-gray-400 text-xs">Active gigs</p>
-              </div>
-
-              <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
-                <p className="text-gray-400 text-sm">Total Orders</p>
-                <p className="text-white text-2xl font-bold">{stats?.totalOrders || 0}</p>
-                <p className="text-gray-400 text-xs">All orders</p>
-              </div>
-
-              <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
-                <p className="text-gray-400 text-sm">Pending Disputes</p>
-                <p className="text-red-400 text-2xl font-bold">{stats?.pendingDisputes || 0}</p>
-                <p className="text-gray-400 text-xs">Need attention</p>
-              </div>
-
-              <div className="bg-gray-800 bg-opacity-50 p-4 rounded-lg">
-                <p className="text-gray-400 text-sm">Completed Orders</p>
-                <p className="text-green-400 text-2xl font-bold">{stats?.completedOrders || 0}</p>
-                <p className="text-gray-400 text-xs">Successful orders</p>
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {/* Tabs Section */}
-        <div className="bg-white rounded-xl">
-          <div className="bg-gray-800 p-2 rounded-t-xl">
-            <div className="flex space-x-1">
+          {/* Tabs Section */}
+          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl border border-cyan-500/20 overflow-hidden">
+            <div className="flex flex-wrap border-b border-gray-700">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
+                  className={`flex-1 min-w-[150px] px-6 py-4 font-orbitron font-bold transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'text-blue-400 bg-gray-700'
-                      : 'text-gray-400 hover:text-blue-400 hover:bg-gray-700'
+                      ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-b-2 border-cyan-400'
+                      : 'text-gray-400 hover:text-white'
                   }`}
                 >
-                  {tab.label}
+                  <div className="flex items-center justify-center gap-2">
+                    {tab.icon}
+                    {tab.label}
+                  </div>
                 </button>
               ))}
             </div>
-          </div>
 
-          <div className="p-0">
-            {/* Active Tab Content */}
-            <div className="p-8">
+            <div className="p-6">
               {React.createElement(tabs[activeTab].component)}
             </div>
           </div>
