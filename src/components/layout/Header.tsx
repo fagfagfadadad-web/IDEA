@@ -77,7 +77,7 @@ export const Header = () => {
               <div className="hidden md:flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-lg border border-cyan-500/20">
                 <Zap size={16} className="text-cyan-400" />
                 <span className="text-cyan-400 font-orbitron font-bold">
-                  {gameStats.zen_balance?.toLocaleString() || 0}
+                  {(gameStats.zenBalance || gameStats.zen_balance || 0).toLocaleString()}
                 </span>
                 <span className="text-gray-400 text-sm">ZEN</span>
               </div>
@@ -202,7 +202,7 @@ export const Header = () => {
                   <div className="flex items-center gap-2 justify-center">
                     <Zap size={20} className="text-cyan-400" />
                     <span className="text-cyan-400 font-orbitron font-bold text-lg">
-                      {gameStats.zen_balance?.toLocaleString() || 0}
+                      {(gameStats.zenBalance || gameStats.zen_balance || 0).toLocaleString()}
                     </span>
                     <span className="text-gray-400">ZEN</span>
                   </div>
