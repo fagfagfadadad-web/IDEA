@@ -3,33 +3,32 @@ import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift } from 'lucide-reac
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { supabase } from '../../lib/supabase';
+import { GameService, Task } from '../../services/gameService';
+import { 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  doc,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  reward_amount: number;
-  task_type: string;
-  requirements: any;
-  is_active: boolean;
-  created_at: string;
-}
-
-interface UserTask {
-  id: string;
-  task_id: string;
-  user_id: string;
-  status: string;
-  progress: number;
-  completed_at: string | null;
-  task: Task;
+interface TaskWithProgress extends Task {
+  userTask?: {
+    id: string;
+    status: string;
+    progress: number;
+    completedAt?: any;
+  };
 }
 
 export const Tasks = () => {
   const { user } = useAuth();
   const { success, error } = useToast();
-  const [tasks, setTasks] = useState<UserTask[]>([]);
+  const [tasks, setTasks] = useState<TaskWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,41 +41,30 @@ export const Tasks = () => {
     try {
       setIsLoading(true);
       
-      // Get all active tasks and user progress
-      const { data: userTasks, error } = await supabase
-        .from('user_tasks')
-        .select(`
-          *,
-          task:tasks(*)
-        `)
-        .eq('user_id', user?.id);
+      // Get all active tasks
+      const activeTasks = await GameService.getTasks();
+      
+      // Get user task progress
+      const userTasksQuery = query(
+        collection(db, 'userTasks'),
+        where('userId', '==', user?.id)
+      );
+      const userTasksSnapshot = await getDocs(userTasksQuery);
+      const userTasks = userTasksSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
 
-      if (error) throw error;
+      // Combine tasks with user progress
+      const tasksWithProgress = activeTasks.map(task => {
+        const userTask = userTasks.find(ut => ut.taskId === task.id);
+        return {
+          ...task,
+          userTask
+        };
+      });
 
-      // Get tasks that user hasn't started yet
-      const { data: availableTasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('is_active', true)
-        .not('id', 'in', `(${userTasks?.map(ut => ut.task_id).join(',') || 'null'})`);
-
-      if (tasksError) throw tasksError;
-
-      // Combine user tasks with available tasks
-      const allTasks = [
-        ...(userTasks || []),
-        ...(availableTasks || []).map(task => ({
-          id: '',
-          task_id: task.id,
-          user_id: user?.id || '',
-          status: 'not_started',
-          progress: 0,
-          completed_at: null,
-          task
-        }))
-      ];
-
-      setTasks(allTasks);
+      setTasks(tasksWithProgress);
     } catch (err) {
       console.error('Error fetching tasks:', err);
       error('Failed to load tasks');
@@ -87,16 +75,13 @@ export const Tasks = () => {
 
   const startTask = async (taskId: string) => {
     try {
-      const { error } = await supabase
-        .from('user_tasks')
-        .insert({
-          task_id: taskId,
-          user_id: user?.id,
-          status: 'in_progress',
-          progress: 0
-        });
-
-      if (error) throw error;
+      await addDoc(collection(db, 'userTasks'), {
+        taskId,
+        userId: user?.id,
+        status: 'in_progress',
+        progress: 0,
+        createdAt: serverTimestamp()
+      });
 
       success('Task started!');
       fetchTasks();
@@ -106,34 +91,22 @@ export const Tasks = () => {
     }
   };
 
-  const completeTask = async (userTaskId: string, taskId: string, rewardAmount: number) => {
+  const completeTask = async (userTaskId: string, rewardAmount: number) => {
     try {
-      // Mark task as completed
-      const { error: taskError } = await supabase
-        .from('user_tasks')
-        .update({
-          status: 'completed',
-          progress: 100,
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', userTaskId);
+      if (!user?.id) return;
 
-      if (taskError) throw taskError;
+      // Mark task as completed
+      const userTaskRef = doc(db, 'userTasks', userTaskId);
+      await updateDoc(userTaskRef, {
+        status: 'completed',
+        progress: 100,
+        completedAt: serverTimestamp()
+      });
 
       // Award ZEN tokens
-      const { error: statsError } = await supabase
-        .from('game_stats')
-        .update({
-          zen_balance: (await supabase
-            .from('game_stats')
-            .select('zen_balance')
-            .eq('user_id', user?.id)
-            .single()
-          ).data?.zen_balance + rewardAmount
-        })
-        .eq('user_id', user?.id);
-
-      if (statsError) throw statsError;
+      await GameService.updateGameStats(user.id, {
+        zenBalance: (gameStats?.zenBalance || 0) + rewardAmount
+      });
 
       success(`Task completed! Earned ${rewardAmount} ZEN tokens!`);
       fetchTasks();
@@ -192,7 +165,7 @@ export const Tasks = () => {
             </p>
             <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
               <Zap size={20} />
-              {gameStats?.zen_balance?.toLocaleString() || 0} ZEN
+              {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
             </div>
           </div>
 
@@ -210,17 +183,17 @@ export const Tasks = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tasks.map((userTask) => {
-                  const task = userTask.task;
-                  const canComplete = userTask.status === 'in_progress' && userTask.progress >= 100;
+                {tasks.map((task) => {
+                  const userTask = task.userTask;
+                  const canComplete = userTask?.status === 'in_progress' && userTask.progress >= 100;
                   
                   return (
                     <div
-                      key={userTask.task_id}
+                      key={task.id}
                       className={`bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 ${
-                        userTask.status === 'completed' 
+                        userTask?.status === 'completed' 
                           ? 'border-green-500/50 bg-green-500/5'
-                          : userTask.status === 'in_progress'
+                          : userTask?.status === 'in_progress'
                           ? 'border-cyan-500/50 bg-cyan-500/5'
                           : 'border-gray-700/50 hover:border-cyan-500/50'
                       }`}
@@ -230,20 +203,20 @@ export const Tasks = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
-                              {getTaskIcon(task.task_type)}
+                              {getTaskIcon(task.taskType)}
                             </div>
                             <div>
                               <h3 className="text-lg font-orbitron font-bold text-white">
                                 {task.title}
                               </h3>
                               <p className="text-gray-400 text-sm capitalize">
-                                {task.task_type} Task
+                                {task.taskType} Task
                               </p>
                             </div>
                           </div>
-                          <div className={`text-sm font-medium ${getStatusColor(userTask.status)}`}>
-                            {userTask.status === 'completed' && <CheckCircle size={16} />}
-                            {userTask.status === 'in_progress' && <Clock size={16} />}
+                          <div className={`text-sm font-medium ${getStatusColor(userTask?.status || 'not_started')}`}>
+                            {userTask?.status === 'completed' && <CheckCircle size={16} />}
+                            {userTask?.status === 'in_progress' && <Clock size={16} />}
                           </div>
                         </div>
 
@@ -253,7 +226,7 @@ export const Tasks = () => {
                         </p>
 
                         {/* Progress Bar */}
-                        {userTask.status === 'in_progress' && (
+                        {userTask?.status === 'in_progress' && (
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-gray-400 text-sm">Progress</span>
@@ -272,12 +245,12 @@ export const Tasks = () => {
                         <div className="flex justify-between items-center pt-2">
                           <div className="flex items-center gap-1 text-cyan-400 font-orbitron font-bold">
                             <Zap size={16} />
-                            +{task.reward_amount} ZEN
+                            +{task.rewardAmount} ZEN
                           </div>
                           
-                          {userTask.status === 'not_started' && (
+                          {!userTask && (
                             <Button
-                              onClick={() => startTask(task.id)}
+                              onClick={() => startTask(task.id!)}
                               className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-lg font-orbitron font-bold"
                             >
                               Start
@@ -286,14 +259,14 @@ export const Tasks = () => {
                           
                           {canComplete && (
                             <Button
-                              onClick={() => completeTask(userTask.id, task.id, task.reward_amount)}
+                              onClick={() => completeTask(userTask.id, task.rewardAmount)}
                               className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-orbitron font-bold"
                             >
                               Claim Reward
                             </Button>
                           )}
                           
-                          {userTask.status === 'completed' && (
+                          {userTask?.status === 'completed' && (
                             <div className="flex items-center gap-1 text-green-400 font-medium">
                               <CheckCircle size={16} />
                               Completed

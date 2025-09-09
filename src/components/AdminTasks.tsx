@@ -3,18 +3,8 @@ import { Plus, Edit, Trash2, Target, Zap, Star, Gift } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { supabase } from '../lib/supabase';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  reward_amount: number;
-  task_type: string;
-  requirements: any;
-  is_active: boolean;
-  created_at: string;
-}
+import { AdminService } from '../services/adminService';
+import { GameService, Task } from '../services/gameService';
 
 export const AdminTasks: React.FC = () => {
   const { user } = useAuth();
@@ -26,10 +16,10 @@ export const AdminTasks: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    reward_amount: '',
-    task_type: 'mining',
+    rewardAmount: '',
+    taskType: 'mining',
     requirements: '{}',
-    is_active: true
+    isActive: true
   });
 
   const taskTypes = [
@@ -40,22 +30,16 @@ export const AdminTasks: React.FC = () => {
   ];
 
   useEffect(() => {
-    if (user?.is_admin) {
+    if (user?.isAdmin) {
       fetchTasks();
     }
-  }, [user?.is_admin]);
+  }, [user?.isAdmin]);
 
   const fetchTasks = async () => {
     try {
       setIsLoading(true);
-      
-      const { data, error: fetchError } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (fetchError) throw fetchError;
-      setTasks(data || []);
+      const allTasks = await AdminService.getAllTasks();
+      setTasks(allTasks);
     } catch (err) {
       console.error('Error fetching tasks:', err);
       error('Failed to load tasks');
@@ -71,26 +55,17 @@ export const AdminTasks: React.FC = () => {
       const taskData = {
         title: formData.title,
         description: formData.description,
-        reward_amount: parseInt(formData.reward_amount),
-        task_type: formData.task_type,
+        rewardAmount: parseInt(formData.rewardAmount),
+        taskType: formData.taskType,
         requirements: JSON.parse(formData.requirements || '{}'),
-        is_active: formData.is_active
+        isActive: formData.isActive
       };
 
-      if (editingTask) {
-        const { error: updateError } = await supabase
-          .from('tasks')
-          .update(taskData)
-          .eq('id', editingTask.id);
-
-        if (updateError) throw updateError;
+      if (editingTask?.id) {
+        await GameService.updateTask(editingTask.id, taskData);
         success('Task updated successfully!');
       } else {
-        const { error: insertError } = await supabase
-          .from('tasks')
-          .insert(taskData);
-
-        if (insertError) throw insertError;
+        await GameService.createTask(taskData);
         success('Task created successfully!');
       }
 
@@ -109,10 +84,10 @@ export const AdminTasks: React.FC = () => {
     setFormData({
       title: task.title,
       description: task.description,
-      reward_amount: task.reward_amount.toString(),
-      task_type: task.task_type,
+      rewardAmount: task.rewardAmount.toString(),
+      taskType: task.taskType,
       requirements: JSON.stringify(task.requirements, null, 2),
-      is_active: task.is_active
+      isActive: task.isActive
     });
     setShowModal(true);
   };
@@ -121,12 +96,7 @@ export const AdminTasks: React.FC = () => {
     if (!confirm('Are you sure you want to delete this task?')) return;
     
     try {
-      const { error: deleteError } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (deleteError) throw deleteError;
+      await AdminService.deleteTask(taskId);
       success('Task deleted successfully!');
       fetchTasks();
     } catch (err) {
@@ -137,12 +107,7 @@ export const AdminTasks: React.FC = () => {
 
   const toggleTaskStatus = async (taskId: string, currentStatus: boolean) => {
     try {
-      const { error: updateError } = await supabase
-        .from('tasks')
-        .update({ is_active: !currentStatus })
-        .eq('id', taskId);
-
-      if (updateError) throw updateError;
+      await AdminService.toggleTaskStatus(taskId, !currentStatus);
       success(`Task ${!currentStatus ? 'activated' : 'deactivated'} successfully!`);
       fetchTasks();
     } catch (err) {
@@ -155,10 +120,10 @@ export const AdminTasks: React.FC = () => {
     setFormData({
       title: '',
       description: '',
-      reward_amount: '',
-      task_type: 'mining',
+      rewardAmount: '',
+      taskType: 'mining',
       requirements: '{}',
-      is_active: true
+      isActive: true
     });
   };
 
@@ -167,7 +132,7 @@ export const AdminTasks: React.FC = () => {
     return type?.icon || <Target size={16} className="text-gray-400" />;
   };
 
-  if (!user?.is_admin) {
+  if (!user?.isAdmin) {
     return (
       <div className="text-center py-8">
         <div className="text-red-400 text-6xl mb-4">🔒</div>
@@ -206,13 +171,13 @@ export const AdminTasks: React.FC = () => {
             <div
               key={task.id}
               className={`bg-slate-700/50 rounded-xl p-6 border transition-all duration-300 ${
-                task.is_active ? 'border-green-500/50' : 'border-gray-600/50'
+                task.isActive ? 'border-green-500/50' : 'border-gray-600/50'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4 flex-1">
                   <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center">
-                    {getTaskTypeIcon(task.task_type)}
+                    {getTaskTypeIcon(task.taskType)}
                   </div>
                   
                   <div className="flex-1">
@@ -221,14 +186,14 @@ export const AdminTasks: React.FC = () => {
                         {task.title}
                       </h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        task.is_active 
+                        task.isActive 
                           ? 'bg-green-500/20 text-green-400' 
                           : 'bg-red-500/20 text-red-400'
                       }`}>
-                        {task.is_active ? 'Active' : 'Inactive'}
+                        {task.isActive ? 'Active' : 'Inactive'}
                       </span>
                       <span className="px-2 py-1 bg-slate-600 text-gray-300 rounded-full text-xs font-medium capitalize">
-                        {task.task_type}
+                        {task.taskType}
                       </span>
                     </div>
                     
@@ -239,10 +204,10 @@ export const AdminTasks: React.FC = () => {
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1 text-cyan-400 font-orbitron font-bold">
                         <Zap size={14} />
-                        {task.reward_amount} ZEN Reward
+                        {task.rewardAmount} ZEN Reward
                       </div>
                       <div className="text-gray-400">
-                        Created {new Date(task.created_at).toLocaleDateString()}
+                        Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                       </div>
                     </div>
                   </div>
@@ -250,14 +215,14 @@ export const AdminTasks: React.FC = () => {
 
                 <div className="flex items-center gap-2">
                   <Button
-                    onClick={() => toggleTaskStatus(task.id, task.is_active)}
+                    onClick={() => toggleTaskStatus(task.id!, task.isActive)}
                     className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                      task.is_active
+                      task.isActive
                         ? 'bg-red-600 hover:bg-red-700 text-white'
                         : 'bg-green-600 hover:bg-green-700 text-white'
                     }`}
                   >
-                    {task.is_active ? 'Deactivate' : 'Activate'}
+                    {task.isActive ? 'Deactivate' : 'Activate'}
                   </Button>
                   <Button
                     onClick={() => handleEdit(task)}
@@ -266,7 +231,7 @@ export const AdminTasks: React.FC = () => {
                     <Edit size={14} />
                   </Button>
                   <Button
-                    onClick={() => handleDelete(task.id)}
+                    onClick={() => handleDelete(task.id!)}
                     className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg"
                   >
                     <Trash2 size={14} />
@@ -323,8 +288,8 @@ export const AdminTasks: React.FC = () => {
                     </label>
                     <input
                       type="number"
-                      value={formData.reward_amount}
-                      onChange={(e) => setFormData({...formData, reward_amount: e.target.value})}
+                      value={formData.rewardAmount}
+                      onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
                       className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                       placeholder="100"
                       min="1"
@@ -337,8 +302,8 @@ export const AdminTasks: React.FC = () => {
                       Task Type
                     </label>
                     <select
-                      value={formData.task_type}
-                      onChange={(e) => setFormData({...formData, task_type: e.target.value})}
+                      value={formData.taskType}
+                      onChange={(e) => setFormData({...formData, taskType: e.target.value})}
                       className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                     >
                       {taskTypes.map((type) => (
@@ -369,12 +334,12 @@ export const AdminTasks: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
+                    id="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
                     className="w-4 h-4 text-cyan-600 bg-slate-700 border-gray-600 rounded focus:ring-cyan-500"
                   />
-                  <label htmlFor="is_active" className="text-white font-medium">
+                  <label htmlFor="isActive" className="text-white font-medium">
                     Task is active
                   </label>
                 </div>

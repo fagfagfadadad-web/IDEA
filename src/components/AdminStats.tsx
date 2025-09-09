@@ -1,75 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, Zap, Target, TrendingUp, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
+import { AdminService, AdminStats as AdminStatsType } from '../services/adminService';
 
 export const AdminStats: React.FC = () => {
   const { user } = useAuth();
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<AdminStatsType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.is_admin) {
+    if (user?.isAdmin) {
       fetchStats();
     }
-  }, [user?.is_admin]);
+  }, [user?.isAdmin]);
 
   const fetchStats = async () => {
     try {
       setIsLoading(true);
-      
-      // Get comprehensive game statistics
-      const { data: gameStats, error: gameError } = await supabase
-        .from('game_stats')
-        .select('*');
-
-      const { data: users, error: usersError } = await supabase
-        .from('users')
-        .select('id, created_at');
-
-      const { data: ships, error: shipsError } = await supabase
-        .from('ships')
-        .select('*');
-
-      const { data: tasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('*');
-
-      const { data: userTasks, error: userTasksError } = await supabase
-        .from('user_tasks')
-        .select('*');
-
-      if (gameError || usersError || shipsError || tasksError || userTasksError) {
-        throw new Error('Failed to fetch statistics');
-      }
-
-      // Calculate statistics
-      const totalUsers = users?.length || 0;
-      const totalZenMined = gameStats?.reduce((sum, stat) => sum + (stat.total_mined || 0), 0) || 0;
-      const totalZenBalance = gameStats?.reduce((sum, stat) => sum + (stat.zen_balance || 0), 0) || 0;
-      const totalShips = ships?.length || 0;
-      const activeTasks = tasks?.filter(t => t.is_active).length || 0;
-      const completedTasks = userTasks?.filter(ut => ut.status === 'completed').length || 0;
-      const averageLevel = gameStats?.length > 0 
-        ? Math.round(gameStats.reduce((sum, stat) => sum + (stat.mining_level || 1), 0) / gameStats.length)
-        : 1;
-
-      // Recent activity (last 7 days)
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-      const newUsersThisWeek = users?.filter(u => new Date(u.created_at) > sevenDaysAgo).length || 0;
-
-      setStats({
-        totalUsers,
-        totalZenMined,
-        totalZenBalance,
-        totalShips,
-        activeTasks,
-        completedTasks,
-        averageLevel,
-        newUsersThisWeek,
-        totalReferrals: gameStats?.reduce((sum, stat) => sum + (stat.total_referrals || 0), 0) || 0
-      });
+      const adminStats = await AdminService.getAdminStats();
+      setStats(adminStats);
     } catch (err) {
       console.error('Error fetching stats:', err);
     } finally {
@@ -168,7 +117,7 @@ export const AdminStats: React.FC = () => {
             <div className="flex justify-between">
               <span className="text-gray-400">Referral Rate:</span>
               <span className="text-white font-orbitron font-bold">
-                {stats?.totalUsers > 0 ? Math.round((stats.totalReferrals / stats.totalUsers) * 100) : 0}%
+                {stats?.totalUsers && stats.totalUsers > 0 ? Math.round((stats.totalReferrals / stats.totalUsers) * 100) : 0}%
               </span>
             </div>
           </div>
@@ -186,7 +135,7 @@ export const AdminStats: React.FC = () => {
             <div className="flex justify-between">
               <span className="text-gray-400">Ships per Player:</span>
               <span className="text-white font-orbitron font-bold">
-                {stats?.totalUsers > 0 ? Math.round((stats.totalShips / stats.totalUsers) * 10) / 10 : 0}
+                {stats?.totalUsers && stats.totalUsers > 0 ? Math.round((stats.totalShips / stats.totalUsers) * 10) / 10 : 0}
               </span>
             </div>
           </div>

@@ -4,7 +4,14 @@ import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
-import { supabase } from '../../lib/supabase';
+import { 
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  orderBy 
+} from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 export const Referrals = () => {
   const { user } = useAuth();
@@ -15,30 +22,48 @@ export const Referrals = () => {
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && gameStats?.referralCode) {
       fetchReferrals();
     }
-  }, [user?.id]);
+  }, [user?.id, gameStats?.referralCode]);
 
   const fetchReferrals = async () => {
     try {
       setIsLoading(true);
       
-      const { data, error: fetchError } = await supabase
-        .from('game_stats')
-        .select(`
-          *,
-          referred_user:users!game_stats_user_id_fkey(
-            id,
-            username,
-            created_at
-          )
-        `)
-        .eq('referred_by', gameStats?.referral_code)
-        .order('created_at', { ascending: false });
+      if (!gameStats?.referralCode) return;
 
-      if (fetchError) throw fetchError;
-      setReferrals(data || []);
+      // Get users referred by this user
+      const q = query(
+        collection(db, 'gameStats'),
+        where('referredBy', '==', gameStats.referralCode),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const referralStats = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      // Get user data for each referral
+      const referralsWithUsers = await Promise.all(
+        referralStats.map(async (stats) => {
+          const userQuery = query(
+            collection(db, 'users'),
+            where('id', '==', stats.userId)
+          );
+          const userSnapshot = await getDocs(userQuery);
+          const userData = userSnapshot.docs[0]?.data();
+          
+          return {
+            ...stats,
+            user: userData
+          };
+        })
+      );
+
+      setReferrals(referralsWithUsers);
     } catch (err) {
       console.error('Error fetching referrals:', err);
       error('Failed to load referrals');
@@ -48,7 +73,7 @@ export const Referrals = () => {
   };
 
   const copyReferralLink = async () => {
-    const referralLink = `${window.location.origin}?ref=${gameStats?.referral_code}`;
+    const referralLink = `${window.location.origin}?ref=${gameStats?.referralCode}`;
     
     try {
       await navigator.clipboard.writeText(referralLink);
@@ -68,7 +93,7 @@ export const Referrals = () => {
   ];
 
   const getCurrentTier = () => {
-    const totalReferrals = gameStats?.total_referrals || 0;
+    const totalReferrals = gameStats?.totalReferrals || 0;
     return referralTiers
       .slice()
       .reverse()
@@ -76,7 +101,7 @@ export const Referrals = () => {
   };
 
   const getNextTier = () => {
-    const totalReferrals = gameStats?.total_referrals || 0;
+    const totalReferrals = gameStats?.totalReferrals || 0;
     return referralTiers.find(tier => totalReferrals < tier.referrals) || null;
   };
 
@@ -117,7 +142,7 @@ export const Referrals = () => {
                   <span className="text-gray-400 font-medium">Total Referrals</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
-                  {gameStats?.total_referrals || 0}
+                  {gameStats?.totalReferrals || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -126,7 +151,7 @@ export const Referrals = () => {
                   <span className="text-gray-400 font-medium">Earnings</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
-                  {gameStats?.referral_earnings?.toLocaleString() || 0}
+                  {gameStats?.referralEarnings?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -159,7 +184,7 @@ export const Referrals = () => {
               <div className="flex-1 bg-slate-700/50 rounded-lg p-3 border border-gray-600">
                 <div className="text-gray-400 text-sm mb-1">Referral Code</div>
                 <div className="text-white font-orbitron font-bold text-lg">
-                  {gameStats?.referral_code || 'Loading...'}
+                  {gameStats?.referralCode || 'Loading...'}
                 </div>
               </div>
               <Button
@@ -195,7 +220,7 @@ export const Referrals = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {referralTiers.map((tier, index) => {
-                const isUnlocked = (gameStats?.total_referrals || 0) >= tier.referrals;
+                const isUnlocked = (gameStats?.totalReferrals || 0) >= tier.referrals;
                 const isCurrent = currentTier?.referrals === tier.referrals;
                 
                 return (
@@ -257,20 +282,20 @@ export const Referrals = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center text-white font-orbitron font-bold">
-                        {referral.referred_user?.username?.charAt(0)?.toUpperCase() || '?'}
+                        {referral.user?.username?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <div>
                         <div className="text-white font-medium">
-                          {referral.referred_user?.username || 'Anonymous'}
+                          {referral.user?.username || 'Anonymous'}
                         </div>
                         <div className="text-gray-400 text-sm">
-                          Joined {new Date(referral.referred_user?.created_at || '').toLocaleDateString()}
+                          Joined {referral.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-cyan-400 font-orbitron font-bold">
-                        +{Math.floor((referral.total_mined || 0) * 0.1)} ZEN
+                        +{Math.floor((referral.totalMined || 0) * 0.1)} ZEN
                       </div>
                       <div className="text-gray-400 text-sm">
                         Earned from referral

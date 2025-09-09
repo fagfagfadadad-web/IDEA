@@ -1,29 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { supabase } from '../lib/supabase';
+import { GameService, GameStats, Ship } from '../services/gameService';
 import { useToast } from './ToastContext';
-
-interface Ship {
-  id: string;
-  name: string;
-  level: number;
-  mining_power: number;
-  energy_capacity: number;
-  current_energy: number;
-  last_mining: string;
-  upgrades: any;
-}
-
-interface GameStats {
-  zen_balance: number;
-  total_mined: number;
-  mining_level: number;
-  experience: number;
-  referral_code: string;
-  referred_by: string | null;
-  total_referrals: number;
-  referral_earnings: number;
-}
 
 interface GameContextType {
   gameStats: GameStats | null;
@@ -80,9 +58,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     
     miningInterval.current = setInterval(() => {
       if (isAuthenticated && user?.id) {
-        updateMiningProgress();
+        updateEnergyRegeneration();
       }
-    }, 5000); // Update every 5 seconds
+    }, 30000); // Update every 30 seconds
   };
 
   const stopMiningLoop = () => {
@@ -92,30 +70,34 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const updateMiningProgress = async () => {
+  const updateEnergyRegeneration = async () => {
     try {
-      // Check for ships that can mine automatically
-      const { data: activeShips } = await supabase
-        .from('ships')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gt('current_energy', 0);
-
-      if (activeShips && activeShips.length > 0) {
-        // Auto-mine for ships with energy
-        for (const ship of activeShips) {
-          const lastMining = new Date(ship.last_mining);
-          const now = new Date();
-          const timeDiff = now.getTime() - lastMining.getTime();
-          const minutesPassed = Math.floor(timeDiff / (1000 * 60));
-
-          if (minutesPassed >= 1 && ship.current_energy > 0) {
-            await performMining(ship.id, true); // Silent mining
+      // Regenerate energy for ships
+      const updatedShips = ships.map(ship => {
+        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining);
+        const now = new Date();
+        const timeDiff = now.getTime() - lastMining.getTime();
+        const minutesPassed = Math.floor(timeDiff / (1000 * 60));
+        
+        if (minutesPassed > 0 && ship.currentEnergy < ship.energyCapacity) {
+          const energyToAdd = Math.min(
+            ship.energyCapacity - ship.currentEnergy,
+            Math.floor(minutesPassed / 5) // 1 energy per 5 minutes
+          );
+          
+          if (energyToAdd > 0) {
+            const newEnergy = ship.currentEnergy + energyToAdd;
+            GameService.updateShip(ship.id!, { currentEnergy: newEnergy });
+            return { ...ship, currentEnergy: newEnergy };
           }
         }
-      }
+        
+        return ship;
+      });
+      
+      setShips(updatedShips);
     } catch (error) {
-      console.error('Error in mining loop:', error);
+      console.error('Error updating energy:', error);
     }
   };
 
@@ -124,53 +106,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
       setError(null);
 
+      if (!user?.id) return;
+
       // Fetch or create game stats
-      const { data: stats, error: statsError } = await supabase
-        .from('game_stats')
-        .select('*')
-        .eq('user_id', user?.id)
-        .maybeSingle();
-
-      if (statsError && statsError.code !== 'PGRST116') {
-        throw statsError;
-      }
-
+      let stats = await GameService.getGameStats(user.id);
       if (!stats) {
-        // Create initial game stats
-        const referralCode = generateReferralCode();
-        const { data: newStats, error: createError } = await supabase
-          .from('game_stats')
-          .insert({
-            user_id: user?.id,
-            zen_balance: 100, // Starting balance
-            total_mined: 0,
-            mining_level: 1,
-            experience: 0,
-            referral_code: referralCode,
-            total_referrals: 0,
-            referral_earnings: 0
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setGameStats(newStats);
-
-        // Create starter ship
-        await createStarterShip();
-      } else {
-        setGameStats(stats);
+        stats = await GameService.createGameStats(user.id);
+        await GameService.createStarterShip(user.id);
       }
+      setGameStats(stats);
 
       // Fetch ships
-      const { data: shipsData, error: shipsError } = await supabase
-        .from('ships')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: true });
-
-      if (shipsError) throw shipsError;
-      setShips(shipsData || []);
+      const userShips = await GameService.getUserShips(user.id);
+      setShips(userShips);
 
     } catch (err) {
       console.error('Error fetching game data:', err);
@@ -180,128 +128,55 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const createStarterShip = async () => {
-    try {
-      const { data: ship, error } = await supabase
-        .from('ships')
-        .insert({
-          user_id: user?.id,
-          name: 'Starter Miner',
-          level: 1,
-          mining_power: 10,
-          energy_capacity: 100,
-          current_energy: 100,
-          ship_type: 'basic',
-          upgrades: {}
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      setShips([ship]);
-    } catch (error) {
-      console.error('Error creating starter ship:', error);
-    }
-  };
-
-  const generateReferralCode = () => {
-    return 'ZEN' + Math.random().toString(36).substring(2, 8).toUpperCase();
-  };
-
   const mineZen = async (shipId: string) => {
     try {
       setIsMining(true);
-      await performMining(shipId, false);
-      success('ZEN tokens mined successfully!');
-    } catch (error) {
+      
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      const ship = ships.find(s => s.id === shipId);
+      if (!ship) throw new Error('Ship not found');
+      
+      if (ship.currentEnergy < 10) {
+        throw new Error('Ship has insufficient energy');
+      }
+
+      // Check cooldown
+      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining);
+      const now = new Date();
+      const timeDiff = now.getTime() - lastMining.getTime();
+      const minutesPassed = Math.floor(timeDiff / (1000 * 60));
+
+      if (minutesPassed < 1) {
+        throw new Error('Must wait at least 1 minute between mining operations');
+      }
+
+      const result = await GameService.performMining(user.id, shipId);
+      
+      success(`Mined ${result.zenMined} ZEN tokens!`);
+      if (result.newLevel) {
+        success(`Level up! You are now level ${result.newLevel}!`);
+      }
+      
+      await fetchGameData();
+    } catch (error: any) {
       console.error('Error mining ZEN:', error);
-      showError('Failed to mine ZEN tokens');
+      showError(error.message || 'Failed to mine ZEN tokens');
     } finally {
       setIsMining(false);
     }
   };
 
-  const performMining = async (shipId: string, silent = false) => {
-    const ship = ships.find(s => s.id === shipId);
-    if (!ship || ship.current_energy <= 0) {
-      if (!silent) showError('Ship has no energy to mine');
-      return;
-    }
-
-    const now = new Date();
-    const lastMining = new Date(ship.last_mining);
-    const timeDiff = now.getTime() - lastMining.getTime();
-    const minutesPassed = Math.floor(timeDiff / (1000 * 60));
-
-    if (minutesPassed < 1 && !silent) {
-      showError('Must wait at least 1 minute between mining operations');
-      return;
-    }
-
-    // Calculate mining reward
-    const baseReward = ship.mining_power;
-    const levelBonus = gameStats?.mining_level || 1;
-    const energyCost = 10;
-    const zenMined = Math.floor(baseReward * levelBonus * (1 + Math.random() * 0.5));
-
-    // Update ship energy and last mining time
-    const { error: shipError } = await supabase
-      .from('ships')
-      .update({
-        current_energy: Math.max(0, ship.current_energy - energyCost),
-        last_mining: now.toISOString()
-      })
-      .eq('id', shipId);
-
-    if (shipError) throw shipError;
-
-    // Update game stats
-    const newBalance = (gameStats?.zen_balance || 0) + zenMined;
-    const newTotalMined = (gameStats?.total_mined || 0) + zenMined;
-    const newExperience = (gameStats?.experience || 0) + Math.floor(zenMined / 10);
-    const newLevel = Math.floor(newExperience / 1000) + 1;
-
-    const { error: statsError } = await supabase
-      .from('game_stats')
-      .update({
-        zen_balance: newBalance,
-        total_mined: newTotalMined,
-        experience: newExperience,
-        mining_level: newLevel
-      })
-      .eq('user_id', user?.id);
-
-    if (statsError) throw statsError;
-
-    // Update local state
-    setGameStats(prev => prev ? {
-      ...prev,
-      zen_balance: newBalance,
-      total_mined: newTotalMined,
-      experience: newExperience,
-      mining_level: newLevel
-    } : null);
-
-    setShips(prev => prev.map(s => 
-      s.id === shipId 
-        ? { ...s, current_energy: Math.max(0, s.current_energy - energyCost), last_mining: now.toISOString() }
-        : s
-    ));
-
-    if (!silent) {
-      success(`Mined ${zenMined} ZEN tokens!`);
-    }
-  };
-
   const upgradeShip = async (shipId: string, upgradeType: string) => {
     try {
+      if (!user?.id) throw new Error('User not authenticated');
+      
       const ship = ships.find(s => s.id === shipId);
       if (!ship) throw new Error('Ship not found');
 
-      const upgradeCost = calculateUpgradeCost(ship, upgradeType);
-      if ((gameStats?.zen_balance || 0) < upgradeCost) {
-        showError('Insufficient ZEN tokens for upgrade');
-        return;
+      const upgradeCost = GameService.calculateUpgradeCost(ship, upgradeType);
+      if ((gameStats?.zenBalance || 0) < upgradeCost) {
+        throw new Error('Insufficient ZEN tokens for upgrade');
       }
 
       // Apply upgrade
@@ -311,11 +186,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       let newStats = { ...ship };
       switch (upgradeType) {
-        case 'mining_power':
-          newStats.mining_power += 5;
+        case 'miningPower':
+          newStats.miningPower += 5;
           break;
-        case 'energy_capacity':
-          newStats.energy_capacity += 20;
+        case 'energyCapacity':
+          newStats.energyCapacity += 20;
           break;
         case 'efficiency':
           // Efficiency reduces energy consumption
@@ -323,106 +198,59 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Update ship
-      const { error: shipError } = await supabase
-        .from('ships')
-        .update({
-          ...newStats,
-          upgrades
-        })
-        .eq('id', shipId);
-
-      if (shipError) throw shipError;
+      await GameService.updateShip(shipId, {
+        ...newStats,
+        upgrades
+      });
 
       // Deduct cost
-      const { error: statsError } = await supabase
-        .from('game_stats')
-        .update({
-          zen_balance: (gameStats?.zen_balance || 0) - upgradeCost
-        })
-        .eq('user_id', user?.id);
-
-      if (statsError) throw statsError;
+      await GameService.updateGameStats(user.id, {
+        zenBalance: (gameStats?.zenBalance || 0) - upgradeCost
+      });
 
       await fetchGameData();
-      success(`Ship upgraded successfully!`);
-    } catch (error) {
+      success('Ship upgraded successfully!');
+    } catch (error: any) {
       console.error('Error upgrading ship:', error);
-      showError('Failed to upgrade ship');
+      showError(error.message || 'Failed to upgrade ship');
     }
   };
 
   const buyShip = async (shipType: string) => {
     try {
-      const shipCost = getShipCost(shipType);
-      if ((gameStats?.zen_balance || 0) < shipCost) {
-        showError('Insufficient ZEN tokens to buy ship');
-        return;
+      if (!user?.id) throw new Error('User not authenticated');
+      
+      const shipConfig = GameService.getShipConfig(shipType);
+      
+      if ((gameStats?.zenBalance || 0) < shipConfig.cost) {
+        throw new Error('Insufficient ZEN tokens to buy ship');
       }
 
-      const shipConfig = getShipConfig(shipType);
-      
       // Create new ship
-      const { error: shipError } = await supabase
-        .from('ships')
-        .insert({
-          user_id: user?.id,
-          name: shipConfig.name,
-          level: 1,
-          mining_power: shipConfig.mining_power,
-          energy_capacity: shipConfig.energy_capacity,
-          current_energy: shipConfig.energy_capacity,
-          ship_type: shipType,
-          upgrades: {}
-        });
-
-      if (shipError) throw shipError;
+      await GameService.createShip({
+        userId: user.id,
+        name: shipConfig.name,
+        level: 1,
+        miningPower: shipConfig.miningPower,
+        energyCapacity: shipConfig.energyCapacity,
+        currentEnergy: shipConfig.energyCapacity,
+        shipType,
+        upgrades: {},
+        lastMining: new Date(),
+        createdAt: new Date()
+      });
 
       // Deduct cost
-      const { error: statsError } = await supabase
-        .from('game_stats')
-        .update({
-          zen_balance: (gameStats?.zen_balance || 0) - shipCost
-        })
-        .eq('user_id', user?.id);
-
-      if (statsError) throw statsError;
+      await GameService.updateGameStats(user.id, {
+        zenBalance: (gameStats?.zenBalance || 0) - shipConfig.cost
+      });
 
       await fetchGameData();
       success(`${shipConfig.name} purchased successfully!`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error buying ship:', error);
-      showError('Failed to purchase ship');
+      showError(error.message || 'Failed to purchase ship');
     }
-  };
-
-  const calculateUpgradeCost = (ship: Ship, upgradeType: string) => {
-    const currentLevel = ship.upgrades[upgradeType] || 0;
-    const baseCost = {
-      mining_power: 100,
-      energy_capacity: 80,
-      efficiency: 150
-    };
-    return Math.floor(baseCost[upgradeType as keyof typeof baseCost] * Math.pow(1.5, currentLevel));
-  };
-
-  const getShipCost = (shipType: string) => {
-    const costs = {
-      basic: 0,
-      advanced: 1000,
-      elite: 5000,
-      legendary: 20000
-    };
-    return costs[shipType as keyof typeof costs] || 0;
-  };
-
-  const getShipConfig = (shipType: string) => {
-    const configs = {
-      basic: { name: 'Basic Miner', mining_power: 10, energy_capacity: 100 },
-      advanced: { name: 'Advanced Miner', mining_power: 25, energy_capacity: 200 },
-      elite: { name: 'Elite Miner', mining_power: 50, energy_capacity: 300 },
-      legendary: { name: 'Legendary Miner', mining_power: 100, energy_capacity: 500 }
-    };
-    return configs[shipType as keyof typeof configs] || configs.basic;
   };
 
   const refetch = fetchGameData;

@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, Medal, Star, TrendingUp, Zap, Crown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { supabase } from '../../lib/supabase';
+import { GameService, GameStats } from '../../services/gameService';
+import { UserService } from '../../services/userService';
+
+interface LeaderboardEntry extends GameStats {
+  user?: {
+    username: string;
+    avatarUrl?: string;
+  };
+}
 
 export const Leaderboard = () => {
   const { user } = useAuth();
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, label: 'Total Mined', field: 'total_mined' },
-    { id: 1, label: 'ZEN Balance', field: 'zen_balance' },
-    { id: 2, label: 'Mining Level', field: 'mining_level' },
-    { id: 3, label: 'Referrals', field: 'total_referrals' }
+    { id: 0, label: 'Total Mined', field: 'totalMined' },
+    { id: 1, label: 'ZEN Balance', field: 'zenBalance' },
+    { id: 2, label: 'Mining Level', field: 'miningLevel' },
+    { id: 3, label: 'Referrals', field: 'totalReferrals' }
   ];
 
   useEffect(() => {
@@ -25,21 +33,23 @@ export const Leaderboard = () => {
       setIsLoading(true);
       
       const currentTab = tabs[activeTab];
-      const { data, error } = await supabase
-        .from('game_stats')
-        .select(`
-          *,
-          user:users!game_stats_user_id_fkey(
-            id,
-            username,
-            avatar_url
-          )
-        `)
-        .order(currentTab.field, { ascending: false })
-        .limit(100);
+      const gameStats = await GameService.getLeaderboard(currentTab.field);
+      
+      // Get user data for each entry
+      const leaderboardWithUsers = await Promise.all(
+        gameStats.map(async (stats) => {
+          const userData = await UserService.getUser(stats.userId);
+          return {
+            ...stats,
+            user: userData ? {
+              username: userData.username,
+              avatarUrl: userData.avatarUrl
+            } : undefined
+          };
+        })
+      );
 
-      if (error) throw error;
-      setLeaderboard(data || []);
+      setLeaderboard(leaderboardWithUsers);
     } catch (err) {
       console.error('Error fetching leaderboard:', err);
     } finally {
@@ -74,7 +84,7 @@ export const Leaderboard = () => {
   };
 
   const formatValue = (value: number, field: string) => {
-    if (field === 'zen_balance' || field === 'total_mined') {
+    if (field === 'zenBalance' || field === 'totalMined') {
       return value.toLocaleString();
     }
     return value.toString();
@@ -82,13 +92,13 @@ export const Leaderboard = () => {
 
   const getFieldIcon = (field: string) => {
     switch (field) {
-      case 'total_mined':
+      case 'totalMined':
         return <Zap className="text-cyan-400" size={16} />;
-      case 'zen_balance':
+      case 'zenBalance':
         return <Zap className="text-green-400" size={16} />;
-      case 'mining_level':
+      case 'miningLevel':
         return <Star className="text-purple-400" size={16} />;
-      case 'total_referrals':
+      case 'totalReferrals':
         return <TrendingUp className="text-orange-400" size={16} />;
       default:
         return <Trophy className="text-gray-400" size={16} />;
@@ -139,12 +149,12 @@ export const Leaderboard = () => {
                 <div className="space-y-4">
                   {leaderboard.map((entry, index) => {
                     const rank = index + 1;
-                    const isCurrentUser = entry.user_id === user?.id;
+                    const isCurrentUser = entry.userId === user?.id;
                     const currentTab = tabs[activeTab];
                     
                     return (
                       <div
-                        key={entry.user_id}
+                        key={entry.userId}
                         className={`p-4 rounded-xl border transition-all duration-300 hover:transform hover:scale-[1.02] ${
                           isCurrentUser 
                             ? 'border-cyan-400 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
@@ -159,9 +169,9 @@ export const Leaderboard = () => {
                             
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-cyan-400 to-purple-500">
-                                {entry.user?.avatar_url ? (
+                                {entry.user?.avatarUrl ? (
                                   <img
-                                    src={entry.user.avatar_url}
+                                    src={entry.user.avatarUrl}
                                     alt={entry.user.username}
                                     className="w-full h-full object-cover"
                                   />
@@ -182,7 +192,7 @@ export const Leaderboard = () => {
                                   )}
                                 </div>
                                 <div className="text-gray-400 text-sm">
-                                  Level {entry.mining_level}
+                                  Level {entry.miningLevel}
                                 </div>
                               </div>
                             </div>
@@ -191,8 +201,8 @@ export const Leaderboard = () => {
                           <div className="text-right">
                             <div className="flex items-center gap-1 text-lg font-orbitron font-bold text-white">
                               {getFieldIcon(currentTab.field)}
-                              {formatValue(entry[currentTab.field] || 0, currentTab.field)}
-                              {(currentTab.field === 'zen_balance' || currentTab.field === 'total_mined') && (
+                              {formatValue(entry[currentTab.field as keyof GameStats] as number || 0, currentTab.field)}
+                              {(currentTab.field === 'zenBalance' || currentTab.field === 'totalMined') && (
                                 <span className="text-cyan-400 ml-1">ZEN</span>
                               )}
                             </div>
