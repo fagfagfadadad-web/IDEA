@@ -83,7 +83,7 @@ export class GameService {
     const referralCode = this.generateReferralCode();
     const gameStats: Omit<GameStats, 'id'> = {
       userId,
-      zenBalance: 100,
+      zenBalance: 1000,
       totalMined: 0,
       miningLevel: 1,
       experience: 0,
@@ -330,7 +330,7 @@ export class GameService {
 
   // Utility functions
   static generateReferralCode(): string {
-    return 'ZEN' + Math.random().toString(36).substring(2, 8).toUpperCase();
+    return 'ZEND' + Math.random().toString(36).substring(2, 8).toUpperCase();
   }
 
   static getShipConfig(shipType: string) {

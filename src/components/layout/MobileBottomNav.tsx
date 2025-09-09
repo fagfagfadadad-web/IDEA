@@ -44,7 +44,7 @@ export const MobileBottomNav = () => {
             <button
               onClick={handleConnect}
               className="w-14 h-14 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-200"
-            >
+                <span className="text-gray-400">ZEND</span>
               <Zap size={24} />
             </button>
           )}

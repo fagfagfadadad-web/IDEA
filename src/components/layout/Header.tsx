@@ -44,7 +44,7 @@ export const Header = () => {
                 <Zap size={24} className="text-white" />
               </div>
               <span className="text-2xl font-orbitron font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                ZEN
+                ZEND
               </span>
             </Link>
             
