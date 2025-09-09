@@ -23,11 +23,18 @@ export const storage = getStorage(app);
 // Connect to emulators in development
 if (import.meta.env.DEV) {
   try {
-    connectFirestoreEmulator(db, 'localhost', 8080);
-    connectAuthEmulator(auth, 'http://localhost:9099');
-    connectStorageEmulator(storage, 'localhost', 9199);
+    // Only connect if not already connected
+    if (!db._delegate._databaseId.projectId.includes('demo-')) {
+      connectFirestoreEmulator(db, 'localhost', 8080);
+    }
+    if (!auth.config.emulator) {
+      connectAuthEmulator(auth, 'http://localhost:9099');
+    }
+    if (!storage._delegate._host.includes('localhost')) {
+      connectStorageEmulator(storage, 'localhost', 9199);
+    }
   } catch (error) {
-    console.log('Firebase emulators already connected or not available');
+    console.log('Firebase emulators not available, using production services');
   }
 }
 
