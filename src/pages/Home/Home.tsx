@@ -243,6 +243,8 @@ export const Home = () => {
                 </Button>
               </div>
             </div>
+          </div>
+        )}
             <h1 className="text-6xl md:text-8xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
               ZEND
             </h1>
