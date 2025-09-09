@@ -317,9 +317,7 @@ export const Ships = () => {
                                 </div>
                                ) : `Need ${shipType.cost.toLocaleString()} ZEN`}
                             </Button>
-                          <span className="text-green-400 font-bold">
-                            {ship.current_energy || ship.currentEnergy || 0}/{ship.energy_capacity || ship.energyCapacity || 100}
-                          </span>
+                          </div>
                         </div>
                       );
                     })}
