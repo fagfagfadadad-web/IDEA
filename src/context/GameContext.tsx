@@ -28,7 +28,7 @@ const GameContext = createContext<GameContextType>({
 });
 
 export const GameProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const { success, error: showError } = useToast();
   const [gameStats, setGameStats] = useState<GameStats | null>(null);
   const [ships, setShips] = useState<Ship[]>([]);
