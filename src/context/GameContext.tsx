@@ -38,22 +38,26 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const miningInterval = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated && user?.id) {
+    if (user?.id && isAuthenticated) {
       console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
       startMiningLoop();
     } else {
-      console.log('🎮 GameContext: User not authenticated, clearing data');
-      setGameStats(null);
-      setShips([]);
-      setIsLoading(false);
-      stopMiningLoop();
+      console.log('🎮 GameContext: User not authenticated, user:', user?.id, 'isAuthenticated:', isAuthenticated);
+      // Only clear data if we're sure the user is logged out
+      if (!user?.id && !isAuthenticated) {
+        console.log('🎮 GameContext: Clearing data - user definitely logged out');
+        setGameStats(null);
+        setShips([]);
+        setIsLoading(false);
+        stopMiningLoop();
+      }
     }
 
     return () => {
       stopMiningLoop();
     };
-  }, [isAuthenticated, user?.id, user]);
+  }, [user?.id, isAuthenticated]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;
