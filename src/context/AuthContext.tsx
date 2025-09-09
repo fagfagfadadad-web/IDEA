@@ -207,7 +207,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const value = {
-    isAuthenticated: isLoggedIn && !!user && isProfileReady && !loading,
+    isAuthenticated: isLoggedIn && !!user && isProfileReady,
     user,
     firebaseUser,
     loading,

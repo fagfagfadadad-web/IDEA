@@ -78,7 +78,7 @@ export class GameService {
       console.log('🔍 GameService: Raw Firestore data:', rawData);
       
       // Fix missing zenBalance field in existing data
-      if (rawData.zenBalance === undefined || rawData.zenBalance === null || isNaN(rawData.zenBalance)) {
+      if (rawData.zenBalance === undefined || rawData.zenBalance === null || isNaN(rawData.zenBalance) || rawData.zenBalance === 0) {
         console.log('🔧 GameService: Fixing missing zenBalance field...');
         await updateDoc(docRef, {
           zenBalance: 1000,
