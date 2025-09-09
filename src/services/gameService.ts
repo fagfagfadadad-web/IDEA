@@ -74,7 +74,11 @@ export class GameService {
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as GameStats;
+      const rawData = docSnap.data();
+      console.log('🔍 GameService: Raw Firestore data:', rawData);
+      const gameStats = { id: docSnap.id, ...rawData } as GameStats;
+      console.log('🔍 GameService: Processed GameStats:', gameStats);
+      return gameStats;
     }
     return null;
   }
