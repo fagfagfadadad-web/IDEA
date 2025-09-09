@@ -124,11 +124,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map field names to match component expectations
       const mappedStats = {
         ...stats,
-        zen_balance: stats.zenBalance || 1000,
+        zen_balance: stats.zenBalance || 0,
         total_mined: stats.totalMined || 0,
         mining_level: stats.miningLevel || 1,
         // Keep both naming conventions for compatibility
-        zenBalance: stats.zenBalance || 1000,
+        zenBalance: stats.zenBalance || 0,
         totalMined: stats.totalMined || 0,
         miningLevel: stats.miningLevel || 1
       };

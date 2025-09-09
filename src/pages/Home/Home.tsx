@@ -30,8 +30,8 @@ export const Home = () => {
   useEffect(() => {
     console.log('🏠 Home: gameStats changed:', gameStats);
     if (gameStats) {
-      const zenTarget = gameStats.zenBalance || gameStats.zen_balance || 1000;
-      const minedTarget = gameStats.totalMined || gameStats.total_mined || 0;
+      const zenTarget = gameStats.zenBalance || 0;
+      const minedTarget = gameStats.totalMined || 0;
       
       console.log('🏠 Home: Animation targets - ZEN:', zenTarget, 'Mined:', minedTarget);
       
@@ -114,13 +114,13 @@ export const Home = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
-                    {(gameStats.zenBalance || 0).toLocaleString()}
+                      {gameStats.zenBalance?.toLocaleString() || '0'}
                     </div>
                     <div className="text-gray-400 text-sm">ZEN Balance</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
-                      {(animatedStats.mined || 0).toLocaleString()}
+                      {gameStats.totalMined?.toLocaleString() || '0'}
                     </div>
                     <div className="text-gray-400 text-sm">Total Mined</div>
                   </div>

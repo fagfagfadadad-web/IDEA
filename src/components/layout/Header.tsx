@@ -202,7 +202,7 @@ export const Header = () => {
                   <div className="flex items-center gap-2 justify-center">
                     <Zap size={20} className="text-cyan-400" />
                     <span className="text-cyan-400 font-orbitron font-bold text-lg">
-                      {(gameStats.zenBalance || gameStats.zen_balance || 0).toLocaleString()}
+                      {gameStats.zenBalance?.toLocaleString() || '0'}
                     </span>
                     <span className="text-gray-400">ZEN</span>
                   </div>
