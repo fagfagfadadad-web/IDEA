@@ -278,6 +278,7 @@ export const Mining = () => {
                               Mine ZEND
                             </div>
                           ) : ship.current_energy < 10 ? (
+                          ) : ship.currentEnergy < 10 ? (
                             'No Energy'
                           ) : (
                             `Wait ${getTimeUntilNextMining(ship)}`

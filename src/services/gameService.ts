@@ -179,6 +179,7 @@ export class GameService {
   }
 
   static async createStarterShip(userId: string): Promise<void> {
+    console.log('🚀 GameService: Creating starter ship for user:', userId);
     const shipId = await this.createShip({
       userId,
       name: 'Starter Miner',
@@ -188,8 +189,8 @@ export class GameService {
       currentEnergy: 100,
       shipType: 'basic',
       upgrades: {},
-      lastMining: serverTimestamp(),
-      createdAt: serverTimestamp()
+      lastMining: new Date(),
+      createdAt: new Date()
     });
     
     console.log('✅ GameService: Starter ship created with ID:', shipId);
