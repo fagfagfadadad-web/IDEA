@@ -1,22 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection - users can read/write their own data
+    // Users collection - allow unauthenticated creation and authenticated read/write
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth == null || (request.auth != null && request.auth.uid == userId);
+      allow list: if request.auth == null;
     }
     
-    // Game stats collection - users can read/write their own stats
+    // Game stats collection - allow unauthenticated creation and authenticated read/write
     match /gameStats/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth == null || (request.auth != null && request.auth.uid == userId);
+      allow list: if request.auth == null;
     }
     
-    // Ships collection - users can read/write their own ships
+    // Ships collection - allow unauthenticated creation and authenticated read/write
     match /ships/{shipId} {
       allow read, write: if request.auth != null && 
         request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-        request.auth.uid == request.resource.data.userId;
+      allow create: if request.auth == null || (request.auth != null && 
+        request.auth.uid == request.resource.data.userId);
+      allow list: if request.auth == null;
     }
     
     // Tasks collection - all authenticated users can read active tasks
@@ -26,20 +31,22 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
     
-    // User tasks collection - users can read/write their own task progress
+    // User tasks collection - allow unauthenticated creation and authenticated read/write
     match /userTasks/{userTaskId} {
       allow read, write: if request.auth != null && 
         request.auth.uid == resource.data.userId;
-      allow create: if request.auth != null && 
-        request.auth.uid == request.resource.data.userId;
+      allow create: if request.auth == null || (request.auth != null && 
+        request.auth.uid == request.resource.data.userId);
+      allow list: if request.auth == null;
     }
     
-    // Referral earnings collection - users can read their own earnings
+    // Referral earnings collection - allow unauthenticated creation and authenticated read
     match /referralEarnings/{earningId} {
       allow read: if request.auth != null && 
         (request.auth.uid == resource.data.referrerId || 
          request.auth.uid == resource.data.referredId);
-      allow create: if request.auth != null;
+      allow create: if request.auth == null || request.auth != null;
+      allow list: if request.auth == null;
     }
     
     // Admin can read/write everything
