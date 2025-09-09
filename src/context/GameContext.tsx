@@ -143,22 +143,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map ship field names to match component expectations
       const mappedShips = userShips.map(ship => ({
         ...ship,
-        current_energy: ship.currentEnergy || ship.energyCapacity || 100,
-        energy_capacity: ship.energyCapacity || 100,
-        mining_power: ship.miningPower || 10,
-        last_mining: ship.lastMining || new Date(),
-        ship_type: ship.shipType || 'basic',
-        // Keep original fields too
-        currentEnergy: ship.currentEnergy || ship.energyCapacity || 100,
-        energyCapacity: ship.energyCapacity || 100,
-        miningPower: ship.miningPower || 10,
-        lastMining: ship.lastMining || new Date(),
-        shipType: ship.shipType || 'basic'
+        current_energy: ship.currentEnergy || ship.energy_capacity || ship.energyCapacity || 100,
+        energy_capacity: ship.energyCapacity || ship.energy_capacity || 100,
+        mining_power: ship.miningPower || ship.mining_power || 10,
+        last_mining: ship.lastMining || ship.last_mining || new Date(),
+        ship_type: ship.shipType || ship.ship_type || 'basic'
       }));
       
       setShips(mappedShips);
-      console.log('🚀 GameContext: Ships loaded:', userShips.length);
-      console.log('🗺️ GameContext: Mapped ships:', mappedShips);
+      console.log('🚀 GameContext: Ships loaded:', userShips.length, 'Raw ships:', userShips);
+      console.log('🗺️ GameContext: Mapped ships:', mappedShips.length, 'Mapped data:', mappedShips);
 
     } catch (err) {
       console.error('Error fetching game data:', err);
