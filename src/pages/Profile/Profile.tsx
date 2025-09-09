@@ -4,7 +4,7 @@ import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
-import { supabase } from '../../lib/supabase';
+import { UserService } from '../../services/userService';
 
 export const Profile = () => {
   const { user } = useAuth();
@@ -23,12 +23,7 @@ export const Profile = () => {
 
   const handleSave = async () => {
     try {
-      const { error: updateError } = await supabase
-        .from('users')
-        .update(formData)
-        .eq('id', user?.id);
-
-      if (updateError) throw updateError;
+      await UserService.updateUser(user?.id || '', formData);
 
       success('Profile updated successfully!');
       setIsEditing(false);
