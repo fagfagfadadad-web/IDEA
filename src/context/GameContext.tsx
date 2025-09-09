@@ -74,7 +74,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       // Regenerate energy for ships
       const updatedShips = ships.map(ship => {
-        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining);
+        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastMining.getTime();
         const minutesPassed = Math.floor(timeDiff / (1000 * 60));
@@ -118,12 +118,32 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         await GameService.createStarterShip(user.id);
         console.log('✅ GameContext: Game stats and starter ship created');
       }
-      setGameStats(stats);
+      
+      // Map field names to match component expectations
+      const mappedStats = {
+        ...stats,
+        zen_balance: stats.zenBalance,
+        total_mined: stats.totalMined,
+        mining_level: stats.miningLevel
+      };
+      
+      setGameStats(mappedStats as any);
       console.log('📊 GameContext: Game stats loaded:', stats);
 
       // Fetch ships
       const userShips = await GameService.getUserShips(user.id);
-      setShips(userShips);
+      
+      // Map ship field names to match component expectations
+      const mappedShips = userShips.map(ship => ({
+        ...ship,
+        current_energy: ship.currentEnergy,
+        energy_capacity: ship.energyCapacity,
+        mining_power: ship.miningPower,
+        last_mining: ship.lastMining,
+        ship_type: ship.shipType
+      }));
+      
+      setShips(mappedShips as any);
       console.log('🚀 GameContext: Ships loaded:', userShips.length);
 
     } catch (err) {
@@ -143,12 +163,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const ship = ships.find(s => s.id === shipId);
       if (!ship) throw new Error('Ship not found');
       
-      if (ship.currentEnergy < 10) {
+      if (ship.current_energy < 10) {
         throw new Error('Ship has insufficient energy');
       }
 
       // Check cooldown
-      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining);
+      const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || new Date());
       const now = new Date();
       const timeDiff = now.getTime() - lastMining.getTime();
       const minutesPassed = Math.floor(timeDiff / (1000 * 60));
@@ -181,7 +201,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       if (!ship) throw new Error('Ship not found');
 
       const upgradeCost = GameService.calculateUpgradeCost(ship, upgradeType);
-      if ((gameStats?.zenBalance || 0) < upgradeCost) {
+      if ((gameStats?.zen_balance || 0) < upgradeCost) {
         throw new Error('Insufficient ZEN tokens for upgrade');
       }
 
@@ -193,10 +213,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       let newStats = { ...ship };
       switch (upgradeType) {
         case 'miningPower':
-          newStats.miningPower += 5;
+          newStats.mining_power += 5;
           break;
         case 'energyCapacity':
-          newStats.energyCapacity += 20;
+          newStats.energy_capacity += 20;
           break;
         case 'efficiency':
           // Efficiency reduces energy consumption
@@ -211,7 +231,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Deduct cost
       await GameService.updateGameStats(user.id, {
-        zenBalance: (gameStats?.zenBalance || 0) - upgradeCost
+        zenBalance: (gameStats?.zen_balance || 0) - upgradeCost
       });
 
       await fetchGameData();
@@ -228,7 +248,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       
       const shipConfig = GameService.getShipConfig(shipType);
       
-      if ((gameStats?.zenBalance || 0) < shipConfig.cost) {
+      if ((gameStats?.zen_balance || 0) < shipConfig.cost) {
         throw new Error('Insufficient ZEN tokens to buy ship');
       }
 
@@ -248,7 +268,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Deduct cost
       await GameService.updateGameStats(user.id, {
-        zenBalance: (gameStats?.zenBalance || 0) - shipConfig.cost
+        zenBalance: (gameStats?.zen_balance || 0) - shipConfig.cost
       });
 
       await fetchGameData();
