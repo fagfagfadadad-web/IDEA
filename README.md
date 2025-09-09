@@ -1,40 +1,40 @@
-# ZEN Mining - Space Mining Adventure
+# ZEND Mining - Space Mining Adventure
 
-A decentralized space mining game built on MultiversX blockchain with Firebase backend, where players mine ZEN tokens, upgrade ships, and explore the galaxy.
+A decentralized space mining game built on MultiversX blockchain with Firebase backend, where players mine ZEND tokens, upgrade ships, and explore the galaxy.
 
 ## 🎮 Game Features
 
 ### Core Gameplay
-- **Mining System** - Mine ZEN tokens using different types of ships
+- **Mining System** - Mine ZEND tokens using different types of ships
 - **Energy System** - Ships consume energy and regenerate over time
 - **Level System** - Gain experience and levels to increase mining efficiency
 - **Ship Management** - Buy and upgrade different types of mining ships
 
 ### Ship Types
-1. **Basic Miner** - Starter ship (Free)
+1. **Basic Miner** - Starter ship (1000 ZEND starting balance)
    - Mining Power: 10
    - Energy Capacity: 100
 
-2. **Advanced Miner** - 1,000 ZEN
+2. **Advanced Miner** - 1,000 ZEND
    - Mining Power: 25
    - Energy Capacity: 200
 
-3. **Elite Miner** - 5,000 ZEN
+3. **Elite Miner** - 5,000 ZEND
    - Mining Power: 50
    - Energy Capacity: 300
 
-4. **Legendary Miner** - 20,000 ZEN
+4. **Legendary Miner** - 20,000 ZEND
    - Mining Power: 100
    - Energy Capacity: 500
 
 ### Ship Upgrades
-- **Mining Power** - Increase ZEN tokens mined per operation
+- **Mining Power** - Increase ZEND tokens mined per operation
 - **Energy Capacity** - Increase maximum energy storage
 - **Efficiency** - Reduce energy consumption per mining operation
 
 ### Social Features
 - **Referral Program** - Earn 10% of referred players' mining rewards
-- **Task System** - Complete missions for bonus ZEN tokens
+- **Task System** - Complete missions for bonus ZEND tokens
 - **Leaderboards** - Compete with other miners
 - **Admin Panel** - Manage tasks, users, and game statistics
 

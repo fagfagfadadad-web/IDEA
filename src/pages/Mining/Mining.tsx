@@ -275,7 +275,7 @@ export const Mining = () => {
                           ) : canMineNow ? (
                             <div className="flex items-center justify-center gap-2">
                               <Zap size={16} />
-                              Mine ZEN
+                              Mine ZEND
                             </div>
                           ) : ship.current_energy < 10 ? (
                             'No Energy'
