@@ -76,6 +76,18 @@ export class GameService {
     if (docSnap.exists()) {
       const rawData = docSnap.data();
       console.log('🔍 GameService: Raw Firestore data:', rawData);
+      
+      // Fix missing zenBalance field in existing data
+      if (rawData.zenBalance === undefined || rawData.zenBalance === null || isNaN(rawData.zenBalance)) {
+        console.log('🔧 GameService: Fixing missing zenBalance field...');
+        await updateDoc(docRef, {
+          zenBalance: 1000,
+          updatedAt: serverTimestamp()
+        });
+        rawData.zenBalance = 1000;
+        console.log('✅ GameService: zenBalance field fixed');
+      }
+      
       const gameStats = { id: docSnap.id, ...rawData } as GameStats;
       console.log('🔍 GameService: Processed GameStats:', gameStats);
       return gameStats;

@@ -124,20 +124,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map field names to match component expectations
       const mappedStats = {
         ...stats,
-        zen_balance: typeof stats.zenBalance === 'number' && !isNaN(stats.zenBalance) ? stats.zenBalance : 1000,
-        total_mined: typeof stats.totalMined === 'number' && !isNaN(stats.totalMined) ? stats.totalMined : 0,
-        mining_level: typeof stats.miningLevel === 'number' && !isNaN(stats.miningLevel) ? stats.miningLevel : 1,
-        zenBalance: typeof stats.zenBalance === 'number' && !isNaN(stats.zenBalance) ? stats.zenBalance : 1000,
-        totalMined: typeof stats.totalMined === 'number' && !isNaN(stats.totalMined) ? stats.totalMined : 0,
-        miningLevel: typeof stats.miningLevel === 'number' && !isNaN(stats.miningLevel) ? stats.miningLevel : 1
+        zen_balance: stats.zenBalance || 0,
+        total_mined: stats.totalMined || 0,
+        mining_level: stats.miningLevel || 1,
+        zenBalance: stats.zenBalance || 0,
+        totalMined: stats.totalMined || 0,
+        miningLevel: stats.miningLevel || 1
       };
-      
-      console.log('🔍 GameContext: zenBalance check:', {
-        original: stats.zenBalance,
-        type: typeof stats.zenBalance,
-        isNaN: isNaN(stats.zenBalance),
-        mapped: mappedStats.zenBalance
-      });
       
       setGameStats(mappedStats);
       console.log('📊 GameContext: Game stats loaded:', stats);
