@@ -3,6 +3,7 @@ import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift } from 'lucide-reac
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
+import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { GameService, Task } from '../../services/gameService';
 import { 

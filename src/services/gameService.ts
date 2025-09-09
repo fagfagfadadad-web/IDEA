@@ -266,17 +266,42 @@ export class GameService {
 
   // Tasks
   static async getTasks(): Promise<Task[]> {
-    const q = query(
-      collection(db, 'tasks'),
-      where('isActive', '==', true),
-      orderBy('createdAt', 'desc')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Task[];
+    try {
+      const q = query(
+        collection(db, 'tasks'),
+        where('isActive', '==', true),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Task[];
+    } catch (error: any) {
+      // If index doesn't exist yet, fall back to simple query
+      if (error.code === 'failed-precondition') {
+        console.log('Using fallback query for tasks (index not ready)');
+        const q = query(
+          collection(db, 'tasks'),
+          where('isActive', '==', true)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const tasks = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Task[];
+        
+        // Sort manually by createdAt
+        return tasks.sort((a, b) => {
+          const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt);
+          const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt);
+          return bTime.getTime() - aTime.getTime(); // desc order
+        });
+      }
+      throw error;
+    }
   }
 
   static async getUserTasks(userId: string): Promise<UserTask[]> {
