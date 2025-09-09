@@ -83,14 +83,14 @@ export class GameService {
     const referralCode = this.generateReferralCode();
     const gameStats: Omit<GameStats, 'id'> = {
       userId,
-      zenBalance: Number(1000), // Starting balance
-      totalMined: Number(0),
-      miningLevel: Number(1),
-      experience: Number(0),
+      zenBalance: 1000, // Starting balance
+      totalMined: 0,
+      miningLevel: 1,
+      experience: 0,
       referralCode,
       referredBy: referredBy || null,
-      totalReferrals: Number(0),
-      referralEarnings: Number(0),
+      totalReferrals: 0,
+      referralEarnings: 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
