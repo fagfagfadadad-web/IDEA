@@ -51,7 +51,7 @@ export const Referrals = () => {
         referralStats.map(async (stats) => {
           const userQuery = query(
             collection(db, 'users'),
-            where('id', '==', stats.userId)
+            where('__name__', '==', stats.userId)
           );
           const userSnapshot = await getDocs(userQuery);
           const userData = userSnapshot.docs[0]?.data();

@@ -10,6 +10,7 @@ import {
   getCountFromServer,
   serverTimestamp
 } from 'firebase/firestore';
+import { increment } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { GameService, Task } from './gameService';
 import { UserService, User } from './userService';

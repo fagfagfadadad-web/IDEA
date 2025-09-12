@@ -54,12 +54,16 @@ export const Tasks = () => {
       const userTasksSnapshot = await getDocs(userTasksQuery);
       const userTasks = userTasksSnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
+        taskId: doc.data().taskId,
+        status: doc.data().status,
+        progress: doc.data().progress,
+        completedAt: doc.data().completedAt
       }));
 
       // Combine tasks with user progress
       const tasksWithProgress = activeTasks.map(task => {
-        const userTask = userTasks.find(ut => ut.taskId === task.id);
+        const userTask = userTasks.find(ut => ut.taskId === task.id) as any;
         return {
           ...task,
           userTask

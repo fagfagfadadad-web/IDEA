@@ -79,7 +79,7 @@ export const Shop = () => {
     : shopItems.filter(item => item.type === selectedCategory);
 
   const canAfford = (cost: number) => {
-    return (gameStats?.zen_balance || 0) >= cost;
+    return (gameStats?.zenBalance || 0) >= cost;
   };
 
   const handlePurchase = async (item: any) => {
@@ -115,7 +115,7 @@ export const Shop = () => {
             </p>
             <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
               <Zap size={20} />
-              {gameStats?.zen_balance?.toLocaleString() || 0} ZEN
+              {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
             </div>
           </div>
 
@@ -145,7 +145,7 @@ export const Shop = () => {
                 {ships.map((ship) => (
                   <button
                     key={ship.id}
-                    onClick={() => setSelectedShip(ship.id)}
+                    onClick={() => setSelectedShip(ship.id || null)}
                     className={`p-4 rounded-xl border transition-all duration-200 ${
                       selectedShip === ship.id
                         ? 'border-cyan-400 bg-cyan-500/10'
@@ -154,7 +154,7 @@ export const Shop = () => {
                   >
                     <div className="text-white font-medium">{ship.name}</div>
                     <div className="text-gray-400 text-sm">
-                      Energy: {ship.current_energy}/{ship.energy_capacity}
+                      Energy: {ship.currentEnergy}/{ship.energyCapacity}
                     </div>
                   </button>
                 ))}

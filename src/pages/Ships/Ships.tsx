@@ -92,7 +92,7 @@ export const Ships = () => {
   };
 
   const canAfford = (cost: number) => {
-    const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
+    const currentBalance = Number(gameStats?.zenBalance || 0);
     console.log('💰 Ships: Checking affordability - Balance:', currentBalance, 'Cost:', cost);
     return currentBalance >= cost;
   };
@@ -128,7 +128,7 @@ export const Ships = () => {
             </p>
             <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
               <Zap size={20} />
-              {gameStats?.zen_balance?.toLocaleString() || 0} ZEN
+              {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
             </div>
           </div>
 
@@ -194,12 +194,12 @@ export const Ships = () => {
                                     {ship.name}
                                   </h3>
                                   <p className="text-gray-400">
-                                    Level {ship.level} • {ship.ship_type}
+                                    Level {ship.level} • {ship.shipType}
                                   </p>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-cyan-400 font-orbitron font-bold text-lg">
-                                    {ship.mining_power}
+                                    {ship.miningPower}
                                   </div>
                                   <div className="text-gray-400 text-sm">Mining Power</div>
                                 </div>
@@ -213,7 +213,7 @@ export const Ships = () => {
                                     Energy
                                   </span>
                                   <span className="text-white text-sm">
-                                    {ship.current_energy}/{ship.energy_capacity}
+                                    {ship.currentEnergy}/{ship.energyCapacity}
                                   </span>
                                 </div>
                                 <div className="w-full bg-slate-600 rounded-full h-2">
@@ -253,7 +253,7 @@ export const Ships = () => {
                                           </div>
                                         </div>
                                         <Button
-                                          onClick={() => upgradeShip(ship.id, upgrade.type)}
+                                          onClick={() => upgradeShip(ship.id!, upgrade.type)}
                                           disabled={!affordable}
                                           className={`px-3 py-1 text-xs font-orbitron font-bold rounded-lg ${
                                             affordable
@@ -282,7 +282,7 @@ export const Ships = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {shipTypes.map((shipType) => {
                       const affordable = canAfford(shipType.cost);
-                      const owned = ships.some(s => s.ship_type === shipType.type);
+                      const owned = ships.some(s => s.shipType === shipType.type);
                       
                       return (
                         <div
