@@ -108,6 +108,8 @@ export const Background = () => {
     }
 
     function connect() {
+      if (!canvas || !ctx) return;
+      
       for (let i = 0; i < particles.length; i++) {
         for (let j = i; j < particles.length; j++) {
           let distance = (particles[i].x - particles[j].x) ** 2 + (particles[i].y - particles[j].y) ** 2;
@@ -127,6 +129,7 @@ export const Background = () => {
 
     let animationFrameId: number;
     function animate() {
+      if (!canvas || !ctx) return;
       animationFrameId = requestAnimationFrame(animate);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       

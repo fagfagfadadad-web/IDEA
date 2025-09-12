@@ -9,7 +9,9 @@ import {
   query, 
   where, 
   getDocs, 
-  orderBy 
+  orderBy,
+  doc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
@@ -49,9 +51,9 @@ export const Referrals = () => {
       // Get user data for each referral
       const referralsWithUsers = await Promise.all(
         referralStats.map(async (stats) => {
-         const userDoc = doc(db, 'users', stats.userId);
-         const userSnapshot = await getDoc(userDoc);
-         const userData = userSnapshot.exists() ? userSnapshot.data() : null;
+          const userDoc = doc(db, 'users', stats.userId);
+          const userSnapshot = await getDoc(userDoc);
+          const userData = userSnapshot.exists() ? userSnapshot.data() : null;
           
           return {
             ...stats,
