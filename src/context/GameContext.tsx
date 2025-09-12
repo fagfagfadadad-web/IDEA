@@ -47,7 +47,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       userObject: user
     });
     
-    if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true) {
+    if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true && !gameStats) {
       console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
       startMiningLoop();
@@ -61,6 +61,9 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         stopMiningLoop();
       }
       setIsLoading(false);
+    } else if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true && gameStats) {
+      console.log('🎮 GameContext: User authenticated and data already loaded, starting mining loop only');
+      startMiningLoop();
     } else {
       console.log('🎮 GameContext: Waiting for auth to complete...', {
         hasUserId: !!user?.id,
@@ -74,7 +77,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       stopMiningLoop();
     };
-  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
+  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady, gameStats]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;
