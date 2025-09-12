@@ -79,11 +79,15 @@ export const Ships = () => {
   };
 
   const canAfford = (cost: number) => {
-    return (gameStats?.zen_balance || 0) >= cost;
+    const currentBalance = gameStats?.zen_balance || gameStats?.zenBalance || 0;
+    console.log('💰 Ships: Checking affordability - Balance:', currentBalance, 'Cost:', cost);
+    return currentBalance >= cost;
   };
 
   const getEnergyPercentage = (ship: any) => {
-    return (ship.current_energy / ship.energy_capacity) * 100;
+    const currentEnergy = ship.current_energy || ship.currentEnergy || 0;
+    const maxEnergy = ship.energy_capacity || ship.energyCapacity || 100;
+    return (currentEnergy / maxEnergy) * 100;
   };
 
   if (isLoading) {

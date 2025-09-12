@@ -53,12 +53,13 @@ export const Mining = () => {
   };
 
   const getTimeUntilNextMining = (ship: any) => {
-    const lastMining = new Date(ship.last_mining);
+    const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
-    const secondsRemaining = 60 - Math.floor((timeDiff % (60 * 1000)) / 1000);
+    const totalSecondsElapsed = Math.floor(timeDiff / 1000);
+    const secondsRemaining = Math.max(0, 60 - (totalSecondsElapsed % 60));
     
-    if (secondsRemaining <= 0) return "Ready!";
+    if (timeDiff >= 60000) return "Ready!"; // 1 minute = 60000ms
     return `${secondsRemaining}s`;
   };
 

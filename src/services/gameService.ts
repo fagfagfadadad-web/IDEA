@@ -118,11 +118,15 @@ export class GameService {
   }
 
   static async updateGameStats(userId: string, updates: Partial<GameStats>): Promise<void> {
+    console.log('💾 GameService: Updating game stats for user:', userId, 'Updates:', updates);
     const docRef = doc(db, 'gameStats', userId);
-    await updateDoc(docRef, {
+    const updateData = {
       ...updates,
       updatedAt: serverTimestamp()
-    });
+    };
+    console.log('💾 GameService: Final update data:', updateData);
+    await updateDoc(docRef, updateData);
+    console.log('✅ GameService: Game stats updated successfully');
   }
 
   // Ships
