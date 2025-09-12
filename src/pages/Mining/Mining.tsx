@@ -44,23 +44,34 @@ export const Mining = () => {
   };
 
   const canMine = (ship: any) => {
-    const lastMining = new Date(ship.last_mining);
+    const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
-    const minutesPassed = Math.floor(timeDiff / (1000 * 60));
+    const secondsPassed = Math.floor(timeDiff / 1000);
     
-    return ship.current_energy >= 10 && minutesPassed >= 1;
+    const hasEnergy = (ship.current_energy || ship.currentEnergy || 0) >= 10;
+    const cooldownPassed = secondsPassed >= 60; // 60 seconds = 1 minute
+    
+    console.log('⛏️ Mining: canMine check for ship', ship.name, {
+      hasEnergy,
+      currentEnergy: ship.current_energy || ship.currentEnergy,
+      cooldownPassed,
+      secondsPassed,
+      lastMining: lastMining.toISOString(),
+      result: hasEnergy && cooldownPassed
+    });
+    
+    return hasEnergy && cooldownPassed;
   };
 
   const getTimeUntilNextMining = (ship: any) => {
     const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
-    const minutesElapsed = Math.floor(timeDiff / (1000 * 60));
-    const secondsElapsed = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    const secondsElapsed = Math.floor(timeDiff / 1000);
     const secondsRemaining = Math.max(0, 60 - secondsElapsed);
     
-    if (minutesElapsed >= 1) return "Ready!"; // 1 minute = 60000ms
+    if (secondsElapsed >= 60) return "Ready!";
     return `${secondsRemaining}s remaining`;
   };
 
@@ -260,7 +271,7 @@ export const Mining = () => {
                                   ? 'bg-gradient-to-r from-green-500 to-green-400' 
                                   : 'bg-gradient-to-r from-orange-500 to-yellow-500'
                               }`}
-                              style={{ width: `${progress}%` }}
+                              style={{ width: `${canMineNow ? 100 : progress}%` }}
                             />
                           </div>
                         </div>
