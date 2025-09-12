@@ -79,7 +79,7 @@ export const Ships = () => {
   };
 
   const canAfford = (cost: number) => {
-    const currentBalance = gameStats?.zen_balance || gameStats?.zenBalance || 0;
+    const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
     console.log('💰 Ships: Checking affordability - Balance:', currentBalance, 'Cost:', cost);
     return currentBalance >= cost;
   };

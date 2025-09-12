@@ -240,7 +240,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       if (!ship) throw new Error('Ship not found');
 
       const upgradeCost = GameService.calculateUpgradeCost(ship, upgradeType);
-      const currentBalance = gameStats?.zen_balance || gameStats?.zenBalance || 0;
+      const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
+      
+      console.log('💰 GameContext: Upgrade calculation:', {
+        currentBalance,
+        upgradeCost,
+        result: currentBalance - upgradeCost,
+        gameStats: gameStats
+      });
+      
       if (currentBalance < upgradeCost) {
         throw new Error('Insufficient ZEN tokens for upgrade');
       }
@@ -253,10 +261,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       let newStats = { ...ship };
       switch (upgradeType) {
         case 'miningPower':
-          newStats.mining_power += 5;
+          newStats.mining_power = (newStats.mining_power || 0) + 5;
+          newStats.miningPower = newStats.mining_power;
           break;
         case 'energyCapacity':
-          newStats.energy_capacity += 20;
+          newStats.energy_capacity = (newStats.energy_capacity || 0) + 20;
+          newStats.energyCapacity = newStats.energy_capacity;
           break;
         case 'efficiency':
           // Efficiency reduces energy consumption
@@ -270,8 +280,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       // Deduct cost
+      const newBalance = currentBalance - upgradeCost;
+      console.log('💰 GameContext: New balance calculation:', {
+        currentBalance,
+        upgradeCost,
+        newBalance
+      });
+      
       await GameService.updateGameStats(user.id, {
-        zenBalance: currentBalance - upgradeCost
+        zenBalance: newBalance
       });
 
       await fetchGameData();
@@ -288,7 +305,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       
       const shipConfig = GameService.getShipConfig(shipType);
       
-      const currentBalance = gameStats?.zen_balance || gameStats?.zenBalance || 0;
+      const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
+      
+      console.log('🛒 GameContext: Ship purchase calculation:', {
+        currentBalance,
+        shipCost: shipConfig.cost,
+        result: currentBalance - shipConfig.cost,
+        gameStats: gameStats
+      });
+      
       if (currentBalance < shipConfig.cost) {
         throw new Error('Insufficient ZEN tokens to buy ship');
       }
@@ -308,8 +333,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       // Deduct cost
+      const newBalance = currentBalance - shipConfig.cost;
+      console.log('🛒 GameContext: New balance after purchase:', {
+        currentBalance,
+        shipCost: shipConfig.cost,
+        newBalance
+      });
+      
       await GameService.updateGameStats(user.id, {
-        zenBalance: currentBalance - shipConfig.cost
+        zenBalance: newBalance
       });
 
       await fetchGameData();
