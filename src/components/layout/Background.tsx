@@ -36,6 +36,7 @@ export const Background = () => {
       }
 
       draw() {
+        if (!ctx || !canvas) return;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
         const r = parseInt(this.color.slice(1, 3), 16);
@@ -52,6 +53,7 @@ export const Background = () => {
       }
 
       update() {
+        if (!ctx || !canvas) return;
         if (this.x > canvas.width || this.x < 0) {
           this.directionX = -this.directionX;
         }

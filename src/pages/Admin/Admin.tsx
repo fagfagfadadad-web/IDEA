@@ -44,7 +44,7 @@ export const Admin: React.FC = () => {
   }
 
   // Show access denied if not admin
-  if (!user.is_admin) {
+  if (!user.isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
         <div className="container mx-auto px-6 py-8">

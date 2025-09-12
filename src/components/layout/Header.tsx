@@ -77,7 +77,7 @@ export const Header = () => {
               <div className="hidden md:flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-lg border border-cyan-500/20">
                 <Zap size={16} className="text-cyan-400" />
                 <span className="text-cyan-400 font-orbitron font-bold">
-                  {(gameStats.zenBalance || gameStats.zen_balance || 0).toLocaleString()}
+                  {gameStats.zenBalance?.toLocaleString() || '0'}
                 </span>
                 <span className="text-gray-400 text-sm">ZEN</span>
               </div>
@@ -93,9 +93,9 @@ export const Header = () => {
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-cyan-400/50"
                     >
-                      {user?.avatar_url ? (
+                      {user?.avatarUrl ? (
                         <img
-                          src={user.avatar_url}
+                          src={user.avatarUrl}
                           alt={user.username || "Profile"}
                           className="w-full h-full object-cover"
                         />
@@ -129,7 +129,7 @@ export const Header = () => {
                             <Zap size={16} />
                             Mining
                           </Link>
-                          {user?.is_admin && (
+                          {user?.isAdmin && (
                             <Link
                               to="/admin"
                               className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-purple-500/10 hover:text-purple-400 transition-all duration-200"
@@ -268,7 +268,7 @@ export const Header = () => {
                     <User size={18} />
                     Profile
                   </Link>
-                  {user?.is_admin && (
+                  {user?.isAdmin && (
                     <Link
                       to="/admin"
                       className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-purple-500/10 hover:text-purple-400 rounded-lg transition-all duration-200"

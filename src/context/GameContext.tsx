@@ -175,11 +175,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       // Map ship field names to match component expectations
       const mappedShips = userShips.map(ship => ({
         ...ship,
-        current_energy: ship.currentEnergy || ship.energy_capacity || ship.energyCapacity || 100,
-        energy_capacity: ship.energyCapacity || ship.energy_capacity || 100,
-        mining_power: ship.miningPower || ship.mining_power || 10,
-        last_mining: ship.lastMining || ship.last_mining || new Date(),
-        ship_type: ship.shipType || ship.ship_type || 'basic'
+        current_energy: ship.currentEnergy || ship.energyCapacity || 100,
+        energy_capacity: ship.energyCapacity || 100,
+        mining_power: ship.miningPower || 10,
+        last_mining: ship.lastMining || new Date(),
+        ship_type: ship.shipType || 'basic'
       }));
       
       setShips(mappedShips);
@@ -210,7 +210,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       // Check cooldown
-      const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
+      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
       const now = new Date();
       const timeDiff = now.getTime() - lastMining.getTime();
       const minutesPassed = Math.floor(timeDiff / (1000 * 60));
@@ -253,7 +253,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       };
       const upgradeCost = Math.floor((baseCost[upgradeType as keyof typeof baseCost] || 100) * Math.pow(1.5, currentLevel));
       
-      const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
+      const currentBalance = Number(gameStats?.zenBalance || 0);
       
       console.log('💰 GameContext: Upgrade calculation:', {
         currentBalance,
@@ -276,12 +276,10 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       let newStats = { ...ship };
       switch (upgradeType) {
         case 'miningPower':
-          newStats.mining_power = (newStats.mining_power || 0) + 5;
-          newStats.miningPower = newStats.mining_power;
+          newStats.miningPower = (newStats.miningPower || 0) + 5;
           break;
         case 'energyCapacity':
-          newStats.energy_capacity = (newStats.energy_capacity || 0) + 20;
-          newStats.energyCapacity = newStats.energy_capacity;
+          newStats.energyCapacity = (newStats.energyCapacity || 0) + 20;
           break;
         case 'efficiency':
           // Efficiency reduces energy consumption
@@ -320,7 +318,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       
       const shipConfig = GameService.getShipConfig(shipType);
       
-      const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
+      const currentBalance = Number(gameStats?.zenBalance || 0);
       
       console.log('🛒 GameContext: Ship purchase calculation:', {
         currentBalance,

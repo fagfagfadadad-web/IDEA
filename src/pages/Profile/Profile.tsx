@@ -13,12 +13,12 @@ export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.username || '',
-    full_name: user?.full_name || '',
+    fullName: user?.fullName || '',
     bio: user?.bio || '',
-    twitter_url: user?.twitter_url || '',
-    github_url: user?.github_url || '',
-    linkedin_url: user?.linkedin_url || '',
-    website_url: user?.website_url || ''
+    twitterUrl: user?.twitterUrl || '',
+    githubUrl: user?.githubUrl || '',
+    linkedinUrl: user?.linkedinUrl || '',
+    websiteUrl: user?.websiteUrl || ''
   });
 
   const handleSave = async () => {
@@ -36,12 +36,12 @@ export const Profile = () => {
   const handleCancel = () => {
     setFormData({
       username: user?.username || '',
-      full_name: user?.full_name || '',
+      fullName: user?.fullName || '',
       bio: user?.bio || '',
-      twitter_url: user?.twitter_url || '',
-      github_url: user?.github_url || '',
-      linkedin_url: user?.linkedin_url || '',
-      website_url: user?.website_url || ''
+      twitterUrl: user?.twitterUrl || '',
+      githubUrl: user?.githubUrl || '',
+      linkedinUrl: user?.linkedinUrl || '',
+      websiteUrl: user?.websiteUrl || ''
     });
     setIsEditing(false);
   };
@@ -50,7 +50,7 @@ export const Profile = () => {
     { 
       title: 'First Miner', 
       description: 'Complete your first mining operation',
-      unlocked: (gameStats?.total_mined || 0) > 0,
+      unlocked: (gameStats?.totalMined || 0) > 0,
       icon: '⛏️'
     },
     { 
@@ -62,13 +62,13 @@ export const Profile = () => {
     { 
       title: 'ZEN Millionaire', 
       description: 'Accumulate 1,000,000 ZEN tokens',
-      unlocked: (gameStats?.total_mined || 0) >= 1000000,
+      unlocked: (gameStats?.totalMined || 0) >= 1000000,
       icon: '💎'
     },
     { 
       title: 'Referral Master', 
       description: 'Refer 10 new players',
-      unlocked: (gameStats?.total_referrals || 0) >= 10,
+      unlocked: (gameStats?.totalReferrals || 0) >= 10,
       icon: '👥'
     }
   ];
@@ -93,9 +93,9 @@ export const Profile = () => {
               {/* Avatar and Basic Info */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="w-32 h-32 rounded-full overflow-hidden relative bg-gradient-to-r from-cyan-400 to-purple-500">
-                  {user?.avatar_url ? (
+                  {user?.avatarUrl ? (
                     <img
-                      src={user.avatar_url}
+                      src={user.avatarUrl}
                       alt={user.username}
                       className="w-full h-full object-cover"
                     />
@@ -111,7 +111,7 @@ export const Profile = () => {
                     {user?.username}
                   </h2>
                   <p className="text-gray-400">
-                    Level {gameStats?.mining_level || 1} Miner
+                    Level {gameStats?.miningLevel || 1} Miner
                   </p>
                 </div>
               </div>
@@ -138,8 +138,8 @@ export const Profile = () => {
                       </label>
                       <input
                         type="text"
-                        value={formData.full_name}
-                        onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                         className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                       />
                     </div>
@@ -178,7 +178,7 @@ export const Profile = () => {
                     <div className="flex justify-between items-start">
                       <div className="space-y-2">
                         <p className="text-gray-400">Full Name</p>
-                        <p className="text-white text-lg">{user?.full_name || 'Not set'}</p>
+                        <p className="text-white text-lg">{user?.fullName || 'Not set'}</p>
                       </div>
                       <Button
                         onClick={() => setIsEditing(true)}
@@ -197,9 +197,9 @@ export const Profile = () => {
                     <div>
                       <p className="text-gray-400">Wallet Address</p>
                       <p className="text-cyan-400 font-mono text-sm">
-                        {user?.wallet_address ? (
-                          <span title={user.wallet_address}>
-                            {user.wallet_address.substring(0, 12)}...{user.wallet_address.substring(user.wallet_address.length - 8)}
+                        {user?.walletAddress ? (
+                          <span title={user.walletAddress}>
+                            {user.walletAddress.substring(0, 12)}...{user.walletAddress.substring(user.walletAddress.length - 8)}
                           </span>
                         ) : (
                           'Not connected'
@@ -222,7 +222,7 @@ export const Profile = () => {
                   <span className="text-gray-400 font-medium">ZEN Balance</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
-                  {gameStats?.zen_balance?.toLocaleString() || 0}
+                  {gameStats?.zenBalance?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -231,7 +231,7 @@ export const Profile = () => {
                   <span className="text-gray-400 font-medium">Total Mined</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
-                  {gameStats?.total_mined?.toLocaleString() || 0}
+                  {gameStats?.totalMined?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -240,7 +240,7 @@ export const Profile = () => {
                   <span className="text-gray-400 font-medium">Mining Level</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
-                  {gameStats?.mining_level || 1}
+                  {gameStats?.miningLevel || 1}
                 </div>
               </div>
               <div className="text-center">
@@ -249,7 +249,7 @@ export const Profile = () => {
                   <span className="text-gray-400 font-medium">Referrals</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-orange-400">
-                  {gameStats?.total_referrals || 0}
+                  {gameStats?.totalReferrals || 0}
                 </div>
               </div>
             </div>
@@ -316,11 +316,12 @@ export const Profile = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-400">Mining Power:</span>
                         <span className="text-cyan-400 font-bold">{ship.mining_power}</span>
+                        <span className="text-cyan-400 font-bold">{ship.miningPower}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Energy:</span>
                         <span className="text-green-400 font-bold">
-                          {ship.current_energy}/{ship.energy_capacity}
+                          {ship.currentEnergy}/{ship.energyCapacity}
                         </span>
                       </div>
                     </div>

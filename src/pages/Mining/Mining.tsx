@@ -14,7 +14,7 @@ export const Mining = () => {
 
   useEffect(() => {
     if (ships.length > 0 && !selectedShip) {
-      setSelectedShip(ships[0].id);
+      setSelectedShip(ships[0].id || null);
     }
   }, [ships, selectedShip]);
 
@@ -23,7 +23,8 @@ export const Mining = () => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
       ships.forEach(ship => {
-        const lastMining = new Date(ship.last_mining);
+        if (!ship.id) return;
+        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastMining.getTime();
         const progress = Math.min(100, (timeDiff / (60 * 1000)) * 100); // 1 minute = 100%
@@ -45,13 +46,14 @@ export const Mining = () => {
 
   const canMine = (ship: any) => {
     // Always use the most recent mining time from either field
-    const lastMiningField = ship.last_mining || ship.lastMining;
+    const lastMiningField = ship.lastMining;
     const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
     const secondsPassed = Math.floor(timeDiff / 1000);
     
     const hasEnergy = (ship.current_energy || ship.currentEnergy || 0) >= 10;
+    const hasEnergy = (ship.currentEnergy || 0) >= 10;
     const cooldownPassed = secondsPassed >= 60; // 60 seconds = 1 minute
     
     console.log('⛏️ Mining: canMine check for ship', ship.name, {
@@ -70,7 +72,7 @@ export const Mining = () => {
 
   const getTimeUntilNextMining = (ship: any) => {
     // Always use the most recent mining time from either field
-    const lastMiningField = ship.last_mining || ship.lastMining;
+    const lastMiningField = ship.lastMining;
     const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
@@ -144,7 +146,7 @@ export const Mining = () => {
                   <span className="text-gray-400 font-medium">ZEN Balance</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
-                  {gameStats?.zen_balance?.toLocaleString() || 0}
+                  {gameStats?.zenBalance?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -153,7 +155,7 @@ export const Mining = () => {
                   <span className="text-gray-400 font-medium">Total Mined</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
-                  {gameStats?.total_mined?.toLocaleString() || 0}
+                  {gameStats?.totalMined?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
@@ -162,7 +164,7 @@ export const Mining = () => {
                   <span className="text-gray-400 font-medium">Level</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
-                  {gameStats?.mining_level || 1}
+                  {gameStats?.miningLevel || 1}
                 </div>
               </div>
               <div className="text-center">
@@ -215,6 +217,7 @@ export const Mining = () => {
                   const energyPercentage = getEnergyPercentage(ship);
                   const canMineNow = canMine(ship);
                   const progress = miningProgress[ship.id] || 0;
+                  const progress = miningProgress[ship.id!] || 0;
                   
                   return (
                     <div
@@ -225,6 +228,7 @@ export const Mining = () => {
                           : 'border-gray-700/50 hover:border-cyan-500/50'
                       }`}
                       onClick={() => setSelectedShip(ship.id)}
+                      onClick={() => setSelectedShip(ship.id || null)}
                     >
                       <div className="space-y-4">
                         {/* Ship Header */}
@@ -234,12 +238,12 @@ export const Mining = () => {
                               {ship.name}
                             </h3>
                             <p className="text-gray-400 text-sm">
-                              Level {ship.level} • {ship.ship_type}
+                              Level {ship.level} • {ship.shipType}
                             </p>
                           </div>
                           <div className="text-right">
                             <div className="text-cyan-400 font-orbitron font-bold">
-                              {ship.mining_power}
+                              {ship.miningPower}
                             </div>
                             <div className="text-gray-400 text-xs">Power</div>
                           </div>
@@ -253,7 +257,7 @@ export const Mining = () => {
                               Energy
                             </span>
                             <span className="text-white text-sm font-medium">
-                              {ship.current_energy}/{ship.energy_capacity}
+                              {ship.currentEnergy}/{ship.energyCapacity}
                             </span>
                           </div>
                           <div className="w-full bg-slate-700 rounded-full h-2">
@@ -295,6 +299,7 @@ export const Mining = () => {
                         {/* Mine Button */}
                         <Button
                           onClick={() => handleMine(ship.id)}
+                          onClick={() => handleMine(ship.id!)}
                           disabled={!canMineNow || isMining}
                           className={`w-full py-3 rounded-xl font-orbitron font-bold transition-all duration-200 ${
                             canMineNow && !isMining
@@ -313,6 +318,7 @@ export const Mining = () => {
                               Mine ZEN
                             </div>
                           ) : (ship.current_energy || ship.currentEnergy || 0) < 10 ? (
+                          ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
                               <Battery size={16} />
                               No Energy
