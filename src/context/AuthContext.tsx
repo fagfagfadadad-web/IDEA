@@ -170,6 +170,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setFirebaseUser(firebaseUser);
       }
     });
+    
+    // Force GameContext to refetch data for new users
+    console.log('🔄 AuthContext: Triggering GameContext data fetch...');
 
     return () => {
       isMounted = false;

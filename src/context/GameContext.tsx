@@ -39,6 +39,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const dataCache = useRef<{ gameStats: GameStats | null; ships: Ship[] }>({ gameStats: null, ships: [] });
 
   useEffect(() => {
+    console.log('🎮 GameContext: useEffect triggered with:', {
+      userId: user?.id,
+      isAuthenticated,
+      authLoading,
+      isProfileReady: user?.isProfileReady
+    });
+    
     if (user?.id && isAuthenticated && !authLoading && user.isProfileReady) {
       console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
@@ -53,12 +60,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         stopMiningLoop();
       }
       setIsLoading(false);
+    } else {
+      console.log('🎮 GameContext: Waiting for auth to complete...', {
+        hasUserId: !!user?.id,
+        isAuthenticated,
+        authLoading,
+        isProfileReady: user?.isProfileReady
+      });
     }
 
     return () => {
       stopMiningLoop();
     };
-  }, [user?.id, isAuthenticated, authLoading]);
+  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;

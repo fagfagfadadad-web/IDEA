@@ -97,6 +97,7 @@ export class GameService {
 
   static async createGameStats(userId: string, referredBy?: string): Promise<GameStats> {
     const referralCode = this.generateReferralCode();
+    console.log('🆕 GameService: Creating game stats with starting balance 1000 ZEN for user:', userId);
     const gameStats: Omit<GameStats, 'id'> = {
       userId,
       zenBalance: 1000, // Starting balance
@@ -113,6 +114,7 @@ export class GameService {
 
     const docRef = doc(db, 'gameStats', userId);
     await setDoc(docRef, gameStats);
+    console.log('✅ GameService: Game stats created successfully with data:', gameStats);
     
     return { id: userId, ...gameStats } as GameStats;
   }
