@@ -268,7 +268,6 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Apply upgrade
       const upgrades = { ...ship.upgrades };
-      const currentLevel = upgrades[upgradeType] || 0;
       upgrades[upgradeType] = currentLevel + 1;
 
       let newStats = { ...ship };
