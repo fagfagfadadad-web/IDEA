@@ -239,12 +239,25 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const ship = ships.find(s => s.id === shipId);
       if (!ship) throw new Error('Ship not found');
 
-      const upgradeCost = GameService.calculateUpgradeCost(ship, upgradeType);
+      // Calculate upgrade cost locally
+      const currentLevel = ship.upgrades[upgradeType] || 0;
+      const baseCost = {
+        mining_power: 100,
+        miningPower: 100,
+        energy_capacity: 80,
+        energyCapacity: 80,
+        efficiency: 150
+      };
+      const upgradeCost = Math.floor((baseCost[upgradeType as keyof typeof baseCost] || 100) * Math.pow(1.5, currentLevel));
+      
       const currentBalance = Number(gameStats?.zen_balance || gameStats?.zenBalance || 0);
       
       console.log('💰 GameContext: Upgrade calculation:', {
         currentBalance,
         upgradeCost,
+        upgradeType,
+        currentLevel,
+        baseCost: baseCost[upgradeType as keyof typeof baseCost],
         result: currentBalance - upgradeCost,
         gameStats: gameStats
       });

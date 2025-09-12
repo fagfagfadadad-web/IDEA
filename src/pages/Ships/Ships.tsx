@@ -72,10 +72,23 @@ export const Ships = () => {
     const currentLevel = ship.upgrades[upgradeType] || 0;
     const baseCost = {
       mining_power: 100,
+      miningPower: 100,
       energy_capacity: 80,
+      energyCapacity: 80,
       efficiency: 150
     };
-    return Math.floor(baseCost[upgradeType as keyof typeof baseCost] * Math.pow(1.5, currentLevel));
+    const cost = baseCost[upgradeType as keyof typeof baseCost] || 100;
+    const finalCost = Math.floor(cost * Math.pow(1.5, currentLevel));
+    
+    console.log('💰 Ships: calculateUpgradeCost:', {
+      upgradeType,
+      currentLevel,
+      baseCost: cost,
+      finalCost,
+      ship: ship
+    });
+    
+    return finalCost;
   };
 
   const canAfford = (cost: number) => {
