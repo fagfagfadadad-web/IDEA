@@ -316,7 +316,6 @@ export const Profile = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-400">Mining Power:</span>
                         <span className="text-cyan-400 font-bold">{ship.mining_power}</span>
-                        <span className="text-cyan-400 font-bold">{ship.miningPower}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-400">Energy:</span>

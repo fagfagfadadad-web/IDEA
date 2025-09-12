@@ -199,7 +199,7 @@ export const AdminUsers: React.FC = () => {
                     <td className="p-4">
                       <div className="relative">
                         <button
-                          onClick={() => setShowMenu(showMenu === userData.id ? null : userData.id)}
+                         onClick={() => setShowMenu(showMenu === userData.id ? null : userData.id || null)}
                           className="p-2 hover:bg-slate-600 rounded-lg transition-colors"
                         >
                           <MoreVertical size={16} className="text-gray-400" />

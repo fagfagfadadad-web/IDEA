@@ -49,12 +49,9 @@ export const Referrals = () => {
       // Get user data for each referral
       const referralsWithUsers = await Promise.all(
         referralStats.map(async (stats) => {
-          const userQuery = query(
-            collection(db, 'users'),
-            where('__name__', '==', stats.userId)
-          );
-          const userSnapshot = await getDocs(userQuery);
-          const userData = userSnapshot.docs[0]?.data();
+         const userDoc = doc(db, 'users', stats.userId);
+         const userSnapshot = await getDoc(userDoc);
+         const userData = userSnapshot.exists() ? userSnapshot.data() : null;
           
           return {
             ...stats,

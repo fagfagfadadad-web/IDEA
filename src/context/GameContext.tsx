@@ -204,7 +204,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       const ship = ships.find(s => s.id === shipId);
       if (!ship) throw new Error('Ship not found');
       
-      const currentEnergy = ship.current_energy || ship.currentEnergy || 0;
+     const currentEnergy = ship.currentEnergy || 0;
       if (currentEnergy < 10) {
         throw new Error('Ship has insufficient energy');
       }

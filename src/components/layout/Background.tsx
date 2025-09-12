@@ -90,6 +90,8 @@ export const Background = () => {
     }
 
     function init() {
+     if (!canvas || !ctx) return;
+     
       particles = [];
       let numberOfParticles = (canvas.width * canvas.height) / 15000;
       

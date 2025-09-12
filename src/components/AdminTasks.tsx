@@ -58,7 +58,9 @@ export const AdminTasks: React.FC = () => {
         rewardAmount: parseInt(formData.rewardAmount),
         taskType: formData.taskType,
         requirements: JSON.parse(formData.requirements || '{}'),
-        isActive: formData.isActive
+       isActive: formData.isActive,
+       createdAt: new Date(),
+       updatedAt: new Date()
       };
 
       if (editingTask?.id) {

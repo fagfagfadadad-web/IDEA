@@ -23,12 +23,12 @@ export const Mining = () => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
       ships.forEach(ship => {
-        if (!ship.id) return;
-        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
+       if (!ship.id) return;
+       const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastMining.getTime();
         const progress = Math.min(100, (timeDiff / (60 * 1000)) * 100); // 1 minute = 100%
-        newProgress[ship.id] = progress;
+       newProgress[ship.id] = progress;
       });
       setMiningProgress(newProgress);
     }, 1000);
@@ -52,8 +52,7 @@ export const Mining = () => {
     const timeDiff = now.getTime() - lastMining.getTime();
     const secondsPassed = Math.floor(timeDiff / 1000);
     
-    const hasEnergy = (ship.current_energy || ship.currentEnergy || 0) >= 10;
-    const hasEnergy = (ship.currentEnergy || 0) >= 10;
+   const hasEnergy = (ship.currentEnergy || 0) >= 10;
     const cooldownPassed = secondsPassed >= 60; // 60 seconds = 1 minute
     
     console.log('⛏️ Mining: canMine check for ship', ship.name, {
@@ -216,8 +215,7 @@ export const Mining = () => {
                 {ships.map((ship) => {
                   const energyPercentage = getEnergyPercentage(ship);
                   const canMineNow = canMine(ship);
-                  const progress = miningProgress[ship.id] || 0;
-                  const progress = miningProgress[ship.id!] || 0;
+                 const progress = miningProgress[ship.id || ''] || 0;
                   
                   return (
                     <div
@@ -227,8 +225,7 @@ export const Mining = () => {
                           ? 'border-cyan-500 shadow-lg shadow-cyan-500/20' 
                           : 'border-gray-700/50 hover:border-cyan-500/50'
                       }`}
-                      onClick={() => setSelectedShip(ship.id)}
-                      onClick={() => setSelectedShip(ship.id || null)}
+                     onClick={() => setSelectedShip(ship.id || null)}
                     >
                       <div className="space-y-4">
                         {/* Ship Header */}
@@ -298,8 +295,7 @@ export const Mining = () => {
 
                         {/* Mine Button */}
                         <Button
-                          onClick={() => handleMine(ship.id)}
-                          onClick={() => handleMine(ship.id!)}
+                         onClick={() => handleMine(ship.id!)}
                           disabled={!canMineNow || isMining}
                           className={`w-full py-3 rounded-xl font-orbitron font-bold transition-all duration-200 ${
                             canMineNow && !isMining
@@ -317,7 +313,7 @@ export const Mining = () => {
                               <Zap size={16} />
                               Mine ZEN
                             </div>
-                          ) : (ship.currentEnergy || 0) < 10 ? (
+                         ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
                               <Battery size={16} />
                               No Energy
@@ -327,7 +323,7 @@ export const Mining = () => {
                               <Clock size={16} />
                               {getTimeUntilNextMining(ship)}
                             </div>
-                          )}
+                         )}
                         </Button>
                       </div>
                     </div>
