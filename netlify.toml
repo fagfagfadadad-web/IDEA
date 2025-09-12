@@ -1,6 +1,7 @@
 [build]
   command = "yarn build-mainnet"
   publish = "build"
+  environment = { SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES = "AIzaSyCiNSdRCp92Z9jZmzJv62ECfWheJPFK4QE" }
 
 [[redirects]]
   from = "/*"
