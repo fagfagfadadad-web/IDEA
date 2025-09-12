@@ -56,11 +56,12 @@ export const Mining = () => {
     const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
-    const totalSecondsElapsed = Math.floor(timeDiff / 1000);
-    const secondsRemaining = Math.max(0, 60 - (totalSecondsElapsed % 60));
+    const minutesElapsed = Math.floor(timeDiff / (1000 * 60));
+    const secondsElapsed = Math.floor((timeDiff % (1000 * 60)) / 1000);
+    const secondsRemaining = Math.max(0, 60 - secondsElapsed);
     
-    if (timeDiff >= 60000) return "Ready!"; // 1 minute = 60000ms
-    return `${secondsRemaining}s`;
+    if (minutesElapsed >= 1) return "Ready!"; // 1 minute = 60000ms
+    return `${secondsRemaining}s remaining`;
   };
 
   if (isLoading) {
@@ -246,13 +247,19 @@ export const Mining = () => {
                               <Clock size={14} />
                               Mining Progress
                             </span>
-                            <span className="text-white text-sm font-medium">
-                              {canMineNow ? "Ready!" : getTimeUntilNextMining(ship)}
+                            <span className={`text-sm font-medium ${
+                              canMineNow ? 'text-green-400' : 'text-orange-400'
+                            }`}>
+                              {getTimeUntilNextMining(ship)}
                             </span>
                           </div>
                           <div className="w-full bg-slate-700 rounded-full h-2">
                             <div
-                              className="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-300"
+                              className={`h-2 rounded-full transition-all duration-300 ${
+                                canMineNow 
+                                  ? 'bg-gradient-to-r from-green-500 to-green-400' 
+                                  : 'bg-gradient-to-r from-orange-500 to-yellow-500'
+                              }`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
@@ -279,9 +286,15 @@ export const Mining = () => {
                               Mine ZEN
                             </div>
                           ) : (ship.current_energy || ship.currentEnergy || 0) < 10 ? (
-                            'No Energy'
+                            <div className="flex items-center justify-center gap-2">
+                              <Battery size={16} />
+                              No Energy
+                            </div>
                           ) : (
-                            `Wait ${getTimeUntilNextMining(ship)}`
+                            <div className="flex items-center justify-center gap-2">
+                              <Clock size={16} />
+                              {getTimeUntilNextMining(ship)}
+                            </div>
                           )}
                         </Button>
                       </div>
