@@ -44,7 +44,9 @@ export const Mining = () => {
   };
 
   const canMine = (ship: any) => {
-    const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
+    // Always use the most recent mining time from either field
+    const lastMiningField = ship.last_mining || ship.lastMining;
+    const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
     const secondsPassed = Math.floor(timeDiff / 1000);
@@ -57,7 +59,9 @@ export const Mining = () => {
       currentEnergy: ship.current_energy || ship.currentEnergy,
       cooldownPassed,
       secondsPassed,
-      lastMining: lastMining.toISOString(),
+      lastMiningField,
+      lastMiningParsed: lastMining.toISOString(),
+      now: now.toISOString(),
       result: hasEnergy && cooldownPassed
     });
     
@@ -65,11 +69,23 @@ export const Mining = () => {
   };
 
   const getTimeUntilNextMining = (ship: any) => {
-    const lastMining = ship.last_mining?.toDate?.() || new Date(ship.last_mining || ship.lastMining || new Date());
+    // Always use the most recent mining time from either field
+    const lastMiningField = ship.last_mining || ship.lastMining;
+    const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
     const now = new Date();
     const timeDiff = now.getTime() - lastMining.getTime();
     const secondsElapsed = Math.floor(timeDiff / 1000);
     const secondsRemaining = Math.max(0, 60 - secondsElapsed);
+    
+    console.log('⏰ Mining: getTimeUntilNextMining debug:', {
+      shipName: ship.name,
+      lastMiningField,
+      lastMining: lastMining.toISOString(),
+      now: now.toISOString(),
+      timeDiff,
+      secondsElapsed,
+      secondsRemaining
+    });
     
     if (secondsElapsed >= 60) return "Ready!";
     return `${secondsRemaining}s remaining`;

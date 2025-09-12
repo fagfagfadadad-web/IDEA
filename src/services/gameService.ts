@@ -235,7 +235,8 @@ export class GameService {
     // Update ship
     batch.update(shipRef, {
       currentEnergy: Math.max(0, ship.currentEnergy - 10),
-      lastMining: serverTimestamp()
+      lastMining: serverTimestamp(),
+      last_mining: serverTimestamp() // Update both fields for compatibility
     });
 
     // Calculate new experience and level
