@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart } from 'lucide-react';
+import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy } from 'lucide-react';
 import { Button } from 'components';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
