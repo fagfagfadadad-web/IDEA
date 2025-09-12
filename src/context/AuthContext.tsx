@@ -134,13 +134,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log('✅ AuthContext: Profile setup complete');
       setUser(userProfile);
-      setIsProfileReady(true);
       setAuthMessage('');
       
+      // Mark profile as ready
+      const userWithProfileReady = { ...userProfile, isProfileReady: true };
+      setUser(userWithProfileReady);
+      setIsProfileReady(true);
+      
       console.log('🎮 AuthContext: Profile ready, user data:', {
-        id: userProfile.id,
-        username: userProfile.username,
-        isAdmin: userProfile.isAdmin
+        id: userWithProfileReady.id,
+        username: userWithProfileReady.username,
+        isAdmin: userWithProfileReady.isAdmin,
+        isProfileReady: userWithProfileReady.isProfileReady
       });
 
     } catch (error: any) {

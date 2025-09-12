@@ -30,6 +30,7 @@ export interface User {
   websiteUrl?: string;
   discordUsername?: string;
   telegramUsername?: string;
+  isProfileReady?: boolean;
   createdAt: any;
   updatedAt?: any;
 }

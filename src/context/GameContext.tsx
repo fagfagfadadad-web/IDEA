@@ -43,10 +43,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       userId: user?.id,
       isAuthenticated,
       authLoading,
-      isProfileReady: user?.isProfileReady
+      isProfileReady: user?.isProfileReady,
+      userObject: user
     });
     
-    if (user?.id && isAuthenticated && !authLoading && user.isProfileReady) {
+    if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true) {
       console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
       fetchGameData();
       startMiningLoop();
@@ -65,7 +66,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         hasUserId: !!user?.id,
         isAuthenticated,
         authLoading,
-        isProfileReady: user?.isProfileReady
+        isProfileReady: user?.isProfileReady,
+        userIsProfileReady: user?.isProfileReady === true
       });
     }
 
