@@ -317,7 +317,6 @@ export const Mining = () => {
                               <Zap size={16} />
                               Mine ZEN
                             </div>
-                          ) : (ship.current_energy || ship.currentEnergy || 0) < 10 ? (
                           ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
                               <Battery size={16} />
