@@ -46,7 +46,7 @@ export const MobileBottomNav = () => {
               className="w-14 h-14 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-200"
             >
                 <span className="text-gray-400">ZEND</span>
-              <Zap size={24} />
+              <Zap size={24} className="transform rotate-90" />
             </button>
           )}
           <span className="text-xs text-gray-400 font-medium font-orbitron">
@@ -54,7 +54,7 @@ export const MobileBottomNav = () => {
           </span>
         </div>
       );
-    }
+              <Zap size={24} className="transform rotate-90" />
 
     const content = (
       <div className="flex flex-col items-center flex-1 space-y-1 transition-all duration-200 hover:-translate-y-0.5">
