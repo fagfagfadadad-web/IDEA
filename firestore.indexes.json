@@ -53,10 +53,7 @@
           "order": "DESCENDING"
         }
       ]
-    }
-  ],
-  "fieldOverrides": [],
-  "indexes": [
+    },
     {
       "collectionGroup": "tasks",
       "queryScope": "COLLECTION",
@@ -70,8 +67,21 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "gameStats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "referredBy",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
     }
-  ]
-}
+  ],
   "fieldOverrides": []
 }
