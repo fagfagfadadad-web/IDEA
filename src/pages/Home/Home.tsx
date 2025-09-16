@@ -97,7 +97,7 @@ export const Home = () => {
             <div className="space-y-4">
               <div className="flex justify-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
-                  <Zap size={48} className="text-white transform rotate-[35deg]" />
+                  <Zap size={48} className="text-white transform rotate-[40deg] scale-y-[-1]" />
                 </div>
               </div>
               <h1 className="text-6xl md:text-8xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
