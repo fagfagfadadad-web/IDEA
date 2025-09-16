@@ -54,7 +54,7 @@ export const MobileBottomNav = () => {
           </span>
         </div>
       );
-              <Zap size={24} className="transform rotate-90" />
+    }
 
     const content = (
       <div className="flex flex-col items-center flex-1 space-y-1 transition-all duration-200 hover:-translate-y-0.5">
