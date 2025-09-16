@@ -41,7 +41,7 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
-                <Zap size={24} className="text-white transform rotate-12" />
+                <Zap size={24} className="text-white transform rotate-[20deg]" />
               </div>
               <span className="text-2xl font-orbitron font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
                 ZEND
