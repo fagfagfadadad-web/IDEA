@@ -47,6 +47,7 @@ export const MobileBottomNav = () => {
             >
                 <span className="text-gray-400">ZEND</span>
               <Zap size={24} className="transform -rotate-45" />
+              <Zap size={24} className="transform rotate-12" />
             </button>
           )}
           <span className="text-xs text-gray-400 font-medium font-orbitron">
