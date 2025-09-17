@@ -18,9 +18,6 @@ export const config: InitAppType = {
     nativeAuth: true,
     environment: environment,
     providers: {
-      extension: {
-        enabled: true
-      },
       walletConnect: {
         walletConnectV2ProjectId
       }

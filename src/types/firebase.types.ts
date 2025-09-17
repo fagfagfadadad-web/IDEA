@@ -13,7 +13,7 @@ export interface GameStats {
   miningLevel: number;
   experience: number;
   referralCode: string;
-  referredBy?: string;
+  referredBy?: string | null;
   totalReferrals: number;
   referralEarnings: number;
   createdAt: any;
