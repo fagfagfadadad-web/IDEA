@@ -19,7 +19,12 @@ export const AdminTasks: React.FC = () => {
     description: '',
     rewardAmount: '',
     taskType: 'mining',
-    requirements: '{}',
+    miningOperationsRequired: '',
+    dailyMiningCountRequired: '',
+    shipCountRequired: '',
+    referralCountRequired: '',
+    requiredLevel: '',
+    referenceLink: '',
     isActive: true
   });
 
@@ -58,7 +63,12 @@ export const AdminTasks: React.FC = () => {
         description: formData.description,
         rewardAmount: parseInt(formData.rewardAmount),
         taskType: formData.taskType,
-        requirements: JSON.parse(formData.requirements || '{}'),
+        miningOperationsRequired: formData.miningOperationsRequired ? parseInt(formData.miningOperationsRequired) : undefined,
+        dailyMiningCountRequired: formData.dailyMiningCountRequired ? parseInt(formData.dailyMiningCountRequired) : undefined,
+        shipCountRequired: formData.shipCountRequired ? parseInt(formData.shipCountRequired) : undefined,
+        referralCountRequired: formData.referralCountRequired ? parseInt(formData.referralCountRequired) : undefined,
+        requiredLevel: formData.requiredLevel ? parseInt(formData.requiredLevel) : undefined,
+        referenceLink: formData.referenceLink || undefined,
        isActive: formData.isActive,
        createdAt: new Date(),
        updatedAt: new Date()
@@ -89,7 +99,12 @@ export const AdminTasks: React.FC = () => {
       description: task.description,
       rewardAmount: task.rewardAmount.toString(),
       taskType: task.taskType,
-      requirements: JSON.stringify(task.requirements, null, 2),
+      miningOperationsRequired: task.miningOperationsRequired?.toString() || '',
+      dailyMiningCountRequired: task.dailyMiningCountRequired?.toString() || '',
+      shipCountRequired: task.shipCountRequired?.toString() || '',
+      referralCountRequired: task.referralCountRequired?.toString() || '',
+      requiredLevel: task.requiredLevel?.toString() || '',
+      referenceLink: task.referenceLink || '',
       isActive: task.isActive
     });
     setShowModal(true);
@@ -125,7 +140,12 @@ export const AdminTasks: React.FC = () => {
       description: '',
       rewardAmount: '',
       taskType: 'mining',
-      requirements: '{}',
+      miningOperationsRequired: '',
+      dailyMiningCountRequired: '',
+      shipCountRequired: '',
+      referralCountRequired: '',
+      requiredLevel: '',
+      referenceLink: '',
       isActive: true
     });
   };
@@ -320,18 +340,98 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
-                    Requirements (JSON)
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Task Requirements
                   </label>
-                  <textarea
-                    value={formData.requirements}
-                    onChange={(e) => setFormData({...formData, requirements: e.target.value})}
-                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-mono text-sm resize-none"
-                    placeholder='{"mining_amount": 1000, "duration_hours": 24}'
-                    rows={2}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <div>
+                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                        Mining Operations Required
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.miningOperationsRequired}
+                        onChange={(e) => setFormData({...formData, miningOperationsRequired: e.target.value})}
+                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        placeholder="e.g. 5"
+                        min="0"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                        Daily Mining Count Required
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.dailyMiningCountRequired}
+                        onChange={(e) => setFormData({...formData, dailyMiningCountRequired: e.target.value})}
+                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        placeholder="e.g. 10"
+                        min="0"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                        Ship Count Required
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.shipCountRequired}
+                        onChange={(e) => setFormData({...formData, shipCountRequired: e.target.value})}
+                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        placeholder="e.g. 3"
+                        min="0"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                        Referral Count Required
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.referralCountRequired}
+                        onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
+                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        placeholder="e.g. 5"
+                        min="0"
+                      />
+                    </div>
+                    
+                    <div className="md:col-span-2">
+                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                        Required Level
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.requiredLevel}
+                        onChange={(e) => setFormData({...formData, requiredLevel: e.target.value})}
+                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        placeholder="e.g. 10"
+                        min="1"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-xs mt-2">
+                    Leave fields empty if not required for this task
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
+                    Reference Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.referenceLink}
+                    onChange={(e) => setFormData({...formData, referenceLink: e.target.value})}
+                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
+                    placeholder="https://example.com/instructions"
                   />
                   <p className="text-gray-400 text-xs mt-1">
-                    JSON object defining task requirements
+                    Optional link to guide players where to go or what to do
                   </p>
                 </div>
 

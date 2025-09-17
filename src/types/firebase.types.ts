@@ -41,6 +41,12 @@ export interface Task {
   rewardAmount: number;
   taskType: string;
   requirements: Record<string, any>;
+  miningOperationsRequired?: number;
+  dailyMiningCountRequired?: number;
+  shipCountRequired?: number;
+  referralCountRequired?: number;
+  requiredLevel?: number;
+  referenceLink?: string;
   isActive: boolean;
   createdAt: any;
   updatedAt: any;

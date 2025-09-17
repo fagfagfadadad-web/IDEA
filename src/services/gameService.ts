@@ -52,6 +52,12 @@ export interface Task {
   rewardAmount: number;
   taskType: string;
   requirements: Record<string, any>;
+  miningOperationsRequired?: number;
+  dailyMiningCountRequired?: number;
+  shipCountRequired?: number;
+  referralCountRequired?: number;
+  requiredLevel?: number;
+  referenceLink?: string;
   isActive: boolean;
   createdAt: any;
   updatedAt: any;
@@ -374,8 +380,27 @@ export class GameService {
 
   // Admin functions
   static async createTask(task: Omit<Task, 'id'>): Promise<string> {
+    // Build requirements object from specific fields
+    const requirements: Record<string, any> = {};
+    if (task.miningOperationsRequired && task.miningOperationsRequired > 0) {
+      requirements.miningOperations = task.miningOperationsRequired;
+    }
+    if (task.dailyMiningCountRequired && task.dailyMiningCountRequired > 0) {
+      requirements.dailyMiningCount = task.dailyMiningCountRequired;
+    }
+    if (task.shipCountRequired && task.shipCountRequired > 0) {
+      requirements.shipCount = task.shipCountRequired;
+    }
+    if (task.referralCountRequired && task.referralCountRequired > 0) {
+      requirements.referralCount = task.referralCountRequired;
+    }
+    if (task.requiredLevel && task.requiredLevel > 0) {
+      requirements.requiredLevel = task.requiredLevel;
+    }
+
     const docRef = await addDoc(collection(db, 'tasks'), {
       ...task,
+      requirements,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -383,6 +408,33 @@ export class GameService {
   }
 
   static async updateTask(taskId: string, updates: Partial<Task>): Promise<void> {
+    // Build requirements object from specific fields if they exist in updates
+    if (updates.miningOperationsRequired !== undefined || 
+        updates.dailyMiningCountRequired !== undefined ||
+        updates.shipCountRequired !== undefined ||
+        updates.referralCountRequired !== undefined ||
+        updates.requiredLevel !== undefined) {
+      
+      const requirements: Record<string, any> = {};
+      if (updates.miningOperationsRequired && updates.miningOperationsRequired > 0) {
+        requirements.miningOperations = updates.miningOperationsRequired;
+      }
+      if (updates.dailyMiningCountRequired && updates.dailyMiningCountRequired > 0) {
+        requirements.dailyMiningCount = updates.dailyMiningCountRequired;
+      }
+      if (updates.shipCountRequired && updates.shipCountRequired > 0) {
+        requirements.shipCount = updates.shipCountRequired;
+      }
+      if (updates.referralCountRequired && updates.referralCountRequired > 0) {
+        requirements.referralCount = updates.referralCountRequired;
+      }
+      if (updates.requiredLevel && updates.requiredLevel > 0) {
+        requirements.requiredLevel = updates.requiredLevel;
+      }
+      
+      updates.requirements = requirements;
+    }
+
     const docRef = doc(db, 'tasks', taskId);
     await updateDoc(docRef, {
       ...updates,

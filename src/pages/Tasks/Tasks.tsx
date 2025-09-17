@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift } from 'lucide-react';
+import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift, ExternalLink } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
@@ -230,6 +230,21 @@ export const Tasks = () => {
                         <p className="text-gray-300 text-sm leading-relaxed">
                           {task.description}
                         </p>
+
+                        {/* Reference Link */}
+                        {task.referenceLink && (
+                          <div className="mb-3">
+                            <a
+                              href={task.referenceLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors duration-200"
+                            >
+                              <ExternalLink size={14} />
+                              Go to Instructions
+                            </a>
+                          </div>
+                        )}
 
                         {/* Progress Bar */}
                         {userTask?.status === 'in_progress' && (
