@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Edit, Trash2, Target, Zap, Star, Gift } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../context/AuthContext';
@@ -246,7 +247,7 @@ export const AdminTasks: React.FC = () => {
       )}
 
       {/* Create/Edit Task Modal */}
-      {showModal && (
+      {showModal && createPortal((
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4 overflow-y-auto">
           <div className="bg-slate-800 rounded-xl p-6 max-w-4xl w-full my-8 border border-cyan-500/20 flex flex-col relative min-h-0 max-h-[calc(100vh-4rem)]">
             <div className="space-y-6">
@@ -371,7 +372,7 @@ export const AdminTasks: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </div>
   );
 };
