@@ -255,8 +255,7 @@ export const AdminTasks: React.FC = () => {
               </h3>
 
               <form onSubmit={handleSubmit}>
-
-              <div className="flex-grow overflow-y-auto space-y-4 pr-2 min-h-0">
+                <div className="flex-grow overflow-y-auto space-y-4 pr-2 min-h-0">
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">
                     Task Title
@@ -347,8 +346,10 @@ export const AdminTasks: React.FC = () => {
                     Task is active
                   </label>
                 </div>
-
-                <div className="flex gap-3 pt-4">
+                </div>
+              </form>
+              
+              <div className="flex gap-3 pt-4 mt-4 pt-4 border-t border-gray-700">
                   <Button
                     type="button"
                     onClick={() => {
@@ -367,8 +368,6 @@ export const AdminTasks: React.FC = () => {
                     {editingTask ? 'Update Task' : 'Create Task'}
                   </Button>
                 </div>
-              </div>
-              </form>
             </div>
           </div>
         </div>
