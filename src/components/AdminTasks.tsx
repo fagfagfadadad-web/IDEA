@@ -248,53 +248,53 @@ export const AdminTasks: React.FC = () => {
 
       {/* Create/Edit Task Modal */}
       {showModal && createPortal((
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4 overflow-y-auto">
-          <div className="bg-slate-800 rounded-xl p-6 max-w-4xl w-full my-8 border border-cyan-500/20 flex flex-col relative min-h-0 max-h-[calc(100vh-4rem)]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-2 md:p-4 overflow-y-auto">
+          <div className="bg-slate-800 rounded-xl p-4 md:p-6 max-w-4xl w-full my-2 md:my-8 border border-cyan-500/20 flex flex-col relative min-h-0 max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)]">
             <div className="space-y-6">
-              <h3 className="text-2xl font-orbitron font-bold text-white">
+              <h3 className="text-xl md:text-2xl font-orbitron font-bold text-white">
                 {editingTask ? 'Edit Task' : 'Create New Task'}
               </h3>
 
               <form onSubmit={handleSubmit}>
-                <div className="flex-grow overflow-y-auto space-y-4 pr-2 min-h-0">
+                <div className="flex-grow overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 min-h-0 max-h-[60vh] md:max-h-none">
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">
+                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
                     Task Title
                   </label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
                     placeholder="Enter task title"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">
+                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base resize-none"
                     placeholder="Enter task description"
-                    rows={3}
+                    rows={2}
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <label className="block text-white text-sm font-medium mb-2">
+                    <label className="block text-white text-sm font-medium mb-1 md:mb-2">
                       Reward Amount (ZEN)
                     </label>
                     <input
                       type="number"
                       value={formData.rewardAmount}
                       onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
-                      className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                      className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
                       placeholder="100"
                       min="1"
                       required
@@ -302,13 +302,13 @@ export const AdminTasks: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm font-medium mb-2">
+                    <label className="block text-white text-sm font-medium mb-1 md:mb-2">
                       Task Type
                     </label>
                     <select
                       value={formData.taskType}
                       onChange={(e) => setFormData({...formData, taskType: e.target.value})}
-                      className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                      className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
                     >
                       {taskTypes.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -320,15 +320,15 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">
+                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
                     Requirements (JSON)
                   </label>
                   <textarea
                     value={formData.requirements}
                     onChange={(e) => setFormData({...formData, requirements: e.target.value})}
-                    className="w-full p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-mono text-sm"
+                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 font-mono text-sm resize-none"
                     placeholder='{"mining_amount": 1000, "duration_hours": 24}'
-                    rows={3}
+                    rows={2}
                   />
                   <p className="text-gray-400 text-xs mt-1">
                     JSON object defining task requirements
@@ -341,7 +341,7 @@ export const AdminTasks: React.FC = () => {
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                    className="w-4 h-4 text-cyan-600 bg-slate-700 border-gray-600 rounded focus:ring-cyan-500"
+                    className="w-5 h-5 text-cyan-600 bg-slate-700 border-gray-600 rounded focus:ring-cyan-500"
                   />
                   <label htmlFor="isActive" className="text-white font-medium">
                     Task is active
@@ -350,7 +350,7 @@ export const AdminTasks: React.FC = () => {
                 </div>
               </form>
               
-              <div className="flex gap-3 pt-4 mt-4 pt-4 border-t border-gray-700">
+              <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-700">
                   <Button
                     type="button"
                     onClick={() => {
@@ -358,13 +358,13 @@ export const AdminTasks: React.FC = () => {
                       setEditingTask(null);
                       resetForm();
                     }}
-                    className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg"
+                    className="w-full md:flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-orbitron font-bold"
+                    className="w-full md:flex-1 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-orbitron font-bold"
                   >
                     {editingTask ? 'Update Task' : 'Create Task'}
                   </Button>
