@@ -254,6 +254,8 @@ export const AdminTasks: React.FC = () => {
                 {editingTask ? 'Edit Task' : 'Create New Task'}
               </h3>
 
+              <form onSubmit={handleSubmit}>
+
               <div className="flex-grow overflow-y-auto space-y-4 pr-2 min-h-0">
                 <div>
                   <label className="block text-white text-sm font-medium mb-2">
