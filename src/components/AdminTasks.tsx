@@ -367,6 +367,7 @@ export const AdminTasks: React.FC = () => {
                     {editingTask ? 'Update Task' : 'Create Task'}
                   </Button>
                 </div>
+              </div>
               </form>
             </div>
           </div>
