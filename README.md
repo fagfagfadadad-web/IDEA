@@ -1,42 +1,42 @@
-# ZEND Mining - Space Mining Adventure
+# ZenDOG - Spiritual Energy Mining
 
-A decentralized space mining game built on MultiversX blockchain with Firebase backend, where players mine ZEND tokens, upgrade ships, and explore the galaxy.
+A spiritual energy mining experience built on MultiversX blockchain with Firebase backend, where players mine ZEN energy with cosmic dogs, upgrade their pack, and explore the astral realm.
 
 ## 🎮 Game Features
 
 ### Core Gameplay
-- **Mining System** - Mine ZEND tokens using different types of ships
-- **Energy System** - Ships consume energy and regenerate over time
+- **Mining System** - Mine ZEN energy using different types of cosmic dogs
+- **Energy System** - Dogs consume spiritual energy and regenerate through meditation
 - **Level System** - Gain experience and levels to increase mining efficiency
-- **Ship Management** - Buy and upgrade different types of mining ships
+- **Pack Management** - Adopt and upgrade different types of cosmic dogs
 
-### Ship Types
-1. **Basic Miner** - Starter ship (1000 ZEND starting balance)
+### Dog Types
+1. **Zen Puppy** - Starter dog (1000 ZEN starting balance)
    - Mining Power: 10
    - Energy Capacity: 100
 
-2. **Advanced Miner** - 1,000 ZEND
+2. **Cosmic Retriever** - 1,000 ZEN
    - Mining Power: 25
    - Energy Capacity: 200
 
-3. **Elite Miner** - 5,000 ZEND
+3. **Astral Shepherd** - 5,000 ZEN
    - Mining Power: 50
    - Energy Capacity: 300
 
-4. **Legendary Miner** - 20,000 ZEND
+4. **Divine Wolf** - 20,000 ZEN
    - Mining Power: 100
    - Energy Capacity: 500
 
-### Ship Upgrades
-- **Mining Power** - Increase ZEND tokens mined per operation
+### Dog Upgrades
+- **Spiritual Power** - Increase ZEN energy mined per meditation
 - **Energy Capacity** - Increase maximum energy storage
-- **Efficiency** - Reduce energy consumption per mining operation
+- **Efficiency** - Reduce energy consumption per meditation session
 
 ### Social Features
-- **Referral Program** - Earn 10% of referred players' mining rewards
-- **Task System** - Complete missions for bonus ZEND tokens
-- **Leaderboards** - Compete with other miners
-- **Admin Panel** - Manage tasks, users, and game statistics
+- **Referral Program** - Earn 10% of referred players' spiritual rewards
+- **Quest System** - Complete spiritual quests for bonus ZEN energy
+- **Leaderboards** - Compete with other spiritual seekers
+- **Admin Panel** - Manage quests, users, and spiritual statistics
 
 ## 🚀 Technology Stack
 

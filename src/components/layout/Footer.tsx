@@ -11,14 +11,14 @@ export const Footer = () => {
           <div className="flex flex-col items-center md:items-start space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
-                <Zap size={24} className="text-white -rotate-[45deg] scale-x-[-1]" />
+                <span className="text-2xl">🐕</span>
               </div>
               <span className="text-2xl font-orbitron font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                ZEND
+                ZenDOG
               </span>
             </div>
             <p className="text-gray-400 max-w-xs text-center md:text-left">
-              The ultimate space mining adventure on MultiversX blockchain
+              The ultimate spiritual energy mining experience on MultiversX blockchain
             </p>
           </div>
 
@@ -30,25 +30,25 @@ export const Footer = () => {
                 to="/mining" 
                 className="text-gray-400 hover:text-cyan-400 transition-colors duration-200"
               >
-                Mining
+                Meditation
               </Link>
               <Link 
                 to="/ships" 
                 className="text-gray-400 hover:text-cyan-400 transition-colors duration-200"
               >
-                Ships
+                Dogs
               </Link>
               <Link 
                 to="/shop" 
                 className="text-gray-400 hover:text-cyan-400 transition-colors duration-200"
               >
-                Shop
+                Temple
               </Link>
               <Link 
                 to="/leaderboard" 
                 className="text-gray-400 hover:text-cyan-400 transition-colors duration-200"
               >
-                Leaderboard
+                Enlightened
               </Link>
             </div>
 

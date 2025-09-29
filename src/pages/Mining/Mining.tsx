@@ -129,10 +129,10 @@ export const Mining = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Mining Station
+              Meditation Temple
             </h1>
             <p className="text-gray-400 text-lg">
-              Deploy your ships and mine ZEN tokens across the galaxy
+              Guide your cosmic dogs in meditation to harvest ZEN energy from the astral realm
             </p>
           </div>
 
@@ -141,8 +141,8 @@ export const Mining = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Zap className="text-cyan-400" size={20} />
-                  <span className="text-gray-400 font-medium">ZEN Balance</span>
+                  <span className="text-cyan-400 text-xl">⚡</span>
+                  <span className="text-gray-400 font-medium">ZEN Energy</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
                   {gameStats?.zenBalance?.toLocaleString() || 0}
@@ -150,8 +150,8 @@ export const Mining = () => {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="text-purple-400" size={20} />
-                  <span className="text-gray-400 font-medium">Total Mined</span>
+                  <span className="text-purple-400 text-xl">🌟</span>
+                  <span className="text-gray-400 font-medium">Total Energy</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
                   {gameStats?.totalMined?.toLocaleString() || 0}
@@ -159,8 +159,8 @@ export const Mining = () => {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="text-green-400" size={20} />
-                  <span className="text-gray-400 font-medium">Level</span>
+                  <span className="text-green-400 text-xl">🧘‍♂️</span>
+                  <span className="text-gray-400 font-medium">Spiritual Level</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
                   {gameStats?.miningLevel || 1}
@@ -168,8 +168,8 @@ export const Mining = () => {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Rocket className="text-orange-400" size={20} />
-                  <span className="text-gray-400 font-medium">Ships</span>
+                  <span className="text-orange-400 text-xl">🐕</span>
+                  <span className="text-gray-400 font-medium">Cosmic Dogs</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-orbitron font-bold text-orange-400">
                   {ships.length}
@@ -182,32 +182,33 @@ export const Mining = () => {
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-orbitron font-bold text-white">
-                Your Mining Fleet
+                Your Cosmic Pack
               </h2>
               <Button
                 onClick={() => navigate('/ships')}
                 variant="outline"
-                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 flex items-center gap-2"
               >
-                <Rocket size={16} />
-                Manage Ships
+                <span>🐕</span>
+                Manage Pack
               </Button>
             </div>
 
             {ships.length === 0 ? (
               <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-8 border border-gray-700/50 text-center">
-                <Rocket size={48} className="text-gray-500 mx-auto mb-4" />
+                <span className="text-6xl mb-4 block">🐕</span>
                 <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
-                  No Ships Available
+                  No Cosmic Dogs Available
                 </h3>
                 <p className="text-gray-500 mb-4">
-                  You need at least one ship to start mining ZEN tokens
+                  You need at least one cosmic dog to start harvesting ZEN energy
                 </p>
                 <Button
                   onClick={() => navigate('/ships')}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white flex items-center gap-2"
                 >
-                  Get Your First Ship
+                  <span>🐕</span>
+                  Adopt Your First Dog
                 </Button>
               </div>
             ) : (
@@ -235,23 +236,22 @@ export const Mining = () => {
                               {ship.name}
                             </h3>
                             <p className="text-gray-400 text-sm">
-                              Level {ship.level} • {ship.shipType}
+                              Level {ship.level} • {ship.shipType} 🐕
                             </p>
                           </div>
                           <div className="text-right">
                             <div className="text-cyan-400 font-orbitron font-bold">
                               {ship.miningPower}
                             </div>
-                            <div className="text-gray-400 text-xs">Power</div>
+                            <div className="text-gray-400 text-xs">Spiritual Power</div>
                           </div>
                         </div>
 
                         {/* Energy Bar */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm flex items-center gap-1">
-                              <Battery size={14} />
-                              Energy
+                            <span className="text-gray-400 text-sm">
+                              ⚡ Spiritual Energy
                             </span>
                             <span className="text-white text-sm font-medium">
                               {ship.currentEnergy}/{ship.energyCapacity}
@@ -271,9 +271,8 @@ export const Mining = () => {
                         {/* Mining Progress */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm flex items-center gap-1">
-                              <Clock size={14} />
-                              Mining Progress
+                            <span className="text-gray-400 text-sm">
+                              🧘‍♂️ Meditation Progress
                             </span>
                             <span className={`text-sm font-medium ${
                               canMineNow ? 'text-green-400' : 'text-orange-400'
@@ -306,17 +305,17 @@ export const Mining = () => {
                           {isMining ? (
                             <div className="flex items-center justify-center gap-2">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              Mining...
+                              Meditating...
                             </div>
                           ) : canMineNow ? (
                             <div className="flex items-center justify-center gap-2">
-                              <Zap size={16} />
-                              Mine ZEN
+                              <span>🧘‍♂️</span>
+                              Meditate
                             </div>
                          ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
-                              <Battery size={16} />
-                              No Energy
+                              <span>⚡</span>
+                              No Spiritual Energy
                             </div>
                           ) : (
                             <div className="flex items-center justify-center gap-2">
@@ -336,34 +335,34 @@ export const Mining = () => {
           {/* Mining Tips */}
           <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700/50">
             <h3 className="text-xl font-orbitron font-bold text-white mb-4">
-              Mining Tips
+              Meditation Tips
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Zap size={16} className="text-cyan-400" />
+                <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                  ⚡
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Energy Management</h4>
-                  <p className="text-gray-400 text-sm">Ships need energy to mine. Energy regenerates over time.</p>
+                  <h4 className="text-white font-medium">Spiritual Energy</h4>
+                  <p className="text-gray-400 text-sm">Dogs need spiritual energy to meditate. Energy regenerates through rest.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <TrendingUp size={16} className="text-purple-400" />
+                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                  🌟
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Level Up</h4>
-                  <p className="text-gray-400 text-sm">Higher levels increase your mining efficiency and rewards.</p>
+                  <h4 className="text-white font-medium">Spiritual Growth</h4>
+                  <p className="text-gray-400 text-sm">Higher levels increase your meditation efficiency and energy rewards.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Star size={16} className="text-green-400" />
+                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                  🐕
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Upgrades</h4>
-                  <p className="text-gray-400 text-sm">Upgrade your ships to mine more ZEN tokens per operation.</p>
+                  <h4 className="text-white font-medium">Dog Training</h4>
+                  <p className="text-gray-400 text-sm">Train your cosmic dogs to harvest more ZEN energy per meditation.</p>
                 </div>
               </div>
             </div>

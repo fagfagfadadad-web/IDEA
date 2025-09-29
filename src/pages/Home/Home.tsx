@@ -98,13 +98,13 @@ export const Home = () => {
               <div className="flex justify-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
                   <Zap size={48} className="text-white -rotate-[45deg] scale-x-[-1]" />
-                </div>
+                <span className="text-4xl">🐕</span>
               </div>
-              <h1 className="text-6xl md:text-8xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                ZEN
+              <h1 className="text-5xl md:text-7xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                ZenDOG
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 font-medium">
-                Space Mining Adventure
+                Spiritual Energy Mining
               </p>
             </div>
 
@@ -146,28 +146,28 @@ export const Home = () => {
                 <>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.mining)}
-                    className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                    className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                   >
-                    <Pickaxe size={20} />
-                    Start Mining
+                    <span className="text-xl">🧘‍♂️</span>
+                    Start Meditating
                     <ArrowRight size={20} />
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.ships)}
                     variant="outline"
-                    className="border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 px-8 py-4 rounded-xl font-bold text-lg"
+                    className="border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
                   >
-                    <Rocket size={20} />
-                    Manage Fleet
+                    <span className="text-xl">🐕</span>
+                    Manage Pack
                   </Button>
                 </>
               ) : (
                 <Button
                   onClick={() => navigate(RouteNamesEnum.unlock)}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                 >
-                  <Zap size={20} />
-                  Connect Wallet & Start Mining
+                  <span className="text-xl">🐕</span>
+                  Connect Wallet & Start Journey
                   <ArrowRight size={20} />
                 </Button>
               )}
@@ -222,34 +222,34 @@ export const Home = () => {
                 >
                   <Pickaxe size={24} />
                   <span className="font-orbitron">Mine</span>
-                </Button>
+                    {gameStats.zenBalance?.toLocaleString() || '0'} ⚡
                 <Button
-                  onClick={() => navigate(RouteNamesEnum.ships)}
+                  <div className="text-gray-400 text-sm">ZEN Energy</div>
                   className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
                   <Rocket size={24} />
                   <span className="font-orbitron">Ships</span>
                 </Button>
-                <Button
+                  <div className="text-gray-400 text-sm">Total Energy</div>
                   onClick={() => navigate(RouteNamesEnum.tasks)}
                   className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                  <Target size={24} />
+                    {gameStats.miningLevel || 1} 🌟
                   <span className="font-orbitron">Tasks</span>
-                </Button>
+                  <div className="text-gray-400 text-sm">Spiritual Level</div>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
                   className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
-                >
+                    {ships.length} 🐕
                   <Users size={24} />
-                  <span className="font-orbitron">Referrals</span>
+                  <div className="text-gray-400 text-sm">Cosmic Dogs</div>
                 </Button>
               </div>
             </div>
           </div>
         )}
             <h1 className="text-6xl md:text-8xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              ZEND
+              ZenDOG
             </h1>
         {/* Bottom padding for mobile navigation */}
         <div className="h-20 md:h-0"></div>

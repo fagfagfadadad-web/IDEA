@@ -41,32 +41,32 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
-                <Zap size={24} className="text-white -rotate-[45deg] scale-x-[-1]" />
+                <span className="text-2xl">🐕</span>
               </div>
               <span className="text-2xl font-orbitron font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                ZEND
+                ZenDOG
               </span>
             </Link>
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-6">
               <Link to="/mining" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Mining
+                Meditation
               </Link>
               <Link to="/ships" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Ships
+                Dogs
               </Link>
               <Link to="/shop" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Shop
+                Temple
               </Link>
               <Link to="/tasks" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Tasks
+                Quests
               </Link>
               <Link to="/referrals" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Referrals
+                Disciples
               </Link>
               <Link to="/leaderboard" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Leaderboard
+                Enlightened
               </Link>
             </div>
           </div>
@@ -79,7 +79,7 @@ export const Header = () => {
                 <span className="text-cyan-400 font-orbitron font-bold">
                   {gameStats.zenBalance?.toLocaleString() || '0'}
                 </span>
-                <span className="text-gray-400 text-sm">ZEN</span>
+                <span className="text-gray-400 text-sm">⚡</span>
               </div>
             )}
 
@@ -132,11 +132,11 @@ export const Header = () => {
                           {user?.isAdmin && (
                             <Link
                               to="/admin"
-                              className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-purple-500/10 hover:text-purple-400 transition-all duration-200"
+                              className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all duration-200"
                               onClick={() => setIsProfileMenuOpen(false)}
                             >
-                              <Settings size={16} />
-                              Admin Panel
+                              <span>🧘‍♂️</span>
+                              Meditation
                             </Link>
                           )}
                           <button
