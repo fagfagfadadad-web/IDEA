@@ -98,6 +98,7 @@ export const Home = () => {
               <div className="flex justify-center">
                 <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
                   <Zap size={48} className="text-white -rotate-[45deg] scale-x-[-1]" />
+                </div>
                 <span className="text-4xl">🐕</span>
               </div>
               <h1 className="text-5xl md:text-7xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
@@ -222,35 +223,46 @@ export const Home = () => {
                 >
                   <Pickaxe size={24} />
                   <span className="font-orbitron">Mine</span>
+                  <div className="text-gray-400 text-sm">
                     {gameStats.zenBalance?.toLocaleString() || '0'} ⚡
-                <Button
+                  </div>
                   <div className="text-gray-400 text-sm">ZEN Energy</div>
+                </Button>
+                <Button
+                  onClick={() => navigate(RouteNamesEnum.ships)}
                   className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
                   <Rocket size={24} />
                   <span className="font-orbitron">Ships</span>
-                </Button>
                   <div className="text-gray-400 text-sm">Total Energy</div>
+                </Button>
+                <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}
                   className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                    {gameStats.miningLevel || 1} 🌟
+                  <Target size={24} />
                   <span className="font-orbitron">Tasks</span>
+                  <div className="text-gray-400 text-sm">
+                    {gameStats.miningLevel || 1} 🌟
+                  </div>
                   <div className="text-gray-400 text-sm">Spiritual Level</div>
+                </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
                   className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
-                    {ships.length} 🐕
+                >
                   <Users size={24} />
+                  <span className="font-orbitron">Referrals</span>
+                  <div className="text-gray-400 text-sm">
+                    {ships.length} 🐕
+                  </div>
                   <div className="text-gray-400 text-sm">Cosmic Dogs</div>
                 </Button>
               </div>
             </div>
           </div>
         )}
-            <h1 className="text-6xl md:text-8xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              ZenDOG
-            </h1>
+
         {/* Bottom padding for mobile navigation */}
         <div className="h-20 md:h-0"></div>
       </div>
