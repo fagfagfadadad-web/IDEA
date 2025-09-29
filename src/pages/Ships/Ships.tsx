@@ -185,13 +185,13 @@ export const Ships = () => {
                         return (
                           <div
                             key={ship.id}
-                            className="bg-white/70 rounded-xl p-6 border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 shadow-lg"
+                            className="bg-white/70 rounded-xl p-4 md:p-6 border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 shadow-lg"
                           >
-                            <div className="space-y-4">
+                            <div className="space-y-3 md:space-y-4">
                               {/* Dog Info */}
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="text-xl font-bold text-gray-800">
+                                  <h3 className="text-lg md:text-xl font-bold text-gray-800">
                                     {ship.name}
                                   </h3>
                                   <p className="text-gray-600">
@@ -199,7 +199,7 @@ export const Ships = () => {
                                   </p>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-primary-600 font-bold text-lg">
+                                  <div className="text-primary-600 font-bold text-base md:text-lg">
                                     {ship.miningPower}
                                   </div>
                                   <div className="text-gray-600 text-sm">Appetite</div>

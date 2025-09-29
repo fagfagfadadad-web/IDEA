@@ -432,23 +432,23 @@ export const Game = () => {
           </div>
 
           {/* Game Area */}
-          <div className="cute-card p-6">
-            <div className="space-y-4">
+          <div className="cute-card p-4 md:p-6">
+            <div className="space-y-3 md:space-y-4">
               {/* Game Stats */}
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4">
                   <div className="stat-card">
-                    <div className="stat-value text-xl">{score}</div>
+                    <div className="stat-value text-lg md:text-xl">{score}</div>
                     <div className="stat-label">Score</div>
                   </div>
                   <div className="stat-card">
-                    <div className="stat-value text-xl">{remainingSeconds}s</div>
+                    <div className="stat-value text-lg md:text-xl">{remainingSeconds}s</div>
                     <div className="stat-label">Time Left</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-inter font-bold text-success">Speed: {gameSpeed.toFixed(1)}x</div>
-                  <div className="text-gray-600 text-sm font-inter">Game Speed</div>
+                  <div className="text-sm md:text-lg font-inter font-bold text-success">Speed: {gameSpeed.toFixed(1)}x</div>
+                  <div className="text-gray-600 text-xs md:text-sm font-inter">Game Speed</div>
                 </div>
               </div>
 
@@ -456,7 +456,7 @@ export const Game = () => {
               <div className="game-canvas-container">
                 <canvas
                   ref={canvasRef}
-                  className="block mx-auto cursor-none"
+                  className="block mx-auto cursor-none w-full max-w-full"
                   style={{ background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
                 />
                 

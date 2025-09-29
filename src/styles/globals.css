@@ -185,15 +185,106 @@ body {
 
   /* Mobile optimized styles */
   @media (max-width: 768px) {
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+    }
+    
+    * {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+    
     .cute-button {
       @apply px-4 py-3 text-base;
       min-height: 48px;
       min-width: 48px;
+      font-size: 14px;
     }
     
     .cute-input {
       @apply px-4 py-3 text-base;
       font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .cute-card {
+      @apply mx-2 rounded-2xl;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+    
+    .container {
+      @apply px-4;
+      max-width: 100%;
+    }
+    
+    .title-responsive {
+      @apply text-2xl;
+      line-height: 1.2;
+    }
+    
+    .subtitle-responsive {
+      @apply text-base;
+    }
+    
+    .stat-card {
+      @apply p-3;
+    }
+    
+    .stat-value {
+      @apply text-xl;
+    }
+    
+    .grid {
+      gap: 12px;
+    }
+    
+    .space-y-8 > * + * {
+      margin-top: 1.5rem;
+    }
+    
+    .space-y-6 > * + * {
+      margin-top: 1rem;
+    }
+    
+    .space-y-4 > * + * {
+      margin-top: 0.75rem;
+    }
+    
+    .text-4xl {
+      @apply text-2xl;
+    }
+    
+    .text-3xl {
+      @apply text-xl;
+    }
+    
+    .text-2xl {
+      @apply text-lg;
+    }
+    
+    .p-8 {
+      @apply p-4;
+    }
+    
+    .p-6 {
+      @apply p-4;
+    }
+    
+    .py-8 {
+      @apply py-4;
+    }
+    
+    .py-6 {
+      @apply py-3;
+    }
+    
+    .px-8 {
+      @apply px-4;
+    }
+    
+    .px-6 {
+      @apply px-4;
     }
   }
 

@@ -200,18 +200,18 @@ export const Mining = () => {
                   return (
                     <div
                       key={ship.id}
-                      className={`bg-white/70 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
+                      className={`bg-white/70 backdrop-blur-lg rounded-xl p-4 md:p-6 border transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
                         selectedShip === ship.id 
                           ? 'border-primary-400 shadow-primary-200' 
                           : 'border-primary-200/50 hover:border-primary-400/50'
                       }`}
                      onClick={() => setSelectedShip(ship.id || null)}
                     >
-                      <div className="space-y-4">
+                      <div className="space-y-3 md:space-y-4">
                         {/* Dog Header */}
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-lg font-bold text-gray-800">
+                            <h3 className="text-base md:text-lg font-bold text-gray-800">
                               {ship.name}
                             </h3>
                             <p className="text-gray-600 text-sm">
@@ -219,10 +219,10 @@ export const Mining = () => {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="text-pink-600 font-bold">
+                            <div className="text-primary-600 font-bold text-sm md:text-base">
                               {ship.miningPower}
                             </div>
-                            <div className="text-gray-600 text-xs">Appetite</div>
+                            <div className="text-gray-600 text-xs">Food Power</div>
                           </div>
                         </div>
 

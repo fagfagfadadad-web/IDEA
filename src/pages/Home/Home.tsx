@@ -142,12 +142,12 @@ export const Home = () => {
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col gap-3 md:gap-4 justify-center items-center px-4">
               {isLoggedIn ? (
                 <>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.mining)}
-                    className="cute-button px-8 py-4 text-lg flex items-center gap-3"
+                    className="cute-button w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🍖</span>
                     Feed Your Dogs
@@ -155,14 +155,14 @@ export const Home = () => {
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.ships)}
-                    className="cute-button-outline px-8 py-4 text-lg flex items-center gap-3"
+                    className="cute-button-outline w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🐕</span>
                     My Dogs
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.game)}
-                    className="cute-button-secondary px-8 py-4 text-lg flex items-center gap-3"
+                    className="cute-button-secondary w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🎮</span>
                     Mini Game
@@ -171,7 +171,7 @@ export const Home = () => {
               ) : (
                 <Button
                   onClick={() => navigate(RouteNamesEnum.unlock)}
-                  className="cute-button px-8 py-4 text-lg flex items-center gap-3"
+                  className="cute-button w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                 >
                   <span className="text-xl">🐕</span>
                   Connect Wallet & Adopt Dog

@@ -35,21 +35,21 @@ export const Header = () => {
   };
 
   return (
-    <div className="bg-slate-900/95 backdrop-blur-lg py-3 md:py-4 border-b border-cyan-500/20 shadow-lg">
-      <div className="container mx-auto px-4 md:px-6">
+    <div className="app-header py-2 md:py-4 border-b border-primary-300/40 shadow-lg">
+      <div className="container mx-auto px-3 md:px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform">
-              <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
+            <Link to="/" className="flex items-center gap-2 md:gap-3 hover:scale-105 transition-transform">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
                 <span className="text-2xl">🐕</span>
               </div>
-              <span className="text-2xl font-inter font-black gradient-text">
+              <span className="text-xl md:text-2xl font-inter font-black gradient-text">
                 ZenDOG
               </span>
             </Link>
             
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
               <Link to="/mining" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Feed Dogs
               </Link>
