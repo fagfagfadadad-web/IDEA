@@ -38,12 +38,12 @@ export const Header = () => {
     <div className="app-header py-2 md:py-4 border-b border-primary-300/40 shadow-lg">
       <div className="container mx-auto px-3 md:px-6">
         <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <Link to="/" className="flex items-center gap-2 md:gap-3 hover:scale-105 transition-transform">
               <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🐕</span>
+                <span className="text-xl md:text-2xl">🐕</span>
               </div>
-              <span className="text-xl md:text-2xl font-inter font-black gradient-text">
+              <span className="text-lg md:text-2xl font-inter font-black gradient-text">
                 ZenDOG
               </span>
             </Link>
@@ -74,7 +74,7 @@ export const Header = () => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             {/* ZEN Balance */}
             {isLoggedIn && gameStats && (
               <div className="hidden md:flex food-points">
@@ -87,7 +87,7 @@ export const Header = () => {
             )}
 
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center space-x-4">
+            <div className="hidden lg:flex items-center space-x-3">
               {isLoggedIn ? (
                 <div className="flex items-center space-x-3">
                   {/* Profile Menu */}
@@ -270,140 +270,136 @@ export const Header = () => {
             />
             <div className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl z-50 transform transition-transform duration-300 border-l border-primary-300/40">
               <div className="p-4 border-b border-primary-200">
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 border-l border-primary-300/40">
-            <div className="p-4 border-b border-primary-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-bold text-primary-600">ZenDOG</h2>
-                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4 shadow-lg"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            <div className="p-4 space-y-2">
-              {/* ZEN Balance */}
-              {isLoggedIn && gameStats && (
-                <div className="bg-primary-50 p-4 rounded-lg border border-primary-300/40 mb-4">
-                  <div className="flex items-center gap-2 justify-center">
-                    <span className="text-primary-500 text-xl">🍖</span>
-                    <span className="text-primary-600 font-bold text-lg">
-                      {gameStats.zenBalance?.toLocaleString() || '0'}
-                    </span>
-                    <span className="text-gray-600">Food</span>
-                  </div>
-                </div>
-              )}
-
-              <Link
-                to="/mining"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="text-xl">🍖</span>
-                Feed Dogs
-              </Link>
-              <Link
-                to="/ships"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="text-xl">🐕</span>
-                Dogs
-              </Link>
-              <Link
-                to="/shop"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <ShoppingCart size={18} />
-                Pet Store
-              </Link>
-              <Link
-                to="/tasks"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Target size={18} />
-                Tasks
-              </Link>
-              <Link
-                to="/game"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="text-xl">🎮</span>
-                Mini Game
-              </Link>
-              <Link
-                to="/referrals"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Users size={18} />
-                Friends
-              </Link>
-              <Link
-                to="/leaderboard"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Trophy size={18} />
-                Leaderboard
-              </Link>
-
-              {isLoggedIn ? (
-                <>
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>
+                  <button
                     onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
                   >
-                    <User size={18} />
-                    Profile
-                  </Link>
-                  {user?.isAdmin && (
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-2">
+                {/* ZEN Balance */}
+                {isLoggedIn && gameStats && (
+                  <div className="bg-primary-50 p-4 rounded-lg border border-primary-300/40 mb-4">
+                    <div className="flex items-center gap-2 justify-center">
+                      <span className="text-primary-500 text-xl">🍖</span>
+                      <span className="text-primary-600 font-bold text-lg">
+                        {gameStats.zenBalance?.toLocaleString() || '0'}
+                      </span>
+                      <span className="text-gray-600">Food</span>
+                    </div>
+                  </div>
+                )}
+
+                <Link
+                  to="/mining"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🍖</span>
+                  Feed Dogs
+                </Link>
+                <Link
+                  to="/ships"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🐕</span>
+                  Dogs
+                </Link>
+                <Link
+                  to="/shop"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <ShoppingCart size={18} />
+                  Pet Store
+                </Link>
+                <Link
+                  to="/tasks"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Target size={18} />
+                  Tasks
+                </Link>
+                <Link
+                  to="/game"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🎮</span>
+                  Mini Game
+                </Link>
+                <Link
+                  to="/referrals"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Users size={18} />
+                  Friends
+                </Link>
+                <Link
+                  to="/leaderboard"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Trophy size={18} />
+                  Leaderboard
+                </Link>
+
+                {isLoggedIn ? (
+                  <>
                     <Link
-                      to="/admin"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-accent-100 hover:text-accent-600 rounded-lg transition-all duration-200"
+                      to="/profile"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Settings size={18} />
-                      Admin Panel
+                      <User size={18} />
+                      Profile
                     </Link>
-                  )}
-                  <button
+                    {user?.isAdmin && (
+                      <Link
+                        to="/admin"
+                        className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-accent-100 hover:text-accent-600 rounded-lg transition-all duration-200"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <Settings size={18} />
+                        Admin Panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4"
+                    >
+                      <LogOut size={18} />
+                      Disconnect
+                    </button>
+                  </>
+                ) : (
+                  <Button
                     onClick={() => {
-                      handleLogout();
+                      handleConnect();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4"
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
                   >
-                    <LogOut size={18} />
-                    Disconnect
-                  </button>
-                </>
-              ) : (
-                <Button
-                  onClick={() => {
-                    handleConnect();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
-                >
-                  <Wallet size={18} />
-                  Connect Wallet
-                </Button>
-              )}
+                    <Wallet size={18} />
+                    Connect Wallet
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
