@@ -330,7 +330,7 @@ export const Game = () => {
     const centerY = platform.current.y + platform.current.height / 2;
     ctx.font = '40px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('🧺', centerX, centerY + 8);
+    ctx.fillText('🥣', centerX, centerY + 8);
 
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
