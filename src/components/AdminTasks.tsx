@@ -263,7 +263,6 @@ export const AdminTasks: React.FC = () => {
                 </div>
               </div>
             </div>
-            </div>
           ))}
         </div>
       )}
@@ -279,8 +278,7 @@ export const AdminTasks: React.FC = () => {
 
               <form onSubmit={handleSubmit}>
                 <div className="space-y-3 md:space-y-4">
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <div className="cute-card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div>
                     <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                       Task Title
                     </label>
@@ -449,26 +447,6 @@ export const AdminTasks: React.FC = () => {
                     <label htmlFor="isActive" className="text-gray-800 font-medium font-inter">
                       Task is active
                     </label>
-                  </div>
-                  
-                  <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        setShowModal(false);
-                        setEditingTask(null);
-                        resetForm();
-                      }}
-                      className="cute-button-outline w-full md:flex-1 py-3 px-4"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="submit"
-                      className="cute-button w-full md:flex-1 py-3 px-4"
-                    >
-                      {editingTask ? 'Update Task' : 'Create Task'}
-                    </Button>
                   </div>
                   
                   <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
