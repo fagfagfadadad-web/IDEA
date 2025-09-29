@@ -9,7 +9,8 @@ import {
   Referrals,
   Shop,
   Mining,
-  Ships
+  Ships,
+  Game
 } from 'pages';
 import { RouteType } from 'types';
 
@@ -76,6 +77,12 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.admin,
     title: 'Admin Panel',
     component: Admin,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.game,
+    title: 'Mini Game',
+    component: Game,
     authenticatedRoute: true
   }
 ];

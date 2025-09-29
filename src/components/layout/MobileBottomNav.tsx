@@ -109,6 +109,12 @@ export const MobileBottomNav = () => {
         />
         
         <NavItem
+          to="/game"
+          icon={<span className="text-xl">🎮</span>}
+          label="Game"
+        />
+        
+        <NavItem
           to="/profile"
           icon={<User size={20} />}
           label="Profile"

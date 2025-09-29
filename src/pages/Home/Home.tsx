@@ -182,6 +182,14 @@ export const Home = () => {
                     <span className="text-xl">🐕</span>
                     My Dogs
                   </Button>
+                  <Button
+                    onClick={() => navigate(RouteNamesEnum.game)}
+                    variant="outline"
+                    className="border-2 border-purple-400 text-purple-600 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
+                  >
+                    <span className="text-xl">🎮</span>
+                    Mini Game
+                  </Button>
                 </>
               ) : (
                 <Button
@@ -279,6 +287,15 @@ export const Home = () => {
                     {gameStats.totalReferrals || 0} 👥
                   </div>
                   <div className="text-orange-100 text-sm">Friends</div>
+                </Button>
+                <Button
+                  onClick={() => navigate(RouteNamesEnum.game)}
+                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                >
+                  <span className="text-2xl">🎮</span>
+                  <span className="font-bold">Game</span>
+                  <div className="text-indigo-100 text-sm">Play & Earn</div>
+                  <div className="text-indigo-100 text-sm">Food Points</div>
                 </Button>
               </div>
             </div>

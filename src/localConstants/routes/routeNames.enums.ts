@@ -8,5 +8,6 @@ export enum RouteNamesEnum {
   referrals = '/referrals',
   leaderboard = '/leaderboard',
   profile = '/profile',
-  admin = '/admin'
+  admin = '/admin',
+  game = '/game'
 }

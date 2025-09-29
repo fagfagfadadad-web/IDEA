@@ -62,6 +62,9 @@ export const Header = () => {
               <Link to="/tasks" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
                 Tasks
               </Link>
+              <Link to="/game" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Mini Game
+              </Link>
               <Link to="/referrals" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
                 Friends
               </Link>
@@ -240,6 +243,14 @@ export const Header = () => {
               >
                 <Target size={18} />
                 Tasks
+              </Link>
+              <Link
+                to="/game"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="text-xl">🎮</span>
+                Mini Game
               </Link>
               <Link
                 to="/referrals"
