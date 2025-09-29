@@ -215,6 +215,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const refreshUser = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const updatedUser = await UserService.getUser(user.id);
+      if (updatedUser) {
+        setUser({ ...updatedUser, isProfileReady: true });
+      }
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+    }
+  };
   const value = {
     isAuthenticated: isLoggedIn && !!user && isProfileReady,
     user,
@@ -223,6 +235,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isProfileReady,
     authMessage,
     logout,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

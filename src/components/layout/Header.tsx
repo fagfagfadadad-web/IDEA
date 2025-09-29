@@ -98,11 +98,9 @@ export const Header = () => {
                       className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-primary-400/50 shadow-lg"
                     >
                       {user?.avatarUrl ? (
-                        <img
-                          src={user.avatarUrl}
-                          alt={user.username || "Profile"}
-                          className="w-full h-full object-cover"
-                        />
+                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                          {user.avatarUrl}
+                        </div>
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold">
                           {user?.username?.charAt(0)?.toUpperCase() || "U"}

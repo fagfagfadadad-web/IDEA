@@ -13,7 +13,7 @@ const dogAvatars = [
 ];
 
 export const Profile = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { gameStats, ships } = useGame();
   const { success, error } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -38,8 +38,8 @@ export const Profile = () => {
     try {
       await UserService.updateUser(user?.id || '', formData);
 
-      // Force refresh of auth context to get updated user data
-      window.location.reload();
+      // Refresh user data in context
+      await refreshUser();
       
       success('Profile updated successfully!');
       setIsEditing(false);
