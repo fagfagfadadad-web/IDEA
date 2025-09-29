@@ -185,72 +185,8 @@ export const Header = () => {
               )}
             </div>
 
-            {/* Mobile Profile Menu */}
+            {/* Mobile Menu Button */}
             <div className="flex lg:hidden items-center space-x-2">
-              {isLoggedIn && (
-                <div className="relative">
-                  <button
-                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="w-8 h-8 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-primary-400/50 shadow-md"
-                  >
-                    {user?.avatarUrl ? (
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.username || "Profile"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-sm">
-                        {user?.username?.charAt(0)?.toUpperCase() || "U"}
-                      </div>
-                    )}
-                  </button>
-                  
-                  {isProfileMenuOpen && (
-                    <>
-                      <div 
-                        className="fixed inset-0 z-10" 
-                        onClick={() => setIsProfileMenuOpen(false)}
-                      />
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-lg border border-primary-300/40 rounded-xl shadow-2xl z-20 overflow-hidden">
-                        <Link
-                          to="/profile"
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
-                          onClick={() => setIsProfileMenuOpen(false)}
-                        >
-                          <User size={16} />
-                          Profile
-                        </Link>
-                        {user?.isAdmin && (
-                          <>
-                            <div className="border-t border-gray-200 my-1"></div>
-                            <Link
-                              to="/admin"
-                              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-accent-100 hover:text-accent-600 transition-all duration-200 font-medium"
-                              onClick={() => setIsProfileMenuOpen(false)}
-                            >
-                              <Settings size={16} />
-                              Admin Panel
-                            </Link>
-                          </>
-                        )}
-                        <div className="border-t border-gray-200 my-1"></div>
-                        <button
-                          onClick={() => {
-                            handleLogout();
-                            setIsProfileMenuOpen(false);
-                          }}
-                          className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 w-full text-left font-medium"
-                        >
-                          <LogOut size={16} />
-                          Disconnect
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-              
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
@@ -265,14 +201,10 @@ export const Header = () => {
         {isMobileMenuOpen && (
           <>
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50"
-              style={{ zIndex: 2147483647 }}
+              className="fixed inset-0 bg-black bg-opacity-50 z-50"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div 
-              className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
-              style={{ zIndex: 2147483647 }}
-            >
+            <div className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 border-l border-primary-300/40 z-50">
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>

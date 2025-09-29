@@ -48,7 +48,7 @@ export const MobileBottomNav = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 md:hidden" style={{ zIndex: 2147483646 }}>
+    <div className="fixed bottom-0 left-0 right-0 md:hidden z-40">
       {/* Gradient Background */}
       <div className="bg-gradient-to-t from-white via-white/95 to-white/80 backdrop-blur-xl border-t-2 border-primary-200/50 shadow-2xl">
         <div className="flex justify-around items-end py-2 px-2 relative">
@@ -81,7 +81,7 @@ export const MobileBottomNav = () => {
                   border-3 border-white shadow-md
                 `}>
                   {/* Icon */}
-                  <span className={`${isCenter ? 'text-2xl' : 'text-xl'} ${isActive ? 'animate-bounce' : ''}`}>
+                  <span className={`${isCenter ? 'text-2xl' : 'text-xl'}`}>
                     {item.icon}
                   </span>
                   
