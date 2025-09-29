@@ -43,30 +43,30 @@ export const Header = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-2xl">🐕</span>
               </div>
-              <span className="text-2xl font-orbitron font-black bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+              <span className="text-2xl font-black bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
                 ZenDOG
               </span>
             </Link>
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-6">
-              <Link to="/mining" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Meditation
+              <Link to="/mining" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Feed Dogs
               </Link>
-              <Link to="/ships" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
+              <Link to="/ships" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
                 Dogs
               </Link>
-              <Link to="/shop" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Temple
+              <Link to="/shop" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Pet Store
               </Link>
-              <Link to="/tasks" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Quests
+              <Link to="/tasks" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Tasks
               </Link>
-              <Link to="/referrals" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Disciples
+              <Link to="/referrals" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Friends
               </Link>
-              <Link to="/leaderboard" className="text-gray-300 hover:text-cyan-400 transition-colors font-medium">
-                Enlightened
+              <Link to="/leaderboard" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+                Leaderboard
               </Link>
             </div>
           </div>
@@ -74,12 +74,12 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {/* ZEN Balance */}
             {isLoggedIn && gameStats && (
-              <div className="hidden md:flex items-center gap-2 bg-slate-800/50 px-4 py-2 rounded-lg border border-cyan-500/20">
-                <Zap size={16} className="text-cyan-400" />
-                <span className="text-cyan-400 font-orbitron font-bold">
+              <div className="hidden md:flex items-center gap-2 bg-white/70 px-4 py-2 rounded-lg border border-pink-300/40">
+                <span className="text-pink-500">🍖</span>
+                <span className="text-pink-600 font-bold">
                   {gameStats.zenBalance?.toLocaleString() || '0'}
                 </span>
-                <span className="text-gray-400 text-sm">⚡</span>
+                <span className="text-gray-600 text-sm">Food</span>
               </div>
             )}
 
@@ -91,7 +91,7 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-cyan-400/50"
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-pink-400/50"
                     >
                       {user?.avatarUrl ? (
                         <img
@@ -100,7 +100,7 @@ export const Header = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-cyan-400 to-purple-500 flex items-center justify-center text-white font-orbitron font-bold">
+                        <div className="w-full h-full bg-gradient-to-r from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold">
                           {user?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
@@ -112,10 +112,10 @@ export const Header = () => {
                           className="fixed inset-0 z-10" 
                           onClick={() => setIsProfileMenuOpen(false)}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-slate-800 border border-cyan-500/20 rounded-lg shadow-xl z-20 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-pink-300/40 rounded-lg shadow-xl z-20 overflow-hidden">
                           <Link
                             to="/profile"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-pink-100 hover:text-pink-600 transition-all duration-200"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -123,25 +123,25 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/mining"
-                            className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all duration-200"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-pink-100 hover:text-pink-600 transition-all duration-200"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
-                            <Zap size={16} />
-                            Mining
+                            <span>🍖</span>
+                            Feed Dogs
                           </Link>
                           {user?.isAdmin && (
                             <Link
                               to="/admin"
-                              className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 transition-all duration-200"
+                              className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-purple-100 hover:text-purple-600 transition-all duration-200"
                               onClick={() => setIsProfileMenuOpen(false)}
                             >
-                              <span>🧘‍♂️</span>
-                              Meditation
+                              <Settings size={16} />
+                              Admin Panel
                             </Link>
                           )}
                           <button
                             onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-3 text-gray-300 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200 w-full text-left"
+                            className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-red-100 hover:text-red-600 transition-all duration-200 w-full text-left"
                           >
                             <LogOut size={16} />
                             Disconnect
@@ -154,7 +154,7 @@ export const Header = () => {
               ) : (
                 <Button
                   onClick={handleConnect}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-orbitron font-bold"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-bold"
                 >
                   <Wallet size={16} />
                   Connect Wallet
@@ -166,7 +166,7 @@ export const Header = () => {
             <div className="flex lg:hidden items-center space-x-2">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-300 hover:text-cyan-400 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-2 text-gray-600 hover:text-pink-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               >
                 <MenuIcon size={20} />
               </button>
@@ -182,13 +182,13 @@ export const Header = () => {
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
-          <div className="fixed top-0 right-0 h-full w-80 bg-slate-900 shadow-xl z-50 transform transition-transform duration-300 border-l border-cyan-500/20">
-            <div className="p-4 border-b border-gray-700">
+          <div className="fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 border-l border-pink-300/40">
+            <div className="p-4 border-b border-pink-200">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-orbitron font-bold text-cyan-400">ZEN Mining</h2>
+                <h2 className="text-lg font-bold text-pink-600">ZenDOG</h2>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 text-gray-400 hover:text-white min-w-[44px] min-h-[44px] flex items-center justify-center"
+                  className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
                 >
                   <X size={20} />
                 </button>
@@ -198,44 +198,44 @@ export const Header = () => {
             <div className="p-4 space-y-2">
               {/* ZEN Balance */}
               {isLoggedIn && gameStats && (
-                <div className="bg-slate-800/50 p-4 rounded-lg border border-cyan-500/20 mb-4">
+                <div className="bg-pink-50 p-4 rounded-lg border border-pink-300/40 mb-4">
                   <div className="flex items-center gap-2 justify-center">
-                    <Zap size={20} className="text-cyan-400" />
-                    <span className="text-cyan-400 font-orbitron font-bold text-lg">
+                    <span className="text-pink-500 text-xl">🍖</span>
+                    <span className="text-pink-600 font-bold text-lg">
                       {gameStats.zenBalance?.toLocaleString() || '0'}
                     </span>
-                    <span className="text-gray-400">ZEN</span>
+                    <span className="text-gray-600">Food</span>
                   </div>
                 </div>
               )}
 
               <Link
                 to="/mining"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Zap size={18} />
-                Mining
+                <span className="text-xl">🍖</span>
+                Feed Dogs
               </Link>
               <Link
                 to="/ships"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Rocket size={18} />
-                Ships
+                <span className="text-xl">🐕</span>
+                Dogs
               </Link>
               <Link
                 to="/shop"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <ShoppingCart size={18} />
-                Shop
+                Pet Store
               </Link>
               <Link
                 to="/tasks"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Target size={18} />
@@ -243,15 +243,15 @@ export const Header = () => {
               </Link>
               <Link
                 to="/referrals"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Users size={18} />
-                Referrals
+                Friends
               </Link>
               <Link
                 to="/leaderboard"
-                className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Trophy size={18} />
@@ -262,7 +262,7 @@ export const Header = () => {
                 <>
                   <Link
                     to="/profile"
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400 rounded-lg transition-all duration-200"
+                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-pink-100 hover:text-pink-600 rounded-lg transition-all duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <User size={18} />
@@ -271,7 +271,7 @@ export const Header = () => {
                   {user?.isAdmin && (
                     <Link
                       to="/admin"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-purple-500/10 hover:text-purple-400 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-purple-100 hover:text-purple-600 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Settings size={18} />
@@ -283,7 +283,7 @@ export const Header = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-300 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-all duration-200 w-full text-left mt-4"
+                    className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4"
                   >
                     <LogOut size={18} />
                     Disconnect
@@ -295,7 +295,7 @@ export const Header = () => {
                     handleConnect();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-6 py-3 rounded-lg font-orbitron font-bold w-full mt-4"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
                 >
                   <Wallet size={18} />
                   Connect Wallet

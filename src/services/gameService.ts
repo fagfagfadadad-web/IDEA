@@ -194,7 +194,7 @@ export class GameService {
     console.log('🐕 GameService: Creating starter dog for user:', userId);
     const shipId = await this.createShip({
       userId,
-      name: 'Zen Puppy',
+      name: 'Playful Puppy',
       level: 1,
       miningPower: 10,
       energyCapacity: 100,
@@ -463,10 +463,10 @@ export class GameService {
 
   static getShipConfig(shipType: string) {
     const configs = {
-      basic: { name: 'Zen Puppy', miningPower: 10, energyCapacity: 100, cost: 0 },
-      advanced: { name: 'Cosmic Retriever', miningPower: 25, energyCapacity: 200, cost: 1000 },
-      elite: { name: 'Astral Shepherd', miningPower: 50, energyCapacity: 300, cost: 5000 },
-      legendary: { name: 'Divine Wolf', miningPower: 100, energyCapacity: 500, cost: 20000 }
+      basic: { name: 'Playful Puppy', miningPower: 10, energyCapacity: 100, cost: 0 },
+      advanced: { name: 'Golden Retriever', miningPower: 25, energyCapacity: 200, cost: 1000 },
+      elite: { name: 'Husky Explorer', miningPower: 50, energyCapacity: 300, cost: 5000 },
+      legendary: { name: 'Royal Corgi', miningPower: 100, energyCapacity: 500, cost: 20000 }
     };
     return configs[shipType as keyof typeof configs] || configs.basic;
   }

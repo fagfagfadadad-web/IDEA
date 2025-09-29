@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, Battery, Rocket, Clock, TrendingUp, Star } from 'lucide-react';
+import { Heart, Battery, Clock, TrendingUp, Star } from 'lucide-react';
 import { Button } from 'components';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
@@ -10,7 +10,7 @@ export const Mining = () => {
   const { user } = useAuth();
   const { gameStats, ships, mineZen, isMining, isLoading } = useGame();
   const [selectedShip, setSelectedShip] = useState<string | null>(null);
-  const [miningProgress, setMiningProgress] = useState<{ [key: string]: number }>({});
+  const [feedingProgress, setFeedingProgress] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     if (ships.length > 0 && !selectedShip) {
@@ -18,108 +18,110 @@ export const Mining = () => {
     }
   }, [ships, selectedShip]);
 
-  // Update mining progress for ships
+  // Update feeding progress for dogs
   useEffect(() => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
       ships.forEach(ship => {
        if (!ship.id) return;
-       const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
+       const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
-        const timeDiff = now.getTime() - lastMining.getTime();
+        const timeDiff = now.getTime() - lastFeeding.getTime();
         const progress = Math.min(100, (timeDiff / (60 * 1000)) * 100); // 1 minute = 100%
        newProgress[ship.id] = progress;
       });
-      setMiningProgress(newProgress);
+      setFeedingProgress(newProgress);
     }, 1000);
 
     return () => clearInterval(interval);
   }, [ships]);
 
-  const handleMine = async (shipId: string) => {
+  const handleFeed = async (shipId: string) => {
     await mineZen(shipId);
   };
 
-  const getEnergyPercentage = (ship: any) => {
+  const getHappinessPercentage = (ship: any) => {
     return (ship.current_energy / ship.energy_capacity) * 100;
   };
 
-  const canMine = (ship: any) => {
-    // Always use the most recent mining time from either field
-    const lastMiningField = ship.lastMining;
-    const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
+  const canFeed = (ship: any) => {
+    const lastFeedingField = ship.lastMining;
+    const lastFeeding = lastFeedingField?.toDate?.() || new Date(lastFeedingField || new Date());
     const now = new Date();
-    const timeDiff = now.getTime() - lastMining.getTime();
+    const timeDiff = now.getTime() - lastFeeding.getTime();
     const secondsPassed = Math.floor(timeDiff / 1000);
     
-   const hasEnergy = (ship.currentEnergy || 0) >= 10;
+   const hasHunger = (ship.currentEnergy || 0) >= 10;
     const cooldownPassed = secondsPassed >= 60; // 60 seconds = 1 minute
     
-    console.log('⛏️ Mining: canMine check for ship', ship.name, {
-      hasEnergy,
-      currentEnergy: ship.current_energy || ship.currentEnergy,
+    console.log('🍖 Feeding: canFeed check for dog', ship.name, {
+      hasHunger,
+      currentHunger: ship.current_energy || ship.currentEnergy,
       cooldownPassed,
       secondsPassed,
-      lastMiningField,
-      lastMiningParsed: lastMining.toISOString(),
+      lastFeedingField,
+      lastFeedingParsed: lastFeeding.toISOString(),
       now: now.toISOString(),
-      result: hasEnergy && cooldownPassed
+      result: hasHunger && cooldownPassed
     });
     
-    return hasEnergy && cooldownPassed;
+    return hasHunger && cooldownPassed;
   };
 
-  const getTimeUntilNextMining = (ship: any) => {
-    // Always use the most recent mining time from either field
-    const lastMiningField = ship.lastMining;
-    const lastMining = lastMiningField?.toDate?.() || new Date(lastMiningField || new Date());
+  const getTimeUntilNextFeeding = (ship: any) => {
+    const lastFeedingField = ship.lastMining;
+    const lastFeeding = lastFeedingField?.toDate?.() || new Date(lastFeedingField || new Date());
     const now = new Date();
-    const timeDiff = now.getTime() - lastMining.getTime();
+    const timeDiff = now.getTime() - lastFeeding.getTime();
     const secondsElapsed = Math.floor(timeDiff / 1000);
     const secondsRemaining = Math.max(0, 60 - secondsElapsed);
     
-    console.log('⏰ Mining: getTimeUntilNextMining debug:', {
-      shipName: ship.name,
-      lastMiningField,
-      lastMining: lastMining.toISOString(),
+    console.log('⏰ Feeding: getTimeUntilNextFeeding debug:', {
+      dogName: ship.name,
+      lastFeedingField,
+      lastFeeding: lastFeeding.toISOString(),
       now: now.toISOString(),
       timeDiff,
       secondsElapsed,
       secondsRemaining
     });
     
-    if (secondsElapsed >= 60) return "Ready!";
-    return `${secondsRemaining}s remaining`;
+    if (secondsElapsed >= 60) return "Ready to eat!";
+    return `${secondsRemaining}s until hungry`;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <div className="text-xl text-cyan-400 font-orbitron">Loading Mining Station...</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto"></div>
+          <div className="text-xl text-pink-600 font-bold">Loading Pet Care Center...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1169754/pexels-photo-1169754.jpeg')] bg-cover bg-center opacity-5"></div>
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {/* Floating hearts and stars */}
+          {[...Array(30)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+              className="absolute animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`
+                animationDuration: `${2 + Math.random() * 3}s`,
+                fontSize: `${8 + Math.random() * 6}px`,
+                color: ['#ff6b9d', '#ec4899', '#d946ef', '#fbbf24'][Math.floor(Math.random() * 4)]
               }}
-            />
+            >
+              {['💖', '⭐', '🌟', '💫', '🎀'][Math.floor(Math.random() * 5)]}
+            </div>
           ))}
         </div>
       </div>
@@ -128,84 +130,84 @@ export const Mining = () => {
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Meditation Temple
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Pet Care Center
             </h1>
-            <p className="text-gray-400 text-lg">
-              Guide your cosmic dogs in meditation to harvest ZEN energy from the astral realm
+            <p className="text-gray-700 text-lg">
+              Feed your dogs and watch them grow happy and healthy! 🐕💖
             </p>
           </div>
 
           {/* Game Stats */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-6 border border-cyan-500/20">
+          <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/40 shadow-lg">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-cyan-400 text-xl">⚡</span>
-                  <span className="text-gray-400 font-medium">ZEN Energy</span>
+                  <span className="text-pink-500 text-xl">🍖</span>
+                  <span className="text-gray-700 font-medium">Food Points</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
+                <div className="text-2xl md:text-3xl font-bold text-pink-600">
                   {gameStats?.zenBalance?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-purple-400 text-xl">🌟</span>
-                  <span className="text-gray-400 font-medium">Total Energy</span>
+                  <span className="text-purple-500 text-xl">❤️</span>
+                  <span className="text-gray-700 font-medium">Love Given</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
+                <div className="text-2xl md:text-3xl font-bold text-purple-600">
                   {gameStats?.totalMined?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-green-400 text-xl">🧘‍♂️</span>
-                  <span className="text-gray-400 font-medium">Spiritual Level</span>
+                  <span className="text-green-500 text-xl">🏆</span>
+                  <span className="text-gray-700 font-medium">Care Level</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
+                <div className="text-2xl md:text-3xl font-bold text-green-600">
                   {gameStats?.miningLevel || 1}
                 </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-orange-400 text-xl">🐕</span>
-                  <span className="text-gray-400 font-medium">Cosmic Dogs</span>
+                  <span className="text-orange-500 text-xl">🐕</span>
+                  <span className="text-gray-700 font-medium">Pet Dogs</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-orange-400">
+                <div className="text-2xl md:text-3xl font-bold text-orange-600">
                   {ships.length}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Ships Grid */}
+          {/* Dogs Grid */}
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-orbitron font-bold text-white">
-                Your Cosmic Pack
+              <h2 className="text-2xl font-bold text-gray-800">
+                Your Pet Dogs
               </h2>
               <Button
                 onClick={() => navigate('/ships')}
                 variant="outline"
-                className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 flex items-center gap-2"
+                className="border-pink-400 text-pink-600 hover:bg-pink-400 hover:text-white flex items-center gap-2"
               >
                 <span>🐕</span>
-                Manage Pack
+                Manage Dogs
               </Button>
             </div>
 
             {ships.length === 0 ? (
-              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-8 border border-gray-700/50 text-center">
+              <div className="bg-white/70 backdrop-blur-lg rounded-xl p-8 border border-pink-300/40 text-center shadow-lg">
                 <span className="text-6xl mb-4 block">🐕</span>
-                <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
-                  No Cosmic Dogs Available
+                <h3 className="text-xl font-bold text-gray-700 mb-2">
+                  No Pet Dogs Available
                 </h3>
-                <p className="text-gray-500 mb-4">
-                  You need at least one cosmic dog to start harvesting ZEN energy
+                <p className="text-gray-600 mb-4">
+                  You need at least one dog to start the pet care experience
                 </p>
                 <Button
                   onClick={() => navigate('/ships')}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white flex items-center gap-2"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center gap-2"
                 >
                   <span>🐕</span>
                   Adopt Your First Dog
@@ -214,113 +216,113 @@ export const Mining = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {ships.map((ship) => {
-                  const energyPercentage = getEnergyPercentage(ship);
-                  const canMineNow = canMine(ship);
-                 const progress = miningProgress[ship.id || ''] || 0;
+                  const happinessPercentage = getHappinessPercentage(ship);
+                  const canFeedNow = canFeed(ship);
+                 const progress = feedingProgress[ship.id || ''] || 0;
                   
                   return (
                     <div
                       key={ship.id}
-                      className={`bg-slate-800/70 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 ${
+                      className={`bg-white/70 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
                         selectedShip === ship.id 
-                          ? 'border-cyan-500 shadow-lg shadow-cyan-500/20' 
-                          : 'border-gray-700/50 hover:border-cyan-500/50'
+                          ? 'border-pink-400 shadow-pink-200' 
+                          : 'border-pink-200/50 hover:border-pink-400/50'
                       }`}
                      onClick={() => setSelectedShip(ship.id || null)}
                     >
                       <div className="space-y-4">
-                        {/* Ship Header */}
+                        {/* Dog Header */}
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="text-lg font-orbitron font-bold text-white">
+                            <h3 className="text-lg font-bold text-gray-800">
                               {ship.name}
                             </h3>
-                            <p className="text-gray-400 text-sm">
+                            <p className="text-gray-600 text-sm">
                               Level {ship.level} • {ship.shipType} 🐕
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="text-cyan-400 font-orbitron font-bold">
+                            <div className="text-pink-600 font-bold">
                               {ship.miningPower}
                             </div>
-                            <div className="text-gray-400 text-xs">Spiritual Power</div>
+                            <div className="text-gray-600 text-xs">Appetite</div>
                           </div>
                         </div>
 
-                        {/* Energy Bar */}
+                        {/* Happiness Bar */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">
-                              ⚡ Spiritual Energy
+                            <span className="text-gray-600 text-sm">
+                              💖 Happiness Level
                             </span>
-                            <span className="text-white text-sm font-medium">
+                            <span className="text-gray-800 text-sm font-medium">
                               {ship.currentEnergy}/{ship.energyCapacity}
                             </span>
                           </div>
-                          <div className="w-full bg-slate-700 rounded-full h-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full transition-all duration-300 ${
-                                energyPercentage > 50 ? 'bg-green-500' :
-                                energyPercentage > 25 ? 'bg-yellow-500' : 'bg-red-500'
+                                happinessPercentage > 50 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                                happinessPercentage > 25 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gradient-to-r from-red-400 to-red-500'
                               }`}
-                              style={{ width: `${energyPercentage}%` }}
+                              style={{ width: `${happinessPercentage}%` }}
                             />
                           </div>
                         </div>
 
-                        {/* Mining Progress */}
+                        {/* Feeding Progress */}
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">
-                              🧘‍♂️ Meditation Progress
+                            <span className="text-gray-600 text-sm">
+                              🍖 Feeding Time
                             </span>
                             <span className={`text-sm font-medium ${
-                              canMineNow ? 'text-green-400' : 'text-orange-400'
+                              canFeedNow ? 'text-green-600' : 'text-orange-600'
                             }`}>
-                              {getTimeUntilNextMining(ship)}
+                              {getTimeUntilNextFeeding(ship)}
                             </span>
                           </div>
-                          <div className="w-full bg-slate-700 rounded-full h-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
                               className={`h-2 rounded-full transition-all duration-300 ${
-                                canMineNow 
-                                  ? 'bg-gradient-to-r from-green-500 to-green-400' 
-                                  : 'bg-gradient-to-r from-orange-500 to-yellow-500'
+                                canFeedNow 
+                                  ? 'bg-gradient-to-r from-green-400 to-green-500' 
+                                  : 'bg-gradient-to-r from-orange-400 to-yellow-500'
                               }`}
-                              style={{ width: `${canMineNow ? 100 : progress}%` }}
+                              style={{ width: `${canFeedNow ? 100 : progress}%` }}
                             />
                           </div>
                         </div>
 
-                        {/* Mine Button */}
+                        {/* Feed Button */}
                         <Button
-                         onClick={() => handleMine(ship.id!)}
-                          disabled={!canMineNow || isMining}
-                          className={`w-full py-3 rounded-xl font-orbitron font-bold transition-all duration-200 ${
-                            canMineNow && !isMining
-                              ? 'bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
-                              : 'bg-slate-700 text-gray-400 cursor-not-allowed'
+                         onClick={() => handleFeed(ship.id!)}
+                          disabled={!canFeedNow || isMining}
+                          className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
+                            canFeedNow && !isMining
+                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
                           {isMining ? (
                             <div className="flex items-center justify-center gap-2">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              Meditating...
+                              Feeding...
                             </div>
-                          ) : canMineNow ? (
+                          ) : canFeedNow ? (
                             <div className="flex items-center justify-center gap-2">
-                              <span>🧘‍♂️</span>
-                              Meditate
+                              <span>🍖</span>
+                              Feed Dog
                             </div>
                          ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
-                              <span>⚡</span>
-                              No Spiritual Energy
+                              <span>😴</span>
+                              Dog is Full
                             </div>
                           ) : (
                             <div className="flex items-center justify-center gap-2">
                               <Clock size={16} />
-                              {getTimeUntilNextMining(ship)}
+                              {getTimeUntilNextFeeding(ship)}
                             </div>
                          )}
                         </Button>
@@ -332,37 +334,37 @@ export const Mining = () => {
             )}
           </div>
 
-          {/* Mining Tips */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700/50">
-            <h3 className="text-xl font-orbitron font-bold text-white mb-4">
-              Meditation Tips
+          {/* Pet Care Tips */}
+          <div className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-pink-300/40 shadow-lg">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Pet Care Tips
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-cyan-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
-                  ⚡
+                <div className="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                  🍖
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Spiritual Energy</h4>
-                  <p className="text-gray-400 text-sm">Dogs need spiritual energy to meditate. Energy regenerates through rest.</p>
+                  <h4 className="text-gray-800 font-medium">Regular Feeding</h4>
+                  <p className="text-gray-600 text-sm">Feed your dogs regularly to keep them happy and earn food points.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
-                  🌟
+                <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                  💖
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Spiritual Growth</h4>
-                  <p className="text-gray-400 text-sm">Higher levels increase your meditation efficiency and energy rewards.</p>
+                  <h4 className="text-gray-800 font-medium">Show Love</h4>
+                  <p className="text-gray-600 text-sm">Higher care levels increase your feeding efficiency and rewards.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                <div className="w-8 h-8 bg-green-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
                   🐕
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">Dog Training</h4>
-                  <p className="text-gray-400 text-sm">Train your cosmic dogs to harvest more ZEN energy per meditation.</p>
+                  <h4 className="text-gray-800 font-medium">Adopt More Dogs</h4>
+                  <p className="text-gray-600 text-sm">Adopt different dog breeds to earn more food points per feeding.</p>
                 </div>
               </div>
             </div>

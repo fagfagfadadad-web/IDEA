@@ -1,65 +1,65 @@
 import React, { useState } from 'react';
-import { Rocket, Zap, Battery, TrendingUp, ShoppingCart, Wrench } from 'lucide-react';
+import { Heart, Battery, TrendingUp, ShoppingCart, Wrench } from 'lucide-react';
 import { Button } from 'components';
 import { useGame } from '../../context/GameContext';
 
-const shipTypes = [
+const dogTypes = [
   {
     type: 'basic',
-    name: 'Zen Puppy',
+    name: 'Playful Puppy',
     cost: 0,
     mining_power: 10,
     energy_capacity: 100,
-    description: 'A gentle starter companion for new spiritual seekers',
-    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
+    description: 'A cute and energetic puppy perfect for beginners',
+    emoji: '🐶'
   },
   {
     type: 'advanced',
-    name: 'Cosmic Retriever',
+    name: 'Golden Retriever',
     cost: 1000,
     mining_power: 25,
     energy_capacity: 200,
-    description: 'Enhanced spiritual capabilities with better energy flow',
-    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
+    description: 'A loyal and loving companion with great appetite',
+    emoji: '🦮'
   },
   {
     type: 'elite',
-    name: 'Astral Shepherd',
+    name: 'Husky Explorer',
     cost: 5000,
     mining_power: 50,
     energy_capacity: 300,
-    description: 'High-performance companion for serious spiritual practitioners',
-    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
+    description: 'An adventurous dog with high energy and appetite',
+    emoji: '🐕‍🦺'
   },
   {
     type: 'legendary',
-    name: 'Divine Wolf',
+    name: 'Royal Corgi',
     cost: 20000,
     mining_power: 100,
     energy_capacity: 500,
-    description: 'The ultimate spiritual companion with maximum enlightenment',
-    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
+    description: 'The ultimate companion with royal appetite and charm',
+    emoji: '👑🐕'
   }
 ];
 
 const upgradeTypes = [
   {
     type: 'mining_power',
-    name: 'Spiritual Power',
-    description: 'Increase ZEN energy harvested per meditation',
-    icon: <Zap size={20} className="text-cyan-400" />
+    name: 'Appetite Boost',
+    description: 'Increase food points earned per feeding',
+    icon: <Heart size={20} className="text-pink-500" />
   },
   {
     type: 'energy_capacity',
-    name: 'Spiritual Capacity',
-    description: 'Increase maximum spiritual energy storage',
-    icon: <Battery size={20} className="text-green-400" />
+    name: 'Happiness Capacity',
+    description: 'Increase maximum happiness level',
+    icon: <Battery size={20} className="text-green-500" />
   },
   {
     type: 'efficiency',
-    name: 'Meditation Efficiency',
-    description: 'Reduce energy consumption per meditation session',
-    icon: <TrendingUp size={20} className="text-purple-400" />
+    name: 'Care Efficiency',
+    description: 'Reduce time between feedings',
+    icon: <TrendingUp size={20} className="text-purple-500" />
   }
 ];
 
@@ -80,7 +80,7 @@ export const Ships = () => {
     const cost = baseCost[upgradeType as keyof typeof baseCost] || 100;
     const finalCost = Math.floor(cost * Math.pow(1.5, currentLevel));
     
-    console.log('💰 Ships: calculateUpgradeCost:', {
+    console.log('💰 Dogs: calculateUpgradeCost:', {
       upgradeType,
       currentLevel,
       baseCost: cost,
@@ -93,64 +93,64 @@ export const Ships = () => {
 
   const canAfford = (cost: number) => {
     const currentBalance = Number(gameStats?.zenBalance || 0);
-    console.log('💰 Ships: Checking affordability - Balance:', currentBalance, 'Cost:', cost);
+    console.log('💰 Dogs: Checking affordability - Balance:', currentBalance, 'Cost:', cost);
     return currentBalance >= cost;
   };
 
-  const getEnergyPercentage = (ship: any) => {
-    const currentEnergy = ship.current_energy || ship.currentEnergy || 0;
-    const maxEnergy = ship.energy_capacity || ship.energyCapacity || 100;
-    return (currentEnergy / maxEnergy) * 100;
+  const getHappinessPercentage = (ship: any) => {
+    const currentHappiness = ship.current_energy || ship.currentEnergy || 0;
+    const maxHappiness = ship.energy_capacity || ship.energyCapacity || 100;
+    return (currentHappiness / maxHappiness) * 100;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <div className="text-xl text-cyan-400 font-orbitron">Loading Fleet...</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-pink-400 mx-auto"></div>
+          <div className="text-xl text-pink-600 font-bold">Loading Dog House...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Cosmic Pack Management
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              Dog House Management
             </h1>
-            <p className="text-gray-400 text-lg">
-              Manage your cosmic pack and adopt new spiritual companions
+            <p className="text-gray-700 text-lg">
+              Manage your pet dogs and adopt new furry friends
             </p>
-            <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
-              <span>⚡</span>
-              {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
+            <div className="flex items-center justify-center gap-2 text-pink-600 font-bold text-xl">
+              <span>🍖</span>
+              {gameStats?.zenBalance?.toLocaleString() || 0} Food Points
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl border border-cyan-500/20 overflow-hidden">
-            <div className="flex border-b border-gray-700">
+          <div className="bg-white/70 backdrop-blur-lg rounded-2xl border border-pink-300/40 overflow-hidden shadow-lg">
+            <div className="flex border-b border-pink-200">
               <button
                 onClick={() => setActiveTab(0)}
-                className={`flex-1 px-6 py-4 font-orbitron font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-bold transition-all duration-200 ${
                   activeTab === 0
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-b-2 border-cyan-400'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-gradient-to-r from-pink-200 to-purple-200 text-pink-700 border-b-2 border-pink-500'
+                    : 'text-gray-600 hover:text-pink-600'
                 }`}
               >
                 My Dogs ({ships.length}) 🐕
               </button>
               <button
                 onClick={() => setActiveTab(1)}
-                className={`flex-1 px-6 py-4 font-orbitron font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-bold transition-all duration-200 ${
                   activeTab === 1
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-b-2 border-cyan-400'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-gradient-to-r from-pink-200 to-purple-200 text-pink-700 border-b-2 border-pink-500'
+                    : 'text-gray-600 hover:text-pink-600'
                 }`}
               >
                 Adoption Center
@@ -163,15 +163,15 @@ export const Ships = () => {
                   {ships.length === 0 ? (
                     <div className="text-center py-12">
                       <span className="text-6xl mb-4 block">🐕</span>
-                      <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
-                        No Dogs in Pack
+                      <h3 className="text-xl font-bold text-gray-700 mb-2">
+                        No Dogs in Your House
                       </h3>
-                      <p className="text-gray-500 mb-4">
-                        Adopt your first cosmic dog to start harvesting ZEN energy
+                      <p className="text-gray-600 mb-4">
+                        Adopt your first dog to start the pet care experience
                       </p>
                       <Button
                         onClick={() => setActiveTab(1)}
-                        className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white flex items-center gap-2"
+                        className="bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center gap-2"
                       >
                         <span>🐕</span>
                         Visit Adoption Center
@@ -180,56 +180,56 @@ export const Ships = () => {
                   ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       {ships.map((ship) => {
-                        const energyPercentage = getEnergyPercentage(ship);
+                        const happinessPercentage = getHappinessPercentage(ship);
                         
                         return (
                           <div
                             key={ship.id}
-                            className="bg-slate-700/50 rounded-xl p-6 border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300"
+                            className="bg-white/70 rounded-xl p-6 border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 shadow-lg"
                           >
                             <div className="space-y-4">
                               {/* Dog Info */}
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="text-xl font-orbitron font-bold text-white">
+                                  <h3 className="text-xl font-bold text-gray-800">
                                     {ship.name}
                                   </h3>
-                                  <p className="text-gray-400">
+                                  <p className="text-gray-600">
                                     Level {ship.level} • {ship.shipType} 🐕
                                   </p>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-cyan-400 font-orbitron font-bold text-lg">
+                                  <div className="text-pink-600 font-bold text-lg">
                                     {ship.miningPower}
                                   </div>
-                                  <div className="text-gray-400 text-sm">Spiritual Power</div>
+                                  <div className="text-gray-600 text-sm">Appetite</div>
                                 </div>
                               </div>
 
-                              {/* Spiritual Energy Status */}
+                              {/* Happiness Status */}
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-400 text-sm">
-                                    ⚡ Spiritual Energy
+                                  <span className="text-gray-600 text-sm">
+                                    💖 Happiness Level
                                   </span>
-                                  <span className="text-white text-sm">
+                                  <span className="text-gray-800 text-sm">
                                     {ship.currentEnergy}/{ship.energyCapacity}
                                   </span>
                                 </div>
-                                <div className="w-full bg-slate-600 rounded-full h-2">
+                                <div className="w-full bg-gray-200 rounded-full h-2">
                                   <div
                                     className={`h-2 rounded-full transition-all duration-300 ${
-                                      energyPercentage > 50 ? 'bg-green-500' :
-                                      energyPercentage > 25 ? 'bg-yellow-500' : 'bg-red-500'
+                                      happinessPercentage > 50 ? 'bg-gradient-to-r from-green-400 to-green-500' :
+                                      happinessPercentage > 25 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gradient-to-r from-red-400 to-red-500'
                                     }`}
-                                    style={{ width: `${energyPercentage}%` }}
+                                    style={{ width: `${happinessPercentage}%` }}
                                   />
                                 </div>
                               </div>
 
                               {/* Training */}
                               <div className="space-y-3">
-                                <h4 className="text-white font-orbitron font-bold">Training</h4>
+                                <h4 className="text-gray-800 font-bold">Training & Care</h4>
                                 <div className="grid grid-cols-1 gap-2">
                                   {upgradeTypes.map((upgrade) => {
                                     const currentLevel = ship.upgrades[upgrade.type] || 0;
@@ -239,15 +239,15 @@ export const Ships = () => {
                                     return (
                                       <div
                                         key={upgrade.type}
-                                        className="flex items-center justify-between bg-slate-600/30 rounded-lg p-3"
+                                        className="flex items-center justify-between bg-pink-50/50 rounded-lg p-3"
                                       >
                                         <div className="flex items-center gap-3">
                                           {upgrade.icon}
                                           <div>
-                                            <div className="text-white font-medium text-sm">
+                                            <div className="text-gray-800 font-medium text-sm">
                                               {upgrade.name} (Lv.{currentLevel})
                                             </div>
-                                            <div className="text-gray-400 text-xs">
+                                            <div className="text-gray-600 text-xs">
                                               {upgrade.description}
                                             </div>
                                           </div>
@@ -255,13 +255,13 @@ export const Ships = () => {
                                         <Button
                                           onClick={() => upgradeShip(ship.id!, upgrade.type)}
                                           disabled={!affordable}
-                                          className={`px-3 py-1 text-xs font-orbitron font-bold rounded-lg ${
+                                          className={`px-3 py-1 text-xs font-bold rounded-lg ${
                                             affordable
-                                              ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white'
-                                              : 'bg-slate-600 text-gray-400 cursor-not-allowed'
+                                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                           }`}
                                         >
-                                          {cost} ZEN
+                                          {cost} 🍖
                                         </Button>
                                       </div>
                                     );
@@ -280,59 +280,59 @@ export const Ships = () => {
               {activeTab === 1 && (
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {shipTypes.map((shipType) => {
-                      const affordable = canAfford(shipType.cost);
-                      const owned = ships.some(s => s.shipType === shipType.type);
+                    {dogTypes.map((dogType) => {
+                      const affordable = canAfford(dogType.cost);
+                      const owned = ships.some(s => s.shipType === dogType.type);
                       
                       return (
                         <div
-                          key={shipType.type}
-                          className="bg-slate-700/50 rounded-xl overflow-hidden border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105"
+                          key={dogType.type}
+                          className="bg-white/70 rounded-xl overflow-hidden border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
-                          <div className="aspect-video bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
-                            <span className="text-6xl">🐕</span>
+                          <div className="aspect-video bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
+                            <span className="text-6xl">{dogType.emoji}</span>
                           </div>
                           
                           <div className="p-4 space-y-4">
                             <div>
-                              <h3 className="text-lg font-orbitron font-bold text-white">
-                                {shipType.name}
+                              <h3 className="text-lg font-bold text-gray-800">
+                                {dogType.name}
                               </h3>
-                              <p className="text-gray-400 text-sm">
-                                {shipType.description}
+                              <p className="text-gray-600 text-sm">
+                                {dogType.description}
                               </p>
                             </div>
 
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-gray-400 text-sm">Spiritual Power:</span>
-                                <span className="text-cyan-400 font-bold">{shipType.mining_power}</span>
+                                <span className="text-gray-600 text-sm">Appetite:</span>
+                                <span className="text-pink-600 font-bold">{dogType.mining_power}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-400 text-sm">Energy Capacity:</span>
-                                <span className="text-green-400 font-bold">{shipType.energy_capacity}</span>
+                                <span className="text-gray-600 text-sm">Happiness Capacity:</span>
+                                <span className="text-green-600 font-bold">{dogType.energy_capacity}</span>
                               </div>
                             </div>
 
                             <Button
-                              onClick={() => buyShip(shipType.type)}
-                              disabled={!affordable || owned || shipType.cost === 0}
-                              className={`w-full py-3 rounded-xl font-orbitron font-bold transition-all duration-200 ${
-                                shipType.cost === 0 ? 'bg-slate-600 text-gray-400 cursor-not-allowed' :
-                                owned ? 'bg-green-600 text-white cursor-not-allowed' :
+                              onClick={() => buyShip(dogType.type)}
+                              disabled={!affordable || owned || dogType.cost === 0}
+                              className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
+                                dogType.cost === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' :
+                                owned ? 'bg-green-500 text-white cursor-not-allowed' :
                                 affordable
-                                  ? 'bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white'
-                                  : 'bg-slate-600 text-gray-400 cursor-not-allowed'
+                                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white'
+                                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
-                              {shipType.cost === 0 ? 'Starter Dog' :
-                               owned ? 'Adopted' :
+                              {dogType.cost === 0 ? 'Starter Dog' :
+                               owned ? 'Already Adopted' :
                                affordable ? (
                                 <div className="flex items-center justify-center gap-2">
                                   <span>🐕</span>
-                                  Adopt for {shipType.cost.toLocaleString()} ZEN
+                                  Adopt for {dogType.cost.toLocaleString()} 🍖
                                 </div>
-                               ) : `Need ${shipType.cost.toLocaleString()} ZEN`}
+                               ) : `Need ${dogType.cost.toLocaleString()} 🍖`}
                             </Button>
                           </div>
                         </div>

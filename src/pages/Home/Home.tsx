@@ -6,17 +6,10 @@ import { RouteNamesEnum } from 'localConstants';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Rocket,
-  Zap,
-  Trophy,
-  Users,
   ArrowRight,
+  Heart,
   Star,
-  Coins,
-  Pickaxe,
-  Cpu,
-  Shield,
-  Target
+  Gift
 } from "lucide-react";
 
 export const Home = () => {
@@ -24,33 +17,33 @@ export const Home = () => {
   const isLoggedIn = useGetIsLoggedIn();
   const { user } = useAuth();
   const { gameStats, ships, isLoading } = useGame();
-  const [animatedStats, setAnimatedStats] = useState({ zen: 0, mined: 0 });
+  const [animatedStats, setAnimatedStats] = useState({ food: 0, love: 0 });
 
-  // Animate numbers - MUST be before any conditional returns
+  // Animate numbers
   useEffect(() => {
     console.log('🏠 Home: gameStats changed:', gameStats);
     if (gameStats) {
-      const zenTarget = gameStats.zenBalance || 0;
-      const minedTarget = gameStats.totalMined || 0;
+      const foodTarget = gameStats.zenBalance || 0;
+      const loveTarget = gameStats.totalMined || 0;
       
-      console.log('🏠 Home: Animation targets - ZEN:', zenTarget, 'Mined:', minedTarget);
+      console.log('🏠 Home: Animation targets - Food:', foodTarget, 'Love:', loveTarget);
       
       const duration = 1000;
       const steps = 60;
-      const zenStep = zenTarget / steps;
-      const minedStep = minedTarget / steps;
+      const foodStep = foodTarget / steps;
+      const loveStep = loveTarget / steps;
       
       let currentStep = 0;
       const interval = setInterval(() => {
         currentStep++;
         setAnimatedStats({
-          zen: Math.floor(zenStep * currentStep),
-          mined: Math.floor(minedStep * currentStep)
+          food: Math.floor(foodStep * currentStep),
+          love: Math.floor(loveStep * currentStep)
         });
         
         if (currentStep >= steps) {
           clearInterval(interval);
-          setAnimatedStats({ zen: zenTarget, mined: minedTarget });
+          setAnimatedStats({ food: foodTarget, love: loveTarget });
         }
       }, duration / steps);
       
@@ -99,8 +92,23 @@ export const Home = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg')] bg-cover bg-center opacity-10"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-pink-300/20 via-purple-300/20 to-yellow-300/20 animate-pulse"></div>
+        {/* Floating hearts */}
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute text-pink-300 animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`,
+              fontSize: `${12 + Math.random() * 8}px`
+            }}
+          >
+            💖
+          </div>
+        ))}
       </div>
 
       <div className="relative z-10">
@@ -117,7 +125,7 @@ export const Home = () => {
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
                 ZenDOG
               </h1>
-              <p className="text-xl md:text-2xl text-gray-300 font-medium">
+              <p className="text-xl md:text-2xl text-gray-700 font-medium">
                 Virtual Pet Care Game
               </p>
             </div>
