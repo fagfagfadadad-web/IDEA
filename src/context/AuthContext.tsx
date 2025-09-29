@@ -114,10 +114,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('🎮 AuthContext: Creating game stats...');
         await GameService.createGameStats(userProfile.id!);
         
-        // Create starter ship
-        console.log('🚀 AuthContext: Creating starter ship...');
+        // Create starter dog
+        console.log('🐕 AuthContext: Creating starter dog...');
         await GameService.createStarterShip(userProfile.id!);
-        console.log('✅ AuthContext: Starter ship created');
+        console.log('✅ AuthContext: Starter dog created');
       } else {
         console.log('👤 AuthContext: Found existing user profile:', userProfile);
       }

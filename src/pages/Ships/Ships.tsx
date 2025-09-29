@@ -6,59 +6,59 @@ import { useGame } from '../../context/GameContext';
 const shipTypes = [
   {
     type: 'basic',
-    name: 'Basic Miner',
+    name: 'Zen Puppy',
     cost: 0,
     mining_power: 10,
     energy_capacity: 100,
-    description: 'A reliable starter ship for new miners',
-    image: 'https://images.pexels.com/photos/586063/pexels-photo-586063.jpeg'
+    description: 'A gentle starter companion for new spiritual seekers',
+    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
   },
   {
     type: 'advanced',
-    name: 'Advanced Miner',
+    name: 'Cosmic Retriever',
     cost: 1000,
     mining_power: 25,
     energy_capacity: 200,
-    description: 'Enhanced mining capabilities with better efficiency',
-    image: 'https://images.pexels.com/photos/586063/pexels-photo-586063.jpeg'
+    description: 'Enhanced spiritual capabilities with better energy flow',
+    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
   },
   {
     type: 'elite',
-    name: 'Elite Miner',
+    name: 'Astral Shepherd',
     cost: 5000,
     mining_power: 50,
     energy_capacity: 300,
-    description: 'High-performance ship for serious miners',
-    image: 'https://images.pexels.com/photos/586063/pexels-photo-586063.jpeg'
+    description: 'High-performance companion for serious spiritual practitioners',
+    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
   },
   {
     type: 'legendary',
-    name: 'Legendary Miner',
+    name: 'Divine Wolf',
     cost: 20000,
     mining_power: 100,
     energy_capacity: 500,
-    description: 'The ultimate mining vessel with maximum power',
-    image: 'https://images.pexels.com/photos/586063/pexels-photo-586063.jpeg'
+    description: 'The ultimate spiritual companion with maximum enlightenment',
+    image: 'https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg'
   }
 ];
 
 const upgradeTypes = [
   {
     type: 'mining_power',
-    name: 'Mining Power',
-    description: 'Increase ZEN tokens mined per operation',
+    name: 'Spiritual Power',
+    description: 'Increase ZEN energy harvested per meditation',
     icon: <Zap size={20} className="text-cyan-400" />
   },
   {
     type: 'energy_capacity',
-    name: 'Energy Capacity',
-    description: 'Increase maximum energy storage',
+    name: 'Spiritual Capacity',
+    description: 'Increase maximum spiritual energy storage',
     icon: <Battery size={20} className="text-green-400" />
   },
   {
     type: 'efficiency',
-    name: 'Efficiency',
-    description: 'Reduce energy consumption per mining operation',
+    name: 'Meditation Efficiency',
+    description: 'Reduce energy consumption per meditation session',
     icon: <TrendingUp size={20} className="text-purple-400" />
   }
 ];
@@ -121,13 +121,13 @@ export const Ships = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Ship Management
+              Cosmic Pack Management
             </h1>
             <p className="text-gray-400 text-lg">
-              Manage your mining fleet and purchase new ships
+              Manage your cosmic pack and adopt new spiritual companions
             </p>
             <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
-              <Zap size={20} />
+              <span>⚡</span>
               {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
             </div>
           </div>
@@ -143,7 +143,7 @@ export const Ships = () => {
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                My Ships ({ships.length})
+                My Dogs ({ships.length}) 🐕
               </button>
               <button
                 onClick={() => setActiveTab(1)}
@@ -153,7 +153,7 @@ export const Ships = () => {
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                Ship Store
+                Adoption Center
               </button>
             </div>
 
@@ -162,18 +162,19 @@ export const Ships = () => {
                 <div className="space-y-6">
                   {ships.length === 0 ? (
                     <div className="text-center py-12">
-                      <Rocket size={48} className="text-gray-500 mx-auto mb-4" />
+                      <span className="text-6xl mb-4 block">🐕</span>
                       <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
-                        No Ships in Fleet
+                        No Dogs in Pack
                       </h3>
                       <p className="text-gray-500 mb-4">
-                        Purchase your first ship to start mining ZEN tokens
+                        Adopt your first cosmic dog to start harvesting ZEN energy
                       </p>
                       <Button
                         onClick={() => setActiveTab(1)}
-                        className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white"
+                        className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white flex items-center gap-2"
                       >
-                        Browse Ship Store
+                        <span>🐕</span>
+                        Visit Adoption Center
                       </Button>
                     </div>
                   ) : (
@@ -187,30 +188,29 @@ export const Ships = () => {
                             className="bg-slate-700/50 rounded-xl p-6 border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300"
                           >
                             <div className="space-y-4">
-                              {/* Ship Info */}
+                              {/* Dog Info */}
                               <div className="flex justify-between items-start">
                                 <div>
                                   <h3 className="text-xl font-orbitron font-bold text-white">
                                     {ship.name}
                                   </h3>
                                   <p className="text-gray-400">
-                                    Level {ship.level} • {ship.shipType}
+                                    Level {ship.level} • {ship.shipType} 🐕
                                   </p>
                                 </div>
                                 <div className="text-right">
                                   <div className="text-cyan-400 font-orbitron font-bold text-lg">
                                     {ship.miningPower}
                                   </div>
-                                  <div className="text-gray-400 text-sm">Mining Power</div>
+                                  <div className="text-gray-400 text-sm">Spiritual Power</div>
                                 </div>
                               </div>
 
-                              {/* Energy Status */}
+                              {/* Spiritual Energy Status */}
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-400 text-sm flex items-center gap-1">
-                                    <Battery size={14} />
-                                    Energy
+                                  <span className="text-gray-400 text-sm">
+                                    ⚡ Spiritual Energy
                                   </span>
                                   <span className="text-white text-sm">
                                     {ship.currentEnergy}/{ship.energyCapacity}
@@ -227,9 +227,9 @@ export const Ships = () => {
                                 </div>
                               </div>
 
-                              {/* Upgrades */}
+                              {/* Training */}
                               <div className="space-y-3">
-                                <h4 className="text-white font-orbitron font-bold">Upgrades</h4>
+                                <h4 className="text-white font-orbitron font-bold">Training</h4>
                                 <div className="grid grid-cols-1 gap-2">
                                   {upgradeTypes.map((upgrade) => {
                                     const currentLevel = ship.upgrades[upgrade.type] || 0;
@@ -290,7 +290,7 @@ export const Ships = () => {
                           className="bg-slate-700/50 rounded-xl overflow-hidden border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105"
                         >
                           <div className="aspect-video bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center">
-                            <Rocket size={48} className="text-cyan-400" />
+                            <span className="text-6xl">🐕</span>
                           </div>
                           
                           <div className="p-4 space-y-4">
@@ -305,7 +305,7 @@ export const Ships = () => {
 
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-gray-400 text-sm">Mining Power:</span>
+                                <span className="text-gray-400 text-sm">Spiritual Power:</span>
                                 <span className="text-cyan-400 font-bold">{shipType.mining_power}</span>
                               </div>
                               <div className="flex justify-between">
@@ -325,12 +325,12 @@ export const Ships = () => {
                                   : 'bg-slate-600 text-gray-400 cursor-not-allowed'
                               }`}
                             >
-                              {shipType.cost === 0 ? 'Starter Ship' :
-                               owned ? 'Owned' :
+                              {shipType.cost === 0 ? 'Starter Dog' :
+                               owned ? 'Adopted' :
                                affordable ? (
                                 <div className="flex items-center justify-center gap-2">
-                                  <ShoppingCart size={16} />
-                                  Buy for {shipType.cost.toLocaleString()} ZEN
+                                  <span>🐕</span>
+                                  Adopt for {shipType.cost.toLocaleString()} ZEN
                                 </div>
                                ) : `Need ${shipType.cost.toLocaleString()} ZEN`}
                             </Button>

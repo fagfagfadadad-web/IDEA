@@ -191,10 +191,10 @@ export class GameService {
   }
 
   static async createStarterShip(userId: string): Promise<void> {
-    console.log('🚀 GameService: Creating starter ship for user:', userId);
+    console.log('🐕 GameService: Creating starter dog for user:', userId);
     const shipId = await this.createShip({
       userId,
-      name: 'Starter Miner',
+      name: 'Zen Puppy',
       level: 1,
       miningPower: 10,
       energyCapacity: 100,
@@ -205,7 +205,7 @@ export class GameService {
       createdAt: new Date()
     });
     
-    console.log('✅ GameService: Starter ship created with ID:', shipId);
+    console.log('✅ GameService: Starter dog created with ID:', shipId);
   }
 
   // Mining
@@ -463,10 +463,10 @@ export class GameService {
 
   static getShipConfig(shipType: string) {
     const configs = {
-      basic: { name: 'Basic Miner', miningPower: 10, energyCapacity: 100, cost: 0 },
-      advanced: { name: 'Advanced Miner', miningPower: 25, energyCapacity: 200, cost: 1000 },
-      elite: { name: 'Elite Miner', miningPower: 50, energyCapacity: 300, cost: 5000 },
-      legendary: { name: 'Legendary Miner', miningPower: 100, energyCapacity: 500, cost: 20000 }
+      basic: { name: 'Zen Puppy', miningPower: 10, energyCapacity: 100, cost: 0 },
+      advanced: { name: 'Cosmic Retriever', miningPower: 25, energyCapacity: 200, cost: 1000 },
+      elite: { name: 'Astral Shepherd', miningPower: 50, energyCapacity: 300, cost: 5000 },
+      legendary: { name: 'Divine Wolf', miningPower: 100, energyCapacity: 500, cost: 20000 }
     };
     return configs[shipType as keyof typeof configs] || configs.basic;
   }

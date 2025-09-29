@@ -149,7 +149,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('🆕 GameContext: Creating new game stats...');
         stats = await GameService.createGameStats(user.id);
         await GameService.createStarterShip(user.id);
-        console.log('✅ GameContext: Game stats and starter ship created');
+        console.log('✅ GameContext: Game stats and starter dog created');
       }
       
       // Map field names to match component expectations
