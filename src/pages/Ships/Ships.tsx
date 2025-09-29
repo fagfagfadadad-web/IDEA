@@ -137,7 +137,6 @@ export const Ships = () => {
             <div className="flex border-b border-primary-200">
               <button
                 onClick={() => setActiveTab(0)}
-                className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
                 className={`flex-1 px-6 py-4 font-inter font-bold transition-all duration-200 ${
                   activeTab === 0
                     ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
@@ -148,7 +147,6 @@ export const Ships = () => {
               </button>
               <button
                 onClick={() => setActiveTab(1)}
-                className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
                 className={`flex-1 px-6 py-4 font-inter font-bold transition-all duration-200 ${
                   activeTab === 1
                     ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
@@ -291,7 +289,6 @@ export const Ships = () => {
                           key={dogType.type}
                           className="bg-white/70 rounded-xl overflow-hidden border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
-                          <div className="aspect-video bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
                           <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
                             <span className="text-6xl">{dogType.emoji}</span>
                           </div>
