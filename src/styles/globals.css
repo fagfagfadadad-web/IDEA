@@ -605,7 +605,7 @@ body {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
     backdrop-filter: blur(20px);
     border-top: 3px solid rgba(107, 127, 111, 0.3);
-    z-index: 999998 !important;
+    z-index: 999997 !important;
   }
 
   .mobile-nav-item {
@@ -624,6 +624,27 @@ body {
     box-shadow: 0 8px 32px rgba(107, 127, 111, 0.4);
   }
 
+  /* Force mobile menu to be on top */
+  .mobile-menu-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000002 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .mobile-menu-drawer {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    height: 100vh !important;
+    width: 320px !important;
+    z-index: 1000003 !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(20px) !important;
+  }
   /* Responsive text sizes */
   .title-responsive {
     @apply text-4xl md:text-6xl lg:text-7xl;

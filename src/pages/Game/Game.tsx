@@ -89,8 +89,9 @@ export const Game = () => {
     const container = canvas.parentElement;
     if (!container) return;
 
-    const width = Math.min(600, container.clientWidth - 40);
-    const height = Math.min(400, window.innerHeight - 300);
+    const isMobile = window.innerWidth < 768;
+    const width = isMobile ? Math.min(container.clientWidth - 20, window.innerWidth - 20) : Math.min(600, container.clientWidth - 40);
+    const height = isMobile ? Math.min(window.innerHeight - 200, 500) : Math.min(400, window.innerHeight - 300);
 
     canvas.width = width;
     canvas.height = height;
@@ -456,20 +457,20 @@ export const Game = () => {
               <div className="game-canvas-container">
                 <canvas
                   ref={canvasRef}
-                  className="block mx-auto cursor-none w-full max-w-full"
+                  className="block mx-auto cursor-none w-full max-w-full touch-none"
                   style={{ background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
                 />
                 
                 {/* Game Overlays */}
                 {!gameStarted && !gameOver && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-8">
+                    <div className="text-center space-y-4 cute-card p-4 md:p-8 mx-4">
                       <div className="text-6xl">🐕</div>
-                      <h2 className="text-2xl font-inter font-bold text-gray-800">Treat Catcher</h2>
-                      <p className="text-gray-600 font-inter">Help your dog catch treats and avoid poison!</p>
+                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Treat Catcher</h2>
+                      <p className="text-sm md:text-base text-gray-600 font-inter">Help your dog catch treats and avoid poison!</p>
                       <Button
                         onClick={startGame}
-                        className="cute-button px-8 py-3"
+                        className="cute-button px-6 md:px-8 py-3"
                       >
                         <Play size={16} />
                         Start Game
@@ -480,12 +481,12 @@ export const Game = () => {
 
                 {gameOver && (
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-8">
+                    <div className="text-center space-y-4 cute-card p-4 md:p-8 mx-4">
                       <div className="text-4xl">🏆</div>
-                      <h2 className="text-2xl font-inter font-bold text-gray-800">Game Over!</h2>
+                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Game Over!</h2>
                       <div className="space-y-2">
-                        <p className="text-lg font-inter font-bold text-primary-500">Final Score: {score}</p>
-                        <p className="text-gray-600 font-inter">Food Earned: {score} 🍖</p>
+                        <p className="text-base md:text-lg font-inter font-bold text-primary-500">Final Score: {score}</p>
+                        <p className="text-sm md:text-base text-gray-600 font-inter">Food Earned: {score} 🍖</p>
                       </div>
                       <Button
                         onClick={startGame}

@@ -190,6 +190,7 @@ export const Header = () => {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                style={{ zIndex: 1000001 }}
               >
                 <MenuIcon size={20} />
               </button>
@@ -201,13 +202,11 @@ export const Header = () => {
         {isMobileMenuOpen && (
           <>
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50"
-             style={{ zIndex: 999999 }}
+             className="mobile-menu-overlay"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div 
-              className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
-             style={{ zIndex: 1000000 }}
+             className="mobile-menu-drawer shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
             >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
@@ -215,6 +214,7 @@ export const Header = () => {
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    style={{ zIndex: 1000004 }}
                   >
                     <X size={20} />
                   </button>
