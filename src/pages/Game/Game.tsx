@@ -6,6 +6,85 @@ import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 
+// Sound effects using Web Audio API
+const createSound = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = frequency;
+  oscillator.type = type;
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + duration);
+};
+
+const playCollectSound = () => {
+  // Happy collect sound - ascending notes
+  createSound(523, 0.1); // C5
+  setTimeout(() => createSound(659, 0.1), 50); // E5
+  setTimeout(() => createSound(784, 0.15), 100); // G5
+};
+
+const playBonusSound = () => {
+  // Special bonus sound - higher pitch
+  createSound(880, 0.1); // A5
+  setTimeout(() => createSound(1047, 0.1), 50); // C6
+  setTimeout(() => createSound(1319, 0.2), 100); // E6
+};
+
+const playPoisonSound = () => {
+  // Negative sound - descending low notes
+  createSound(220, 0.2, 'sawtooth'); // A3
+  setTimeout(() => createSound(185, 0.2, 'sawtooth'), 100); // F#3
+  setTimeout(() => createSound(147, 0.3, 'sawtooth'), 200); // D3
+};
+
+const playExplosionSound = () => {
+  // Explosion sound - noise burst
+  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const bufferSize = audioContext.sampleRate * 0.3;
+  const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+  const output = buffer.getChannelData(0);
+  
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+  
+  const whiteNoise = audioContext.createBufferSource();
+  whiteNoise.buffer = buffer;
+  
+  const gainNode = audioContext.createGain();
+  whiteNoise.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+  
+  whiteNoise.start();
+};
+
+const playGameOverSound = () => {
+  // Game over sound - sad descending melody
+  createSound(523, 0.3); // C5
+  setTimeout(() => createSound(466, 0.3), 300); // Bb4
+  setTimeout(() => createSound(415, 0.3), 600); // Ab4
+  setTimeout(() => createSound(349, 0.5), 900); // F4
+};
+
+const playGameStartSound = () => {
+  // Game start sound - uplifting melody
+  createSound(262, 0.2); // C4
+  setTimeout(() => createSound(330, 0.2), 200); // E4
+  setTimeout(() => createSound(392, 0.2), 400); // G4
+  setTimeout(() => createSound(523, 0.3), 600); // C5
+};
 // Game interfaces
 interface FallingObject {
   id: number;
@@ -258,16 +337,21 @@ export const Game = () => {
           case 'treat':
             scoreRef.current += 10;
             createCollectionEffect(obj.x, obj.y, 10);
+            playCollectSound();
             break;
           case 'doubleTreat':
             scoreRef.current += 25;
             createCollectionEffect(obj.x, obj.y, 25);
+            playBonusSound();
             break;
           case 'poison':
             scoreRef.current = Math.max(0, scoreRef.current - 15);
             createExplosion(obj.x, obj.y);
+            playPoisonSound();
             break;
           case 'bomb':
+            playExplosionSound();
+            setTimeout(() => playGameOverSound(), 500);
             endGame();
             return;
         }
@@ -356,6 +440,7 @@ export const Game = () => {
   };
 
   const startGame = () => {
+    playGameStartSound();
     setGameStarted(true);
     setGameOver(false);
     setScore(0);
@@ -384,6 +469,10 @@ export const Game = () => {
       cancelAnimationFrame(animationFrameId.current);
     }
 
+    // Play game over sound if not already played (from bomb)
+    if (!fallingObjects.current.some(obj => obj.type === 'bomb')) {
+      playGameOverSound();
+    }
     // Award food points based on score
     const foodPointsEarned = scoreRef.current;
     if (foodPointsEarned > 0 && user?.id) {
