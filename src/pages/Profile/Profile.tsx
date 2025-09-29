@@ -33,6 +33,9 @@ export const Profile = () => {
     try {
       await UserService.updateUser(user?.id || '', formData);
 
+      // Force refresh of auth context to get updated user data
+      window.location.reload();
+      
       success('Profile updated successfully!');
       setIsEditing(false);
       setShowAvatarPicker(false);
@@ -59,7 +62,7 @@ export const Profile = () => {
 
   const selectAvatar = (avatar: string) => {
     setFormData({ ...formData, avatarUrl: avatar });
-    setShowAvatarPicker(false);
+    // Don't close picker immediately, let user see the selection
   };
 
   const achievements = [
