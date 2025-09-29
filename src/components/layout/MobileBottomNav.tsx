@@ -78,7 +78,7 @@ export const MobileBottomNav = () => {
                     ? `bg-gradient-to-br ${item.color} shadow-lg` 
                     : 'bg-primary-100 hover:bg-primary-200'
                   }
-                  border-3 border-white shadow-md
+                  border-2 border-white shadow-md
                 `}>
                   {/* Icon */}
                   <span className={`${isCenter ? 'text-2xl' : 'text-xl'}`}>

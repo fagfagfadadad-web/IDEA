@@ -54,7 +54,7 @@ body {
     @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 32px rgba(107, 127, 111, 0.3);
   }
   
@@ -80,7 +80,7 @@ body {
     @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-2xl transition-all duration-300 transform hover:scale-105;
     background: rgba(255, 255, 255, 0.8);
     color: var(--primary);
-    border: 3px solid var(--primary);
+    border: 2px solid var(--primary);
     box-shadow: 0 8px 32px rgba(107, 127, 111, 0.2);
   }
   
@@ -92,7 +92,7 @@ body {
 
   /* Card styles */
   .cute-card {
-    @apply relative bg-white/80 backdrop-blur-lg rounded-3xl border-4 border-white/50 transition-all duration-300 hover:shadow-xl overflow-hidden;
+    @apply relative bg-white/80 backdrop-blur-lg rounded-3xl border-2 border-white/50 transition-all duration-300 hover:shadow-xl overflow-hidden;
     box-shadow: 0 20px 60px rgba(107, 127, 111, 0.15);
   }
   
@@ -112,7 +112,7 @@ body {
 
   /* Input styles */
   .cute-input {
-    @apply w-full px-6 py-4 text-lg bg-white/80 border-3 rounded-2xl focus:ring-4 focus:ring-opacity-50 transition-all duration-300;
+    @apply w-full px-6 py-4 text-lg bg-white/80 border-2 rounded-2xl focus:ring-4 focus:ring-opacity-50 transition-all duration-300;
     border-color: var(--primary-light);
     color: var(--text-dark);
     font-family: 'Inter', sans-serif;
