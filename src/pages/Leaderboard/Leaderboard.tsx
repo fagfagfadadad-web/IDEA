@@ -169,17 +169,9 @@ export const Leaderboard = () => {
                             
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600">
-                                {entry.user?.avatarUrl ? (
-                                  <img
-                                    src={entry.user.avatarUrl}
-                                    alt={entry.user.username}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-white font-inter font-bold">
-                                    {entry.user?.username?.charAt(0)?.toUpperCase() || '?'}
-                                  </div>
-                                )}
+                                <div className="w-full h-full flex items-center justify-center text-2xl">
+                                  {entry.user?.avatarUrl || '🐕'}
+                                </div>
                               </div>
                               
                               <div>
