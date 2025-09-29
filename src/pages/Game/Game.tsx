@@ -384,7 +384,7 @@ export const Game = () => {
     }
 
     // Award food points based on score
-    const foodPointsEarned = Math.floor(scoreRef.current / 2);
+    const foodPointsEarned = scoreRef.current;
     if (foodPointsEarned > 0 && user?.id) {
       try {
         const currentBalance = gameStats?.zenBalance || 0;
@@ -507,7 +507,7 @@ export const Game = () => {
                       <h2 className="text-2xl font-bold text-gray-800">Game Over!</h2>
                       <div className="space-y-2">
                         <p className="text-lg font-bold text-pink-600">Final Score: {score}</p>
-                        <p className="text-gray-600">Food Points Earned: {Math.floor(score / 2)} 🍖</p>
+                        <p className="text-gray-600">Food Points Earned: {score} 🍖</p>
                       </div>
                       <Button
                         onClick={startGame}
@@ -543,7 +543,7 @@ export const Game = () => {
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mt-3 text-center">
-                  Move your mouse or finger to control the dog bowl. Earn food points = score ÷ 2
+                  Move your mouse or finger to control the dog bowl. Earn food points = score
                 </p>
               </div>
             </div>
