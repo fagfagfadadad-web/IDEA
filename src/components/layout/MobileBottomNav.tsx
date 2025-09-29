@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useGetLoginInfo } from '@multiversx/sdk-dapp/hooks';
+import { useGetLoginInfo } from '../../lib';
 import { routeNames } from '../../localConstants';
 
 export const MobileBottomNav = () => {
