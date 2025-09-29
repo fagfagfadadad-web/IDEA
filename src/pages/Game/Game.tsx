@@ -86,6 +86,37 @@ const playGameStartSound = () => {
   setTimeout(() => createSound(523, 0.3), 600); // C5
 };
 // Game interfaces
+// Vibration functions
+const vibrate = (pattern: number | number[]) => {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(pattern);
+  }
+};
+
+const vibrateCollect = () => {
+  vibrate(50); // Short vibration for collecting items
+};
+
+const vibrateBonus = () => {
+  vibrate([100, 50, 100]); // Double vibration for bonus items
+};
+
+const vibratePoison = () => {
+  vibrate([200, 100, 200]); // Longer vibration for negative items
+};
+
+const vibrateExplosion = () => {
+  vibrate([300, 100, 300, 100, 300]); // Strong vibration pattern for explosion
+};
+
+const vibrateGameOver = () => {
+  vibrate([500, 200, 500]); // Long vibration for game over
+};
+
+const vibrateGameStart = () => {
+  vibrate([100, 50, 100, 50, 200]); // Welcoming vibration pattern
+};
+
 interface FallingObject {
   id: number;
   x: number;
@@ -338,19 +369,23 @@ export const Game = () => {
             scoreRef.current += 10;
             createCollectionEffect(obj.x, obj.y, 10);
             playCollectSound();
+            vibrateCollect();
             break;
           case 'doubleTreat':
             scoreRef.current += 25;
             createCollectionEffect(obj.x, obj.y, 25);
             playBonusSound();
+            vibrateBonus();
             break;
           case 'poison':
             scoreRef.current = Math.max(0, scoreRef.current - 15);
             createExplosion(obj.x, obj.y);
             playPoisonSound();
+            vibratePoison();
             break;
           case 'bomb':
             playExplosionSound();
+            vibrateExplosion();
             setTimeout(() => playGameOverSound(), 500);
             endGame();
             return;
@@ -441,6 +476,7 @@ export const Game = () => {
 
   const startGame = () => {
     playGameStartSound();
+    vibrateGameStart();
     setGameStarted(true);
     setGameOver(false);
     setScore(0);
@@ -472,6 +508,7 @@ export const Game = () => {
     // Play game over sound if not already played (from bomb)
     if (!fallingObjects.current.some(obj => obj.type === 'bomb')) {
       playGameOverSound();
+      vibrateGameOver();
     }
     // Award food points based on score
     const foodPointsEarned = scoreRef.current;
