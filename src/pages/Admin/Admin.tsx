@@ -10,19 +10,19 @@ export const Admin: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, label: 'Statistics', component: AdminStats, icon: <BarChart3 size={16} /> },
-    { id: 1, label: 'Task Management', component: AdminTasks, icon: <Target size={16} /> },
-    { id: 2, label: 'User Management', component: AdminUsers, icon: <Users size={16} /> },
-    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-white">System settings coming soon...</div>, icon: <Settings size={16} /> }
+    { id: 0, label: 'Statistics', component: AdminStats, icon: <BarChart3 size={16} />, emoji: '📊' },
+    { id: 1, label: 'Task Management', component: AdminTasks, icon: <Target size={16} />, emoji: '🎯' },
+    { id: 2, label: 'User Management', component: AdminUsers, icon: <Users size={16} />, emoji: '👥' },
+    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-gray-700 font-inter">System settings coming soon...</div>, icon: <Settings size={16} />, emoji: '⚙️' }
   ];
 
   // Show loading while auth is still loading
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+      <div className="page-bg flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <div className="text-xl text-cyan-400 font-orbitron">Loading Authentication...</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-400 mx-auto"></div>
+          <div className="text-xl text-primary-600 font-inter font-bold">Loading Authentication...</div>
         </div>
       </div>
     );
@@ -31,12 +31,12 @@ export const Admin: React.FC = () => {
   // Show access denied if not logged in
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+      <div className="page-bg">
         <div className="container mx-auto px-6 py-8">
-          <div className="bg-red-900/50 backdrop-blur-lg border border-red-500/50 rounded-xl p-8 text-center">
-            <div className="text-red-400 text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-orbitron font-bold text-white mb-4">Access Denied</h2>
-            <p className="text-gray-300">Please log in to access the admin panel.</p>
+          <div className="cute-card p-8 text-center border-red-400 bg-red-50">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-inter font-bold text-red-600 mb-4">Access Denied</h2>
+            <p className="text-gray-700 font-inter">Please log in to access the admin panel.</p>
           </div>
         </div>
       </div>
@@ -46,12 +46,12 @@ export const Admin: React.FC = () => {
   // Show access denied if not admin
   if (!user.isAdmin) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900">
+      <div className="page-bg">
         <div className="container mx-auto px-6 py-8">
-          <div className="bg-red-900/50 backdrop-blur-lg border border-red-500/50 rounded-xl p-8 text-center">
-            <div className="text-red-400 text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-orbitron font-bold text-white mb-4">Admin Access Required</h2>
-            <p className="text-gray-300">You need administrator privileges to access this panel.</p>
+          <div className="cute-card p-8 text-center border-red-400 bg-red-50">
+            <div className="text-red-500 text-6xl mb-4">🔒</div>
+            <h2 className="text-2xl font-inter font-bold text-red-600 mb-4">Admin Access Required</h2>
+            <p className="text-gray-700 font-inter">You need administrator privileges to access this panel.</p>
           </div>
         </div>
       </div>
@@ -59,40 +59,40 @@ export const Admin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="page-bg font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+            <h1 className="title-responsive font-inter font-bold gradient-text">
               Admin Control Center
             </h1>
-            <p className="text-gray-400 text-lg">
-              Manage the ZEN Mining ecosystem
+            <p className="text-gray-700 text-lg font-inter">
+              Manage the ZenDOG pet care ecosystem
             </p>
-            <div className="bg-green-900/50 border border-green-500/50 rounded-lg p-4 max-w-md mx-auto">
+            <div className="cute-card p-4 max-w-md mx-auto border-success bg-green-50">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-green-400 text-2xl">✅</span>
-                <span className="text-white font-medium">Admin Access Granted</span>
+                <span className="text-success text-2xl">✅</span>
+                <span className="text-gray-800 font-inter font-bold">Admin Access Granted</span>
               </div>
             </div>
           </div>
 
           {/* Tabs Section */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl border border-cyan-500/20 overflow-hidden">
-            <div className="flex flex-wrap border-b border-gray-700">
+          <div className="cute-card overflow-hidden">
+            <div className="flex flex-wrap border-b border-primary-200">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[150px] px-6 py-4 font-orbitron font-bold transition-all duration-200 ${
+                  className={`flex-1 min-w-[150px] px-6 py-4 font-inter font-bold transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-b-2 border-cyan-400'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
+                      : 'text-gray-600 hover:text-primary-600'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
-                    {tab.icon}
+                    <span className="text-lg">{tab.emoji}</span>
                     {tab.label}
                   </div>
                 </button>

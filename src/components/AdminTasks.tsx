@@ -29,10 +29,10 @@ export const AdminTasks: React.FC = () => {
   });
 
   const taskTypes = [
-    { value: 'mining', label: 'Mining Task', icon: <Zap size={16} className="text-cyan-400" /> },
-    { value: 'social', label: 'Social Task', icon: <Star size={16} className="text-purple-400" /> },
-    { value: 'referral', label: 'Referral Task', icon: <Gift size={16} className="text-green-400" /> },
-    { value: 'daily', label: 'Daily Task', icon: <Target size={16} className="text-orange-400" /> }
+    { value: 'mining', label: 'Pet Care Task', icon: <span className="text-lg">🍖</span> },
+    { value: 'social', label: 'Social Task', icon: <span className="text-lg">⭐</span> },
+    { value: 'referral', label: 'Friends Task', icon: <span className="text-lg">👥</span> },
+    { value: 'daily', label: 'Daily Task', icon: <span className="text-lg">🎯</span> }
   ];
 
   useEffect(() => {
@@ -153,15 +153,15 @@ export const AdminTasks: React.FC = () => {
 
   const getTaskTypeIcon = (taskType: string) => {
     const type = taskTypes.find(t => t.value === taskType);
-    return type?.icon || <Target size={16} className="text-gray-400" />;
+    return type?.icon || <span className="text-lg">🎯</span>;
   };
 
   if (!user?.isAdmin) {
     return (
       <div className="text-center py-8">
-        <div className="text-red-400 text-6xl mb-4">🔒</div>
-        <h3 className="text-xl font-orbitron font-bold text-white mb-2">Access Denied</h3>
-        <p className="text-gray-400">Admin privileges required.</p>
+        <div className="text-red-500 text-6xl mb-4">🔒</div>
+        <h3 className="text-xl font-inter font-bold text-red-600 mb-2">Access Denied</h3>
+        <p className="text-gray-700 font-inter">Admin privileges required.</p>
       </div>
     );
   }
@@ -170,14 +170,14 @@ export const AdminTasks: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-orbitron font-bold text-white">Task Management</h2>
+        <h2 className="text-2xl font-inter font-bold text-gray-800">Task Management</h2>
         <Button
           onClick={() => {
             setEditingTask(null);
             resetForm();
             setShowModal(true);
           }}
-          className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-lg font-orbitron font-bold"
+          className="cute-button px-4 py-2"
         >
           <Plus size={16} />
           Create Task
@@ -187,50 +187,50 @@ export const AdminTasks: React.FC = () => {
       {/* Tasks List */}
       {isLoading ? (
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
         </div>
       ) : (
         <div className="space-y-4">
           {tasks.map((task) => (
             <div
               key={task.id}
-              className={`bg-slate-700/50 rounded-xl p-6 border transition-all duration-300 ${
-                task.isActive ? 'border-green-500/50' : 'border-gray-600/50'
+              className={`cute-card p-6 transition-all duration-300 ${
+                task.isActive ? 'border-success bg-green-50' : 'border-gray-300 bg-gray-50'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
                     {getTaskTypeIcon(task.taskType)}
                   </div>
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-orbitron font-bold text-white">
+                      <h3 className="text-lg font-inter font-bold text-gray-800">
                         {task.title}
                       </h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         task.isActive 
-                          ? 'bg-green-500/20 text-green-400' 
-                          : 'bg-red-500/20 text-red-400'
+                          ? 'bg-green-100 text-success' 
+                          : 'bg-red-100 text-red-600'
                       }`}>
                         {task.isActive ? 'Active' : 'Inactive'}
                       </span>
-                      <span className="px-2 py-1 bg-slate-600 text-gray-300 rounded-full text-xs font-medium capitalize">
+                      <span className="px-2 py-1 bg-primary-100 text-primary-600 rounded-full text-xs font-medium capitalize font-inter">
                         {task.taskType}
                       </span>
                     </div>
                     
-                    <p className="text-gray-300 mb-3">
+                    <p className="text-gray-700 mb-3 font-inter">
                       {task.description}
                     </p>
                     
                     <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1 text-cyan-400 font-orbitron font-bold">
-                        <Zap size={14} />
-                        {task.rewardAmount} ZEN Reward
+                      <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                        <span>🍖</span>
+                        {task.rewardAmount} Food Reward
                       </div>
-                      <div className="text-gray-400">
+                      <div className="text-gray-600 font-inter">
                         Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                       </div>
                     </div>
@@ -240,23 +240,23 @@ export const AdminTasks: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={() => toggleTaskStatus(task.id!, task.isActive)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium font-inter ${
                       task.isActive
-                        ? 'bg-red-600 hover:bg-red-700 text-white'
-                        : 'bg-green-600 hover:bg-green-700 text-white'
+                        ? 'bg-red-500 hover:bg-red-600 text-white'
+                        : 'bg-success hover:bg-green-600 text-white'
                     }`}
                   >
                     {task.isActive ? 'Deactivate' : 'Activate'}
                   </Button>
                   <Button
                     onClick={() => handleEdit(task)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg"
+                    className="bg-primary-500 hover:bg-primary-600 text-white px-3 py-2 rounded-lg"
                   >
                     <Edit size={14} />
                   </Button>
                   <Button
                     onClick={() => handleDelete(task.id!)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg"
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
                   >
                     <Trash2 size={14} />
                   </Button>
@@ -270,36 +270,36 @@ export const AdminTasks: React.FC = () => {
       {/* Create/Edit Task Modal */}
       {showModal && createPortal((
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-2 md:p-4 overflow-y-auto">
-          <div className="bg-slate-800 rounded-xl p-4 md:p-6 max-w-4xl w-full my-2 md:my-8 border border-cyan-500/20 flex flex-col relative min-h-0 max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)]">
+          <div className="cute-card p-4 md:p-6 max-w-4xl w-full my-2 md:my-8 flex flex-col relative min-h-0 max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)]">
             <div className="space-y-6">
-              <h3 className="text-xl md:text-2xl font-orbitron font-bold text-white">
+              <h3 className="text-xl md:text-2xl font-inter font-bold text-gray-800">
                 {editingTask ? 'Edit Task' : 'Create New Task'}
               </h3>
 
               <form onSubmit={handleSubmit}>
                 <div className="flex-grow overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 min-h-0 max-h-[60vh] md:max-h-none">
                 <div>
-                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
+                  <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                     Task Title
                   </label>
                   <input
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
+                    className="cute-input"
                     placeholder="Enter task title"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
+                  <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                     Description
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base resize-none"
+                    className="cute-input resize-none"
                     placeholder="Enter task description"
                     rows={2}
                     required
@@ -308,14 +308,14 @@ export const AdminTasks: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div>
-                    <label className="block text-white text-sm font-medium mb-1 md:mb-2">
-                      Reward Amount (ZEN)
+                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
+                      Reward Amount (Food Points)
                     </label>
                     <input
                       type="number"
                       value={formData.rewardAmount}
                       onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
-                      className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
+                      className="cute-input"
                       placeholder="100"
                       min="1"
                       required
@@ -323,13 +323,13 @@ export const AdminTasks: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-white text-sm font-medium mb-1 md:mb-2">
+                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                       Task Type
                     </label>
                     <select
                       value={formData.taskType}
                       onChange={(e) => setFormData({...formData, taskType: e.target.value})}
-                      className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
+                      className="cute-select"
                     >
                       {taskTypes.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -341,97 +341,97 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">
+                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
                     Task Requirements
                   </label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
-                      <label className="block text-gray-300 text-xs font-medium mb-1">
-                        Mining Operations Required
+                      <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                        Pet Care Operations Required
                       </label>
                       <input
                         type="number"
                         value={formData.miningOperationsRequired}
                         onChange={(e) => setFormData({...formData, miningOperationsRequired: e.target.value})}
-                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        className="cute-input text-sm"
                         placeholder="e.g. 5"
                         min="0"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-gray-300 text-xs font-medium mb-1">
-                        Daily Mining Count Required
+                      <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                        Daily Care Count Required
                       </label>
                       <input
                         type="number"
                         value={formData.dailyMiningCountRequired}
                         onChange={(e) => setFormData({...formData, dailyMiningCountRequired: e.target.value})}
-                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        className="cute-input text-sm"
                         placeholder="e.g. 10"
                         min="0"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-gray-300 text-xs font-medium mb-1">
-                        Ship Count Required
+                      <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                        Dog Count Required
                       </label>
                       <input
                         type="number"
                         value={formData.shipCountRequired}
                         onChange={(e) => setFormData({...formData, shipCountRequired: e.target.value})}
-                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        className="cute-input text-sm"
                         placeholder="e.g. 3"
                         min="0"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-gray-300 text-xs font-medium mb-1">
-                        Referral Count Required
+                      <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                        Friends Count Required
                       </label>
                       <input
                         type="number"
                         value={formData.referralCountRequired}
                         onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
-                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        className="cute-input text-sm"
                         placeholder="e.g. 5"
                         min="0"
                       />
                     </div>
                     
                     <div className="md:col-span-2">
-                      <label className="block text-gray-300 text-xs font-medium mb-1">
+                      <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
                         Required Level
                       </label>
                       <input
                         type="number"
                         value={formData.requiredLevel}
                         onChange={(e) => setFormData({...formData, requiredLevel: e.target.value})}
-                        className="w-full p-2 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm"
+                        className="cute-input text-sm"
                         placeholder="e.g. 10"
                         min="1"
                       />
                     </div>
                   </div>
-                  <p className="text-gray-400 text-xs mt-2">
+                  <p className="text-gray-600 text-xs mt-2 font-inter">
                     Leave fields empty if not required for this task
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-1 md:mb-2">
+                  <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                     Reference Link (Optional)
                   </label>
                   <input
                     type="url"
                     value={formData.referenceLink}
                     onChange={(e) => setFormData({...formData, referenceLink: e.target.value})}
-                    className="w-full p-2 md:p-3 bg-slate-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-base"
+                    className="cute-input"
                     placeholder="https://example.com/instructions"
                   />
-                  <p className="text-gray-400 text-xs mt-1">
+                  <p className="text-gray-600 text-xs mt-1 font-inter">
                     Optional link to guide players where to go or what to do
                   </p>
                 </div>
@@ -442,16 +442,16 @@ export const AdminTasks: React.FC = () => {
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                    className="w-5 h-5 text-cyan-600 bg-slate-700 border-gray-600 rounded focus:ring-cyan-500"
+                    className="w-5 h-5 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
                   />
-                  <label htmlFor="isActive" className="text-white font-medium">
+                  <label htmlFor="isActive" className="text-gray-800 font-medium font-inter">
                     Task is active
                   </label>
                 </div>
                 </div>
               </form>
               
-              <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-700">
+              <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
                   <Button
                     type="button"
                     onClick={() => {
@@ -459,13 +459,13 @@ export const AdminTasks: React.FC = () => {
                       setEditingTask(null);
                       resetForm();
                     }}
-                    className="w-full md:flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium"
+                    className="cute-button-outline w-full md:flex-1 py-3 px-4"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="w-full md:flex-1 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white py-3 px-4 rounded-lg font-orbitron font-bold"
+                    className="cute-button w-full md:flex-1 py-3 px-4"
                   >
                     {editingTask ? 'Update Task' : 'Create Task'}
                   </Button>
