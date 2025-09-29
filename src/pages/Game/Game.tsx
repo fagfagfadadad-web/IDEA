@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Trophy, Zap, Play, RotateCcw, Star, Heart } from 'lucide-react';
+import { ArrowLeft, Trophy, Zap, Play, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
@@ -11,10 +11,8 @@ interface FallingObject {
   id: number;
   x: number;
   y: number;
-  type: "treat" | "doubleTreat" | "poison" | "bomb" | "superTreat" | "heart" | "star";
+  type: "treat" | "doubleTreat" | "poison" | "bomb";
   speed: number;
-  rotation?: number;
-  scale?: number;
 }
 
 interface Platform {
@@ -38,7 +36,6 @@ interface CollectionEffect {
   frame: number;
   maxFrame: number;
   value: number;
-  type: string;
 }
 
 interface Bubble {
@@ -53,12 +50,6 @@ interface Bubble {
   maxFrame: number;
 }
 
-interface PowerUp {
-  type: string;
-  duration: number;
-  startTime: number;
-}
-
 export const Game = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -70,17 +61,10 @@ export const Game = () => {
   const [score, setScore] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(60);
   const [gameSpeed, setGameSpeed] = useState(1);
-  const [combo, setCombo] = useState(0);
-  const [maxCombo, setMaxCombo] = useState(0);
-  const [powerUps, setPowerUps] = useState<PowerUp[]>([]);
-  const [lives, setLives] = useState(3);
-  const [specialEffects, setSpecialEffects] = useState<string[]>([]);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
   const scoreRef = useRef(0);
-  const comboRef = useRef(0);
-  const livesRef = useRef(3);
   const gameTimeRef = useRef(60000); // 60 seconds
   const startTimeRef = useRef<number | null>(null);
   const gameSpeedRef = useRef(1);
@@ -90,7 +74,6 @@ export const Game = () => {
   const collectionEffects = useRef<CollectionEffect[]>([]);
   const bubbles = useRef<Bubble[]>([]);
   const lastSpawnTime = useRef(0);
-  const lastComboTime = useRef(0);
 
   // Initialize canvas and platform
   useEffect(() => {
@@ -170,12 +153,9 @@ export const Game = () => {
 
   const generateObjectType = (): "treat" | "doubleTreat" | "poison" | "bomb" => {
     const random = Math.random();
-    if (random < 0.05) return "bomb";
-    if (random < 0.15) return "poison";
-    if (random < 0.25) return "superTreat";
-    if (random < 0.35) return "doubleTreat";
-    if (random < 0.4) return "heart";
-    if (random < 0.45) return "star";
+    if (random < 0.15) return "bomb";
+    if (random < 0.25) return "poison";
+    if (random < 0.4) return "doubleTreat";
     return "treat";
   };
 
@@ -191,8 +171,6 @@ export const Game = () => {
     const canvas = canvasRef.current;
     const objectSize = 30;
     const x = Math.random() * (canvas.width - objectSize);
-    const rotation = Math.random() * 360;
-    const scale = 0.8 + Math.random() * 0.4;
 
     fallingObjects.current.push({
       id: Date.now() + Math.random(),
@@ -200,8 +178,6 @@ export const Game = () => {
       y: -objectSize,
       type: generateObjectType(),
       speed: 2 + gameSpeedRef.current,
-      rotation,
-      scale
     });
   };
 
@@ -209,33 +185,8 @@ export const Game = () => {
     explosions.current.push({ x, y, size: 50, frame: 0, maxFrame: 30 });
   };
 
-  const createCollectionEffect = (x: number, y: number, value: number, type: string) => {
-    collectionEffects.current.push({ x, y, frame: 0, maxFrame: 60, value, type });
-  };
-
-  const addPowerUp = (type: string, duration: number) => {
-    setPowerUps(prev => [...prev.filter(p => p.type !== type), { type, duration, startTime: Date.now() }]);
-  };
-
-  const updateCombo = (increment: boolean = true) => {
-    if (increment) {
-      comboRef.current += 1;
-      setCombo(comboRef.current);
-      if (comboRef.current > maxCombo) {
-        setMaxCombo(comboRef.current);
-      }
-      lastComboTime.current = Date.now();
-    } else {
-      comboRef.current = 0;
-      setCombo(0);
-    }
-  };
-
-  const addSpecialEffect = (effect: string) => {
-    setSpecialEffects(prev => [...prev, effect]);
-    setTimeout(() => {
-      setSpecialEffects(prev => prev.filter(e => e !== effect));
-    }, 2000);
+  const createCollectionEffect = (x: number, y: number, value: number) => {
+    collectionEffects.current.push({ x, y, frame: 0, maxFrame: 60, value });
   };
 
   const gameLoop = (timestamp: number) => {
@@ -260,38 +211,12 @@ export const Game = () => {
     // Increase game speed over time
     gameSpeedRef.current = 1 + (elapsed / gameTimeRef.current) * 2;
 
-    // Update combo timeout
-    if (Date.now() - lastComboTime.current > 3000 && comboRef.current > 0) {
-      updateCombo(false);
-    }
-
-    // Update power-ups
-    setPowerUps(prev => prev.filter(p => Date.now() - p.startTime < p.duration));
-
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw background effects
-    if (powerUps.some(p => p.type === 'rainbow')) {
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, 'rgba(255, 0, 150, 0.1)');
-      gradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.1)');
-      gradient.addColorStop(1, 'rgba(255, 255, 0, 0.1)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
     // Draw platform (dog bowl)
-    const isShielded = powerUps.some(p => p.type === 'shield');
-    ctx.fillStyle = isShielded ? '#00ff00' : '#ff69b4';
+    ctx.fillStyle = '#ff69b4';
     ctx.fillRect(platform.current.x, platform.current.y, platform.current.width, platform.current.height);
-    
-    if (isShielded) {
-      ctx.strokeStyle = '#00ff00';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(platform.current.x - 5, platform.current.y - 5, platform.current.width + 10, platform.current.height + 10);
-    }
-    
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px Arial';
     ctx.textAlign = 'center';
@@ -300,20 +225,9 @@ export const Game = () => {
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
       obj.y += obj.speed;
-      if (obj.rotation !== undefined) {
-        obj.rotation += 2;
-      }
 
       // Draw object
-      if (obj.rotation !== undefined) {
-        ctx.rotate((obj.rotation * Math.PI) / 180);
-      }
-      if (obj.scale !== undefined) {
-        ctx.scale(obj.scale, obj.scale);
-      }
-      
-      const fontSize = Math.floor(24 * (obj.scale || 1));
-      ctx.font = `${fontSize}px Arial`;
+      ctx.font = '24px Arial';
       ctx.textAlign = 'center';
       let emoji = '';
       switch (obj.type) {
@@ -323,15 +237,6 @@ export const Game = () => {
         case 'doubleTreat':
           emoji = '🥩';
           break;
-        case 'superTreat':
-          emoji = '🍖';
-          break;
-        case 'heart':
-          emoji = '💖';
-          break;
-        case 'star':
-          emoji = '⭐';
-          break;
         case 'poison':
           emoji = '☠️';
           break;
@@ -339,8 +244,7 @@ export const Game = () => {
           emoji = '💣';
           break;
       }
-      ctx.fillText(emoji, 0, 5);
-      ctx.restore();
+      ctx.fillText(emoji, obj.x + 15, obj.y + 20);
 
       // Check collision with platform
       if (
@@ -350,75 +254,28 @@ export const Game = () => {
       ) {
         fallingObjects.current.splice(index, 1);
         
-        const comboMultiplier = Math.min(3, 1 + comboRef.current * 0.1);
-        const doublePoints = powerUps.some(p => p.type === 'doublePoints');
-        const pointsMultiplier = doublePoints ? 2 : 1;
-        
         switch (obj.type) {
           case 'treat':
-            const treatPoints = Math.floor(10 * comboMultiplier * pointsMultiplier);
-            scoreRef.current += treatPoints;
-            createCollectionEffect(obj.x, obj.y, treatPoints, 'treat');
-            updateCombo(true);
+            scoreRef.current += 10;
+            createCollectionEffect(obj.x, obj.y, 10);
             break;
           case 'doubleTreat':
-            const doublePoints = Math.floor(25 * comboMultiplier * pointsMultiplier);
-            scoreRef.current += doublePoints;
-            createCollectionEffect(obj.x, obj.y, doublePoints, 'doubleTreat');
-            updateCombo(true);
-            break;
-          case 'superTreat':
-            const superPoints = Math.floor(50 * comboMultiplier * pointsMultiplier);
-            scoreRef.current += superPoints;
-            createCollectionEffect(obj.x, obj.y, superPoints, 'superTreat');
-            updateCombo(true);
-            addPowerUp('doublePoints', 10000);
-            addSpecialEffect('DOUBLE POINTS!');
-            break;
-          case 'heart':
-            if (livesRef.current < 5) {
-              livesRef.current += 1;
-              setLives(livesRef.current);
-            }
-            createCollectionEffect(obj.x, obj.y, 0, 'heart');
-            updateCombo(true);
-            addSpecialEffect('EXTRA LIFE!');
-            break;
-          case 'star':
-            addPowerUp('shield', 15000);
-            createCollectionEffect(obj.x, obj.y, 0, 'star');
-            updateCombo(true);
-            addSpecialEffect('SHIELD ACTIVATED!');
+            scoreRef.current += 25;
+            createCollectionEffect(obj.x, obj.y, 25);
             break;
           case 'poison':
-            if (!powerUps.some(p => p.type === 'shield')) {
-              scoreRef.current = Math.max(0, scoreRef.current - 15);
-              livesRef.current = Math.max(0, livesRef.current - 1);
-              setLives(livesRef.current);
-              if (livesRef.current === 0) {
-                endGame();
-                return;
-              }
-            }
+            scoreRef.current = Math.max(0, scoreRef.current - 15);
             createExplosion(obj.x, obj.y);
-            updateCombo(false);
             break;
           case 'bomb':
-            if (!powerUps.some(p => p.type === 'shield')) {
-              endGame();
-              return;
-            } else {
-              createExplosion(obj.x, obj.y);
-              addSpecialEffect('SHIELD SAVED YOU!');
-            }
-            break;
+            endGame();
+            return;
         }
         
         setScore(scoreRef.current);
         
         // Create celebration bubbles
-        const bubbleCount = obj.type === 'superTreat' ? 15 : obj.type === 'heart' || obj.type === 'star' ? 10 : 5;
-        for (let i = 0; i < bubbleCount; i++) {
+        for (let i = 0; i < 5; i++) {
           bubbles.current.push({
             x: obj.x + 15,
             y: obj.y + 15,
@@ -426,19 +283,13 @@ export const Game = () => {
             speedX: (Math.random() - 0.5) * 4,
             speedY: (Math.random() - 0.5) * 4,
             opacity: 1,
-            color: obj.type === 'poison' ? '#ff0000' : 
-                   obj.type === 'superTreat' ? '#ffd700' :
-                   obj.type === 'heart' ? '#ff1493' :
-                   obj.type === 'star' ? '#00ffff' : '#ff69b4',
+            color: obj.type === 'poison' ? '#ff0000' : '#ff69b4',
             frame: 0,
             maxFrame: 30,
           });
         }
       } else if (obj.y > canvas.height) {
         fallingObjects.current.splice(index, 1);
-        if (obj.type === 'treat' || obj.type === 'doubleTreat' || obj.type === 'superTreat') {
-          updateCombo(false);
-        }
       }
     });
 
@@ -463,21 +314,10 @@ export const Game = () => {
       effect.frame++;
       const progress = effect.frame / effect.maxFrame;
       
-      let color = '255, 215, 0';
-      if (effect.type === 'heart') color = '255, 20, 147';
-      if (effect.type === 'star') color = '0, 255, 255';
-      if (effect.type === 'superTreat') color = '255, 215, 0';
-      
-      ctx.fillStyle = `rgba(${color}, ${1 - progress})`;
-      ctx.font = 'bold 18px Arial';
+      ctx.fillStyle = `rgba(255, 215, 0, ${1 - progress})`;
+      ctx.font = 'bold 16px Arial';
       ctx.textAlign = 'center';
-      
-      if (effect.value > 0) {
-        ctx.fillText(`+${effect.value}`, effect.x + 15, effect.y - progress * 40);
-      } else {
-        const text = effect.type === 'heart' ? '+LIFE' : effect.type === 'star' ? 'SHIELD' : '';
-        ctx.fillText(text, effect.x + 15, effect.y - progress * 40);
-      }
+      ctx.fillText(`+${effect.value}`, effect.x + 15, effect.y - progress * 30);
       
       if (effect.frame >= effect.maxFrame) {
         collectionEffects.current.splice(index, 1);
@@ -502,38 +342,12 @@ export const Game = () => {
       }
     });
 
-    // Draw main UI
+    // Draw UI
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
     ctx.fillText(`Time: ${remaining}s`, 10, 50);
-    ctx.fillText(`Lives: ${livesRef.current}`, 10, 75);
-    
-    // Draw combo
-    if (comboRef.current > 1) {
-      ctx.fillStyle = '#ff1493';
-      ctx.font = 'bold 20px Arial';
-      ctx.fillText(`COMBO x${comboRef.current}!`, 10, 105);
-    }
-    
-    // Draw power-ups
-    let powerUpY = 130;
-    powerUps.forEach(powerUp => {
-      const timeLeft = Math.ceil((powerUp.duration - (Date.now() - powerUp.startTime)) / 1000);
-      ctx.fillStyle = '#00ff00';
-      ctx.font = 'bold 14px Arial';
-      ctx.fillText(`${powerUp.type.toUpperCase()}: ${timeLeft}s`, 10, powerUpY);
-      powerUpY += 20;
-    });
-    
-    // Draw special effects
-    specialEffects.forEach((effect, index) => {
-      ctx.fillStyle = '#ffd700';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(effect, canvas.width / 2, 100 + index * 30);
-    });
 
     // Spawn objects
     spawnObject(timestamp);
@@ -546,14 +360,7 @@ export const Game = () => {
     setGameOver(false);
     setScore(0);
     setRemainingSeconds(60);
-    setCombo(0);
-    setMaxCombo(0);
-    setLives(3);
-    setPowerUps([]);
-    setSpecialEffects([]);
     scoreRef.current = 0;
-    comboRef.current = 0;
-    livesRef.current = 3;
     gameSpeedRef.current = 1;
     startTimeRef.current = null;
     fallingObjects.current = [];
@@ -644,10 +451,6 @@ export const Game = () => {
                   <div className="text-sm md:text-lg font-inter font-bold text-success">Speed: {gameSpeed.toFixed(1)}x</div>
                   <div className="text-gray-600 text-xs md:text-sm font-inter">Game Speed</div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-value text-lg md:text-xl">{lives}</div>
-                  <div className="stat-label">Lives</div>
-                </div>
               </div>
 
               {/* Game Canvas */}
@@ -684,9 +487,6 @@ export const Game = () => {
                       <div className="space-y-2">
                         <p className="text-base md:text-lg font-inter font-bold text-primary-500">Final Score: {score}</p>
                         <p className="text-sm md:text-base text-gray-600 font-inter">Food Earned: {score} 🍖</p>
-                        {maxCombo > 1 && (
-                          <p className="text-sm md:text-base text-pink-500 font-inter font-bold">Max Combo: x{maxCombo}</p>
-                        )}
                       </div>
                       <Button
                         onClick={startGame}
@@ -713,20 +513,8 @@ export const Game = () => {
                     <div className="text-gray-700 font-inter">Meat: +25 pts</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-1">🍖</div>
-                    <div className="text-gray-700 font-inter">Super: +50 pts + 2x</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">💖</div>
-                    <div className="text-gray-700 font-inter">Heart: +1 Life</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl mb-1">⭐</div>
-                    <div className="text-gray-700 font-inter">Star: Shield</div>
-                  </div>
-                  <div className="text-center">
                     <div className="text-2xl mb-1">☠️</div>
-                    <div className="text-gray-700 font-inter">Poison: -1 Life</div>
+                    <div className="text-gray-700 font-inter">Poison: -15 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">💣</div>
@@ -734,29 +522,10 @@ export const Game = () => {
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mt-3 text-center font-inter">
-                  Move your mouse or finger to control the dog bowl. Build combos for bonus points!
+                  Move your mouse or finger to control the dog bowl. Earn food = score
                 </p>
-                {combo > 1 && (
-                  <div className="text-sm md:text-lg font-inter font-bold text-pink-500 mt-2">
-                    Combo: x{combo}
-                  </div>
-                )}
               </div>
             </div>
-            
-            {/* Power-ups Display */}
-            {powerUps.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {powerUps.map((powerUp, index) => {
-                  const timeLeft = Math.ceil((powerUp.duration - (Date.now() - powerUp.startTime)) / 1000);
-                  return (
-                    <div key={index} className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                      {powerUp.type.toUpperCase()}: {timeLeft}s
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </div>
