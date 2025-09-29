@@ -94,7 +94,7 @@ export const MobileBottomNav = () => {
                   
                   {/* Active Indicator */}
                   {isActive && (
-                    <div className="absolute -bottom-1 w-2 h-2 bg-white rounded-full shadow-md animate-pulse"></div>
+                    <div className="absolute -bottom-1 w-2 h-2 bg-white rounded-full shadow-md"></div>
                   )}
                 </div>
                 
@@ -106,11 +106,6 @@ export const MobileBottomNav = () => {
                 `}>
                   {item.label}
                 </span>
-                
-                {/* Ripple Effect */}
-                {isActive && (
-                  <div className="absolute inset-0 rounded-full bg-primary-200/30 animate-ping"></div>
-                )}
               </button>
             );
           })}
