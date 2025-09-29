@@ -125,8 +125,7 @@ export const Profile = () => {
                   
                   {/* Avatar Picker */}
                   {showAvatarPicker && (
-                    <div className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]">
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-l-2 border-t-2 border-primary-500 rotate-45"></div>
+                    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]">
                       <h3 className="text-gray-800 font-bold mb-4 text-center font-inter text-lg">Choose Your Avatar</h3>
                       <div className="grid grid-cols-4 gap-2">
                         {dogAvatars.map((avatar, index) => (
