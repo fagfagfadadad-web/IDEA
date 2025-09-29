@@ -18,10 +18,10 @@ export const Leaderboard = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const tabs = [
-    { id: 0, label: 'Total Mined', field: 'totalMined' },
-    { id: 1, label: 'ZEN Balance', field: 'zenBalance' },
-    { id: 2, label: 'Mining Level', field: 'miningLevel' },
-    { id: 3, label: 'Referrals', field: 'totalReferrals' }
+    { id: 0, label: 'Total Fed', field: 'totalMined' },
+    { id: 1, label: 'Food Balance', field: 'zenBalance' },
+    { id: 2, label: 'Care Level', field: 'miningLevel' },
+    { id: 3, label: 'Friends', field: 'totalReferrals' }
   ];
 
   useEffect(() => {
@@ -60,26 +60,26 @@ export const Leaderboard = () => {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="text-yellow-400" size={24} />;
+        return <Crown className="text-yellow-500" size={24} />;
       case 2:
-        return <Medal className="text-gray-300" size={24} />;
+        return <Medal className="text-gray-400" size={24} />;
       case 3:
         return <Medal className="text-amber-600" size={24} />;
       default:
-        return <div className="w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center text-gray-400 text-sm font-bold">{rank}</div>;
+        return <div className="w-6 h-6 bg-primary-200 rounded-full flex items-center justify-center text-gray-700 text-sm font-bold">{rank}</div>;
     }
   };
 
   const getRankBg = (rank: number) => {
     switch (rank) {
       case 1:
-        return 'bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-yellow-500/50';
+        return 'bg-gradient-to-r from-yellow-100 to-yellow-200 border-yellow-400';
       case 2:
-        return 'bg-gradient-to-r from-gray-400/20 to-gray-500/20 border-gray-400/50';
+        return 'bg-gradient-to-r from-gray-100 to-gray-200 border-gray-400';
       case 3:
-        return 'bg-gradient-to-r from-amber-600/20 to-amber-700/20 border-amber-600/50';
+        return 'bg-gradient-to-r from-amber-100 to-amber-200 border-amber-500';
       default:
-        return 'bg-slate-700/30 border-gray-600/50';
+        return 'bg-white border-gray-300';
     }
   };
 
@@ -93,43 +93,43 @@ export const Leaderboard = () => {
   const getFieldIcon = (field: string) => {
     switch (field) {
       case 'totalMined':
-        return <Zap className="text-cyan-400" size={16} />;
+        return <span className="text-primary-400 text-lg">🍖</span>;
       case 'zenBalance':
-        return <Zap className="text-green-400" size={16} />;
+        return <span className="text-success text-lg">🍖</span>;
       case 'miningLevel':
-        return <Star className="text-purple-400" size={16} />;
+        return <Star className="text-accent-500" size={16} />;
       case 'totalReferrals':
-        return <TrendingUp className="text-orange-400" size={16} />;
+        return <TrendingUp className="text-warning" size={16} />;
       default:
-        return <Trophy className="text-gray-400" size={16} />;
+        return <Trophy className="text-gray-600" size={16} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="page-bg font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Leaderboard
+            <h1 className="title-responsive font-inter font-bold gradient-text">
+              Pet Care Champions
             </h1>
-            <p className="text-gray-400 text-lg">
-              See how you rank against other miners in the galaxy
+            <p className="text-gray-700 text-lg font-inter">
+              See how you rank against other pet care enthusiasts
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl border border-cyan-500/20 overflow-hidden">
-            <div className="flex flex-wrap border-b border-gray-700">
+          <div className="cute-card overflow-hidden">
+            <div className="flex flex-wrap border-b border-primary-200">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[120px] px-4 py-4 font-orbitron font-bold transition-all duration-200 ${
+                  className={`flex-1 min-w-[120px] px-4 py-4 font-inter font-bold transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border-b-2 border-cyan-400'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
+                      : 'text-gray-600 hover:text-primary-600'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -143,7 +143,7 @@ export const Leaderboard = () => {
             <div className="p-6">
               {isLoading ? (
                 <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -157,7 +157,7 @@ export const Leaderboard = () => {
                         key={entry.userId}
                         className={`p-4 rounded-xl border transition-all duration-300 hover:transform hover:scale-[1.02] ${
                           isCurrentUser 
-                            ? 'border-cyan-400 bg-cyan-500/10 shadow-lg shadow-cyan-500/20'
+                            ? 'border-primary-400 bg-primary-100 shadow-lg'
                             : getRankBg(rank)
                         }`}
                       >
@@ -168,7 +168,7 @@ export const Leaderboard = () => {
                             </div>
                             
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-cyan-400 to-purple-500">
+                              <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600">
                                 {entry.user?.avatarUrl ? (
                                   <img
                                     src={entry.user.avatarUrl}
@@ -176,22 +176,22 @@ export const Leaderboard = () => {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-white font-orbitron font-bold">
+                                  <div className="w-full h-full flex items-center justify-center text-white font-inter font-bold">
                                     {entry.user?.username?.charAt(0)?.toUpperCase() || '?'}
                                   </div>
                                 )}
                               </div>
                               
                               <div>
-                                <div className={`font-orbitron font-bold ${
-                                  isCurrentUser ? 'text-cyan-400' : 'text-white'
+                                <div className={`font-inter font-bold ${
+                                  isCurrentUser ? 'text-primary-600' : 'text-gray-800'
                                 }`}>
                                   {entry.user?.username || 'Anonymous'}
                                   {isCurrentUser && (
-                                    <span className="ml-2 text-cyan-400 text-sm">(You)</span>
+                                    <span className="ml-2 text-primary-600 text-sm font-inter">(You)</span>
                                   )}
                                 </div>
-                                <div className="text-gray-400 text-sm">
+                                <div className="text-gray-600 text-sm font-inter">
                                   Level {entry.miningLevel}
                                 </div>
                               </div>
@@ -199,14 +199,14 @@ export const Leaderboard = () => {
                           </div>
 
                           <div className="text-right">
-                            <div className="flex items-center gap-1 text-lg font-orbitron font-bold text-white">
+                            <div className="flex items-center gap-1 text-lg font-inter font-bold text-gray-800">
                               {getFieldIcon(currentTab.field)}
                               {formatValue(entry[currentTab.field as keyof GameStats] as number || 0, currentTab.field)}
                               {(currentTab.field === 'zenBalance' || currentTab.field === 'totalMined') && (
-                                <span className="text-cyan-400 ml-1">ZEN</span>
+                                <span className="text-primary-600 ml-1 font-inter">Food</span>
                               )}
                             </div>
-                            <div className="text-gray-400 text-sm">
+                            <div className="text-gray-600 text-sm font-inter">
                               Rank #{rank}
                             </div>
                           </div>

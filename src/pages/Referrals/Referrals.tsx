@@ -109,65 +109,65 @@ export const Referrals = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+      <div className="page-bg flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <div className="text-xl text-cyan-400 font-orbitron">Loading Referrals...</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-400 mx-auto"></div>
+          <div className="text-xl text-primary-600 font-bold font-inter">Loading Friends...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="page-bg font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Referral Program
+            <h1 className="title-responsive font-inter font-bold gradient-text">
+              Friends Program
             </h1>
-            <p className="text-gray-400 text-lg">
-              Invite friends and earn bonus ZEN tokens from their mining activities
+            <p className="text-gray-700 text-lg font-inter">
+              Invite friends and earn bonus food points from their pet care activities
             </p>
           </div>
 
           {/* Referral Stats */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-6 border border-cyan-500/20">
+          <div className="cute-card p-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="text-center">
+              <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Users className="text-cyan-400" size={20} />
-                  <span className="text-gray-400 font-medium">Total Referrals</span>
+                  <Users className="text-primary-400" size={20} />
+                  <span className="text-gray-700 font-medium font-inter">Total Friends</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
+                <div className="stat-value">
                   {gameStats?.totalReferrals || 0}
                 </div>
               </div>
-              <div className="text-center">
+              <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Gift className="text-green-400" size={20} />
-                  <span className="text-gray-400 font-medium">Earnings</span>
+                  <Gift className="text-success" size={20} />
+                  <span className="text-gray-700 font-medium font-inter">Earnings</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
+                <div className="stat-value text-success">
                   {gameStats?.referralEarnings?.toLocaleString() || 0}
                 </div>
               </div>
-              <div className="text-center">
+              <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="text-purple-400" size={20} />
-                  <span className="text-gray-400 font-medium">Current Tier</span>
+                  <Star className="text-accent-500" size={20} />
+                  <span className="text-gray-700 font-medium font-inter">Current Tier</span>
                 </div>
-                <div className="text-lg font-orbitron font-bold text-purple-400">
+                <div className="text-lg font-inter font-bold text-accent-600">
                   {currentTier ? `${currentTier.icon} ${currentTier.title}` : '🌟 Beginner'}
                 </div>
               </div>
-              <div className="text-center">
+              <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <TrendingUp className="text-orange-400" size={20} />
-                  <span className="text-gray-400 font-medium">Next Tier</span>
+                  <TrendingUp className="text-warning" size={20} />
+                  <span className="text-gray-700 font-medium font-inter">Next Tier</span>
                 </div>
-                <div className="text-lg font-orbitron font-bold text-orange-400">
+                <div className="text-lg font-inter font-bold text-warning">
                   {nextTier ? `${nextTier.icon} ${nextTier.title}` : '🏆 Max Level'}
                 </div>
               </div>
@@ -175,23 +175,23 @@ export const Referrals = () => {
           </div>
 
           {/* Referral Link */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-cyan-500/20">
-            <h2 className="text-2xl font-orbitron font-bold text-white mb-4">
-              Your Referral Link
+          <div className="cute-card p-6">
+            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-4">
+              Your Friend Invitation Link
             </h2>
             <div className="flex gap-3">
-              <div className="flex-1 bg-slate-700/50 rounded-lg p-3 border border-gray-600">
-                <div className="text-gray-400 text-sm mb-1">Referral Code</div>
-                <div className="text-white font-orbitron font-bold text-lg">
+              <div className="flex-1 bg-primary-100 rounded-lg p-3 border border-primary-300">
+                <div className="text-gray-700 text-sm mb-1 font-inter">Friend Code</div>
+                <div className="text-gray-800 font-inter font-bold text-lg">
                   {gameStats?.referralCode || 'Loading...'}
                 </div>
               </div>
               <Button
                 onClick={copyReferralLink}
-                className={`px-6 py-3 rounded-lg font-orbitron font-bold transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg font-inter font-bold transition-all duration-200 ${
                   hasCopied
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white'
+                    ? 'bg-success text-white'
+                    : 'cute-button'
                 }`}
               >
                 {hasCopied ? (
@@ -207,15 +207,15 @@ export const Referrals = () => {
                 )}
               </Button>
             </div>
-            <p className="text-gray-400 text-sm mt-3">
-              Share this link with friends. You'll earn 10% of their mining rewards!
+            <p className="text-gray-600 text-sm mt-3 font-inter">
+              Share this link with friends. You'll earn 10% of their pet care rewards!
             </p>
           </div>
 
           {/* Referral Tiers */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-cyan-500/20">
-            <h2 className="text-2xl font-orbitron font-bold text-white mb-6">
-              Referral Tiers
+          <div className="cute-card p-6">
+            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">
+              Friend Tiers
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {referralTiers.map((tier, index) => {
@@ -227,25 +227,25 @@ export const Referrals = () => {
                     key={index}
                     className={`p-4 rounded-xl border transition-all duration-300 ${
                       isCurrent
-                        ? 'border-cyan-400 bg-cyan-500/10'
+                        ? 'border-primary-400 bg-primary-100'
                         : isUnlocked
-                        ? 'border-green-500/50 bg-green-500/5'
-                        : 'border-gray-600 bg-slate-700/30'
+                        ? 'border-success bg-green-50'
+                        : 'border-gray-300 bg-gray-50'
                     }`}
                   >
                     <div className="text-center space-y-2">
                       <div className="text-2xl">{tier.icon}</div>
-                      <h3 className="font-orbitron font-bold text-white">
+                      <h3 className="font-inter font-bold text-gray-800">
                         {tier.title}
                       </h3>
-                      <p className="text-gray-400 text-sm">
-                        {tier.referrals} referrals
+                      <p className="text-gray-600 text-sm font-inter">
+                        {tier.referrals} friends
                       </p>
-                      <div className="text-cyan-400 font-orbitron font-bold">
-                        +{tier.bonus} ZEN bonus
+                      <div className="text-primary-600 font-inter font-bold">
+                        +{tier.bonus} 🍖 bonus
                       </div>
                       {isCurrent && (
-                        <div className="text-cyan-400 text-xs font-medium">
+                        <div className="text-primary-600 text-xs font-medium font-inter">
                           Current Tier
                         </div>
                       )}
@@ -257,19 +257,19 @@ export const Referrals = () => {
           </div>
 
           {/* Referral List */}
-          <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-cyan-500/20">
-            <h2 className="text-2xl font-orbitron font-bold text-white mb-6">
-              Your Referrals
+          <div className="cute-card p-6">
+            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">
+              Your Friends
             </h2>
             
             {referrals.length === 0 ? (
               <div className="text-center py-8">
-                <Users size={48} className="text-gray-500 mx-auto mb-4" />
-                <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
-                  No Referrals Yet
+                <Users size={48} className="text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">
+                  No Friends Yet
                 </h3>
-                <p className="text-gray-500">
-                  Start inviting friends to earn bonus ZEN tokens!
+                <p className="text-gray-500 font-inter">
+                  Start inviting friends to earn bonus food points!
                 </p>
               </div>
             ) : (
@@ -277,27 +277,27 @@ export const Referrals = () => {
                 {referrals.map((referral, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between bg-slate-700/30 rounded-lg p-4"
+                    className="flex items-center justify-between bg-primary-50 rounded-lg p-4"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center text-white font-orbitron font-bold">
+                      <div className="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-inter font-bold">
                         {referral.user?.username?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <div>
-                        <div className="text-white font-medium">
+                        <div className="text-gray-800 font-medium font-inter">
                           {referral.user?.username || 'Anonymous'}
                         </div>
-                        <div className="text-gray-400 text-sm">
+                        <div className="text-gray-600 text-sm font-inter">
                           Joined {referral.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-cyan-400 font-orbitron font-bold">
-                        +{Math.floor((referral.totalMined || 0) * 0.1)} ZEN
+                      <div className="text-primary-600 font-inter font-bold">
+                        +{Math.floor((referral.totalMined || 0) * 0.1)} 🍖
                       </div>
-                      <div className="text-gray-400 text-sm">
-                        Earned from referral
+                      <div className="text-gray-600 text-sm font-inter">
+                        Earned from friend
                       </div>
                     </div>
                   </div>

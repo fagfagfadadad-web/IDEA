@@ -114,7 +114,7 @@ export const Tasks = () => {
         zenBalance: (gameStats?.zenBalance || 0) + rewardAmount
       });
 
-      success(`Task completed! Earned ${rewardAmount} ZEN tokens!`);
+      success(`Task completed! Earned ${rewardAmount} food points!`);
       fetchTasks();
     } catch (err) {
       console.error('Error completing task:', err);
@@ -125,66 +125,66 @@ export const Tasks = () => {
   const getTaskIcon = (taskType: string) => {
     switch (taskType) {
       case 'mining':
-        return <Zap className="text-cyan-400" size={24} />;
+        return <Zap className="text-primary-400" size={24} />;
       case 'social':
-        return <Star className="text-purple-400" size={24} />;
+        return <Star className="text-accent-400" size={24} />;
       case 'referral':
-        return <Gift className="text-green-400" size={24} />;
+        return <Gift className="text-success" size={24} />;
       default:
-        return <Target className="text-orange-400" size={24} />;
+        return <Target className="text-warning" size={24} />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'text-green-400';
+        return 'text-success';
       case 'in_progress':
-        return 'text-cyan-400';
+        return 'text-primary-600';
       default:
-        return 'text-gray-400';
+        return 'text-gray-600';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 flex items-center justify-center">
+      <div className="page-bg flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-400 mx-auto"></div>
-          <div className="text-xl text-cyan-400 font-orbitron">Loading Tasks...</div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-400 mx-auto"></div>
+          <div className="text-xl text-primary-600 font-bold font-inter">Loading Tasks...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="page-bg font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-orbitron font-bold bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-              Mission Control
+            <h1 className="title-responsive font-inter font-bold gradient-text">
+              Pet Care Tasks
             </h1>
-            <p className="text-gray-400 text-lg">
-              Complete tasks to earn bonus ZEN tokens and experience
+            <p className="text-gray-700 text-lg font-inter">
+              Complete tasks to earn bonus food points and experience
             </p>
-            <div className="flex items-center justify-center gap-2 text-cyan-400 font-orbitron font-bold text-xl">
-              <Zap size={20} />
-              {gameStats?.zenBalance?.toLocaleString() || 0} ZEN
+            <div className="flex items-center justify-center gap-2 text-primary-600 font-inter font-bold text-xl">
+              <span>🍖</span>
+              {gameStats?.zenBalance?.toLocaleString() || 0} Food
             </div>
           </div>
 
           {/* Tasks Grid */}
           <div className="space-y-6">
             {tasks.length === 0 ? (
-              <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-8 border border-gray-700/50 text-center">
-                <Target size={48} className="text-gray-500 mx-auto mb-4" />
-                <h3 className="text-xl font-orbitron font-bold text-gray-400 mb-2">
+              <div className="cute-card p-8 text-center">
+                <Target size={48} className="text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">
                   No Tasks Available
                 </h3>
-                <p className="text-gray-500">
-                  Check back later for new missions and challenges
+                <p className="text-gray-500 font-inter">
+                  Check back later for new pet care challenges
                 </p>
               </div>
             ) : (
@@ -196,26 +196,26 @@ export const Tasks = () => {
                   return (
                     <div
                       key={task.id}
-                      className={`bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 ${
+                      className={`cute-card p-6 transition-all duration-300 hover:transform hover:scale-105 ${
                         userTask?.status === 'completed' 
-                          ? 'border-green-500/50 bg-green-500/5'
+                          ? 'border-success bg-green-50'
                           : userTask?.status === 'in_progress'
-                          ? 'border-cyan-500/50 bg-cyan-500/5'
-                          : 'border-gray-700/50 hover:border-cyan-500/50'
+                          ? 'border-primary-400 bg-primary-50'
+                          : 'border-gray-300 hover:border-primary-400'
                       }`}
                     >
                       <div className="space-y-4">
                         {/* Task Header */}
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center">
+                            <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
                               {getTaskIcon(task.taskType)}
                             </div>
                             <div>
-                              <h3 className="text-lg font-orbitron font-bold text-white">
+                              <h3 className="text-lg font-inter font-bold text-gray-800">
                                 {task.title}
                               </h3>
-                              <p className="text-gray-400 text-sm capitalize">
+                              <p className="text-gray-600 text-sm capitalize font-inter">
                                 {task.taskType} Task
                               </p>
                             </div>
@@ -227,7 +227,7 @@ export const Tasks = () => {
                         </div>
 
                         {/* Task Description */}
-                        <p className="text-gray-300 text-sm leading-relaxed">
+                        <p className="text-gray-700 text-sm leading-relaxed font-inter">
                           {task.description}
                         </p>
 
@@ -238,7 +238,7 @@ export const Tasks = () => {
                               href={task.referenceLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors duration-200"
+                              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium transition-colors duration-200 font-inter"
                             >
                               <ExternalLink size={14} />
                               Go to Instructions
@@ -250,12 +250,12 @@ export const Tasks = () => {
                         {userTask?.status === 'in_progress' && (
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-gray-400 text-sm">Progress</span>
-                              <span className="text-white text-sm">{userTask.progress}%</span>
+                              <span className="text-gray-600 text-sm font-inter">Progress</span>
+                              <span className="text-gray-800 text-sm font-inter">{userTask.progress}%</span>
                             </div>
-                            <div className="w-full bg-slate-700 rounded-full h-2">
+                            <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
-                                className="h-2 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all duration-300"
+                                className="h-2 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300"
                                 style={{ width: `${userTask.progress}%` }}
                               />
                             </div>
@@ -264,15 +264,15 @@ export const Tasks = () => {
 
                         {/* Reward and Action */}
                         <div className="flex justify-between items-center pt-2">
-                          <div className="flex items-center gap-1 text-cyan-400 font-orbitron font-bold">
-                            <Zap size={16} />
-                            +{task.rewardAmount} ZEN
+                          <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                            <span>🍖</span>
+                            +{task.rewardAmount} Food
                           </div>
                           
                           {!userTask && (
                             <Button
                               onClick={() => startTask(task.id!)}
-                              className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-4 py-2 rounded-lg font-orbitron font-bold"
+                              className="cute-button px-4 py-2"
                             >
                               Start
                             </Button>
@@ -281,14 +281,14 @@ export const Tasks = () => {
                           {canComplete && (
                             <Button
                               onClick={() => completeTask(userTask.id, task.rewardAmount)}
-                              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg font-orbitron font-bold"
+                              className="bg-success text-white px-4 py-2 rounded-lg font-inter font-bold hover:bg-green-600"
                             >
                               Claim Reward
                             </Button>
                           )}
                           
                           {userTask?.status === 'completed' && (
-                            <div className="flex items-center gap-1 text-green-400 font-medium">
+                            <div className="flex items-center gap-1 text-success font-medium font-inter">
                               <CheckCircle size={16} />
                               Completed
                             </div>
