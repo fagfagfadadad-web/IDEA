@@ -332,11 +332,8 @@ export const Header = () => {
                     )}
                     <button
                       onClick={() => {
-                      className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center z-[9999999]"
-                      style={{ 
-                        zIndex: '9999999 !important' as any,
-                        position: 'relative !important' as any
-                      }}
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
                       }}
                       className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4"
                     >
