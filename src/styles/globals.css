@@ -605,7 +605,7 @@ body {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
     backdrop-filter: blur(20px);
     border-top: 3px solid rgba(107, 127, 111, 0.3);
-    z-index: 9997 !important;
+    z-index: 999998 !important;
   }
 
   .mobile-nav-item {

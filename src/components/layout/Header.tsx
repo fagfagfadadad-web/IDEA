@@ -202,12 +202,12 @@ export const Header = () => {
           <>
             <div 
               className="fixed inset-0 bg-black bg-opacity-50"
-              style={{ zIndex: 9998 }}
+             style={{ zIndex: 999999 }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div 
               className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
-              style={{ zIndex: 9999 }}
+             style={{ zIndex: 1000000 }}
             >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
