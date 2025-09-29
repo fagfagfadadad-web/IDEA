@@ -1,18 +1,19 @@
 import { RouteNamesEnum } from 'localConstants';
-import {
-  Home,
-  Unlock,
-  Profile,
-  Admin,
-  Leaderboard,
-  Tasks,
-  Referrals,
-  Shop,
-  Mining,
-  Ships,
-  Game
-} from 'pages';
+import { lazy } from 'react';
 import { RouteType } from 'types';
+
+// Lazy load all page components to avoid circular dependencies
+const Home = lazy(() => import('pages').then(module => ({ default: module.Home })));
+const Unlock = lazy(() => import('pages').then(module => ({ default: module.Unlock })));
+const Profile = lazy(() => import('pages').then(module => ({ default: module.Profile })));
+const Admin = lazy(() => import('pages').then(module => ({ default: module.Admin })));
+const Leaderboard = lazy(() => import('pages').then(module => ({ default: module.Leaderboard })));
+const Tasks = lazy(() => import('pages').then(module => ({ default: module.Tasks })));
+const Referrals = lazy(() => import('pages').then(module => ({ default: module.Referrals })));
+const Shop = lazy(() => import('pages').then(module => ({ default: module.Shop })));
+const Mining = lazy(() => import('pages').then(module => ({ default: module.Mining })));
+const Ships = lazy(() => import('pages').then(module => ({ default: module.Ships })));
+const Game = lazy(() => import('pages').then(module => ({ default: module.Game })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;

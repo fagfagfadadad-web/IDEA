@@ -30,6 +30,11 @@ export const Profile = () => {
   });
 
   const handleSave = async () => {
+    if (!user?.id) {
+      error('User not found. Please try logging in again.');
+      return;
+    }
+
     try {
       await UserService.updateUser(user?.id || '', formData);
 
