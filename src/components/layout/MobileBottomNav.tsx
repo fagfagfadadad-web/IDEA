@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useGetLoginInfo } from '../../lib';
-import { routeNames } from '../../localConstants';
+import { RouteNamesEnum } from '../../localConstants';
 
 export const MobileBottomNav = () => {
   const navigate = useNavigate();
@@ -12,22 +12,22 @@ export const MobileBottomNav = () => {
 
   const navItems = [
     {
-      path: routeNames.home,
+      path: RouteNamesEnum.home,
       icon: '🏠',
       label: 'Home'
     },
     {
-      path: routeNames.mining,
+      path: RouteNamesEnum.mining,
       icon: '⛏️',
       label: 'Mining'
     },
     {
-      path: routeNames.ships,
+      path: RouteNamesEnum.ships,
       icon: '🚀',
       label: 'Ships'
     },
     {
-      path: routeNames.game,
+      path: RouteNamesEnum.game,
       icon: '🎮',
       label: 'Game'
     }
