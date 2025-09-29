@@ -268,210 +268,194 @@ export const AdminTasks: React.FC = () => {
       )}
 
       {/* Create/Edit Task Modal */}
-      {showModal && createPortal((
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-2 md:p-4 overflow-y-auto">
-          <div className="cute-card p-4 md:p-6 max-w-4xl w-full my-2 md:my-8 flex flex-col relative min-h-0 max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-4rem)]">
-            <div className="space-y-6">
-              <h3 className="text-xl md:text-2xl font-inter font-bold text-gray-800">
-                {editingTask ? 'Edit Task' : 'Create New Task'}
-              </h3>
+          <div className="cute-card p-4 max-w-3xl w-full">
+            <h3 className="text-xl font-inter font-bold text-gray-800 mb-4">
+              {editingTask ? 'Edit Task' : 'Create New Task'}
+            </h3>
 
-              <form onSubmit={handleSubmit}>
-                <div className="space-y-3 md:space-y-4">
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                      Task Title
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      className="cute-input"
-                      placeholder="Enter task title"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                      Description
-                    </label>
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
-                      className="cute-input resize-none"
-                      placeholder="Enter task description"
-                      rows={2}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    <div>
-                      <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                        Reward Amount (Food Points)
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.rewardAmount}
-                        onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
-                        className="cute-input"
-                        placeholder="100"
-                        min="1"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                        Task Type
-                      </label>
-                      <select
-                        value={formData.taskType}
-                        onChange={(e) => setFormData({...formData, taskType: e.target.value})}
-                        className="cute-select"
-                      >
-                        {taskTypes.map((type) => (
-                          <option key={type.value} value={type.value}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
-                      Task Requirements
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                      <div>
-                        <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
-                          Pet Care Operations Required
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.miningOperationsRequired}
-                          onChange={(e) => setFormData({...formData, miningOperationsRequired: e.target.value})}
-                          className="cute-input text-sm"
-                          placeholder="e.g. 5"
-                          min="0"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
-                          Daily Care Count Required
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.dailyMiningCountRequired}
-                          onChange={(e) => setFormData({...formData, dailyMiningCountRequired: e.target.value})}
-                          className="cute-input text-sm"
-                          placeholder="e.g. 10"
-                          min="0"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
-                          Dog Count Required
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.shipCountRequired}
-                          onChange={(e) => setFormData({...formData, shipCountRequired: e.target.value})}
-                          className="cute-input text-sm"
-                          placeholder="e.g. 3"
-                          min="0"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
-                          Friends Count Required
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.referralCountRequired}
-                          onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
-                          className="cute-input text-sm"
-                          placeholder="e.g. 5"
-                          min="0"
-                        />
-                      </div>
-                      
-                      <div className="md:col-span-2">
-                        <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
-                          Required Level
-                        </label>
-                        <input
-                          type="number"
-                          value={formData.requiredLevel}
-                          onChange={(e) => setFormData({...formData, requiredLevel: e.target.value})}
-                          className="cute-input text-sm"
-                          placeholder="e.g. 10"
-                          min="1"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-gray-600 text-xs mt-2 font-inter">
-                      Leave fields empty if not required for this task
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                      Reference Link (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      value={formData.referenceLink}
-                      onChange={(e) => setFormData({...formData, referenceLink: e.target.value})}
-                      className="cute-input"
-                      placeholder="https://example.com/instructions"
-                    />
-                    <p className="text-gray-600 text-xs mt-1 font-inter">
-                      Optional link to guide players where to go or what to do
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      id="isActive"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                      className="w-5 h-5 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
-                    />
-                    <label htmlFor="isActive" className="text-gray-800 font-medium font-inter">
-                      Task is active
-                    </label>
-                  </div>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                    Task Title
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({...formData, title: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Enter task title"
+                    required
+                  />
                 </div>
 
-                {/* Buttons */}
-                <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingTask(null);
-                      resetForm();
-                    }}
-                    className="cute-button-outline w-full md:flex-1 py-3 px-4"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="cute-button flex-1 py-3"
-                  >
-                    {editingTask ? 'Update Task' : 'Create Task'}
-                  </Button>
+                <div>
+                  <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                    Reward (Food Points)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.rewardAmount}
+                    onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="100"
+                    min="1"
+                    required
+                  />
                 </div>
-              </form>
-            </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                  placeholder="Enter task description"
+                  rows={2}
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                    Task Type
+                  </label>
+                  <select
+                    value={formData.taskType}
+                    onChange={(e) => setFormData({...formData, taskType: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  >
+                    {taskTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                    Required Level
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.requiredLevel}
+                    onChange={(e) => setFormData({...formData, requiredLevel: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="e.g. 10"
+                    min="1"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-4 gap-2">
+                <div>
+                  <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    Pet Care Ops
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.miningOperationsRequired}
+                    onChange={(e) => setFormData({...formData, miningOperationsRequired: e.target.value})}
+                    className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                    placeholder="5"
+                    min="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    Daily Care
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.dailyMiningCountRequired}
+                    onChange={(e) => setFormData({...formData, dailyMiningCountRequired: e.target.value})}
+                    className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                    placeholder="10"
+                    min="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    Dog Count
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.shipCountRequired}
+                    onChange={(e) => setFormData({...formData, shipCountRequired: e.target.value})}
+                    className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                    placeholder="3"
+                    min="0"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    Friends
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.referralCountRequired}
+                    onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
+                    className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                    placeholder="5"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-800 text-xs font-medium mb-1 font-inter">
+                  Reference Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.referenceLink}
+                  onChange={(e) => setFormData({...formData, referenceLink: e.target.value})}
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="https://example.com/instructions"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                  className="w-4 h-4 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
+                />
+                <label htmlFor="isActive" className="text-gray-800 text-sm font-medium font-inter">
+                  Task is active
+                </label>
+              </div>
+
+              <div className="flex gap-3 pt-3 border-t border-gray-300">
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setShowModal(false);
+                    setEditingTask(null);
+                    resetForm();
+                  }}
+                  className="cute-button-outline flex-1 py-2"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="cute-button flex-1 py-2"
+                >
+                  {editingTask ? 'Update Task' : 'Create Task'}
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       ), document.body)}
