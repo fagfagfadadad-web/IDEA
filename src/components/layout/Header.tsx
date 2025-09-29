@@ -298,7 +298,6 @@ export const Header = () => {
                   Mini Game
                 </Link>
                 <Link
-                  zIndex: '2147483647 !important' as any
                   className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -306,11 +305,10 @@ export const Header = () => {
                   Friends
                 </Link>
                 <Link
-                  to="/leaderboard"
                   className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  zIndex: '2147483647 !important' as any,
+                  <Trophy size={18} />
                   Leaderboard
                 </Link>
 
@@ -336,7 +334,6 @@ export const Header = () => {
                     )}
                     <button
                       onClick={() => {
-                        zIndex: '2147483647 !important' as any,
                         setIsMobileMenuOpen(false);
                       }}
                       className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-red-100 hover:text-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4"
