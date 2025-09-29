@@ -36,7 +36,7 @@ export const Header = () => {
   };
 
   return (
-    <div className="app-header py-2 md:py-4 border-b border-primary-300/40 shadow-lg">
+    <div className="app-header py-2 md:py-4 border-b border-primary-300/40 shadow-lg relative z-50">
       <div className="container mx-auto px-3 md:px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2 md:space-x-4">
@@ -113,10 +113,10 @@ export const Header = () => {
                     {isProfileMenuOpen && (
                       <>
                         <div 
-                          className="fixed inset-0 z-10" 
+                          className="fixed inset-0 z-40" 
                           onClick={() => setIsProfileMenuOpen(false)}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-lg border border-primary-300/40 rounded-xl shadow-2xl z-20 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-lg border border-primary-300/40 rounded-xl shadow-2xl z-50 overflow-hidden">
                           <Link
                             to="/profile"
                             className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
@@ -189,8 +189,7 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative"
-              style={{ zIndex: 2147483647 }}
+              className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative z-50"
             >
               <MenuIcon size={20} />
             </button>
@@ -201,41 +200,18 @@ export const Header = () => {
         {isMobileMenuOpen && createPortal((
           <>
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50"
-              style={{
-                zIndex: 2147483647,
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0
-              }}
+              className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div 
-              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-primary-300/40"
-              style={{
-                zIndex: 2147483648,
-                position: 'fixed',
-                top: 0,
-                right: 0,
-                height: '100vh',
-                width: '320px',
-                maxWidth: '90vw',
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(20px)'
-              }}
+              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-primary-300/40 z-50"
             >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    style={{
-                      zIndex: 2147483649,
-                      position: 'relative'
-                    }}
+                    className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
                   >
                     <X size={20} />
                   </button>

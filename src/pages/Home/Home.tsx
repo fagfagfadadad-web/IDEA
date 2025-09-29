@@ -89,7 +89,7 @@ export const Home = () => {
   ];
 
   return (
-    <div className="page-bg font-inter">
+    <div className="relative">
       <div className="relative z-10">
         {/* Hero Section */}
         <div className="container mx-auto px-6 py-12 text-center">
