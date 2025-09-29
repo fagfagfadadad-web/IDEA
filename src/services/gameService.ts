@@ -74,6 +74,17 @@ export interface UserTask {
 }
 
 export class GameService {
+  // Helper function to remove undefined values from objects
+  private static filterUndefinedProperties(obj: Record<string, any>): Record<string, any> {
+    const filtered: Record<string, any> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        filtered[key] = value;
+      }
+    }
+    return filtered;
+  }
+
   // Game Stats
   static async getGameStats(userId: string): Promise<GameStats | null> {
     const docRef = doc(db, 'gameStats', userId);
@@ -398,12 +409,14 @@ export class GameService {
       requirements.requiredLevel = task.requiredLevel;
     }
 
-    const docRef = await addDoc(collection(db, 'tasks'), {
+    const taskData = this.filterUndefinedProperties({
       ...task,
       requirements,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
+
+    const docRef = await addDoc(collection(db, 'tasks'), taskData);
     return docRef.id;
   }
 
@@ -436,10 +449,12 @@ export class GameService {
     }
 
     const docRef = doc(db, 'tasks', taskId);
-    await updateDoc(docRef, {
+    const updateData = this.filterUndefinedProperties({
       ...updates,
       updatedAt: serverTimestamp()
     });
+
+    await updateDoc(docRef, updateData);
   }
 
   static async getLeaderboard(field: string, limitCount = 100): Promise<GameStats[]> {
