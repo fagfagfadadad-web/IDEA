@@ -449,9 +449,8 @@ export const AdminTasks: React.FC = () => {
                   </label>
                 </div>
                 </div>
-              </form>
-              
-              <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
+                
+                <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
                   <Button
                     type="button"
                     onClick={() => {
@@ -470,6 +469,7 @@ export const AdminTasks: React.FC = () => {
                     {editingTask ? 'Update Task' : 'Create Task'}
                   </Button>
                 </div>
+              </form>
             </div>
           </div>
         </div>
