@@ -61,12 +61,12 @@ export const Home = () => {
   // Show loading state while data is being fetched
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-pulse">
-            <Zap size={32} className="text-white -rotate-[45deg] scale-x-[-1]" />
+          <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-bounce">
+            <span className="text-3xl">🐕</span>
           </div>
-          <p className="text-xl text-gray-300">Loading ZenDOG...</p>
+          <p className="text-xl text-gray-700">Loading ZenDOG...</p>
         </div>
       </div>
     );
@@ -74,33 +74,33 @@ export const Home = () => {
 
   const features = [
     {
-      icon: <Pickaxe size={32} className="text-cyan-400" />,
-      title: "Mine ZEN Tokens",
-      description: "Deploy your ships to mine valuable ZEN tokens across the galaxy"
+      icon: <span className="text-3xl">🍖</span>,
+      title: "Feed Your Dogs",
+      description: "Give your dogs delicious food to keep them happy and healthy"
     },
     {
-      icon: <Rocket size={32} className="text-purple-400" />,
-      title: "Upgrade Ships",
-      description: "Enhance your mining fleet with powerful upgrades and new technologies"
+      icon: <span className="text-3xl">🎾</span>,
+      title: "Play & Exercise",
+      description: "Play games with your dogs to increase their happiness and earn rewards"
     },
     {
-      icon: <Users size={32} className="text-green-400" />,
-      title: "Referral Program",
-      description: "Invite friends and earn bonus ZEN tokens from their mining activities"
+      icon: <span className="text-3xl">👥</span>,
+      title: "Invite Friends",
+      description: "Invite friends to play and earn bonus food points from their activities"
     },
     {
-      icon: <Target size={32} className="text-orange-400" />,
-      title: "Complete Tasks",
-      description: "Finish daily and weekly challenges to earn extra rewards"
+      icon: <span className="text-3xl">🏆</span>,
+      title: "Complete Challenges",
+      description: "Finish daily care tasks and challenges to earn extra food and toys"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
       {/* Animated Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1169754/pexels-photo-1169754.jpeg')] bg-cover bg-center opacity-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10 animate-pulse"></div>
+        <div className="absolute inset-0 bg-[url('https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg')] bg-cover bg-center opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-300/20 via-purple-300/20 to-yellow-300/20 animate-pulse"></div>
       </div>
 
       <div className="relative z-10">
@@ -110,46 +110,45 @@ export const Home = () => {
             {/* Logo and Title */}
             <div className="space-y-4">
               <div className="flex justify-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl">
-                  <Zap size={48} className="text-white -rotate-[45deg] scale-x-[-1]" />
+                <div className="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center shadow-2xl animate-bounce">
+                  <span className="text-4xl">🐕</span>
                 </div>
-                <span className="text-4xl">🐕</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-orbitron font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
                 ZenDOG
               </h1>
               <p className="text-xl md:text-2xl text-gray-300 font-medium">
-                Spiritual Energy Mining
+                Virtual Pet Care Game
               </p>
             </div>
 
             {/* Stats Display for Logged In Users */}
             {isLoggedIn && gameStats && (
-              <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-6 border border-cyan-500/20 max-w-2xl mx-auto">
+              <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/40 max-w-2xl mx-auto shadow-lg">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-orbitron font-bold text-cyan-400">
+                    <div className="text-2xl md:text-3xl font-bold text-pink-600">
                       {gameStats.zenBalance?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-gray-400 text-sm">ZEN Balance</div>
+                    <div className="text-gray-600 text-sm">🍖 Food Points</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-orbitron font-bold text-purple-400">
+                    <div className="text-2xl md:text-3xl font-bold text-purple-600">
                       {gameStats.totalMined?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-gray-400 text-sm">Total Mined</div>
+                    <div className="text-gray-600 text-sm">❤️ Love Given</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-orbitron font-bold text-green-400">
+                    <div className="text-2xl md:text-3xl font-bold text-green-600">
                       {gameStats.miningLevel || 1}
                     </div>
-                    <div className="text-gray-400 text-sm">Mining Level</div>
+                    <div className="text-gray-600 text-sm">🏆 Care Level</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-orbitron font-bold text-orange-400">
+                    <div className="text-2xl md:text-3xl font-bold text-orange-600">
                       {ships.length}
                     </div>
-                    <div className="text-gray-400 text-sm">Ships</div>
+                    <div className="text-gray-600 text-sm">🐕 Pet Dogs</div>
                   </div>
                 </div>
               </div>
@@ -161,28 +160,28 @@ export const Home = () => {
                 <>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.mining)}
-                    className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                   >
-                    <span className="text-xl">🧘‍♂️</span>
-                    Start Meditating
+                    <span className="text-xl">🍖</span>
+                    Feed Your Dogs
                     <ArrowRight size={20} />
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.ships)}
                     variant="outline"
-                    className="border-2 border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900 px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
+                    className="border-2 border-pink-400 text-pink-600 hover:bg-pink-400 hover:text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
                   >
                     <span className="text-xl">🐕</span>
-                    Manage Pack
+                    My Dogs
                   </Button>
                 </>
               ) : (
                 <Button
                   onClick={() => navigate(RouteNamesEnum.unlock)}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
                 >
                   <span className="text-xl">🐕</span>
-                  Connect Wallet & Start Journey
+                  Connect Wallet & Adopt Dog
                   <ArrowRight size={20} />
                 </Button>
               )}
@@ -193,11 +192,11 @@ export const Home = () => {
         {/* Features Section */}
         <div className="container mx-auto px-6 py-16">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-orbitron font-bold text-white mb-4">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
               Game Features
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Explore the universe, mine precious ZEN tokens, and build the ultimate mining empire
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              Take care of your virtual dogs, feed them, play with them, and watch them grow happy!
             </p>
           </div>
 
@@ -205,16 +204,16 @@ export const Home = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-slate-800/50 backdrop-blur-lg rounded-xl p-6 border border-gray-700/50 hover:border-cyan-500/50 transition-all duration-300 hover:transform hover:scale-105"
+                className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
               >
                 <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-600 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full flex items-center justify-center">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-orbitron font-bold text-white">
+                  <h3 className="text-xl font-bold text-gray-800">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
+                  <p className="text-gray-600 text-sm leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -226,51 +225,52 @@ export const Home = () => {
         {/* Quick Actions for Logged In Users */}
         {isLoggedIn && gameStats && (
           <div className="container mx-auto px-6 py-12">
-            <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-8 border border-cyan-500/20">
-              <h2 className="text-3xl font-orbitron font-bold text-white mb-8 text-center">
+            <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-8 border border-pink-300/40 shadow-lg">
+              <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
                 Quick Actions
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button
                   onClick={() => navigate(RouteNamesEnum.mining)}
-                  className="bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                  <Pickaxe size={24} />
-                  <span className="font-orbitron">Mine</span>
-                  <div className="text-gray-400 text-sm">
-                    {gameStats.zenBalance?.toLocaleString() || '0'} ⚡
+                  <span className="text-2xl">🍖</span>
+                  <span className="font-bold">Feed</span>
+                  <div className="text-pink-100 text-sm">
+                    {gameStats.zenBalance?.toLocaleString() || '0'} 🍖
                   </div>
-                  <div className="text-gray-400 text-sm">ZEN Energy</div>
+                  <div className="text-pink-100 text-sm">Food Points</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.ships)}
-                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                  <Rocket size={24} />
-                  <span className="font-orbitron">Ships</span>
-                  <div className="text-gray-400 text-sm">Total Energy</div>
+                  <span className="text-2xl">🐕</span>
+                  <span className="font-bold">Dogs</span>
+                  <div className="text-purple-100 text-sm">{ships.length} 🐕</div>
+                  <div className="text-purple-100 text-sm">Pet Dogs</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}
-                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                  <Target size={24} />
-                  <span className="font-orbitron">Tasks</span>
-                  <div className="text-gray-400 text-sm">
+                  <span className="text-2xl">🎯</span>
+                  <span className="font-bold">Tasks</span>
+                  <div className="text-green-100 text-sm">
                     {gameStats.miningLevel || 1} 🌟
                   </div>
-                  <div className="text-gray-400 text-sm">Spiritual Level</div>
+                  <div className="text-green-100 text-sm">Care Level</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
-                  className="bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
                 >
-                  <Users size={24} />
-                  <span className="font-orbitron">Referrals</span>
-                  <div className="text-gray-400 text-sm">
-                    {ships.length} 🐕
+                  <span className="text-2xl">👥</span>
+                  <span className="font-bold">Friends</span>
+                  <div className="text-orange-100 text-sm">
+                    {gameStats.totalReferrals || 0} 👥
                   </div>
-                  <div className="text-gray-400 text-sm">Cosmic Dogs</div>
+                  <div className="text-orange-100 text-sm">Friends</div>
                 </Button>
               </div>
             </div>

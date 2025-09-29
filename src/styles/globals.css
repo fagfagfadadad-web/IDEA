@@ -23,11 +23,11 @@
   .gradient-button::before {
     content: '';
     @apply absolute inset-0 duration-1000 opacity-60 transition-all rounded-xl blur-lg filter;
-    background-image: linear-gradient(to right, #06b6d4, #8b5cf6, #ec4899);
+    background-image: linear-gradient(to right, #ff6b9d, #ec4899, #d946ef);
   }
   
   .gradient-button-inner {
-    @apply relative inline-flex items-center justify-center text-sm md:text-base rounded-xl bg-slate-900 px-4 py-2 md:px-8 md:py-3 font-semibold text-white transition-all duration-200 hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5;
+    @apply relative inline-flex items-center justify-center text-sm md:text-base rounded-xl bg-pink-100 px-4 py-2 md:px-8 md:py-3 font-semibold text-pink-800 transition-all duration-200 hover:bg-pink-200 hover:shadow-lg hover:-translate-y-0.5;
   }
   
   .gradient-button-arrow {
@@ -44,13 +44,13 @@
 
   /* Gradient card styles */
   .gradient-card {
-    @apply relative bg-slate-800/50 backdrop-blur-lg rounded-xl border border-cyan-500/20 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/10 hover:-translate-y-1 overflow-hidden;
+    @apply relative bg-pink-50/80 backdrop-blur-lg rounded-xl border border-pink-300/40 transition-all duration-300 hover:shadow-xl hover:shadow-pink-400/20 hover:-translate-y-1 overflow-hidden;
   }
   
   .gradient-card::before {
     content: '';
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #334155);
+    background-image: linear-gradient(to bottom right, #fef7ff, #fdeeff, #fcdcff);
   }
   
   .gradient-card:hover::before {
@@ -109,25 +109,25 @@
 
   /* Mobile optimized buttons */
   .mobile-button {
-    @apply w-full md:w-auto px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 touch-manipulation font-orbitron;
+    @apply w-full md:w-auto px-6 py-3 text-base font-semibold rounded-lg transition-all duration-200 touch-manipulation;
   }
   
   .mobile-button-primary {
     @apply mobile-button text-white hover:shadow-lg hover:-translate-y-0.5;
-    background-image: linear-gradient(to right, #06b6d4, #8b5cf6);
+    background-image: linear-gradient(to right, #ff6b9d, #ec4899);
   }
   
   .mobile-button-primary:hover {
-    background-image: linear-gradient(to right, #0891b2, #7c3aed);
+    background-image: linear-gradient(to right, #ff3d71, #d946ef);
   }
   
   .mobile-button-secondary {
-    @apply mobile-button bg-slate-800 text-gray-300 border border-gray-600 hover:bg-slate-700 hover:shadow-md;
+    @apply mobile-button bg-pink-100 text-pink-800 border border-pink-300 hover:bg-pink-200 hover:shadow-md;
   }
 
   /* Particles and Space Background */
   #particles {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    background: linear-gradient(135deg, #fef7ff 0%, #fdeeff 50%, #fcdcff 100%);
   }
 
   /* Hide scrollbar for carousel */
@@ -157,7 +157,7 @@
 
   /* Gradient text */
   .gradient-text {
-    background-image: linear-gradient(to right, #06b6d4, #8b5cf6, #ec4899);
+    background-image: linear-gradient(to right, #ff6b9d, #ec4899, #d946ef);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
@@ -165,7 +165,7 @@
 
   /* Animated gradient background */
   .animated-gradient {
-    background: linear-gradient(-45deg, #06b6d4, #8b5cf6, #ec4899, #f59e0b);
+    background: linear-gradient(-45deg, #ff6b9d, #ec4899, #d946ef, #fbbf24);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
   }
@@ -217,15 +217,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #1e293b;
+    background: #fdeeff;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #06b6d4, #8b5cf6);
+    background: linear-gradient(to bottom, #ff6b9d, #ec4899);
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #0891b2, #7c3aed);
+    background: linear-gradient(to bottom, #ff3d71, #d946ef);
   }
 }

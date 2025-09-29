@@ -8,17 +8,29 @@ module.exports = {
         orbitron: ['"Orbitron"', 'monospace']
       },
       colors: {
-        zen: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
+        tamagochi: {
+          50: '#fef7ff',
+          100: '#fdeeff',
+          200: '#fcdcff',
+          300: '#f9b9ff',
+          400: '#f486ff',
+          500: '#ec4899',
+          600: '#d946ef',
+          700: '#c026d3',
+          800: '#a21caf',
+          900: '#86198f',
+        },
+        cute: {
+          50: '#fff0f5',
+          100: '#ffe4ec',
+          200: '#ffcdd9',
+          300: '#ffa3b5',
+          400: '#ff6b9d',
+          500: '#ff3d71',
+          600: '#f01d4e',
+          700: '#d1123a',
+          800: '#b01233',
+          900: '#95142f',
         }
       },
       animation: {
@@ -27,8 +39,8 @@ module.exports = {
         'mining-shimmer': 'miningShimmer 2s linear infinite',
       },
       backgroundImage: {
-        'space-gradient': 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
-        'zen-gradient': 'linear-gradient(to right, #06b6d4, #8b5cf6, #ec4899)',
+        'cute-gradient': 'linear-gradient(135deg, #ff6b9d 0%, #ec4899 50%, #d946ef 100%)',
+        'tamagochi-gradient': 'linear-gradient(to right, #ff6b9d, #ec4899, #d946ef)',
       }
     }
   },
