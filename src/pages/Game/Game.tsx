@@ -215,13 +215,24 @@ export const Game = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw platform (dog bowl)
-    const centerX = platform.current.x + platform.current.width / 2;
-    const centerY = platform.current.y + platform.current.height / 2;
-    
-    // Simple dog bowl emoji
-    ctx.font = '16px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🥣', centerX, centerY + 8);
+    const img = new Image();
+    img.src = '/dogfood.png';
+    if (img.complete) {
+      ctx.drawImage(
+        img,
+        platform.current.x,
+        platform.current.y,
+        platform.current.width,
+        platform.current.height
+      );
+    } else {
+      // Fallback to emoji if image not loaded
+      const centerX = platform.current.x + platform.current.width / 2;
+      const centerY = platform.current.y + platform.current.height / 2;
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('🥣', centerX, centerY + 8);
+    }
 
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
