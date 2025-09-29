@@ -263,6 +263,7 @@ export const AdminTasks: React.FC = () => {
                 </div>
               </div>
             </div>
+            </div>
           ))}
         </div>
       )}
@@ -278,7 +279,8 @@ export const AdminTasks: React.FC = () => {
 
               <form onSubmit={handleSubmit}>
                 <div className="space-y-3 md:space-y-4">
-                  <div>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="cute-card p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                     <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                       Task Title
                     </label>
