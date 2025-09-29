@@ -75,10 +75,14 @@ export class UserService {
 
   static async updateUser(userId: string, updates: Partial<User>): Promise<void> {
     const docRef = doc(db, 'users', userId);
-    await updateDoc(docRef, {
+    const updateData = {
       ...updates,
       updatedAt: serverTimestamp()
-    });
+    };
+    
+    console.log('🔄 UserService: Updating user with data:', updateData);
+    await updateDoc(docRef, updateData);
+    console.log('✅ UserService: User updated successfully');
   }
 
   static async getUserByWalletAddress(walletAddress: string): Promise<User | null> {

@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userProfile = await UserService.createUser(address, {
           username: uniqueUsername,
           walletAddress: address,
+          avatarUrl: '🐕', // Set default avatar
           emailNotificationsEnabled: false,
           isAdmin: false,
           isBanned: false
