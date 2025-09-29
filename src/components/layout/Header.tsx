@@ -186,33 +186,16 @@ export const Header = () => {
             </div>
 
             {/* Mobile Menu Button */}
-               className="fixed inset-0 bg-black bg-opacity-50 z-[9999998]"
-               style={{ 
-                 position: 'fixed !important' as any,
-                 top: '0 !important' as any,
-                 left: '0 !important' as any,
-                 right: '0 !important' as any,
-                 bottom: '0 !important' as any,
-                 zIndex: '9999998 !important' as any
-               }}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-               className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-primary-300/40 z-[9999999]"
-               style={{ 
-                 position: 'fixed !important' as any,
-                 top: '0 !important' as any,
-                 right: '0 !important' as any,
-                 height: '100vh !important' as any,
-                 width: '320px !important' as any,
-                 zIndex: '9999999 !important' as any,
-                 background: 'rgba(255, 255, 255, 0.95) !important' as any,
-                 backdropFilter: 'blur(20px) !important' as any
-               }}
-              >
-                <MenuIcon size={20} />
-              </button>
-            </div>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-[9999999]"
+              style={{
+                zIndex: '9999999 !important' as any,
+                position: 'relative !important' as any
+              }}
+            >
+              <MenuIcon size={20} />
+            </button>
           </div>
         </div>
 
@@ -220,19 +203,40 @@ export const Header = () => {
         {isMobileMenuOpen && (
           <>
             <div 
-             className="mobile-menu-overlay"
+              className="fixed inset-0 bg-black bg-opacity-50 z-[9999998]"
+              style={{ 
+                position: 'fixed !important' as any,
+                top: '0 !important' as any,
+                left: '0 !important' as any,
+                right: '0 !important' as any,
+                bottom: '0 !important' as any,
+                zIndex: '9999998 !important' as any
+              }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div 
-             className="mobile-menu-drawer shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
+              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-primary-300/40 z-[9999999]"
+              style={{ 
+                position: 'fixed !important' as any,
+                top: '0 !important' as any,
+                right: '0 !important' as any,
+                height: '100vh !important' as any,
+                width: '320px !important' as any,
+                zIndex: '9999999 !important' as any,
+                background: 'rgba(255, 255, 255, 0.95) !important' as any,
+                backdropFilter: 'blur(20px) !important' as any
+              }}
             >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center"
-                    style={{ zIndex: 1000004 }}
+                    className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center z-[9999999]"
+                    style={{ 
+                      zIndex: '9999999 !important' as any,
+                      position: 'relative !important' as any
+                    }}
                   >
                     <X size={20} />
                   </button>
