@@ -125,14 +125,15 @@ export const Profile = () => {
                   
                   {/* Avatar Picker */}
                   {showAvatarPicker && (
-                    <div className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-2xl border-2 border-primary-300 p-4 z-10">
-                      <h3 className="text-gray-800 font-bold mb-3 text-center font-inter">Choose Avatar</h3>
+                    <div className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 bg-white rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]">
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-white border-l-2 border-t-2 border-primary-500 rotate-45"></div>
+                      <h3 className="text-gray-800 font-bold mb-4 text-center font-inter text-lg">Choose Your Avatar</h3>
                       <div className="grid grid-cols-4 gap-2">
                         {dogAvatars.map((avatar, index) => (
                           <button
                             key={index}
                             onClick={() => selectAvatar(avatar)}
-                            className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl hover:bg-primary-100 transition-colors ${
+                            className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl hover:bg-primary-100 transition-all duration-200 hover:scale-110 ${
                               formData.avatarUrl === avatar ? 'bg-primary-200 border-2 border-primary-500' : 'border border-gray-300'
                             }`}
                           >
@@ -140,6 +141,12 @@ export const Profile = () => {
                           </button>
                         ))}
                       </div>
+                      <button
+                        onClick={() => setShowAvatarPicker(false)}
+                        className="mt-4 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200"
+                      >
+                        Close
+                      </button>
                     </div>
                   )}
                 </div>
