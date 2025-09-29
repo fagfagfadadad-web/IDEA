@@ -115,15 +115,15 @@ export const Ships = () => {
   }
 
   return (
-    <div className="page-bg font-nunito">
+    <div className="page-bg font-inter">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="title-responsive font-fredoka font-bold gradient-text">
+            <h1 className="title-responsive font-inter font-bold gradient-text">
               Dog House Management
             </h1>
-            <p className="text-tamagochi-text-dark text-lg font-nunito">
+            <p className="text-gray-700 text-lg font-inter">
               Manage your pet dogs and adopt new furry friends
             </p>
             <div className="food-points text-xl justify-center">
@@ -134,13 +134,14 @@ export const Ships = () => {
 
           {/* Tabs */}
           <div className="cute-card overflow-hidden">
-            <div className="flex border-b border-tamagochi-200">
+            <div className="flex border-b border-primary-200">
               <button
                 onClick={() => setActiveTab(0)}
                 className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-inter font-bold transition-all duration-200 ${
                   activeTab === 0
-                    ? 'bg-gradient-to-r from-tamagochi-200 to-tamagochi-300 text-tamagochi-700 border-b-2 border-tamagochi-500'
-                    : 'text-tamagochi-text-light hover:text-tamagochi-500'
+                    ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
+                    : 'text-gray-600 hover:text-primary-500'
                 }`}
               >
                 My Dogs ({ships.length}) 🐕
@@ -148,9 +149,10 @@ export const Ships = () => {
               <button
                 onClick={() => setActiveTab(1)}
                 className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-inter font-bold transition-all duration-200 ${
                   activeTab === 1
-                    ? 'bg-gradient-to-r from-tamagochi-200 to-tamagochi-300 text-tamagochi-700 border-b-2 border-tamagochi-500'
-                    : 'text-tamagochi-text-light hover:text-tamagochi-500'
+                    ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
+                    : 'text-gray-600 hover:text-primary-500'
                 }`}
               >
                 Adoption Center
@@ -171,7 +173,7 @@ export const Ships = () => {
                       </p>
                       <Button
                         onClick={() => setActiveTab(1)}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center gap-2"
+                        className="bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center gap-2"
                       >
                         <span>🐕</span>
                         Visit Adoption Center
@@ -185,7 +187,7 @@ export const Ships = () => {
                         return (
                           <div
                             key={ship.id}
-                            className="bg-white/70 rounded-xl p-6 border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 shadow-lg"
+                            className="bg-white/70 rounded-xl p-6 border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 shadow-lg"
                           >
                             <div className="space-y-4">
                               {/* Dog Info */}
@@ -199,7 +201,7 @@ export const Ships = () => {
                                   </p>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-pink-600 font-bold text-lg">
+                                  <div className="text-primary-600 font-bold text-lg">
                                     {ship.miningPower}
                                   </div>
                                   <div className="text-gray-600 text-sm">Appetite</div>
@@ -239,7 +241,7 @@ export const Ships = () => {
                                     return (
                                       <div
                                         key={upgrade.type}
-                                        className="flex items-center justify-between bg-pink-50/50 rounded-lg p-3"
+                                        className="flex items-center justify-between bg-primary-50/50 rounded-lg p-3"
                                       >
                                         <div className="flex items-center gap-3">
                                           {upgrade.icon}
@@ -257,7 +259,7 @@ export const Ships = () => {
                                           disabled={!affordable}
                                           className={`px-3 py-1 text-xs font-bold rounded-lg ${
                                             affordable
-                                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                                              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white'
                                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                           }`}
                                         >
@@ -287,9 +289,10 @@ export const Ships = () => {
                       return (
                         <div
                           key={dogType.type}
-                          className="bg-white/70 rounded-xl overflow-hidden border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
+                          className="bg-white/70 rounded-xl overflow-hidden border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
                           <div className="aspect-video bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center">
+                          <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
                             <span className="text-6xl">{dogType.emoji}</span>
                           </div>
                           
@@ -306,11 +309,11 @@ export const Ships = () => {
                             <div className="space-y-2">
                               <div className="flex justify-between">
                                 <span className="text-gray-600 text-sm">Appetite:</span>
-                                <span className="text-pink-600 font-bold">{dogType.mining_power}</span>
+                                <span className="text-primary-600 font-bold">{dogType.mining_power}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-gray-600 text-sm">Happiness Capacity:</span>
-                                <span className="text-green-600 font-bold">{dogType.energy_capacity}</span>
+                                <span className="text-success font-bold">{dogType.energy_capacity}</span>
                               </div>
                             </div>
 
@@ -321,7 +324,7 @@ export const Ships = () => {
                                 dogType.cost === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' :
                                 owned ? 'bg-green-500 text-white cursor-not-allowed' :
                                 affordable
-                                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white'
+                                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white'
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >

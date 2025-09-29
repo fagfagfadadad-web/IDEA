@@ -405,26 +405,8 @@ export const Game = () => {
   };
 
   return (
-    <div className="page-bg font-nunito">
-      {/* Animated Background */}
-      <div className="floating-hearts">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="floating-heart"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                fontSize: `${12 + Math.random() * 8}px`,
-                color: ['#ff69b4', '#ec4899', '#d946ef', '#fbbf24'][Math.floor(Math.random() * 4)]
-              }}
-            >
-              {['🦴', '🥩', '🍖', '💖', '⭐'][Math.floor(Math.random() * 5)]}
-            </div>
-          ))}
-        </div>
-
-      <div className="relative z-10 container mx-auto px-6 py-8">
+    <div className="page-bg font-inter">
+      <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -436,14 +418,14 @@ export const Game = () => {
               Back Home
             </Button>
             <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-fredoka font-bold gradient-text">
+              <h1 className="text-3xl md:text-4xl font-inter font-bold gradient-text">
                 Treat Catcher
               </h1>
-              <p className="text-tamagochi-text-dark font-nunito">Help your dog catch falling treats! 🦴</p>
+              <p className="text-gray-700 font-inter">Help your dog catch falling treats! 🦴</p>
             </div>
             <div className="food-points">
               <span>🍖</span>
-              <span className="font-fredoka font-bold">
+              <span className="font-inter font-bold">
                 {gameStats?.zenBalance?.toLocaleString() || '0'}
               </span>
             </div>
@@ -465,8 +447,8 @@ export const Game = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-fredoka font-bold text-tamagochi-green">Speed: {gameSpeed.toFixed(1)}x</div>
-                  <div className="text-tamagochi-text-light text-sm font-nunito">Game Speed</div>
+                  <div className="text-lg font-inter font-bold text-success">Speed: {gameSpeed.toFixed(1)}x</div>
+                  <div className="text-gray-600 text-sm font-inter">Game Speed</div>
                 </div>
               </div>
 
@@ -483,8 +465,8 @@ export const Game = () => {
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
                     <div className="text-center space-y-4 cute-card p-8">
                       <div className="text-6xl">🐕</div>
-                      <h2 className="text-2xl font-fredoka font-bold text-tamagochi-text-dark">Treat Catcher</h2>
-                      <p className="text-tamagochi-text-light font-nunito">Help your dog catch treats and avoid poison!</p>
+                      <h2 className="text-2xl font-inter font-bold text-gray-800">Treat Catcher</h2>
+                      <p className="text-gray-600 font-inter">Help your dog catch treats and avoid poison!</p>
                       <Button
                         onClick={startGame}
                         className="cute-button px-8 py-3"
@@ -500,10 +482,10 @@ export const Game = () => {
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-3xl">
                     <div className="text-center space-y-4 cute-card p-8">
                       <div className="text-4xl">🏆</div>
-                      <h2 className="text-2xl font-fredoka font-bold text-tamagochi-text-dark">Game Over!</h2>
+                      <h2 className="text-2xl font-inter font-bold text-gray-800">Game Over!</h2>
                       <div className="space-y-2">
-                        <p className="text-lg font-fredoka font-bold text-tamagochi-500">Final Score: {score}</p>
-                        <p className="text-tamagochi-text-light font-nunito">Food Points Earned: {score} 🍖</p>
+                        <p className="text-lg font-inter font-bold text-primary-500">Final Score: {score}</p>
+                        <p className="text-gray-600 font-inter">Food Earned: {score} 🍖</p>
                       </div>
                       <Button
                         onClick={startGame}
@@ -519,27 +501,27 @@ export const Game = () => {
 
               {/* Game Instructions */}
               <div className="cute-card p-4">
-                <h3 className="font-fredoka font-bold text-tamagochi-text-dark mb-2">How to Play:</h3>
+                <h3 className="font-inter font-bold text-gray-800 mb-2">How to Play:</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🦴</div>
-                    <div className="text-tamagochi-text-dark font-nunito">Bone: +10 pts</div>
+                    <div className="text-gray-700 font-inter">Bone: +10 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">🥩</div>
-                    <div className="text-tamagochi-text-dark font-nunito">Meat: +25 pts</div>
+                    <div className="text-gray-700 font-inter">Meat: +25 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">☠️</div>
-                    <div className="text-tamagochi-text-dark font-nunito">Poison: -15 pts</div>
+                    <div className="text-gray-700 font-inter">Poison: -15 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">💣</div>
-                    <div className="text-tamagochi-text-dark font-nunito">Bomb: Game Over</div>
+                    <div className="text-gray-700 font-inter">Bomb: Game Over</div>
                   </div>
                 </div>
-                <p className="text-tamagochi-text-light text-sm mt-3 text-center font-nunito">
-                  Move your mouse or finger to control the dog bowl. Earn food points = score
+                <p className="text-gray-600 text-sm mt-3 text-center font-inter">
+                  Move your mouse or finger to control the dog bowl. Earn food = score
                 </p>
               </div>
             </div>

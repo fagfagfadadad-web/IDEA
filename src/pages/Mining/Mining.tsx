@@ -102,34 +102,15 @@ export const Mining = () => {
   }
 
   return (
-    <div className="page-bg font-nunito">
-      {/* Animated Background */}
-      <div className="floating-hearts">
-          {/* Floating hearts and stars */}
-          {[...Array(30)].map((_, i) => (
-            <div
-              key={i}
-              className="floating-heart"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-                fontSize: `${8 + Math.random() * 6}px`,
-                color: ['#ff6b9d', '#ec4899', '#d946ef', '#fbbf24'][Math.floor(Math.random() * 4)]
-              }}
-            >
-              {['💖', '⭐', '🌟', '💫', '🎀'][Math.floor(Math.random() * 5)]}
-            </div>
-          ))}
-        </div>
-
-      <div className="relative z-10 container mx-auto px-6 py-8">
+    <div className="page-bg font-inter">
+      <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="title-responsive font-fredoka font-bold gradient-text">
+            <h1 className="title-responsive font-inter font-bold gradient-text">
               Pet Care Center
             </h1>
-            <p className="text-tamagochi-text-dark text-lg font-nunito">
+            <p className="text-gray-700 text-lg font-inter">
               Feed your dogs and watch them grow happy and healthy! 🐕💖
             </p>
           </div>
@@ -139,8 +120,8 @@ export const Mining = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-tamagochi-500 text-xl">🍖</span>
-                  <span className="text-tamagochi-text-dark font-nunito font-medium">Food Points</span>
+                  <span className="text-primary-500 text-xl">🍖</span>
+                  <span className="text-gray-700 font-inter font-medium">Food</span>
                 </div>
                 <div className="stat-value">
                   {gameStats?.zenBalance?.toLocaleString() || 0}
@@ -148,19 +129,19 @@ export const Mining = () => {
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-purple-500 text-xl">❤️</span>
+                  <span className="text-accent-500 text-xl">❤️</span>
                   <span className="text-gray-700 font-medium">Love Given</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-bold text-purple-600">
+                <div className="text-2xl md:text-3xl font-bold text-accent-600">
                   {gameStats?.totalMined?.toLocaleString() || 0}
                 </div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-green-500 text-xl">🏆</span>
+                  <span className="text-success text-xl">🏆</span>
                   <span className="text-gray-700 font-medium">Care Level</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-bold text-green-600">
+                <div className="text-2xl md:text-3xl font-bold text-success">
                   {gameStats?.miningLevel || 1}
                 </div>
               </div>
@@ -185,7 +166,7 @@ export const Mining = () => {
               <Button
                 onClick={() => navigate('/ships')}
                 variant="outline"
-                className="border-pink-400 text-pink-600 hover:bg-pink-400 hover:text-white flex items-center gap-2"
+                className="border-primary-400 text-primary-600 hover:bg-primary-400 hover:text-white flex items-center gap-2"
               >
                 <span>🐕</span>
                 Manage Dogs
@@ -193,7 +174,7 @@ export const Mining = () => {
             </div>
 
             {ships.length === 0 ? (
-              <div className="bg-white/70 backdrop-blur-lg rounded-xl p-8 border border-pink-300/40 text-center shadow-lg">
+              <div className="bg-white/70 backdrop-blur-lg rounded-xl p-8 border border-primary-300/40 text-center shadow-lg">
                 <span className="text-6xl mb-4 block">🐕</span>
                 <h3 className="text-xl font-bold text-gray-700 mb-2">
                   No Pet Dogs Available
@@ -203,7 +184,7 @@ export const Mining = () => {
                 </p>
                 <Button
                   onClick={() => navigate('/ships')}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center gap-2"
+                  className="bg-gradient-to-r from-primary-500 to-primary-600 text-white flex items-center gap-2"
                 >
                   <span>🐕</span>
                   Adopt Your First Dog
@@ -221,8 +202,8 @@ export const Mining = () => {
                       key={ship.id}
                       className={`bg-white/70 backdrop-blur-lg rounded-xl p-6 border transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
                         selectedShip === ship.id 
-                          ? 'border-pink-400 shadow-pink-200' 
-                          : 'border-pink-200/50 hover:border-pink-400/50'
+                          ? 'border-primary-400 shadow-primary-200' 
+                          : 'border-primary-200/50 hover:border-primary-400/50'
                       }`}
                      onClick={() => setSelectedShip(ship.id || null)}
                     >
@@ -294,9 +275,9 @@ export const Mining = () => {
                         <Button
                          onClick={() => handleFeed(ship.id!)}
                           disabled={!canFeedNow || isMining}
-                          className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
+                          className={`w-full py-3 rounded-xl font-inter font-bold transition-all duration-200 ${
                             canFeedNow && !isMining
-                              ? 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl'
+                              ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg hover:shadow-xl'
                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
@@ -331,13 +312,13 @@ export const Mining = () => {
           </div>
 
           {/* Pet Care Tips */}
-          <div className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-pink-300/40 shadow-lg">
+          <div className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-primary-300/40 shadow-lg">
             <h3 className="text-xl font-bold text-gray-800 mb-4">
               Pet Care Tips
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-pink-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                <div className="w-8 h-8 bg-primary-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
                   🍖
                 </div>
                 <div>
@@ -346,7 +327,7 @@ export const Mining = () => {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-purple-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
+                <div className="w-8 h-8 bg-accent-200 rounded-full flex items-center justify-center flex-shrink-0 text-xl">
                   💖
                 </div>
                 <div>
