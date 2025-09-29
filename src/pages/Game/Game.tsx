@@ -343,7 +343,7 @@ export const Game = () => {
     });
 
     // Draw UI
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#1f2937';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
