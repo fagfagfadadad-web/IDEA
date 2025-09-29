@@ -102,20 +102,17 @@ export const Mining = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
+    <div className="page-bg font-nunito">
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0">
+      <div className="floating-hearts">
           {/* Floating hearts and stars */}
           {[...Array(30)].map((_, i) => (
             <div
               key={i}
-              className="absolute animate-pulse"
+              className="floating-heart"
               style={{
                 left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
                 fontSize: `${8 + Math.random() * 6}px`,
                 color: ['#ff6b9d', '#ec4899', '#d946ef', '#fbbf24'][Math.floor(Math.random() * 4)]
               }}
@@ -124,29 +121,28 @@ export const Mining = () => {
             </div>
           ))}
         </div>
-      </div>
 
       <div className="relative z-10 container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+            <h1 className="title-responsive font-fredoka font-bold gradient-text">
               Pet Care Center
             </h1>
-            <p className="text-gray-700 text-lg">
+            <p className="text-tamagochi-text-dark text-lg font-nunito">
               Feed your dogs and watch them grow happy and healthy! 🐕💖
             </p>
           </div>
 
           {/* Game Stats */}
-          <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/40 shadow-lg">
+          <div className="cute-card p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="text-center">
+              <div className="stat-card">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-pink-500 text-xl">🍖</span>
-                  <span className="text-gray-700 font-medium">Food Points</span>
+                  <span className="text-tamagochi-500 text-xl">🍖</span>
+                  <span className="text-tamagochi-text-dark font-nunito font-medium">Food Points</span>
                 </div>
-                <div className="text-2xl md:text-3xl font-bold text-pink-600">
+                <div className="stat-value">
                   {gameStats?.zenBalance?.toLocaleString() || 0}
                 </div>
               </div>

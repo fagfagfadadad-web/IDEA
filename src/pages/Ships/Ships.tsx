@@ -115,42 +115,42 @@ export const Ships = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
+    <div className="page-bg font-nunito">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           {/* Header */}
           <div className="text-center space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+            <h1 className="title-responsive font-fredoka font-bold gradient-text">
               Dog House Management
             </h1>
-            <p className="text-gray-700 text-lg">
+            <p className="text-tamagochi-text-dark text-lg font-nunito">
               Manage your pet dogs and adopt new furry friends
             </p>
-            <div className="flex items-center justify-center gap-2 text-pink-600 font-bold text-xl">
+            <div className="food-points text-xl justify-center">
               <span>🍖</span>
               {gameStats?.zenBalance?.toLocaleString() || 0} Food Points
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="bg-white/70 backdrop-blur-lg rounded-2xl border border-pink-300/40 overflow-hidden shadow-lg">
-            <div className="flex border-b border-pink-200">
+          <div className="cute-card overflow-hidden">
+            <div className="flex border-b border-tamagochi-200">
               <button
                 onClick={() => setActiveTab(0)}
-                className={`flex-1 px-6 py-4 font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
                   activeTab === 0
-                    ? 'bg-gradient-to-r from-pink-200 to-purple-200 text-pink-700 border-b-2 border-pink-500'
-                    : 'text-gray-600 hover:text-pink-600'
+                    ? 'bg-gradient-to-r from-tamagochi-200 to-tamagochi-300 text-tamagochi-700 border-b-2 border-tamagochi-500'
+                    : 'text-tamagochi-text-light hover:text-tamagochi-500'
                 }`}
               >
                 My Dogs ({ships.length}) 🐕
               </button>
               <button
                 onClick={() => setActiveTab(1)}
-                className={`flex-1 px-6 py-4 font-bold transition-all duration-200 ${
+                className={`flex-1 px-6 py-4 font-fredoka font-bold transition-all duration-200 ${
                   activeTab === 1
-                    ? 'bg-gradient-to-r from-pink-200 to-purple-200 text-pink-700 border-b-2 border-pink-500'
-                    : 'text-gray-600 hover:text-pink-600'
+                    ? 'bg-gradient-to-r from-tamagochi-200 to-tamagochi-300 text-tamagochi-700 border-b-2 border-tamagochi-500'
+                    : 'text-tamagochi-text-light hover:text-tamagochi-500'
                 }`}
               >
                 Adoption Center

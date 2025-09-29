@@ -32,23 +32,23 @@ export const MobileBottomNav = () => {
     
     if (isCenter) {
       return (
-        <div className="flex flex-col items-center flex-1 space-y-1">
+        <div className="flex flex-col items-center flex-1 space-y-1 mobile-nav-item">
           {isLoggedIn ? (
             <Link
               to="/mining"
-              className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-200"
+              className="mobile-nav-center text-white hover:scale-110 transition-all duration-300"
             >
-              <span className="text-2xl">🍖</span>
+              <span>🍖</span>
             </Link>
           ) : (
             <button
               onClick={handleConnect}
-              className="w-14 h-14 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all duration-200"
+              className="mobile-nav-center text-white hover:scale-110 transition-all duration-300"
             >
-              <span className="text-2xl">🐕</span>
+              <span>🐕</span>
             </button>
           )}
-          <span className="text-xs text-gray-400 font-medium">
+          <span className="text-xs text-tamagochi-text-light font-nunito font-medium">
             {isLoggedIn ? 'Feed' : 'Connect'}
           </span>
         </div>
@@ -56,14 +56,14 @@ export const MobileBottomNav = () => {
     }
 
     const content = (
-      <div className="flex flex-col items-center flex-1 space-y-1 transition-all duration-200">
+      <div className={`mobile-nav-item flex-1 ${active ? 'active' : ''}`}>
         <div className={`p-2 rounded-xl transition-all duration-200 ${
-          active ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-500' : 'text-gray-500'
+          active ? 'text-tamagochi-500' : 'text-tamagochi-text-light'
         }`}>
           {icon}
         </div>
-        <span className={`text-xs font-medium ${
-          active ? 'text-pink-500 font-bold' : 'text-gray-500'
+        <span className={`text-xs font-nunito font-medium ${
+          active ? 'text-tamagochi-500 font-bold' : 'text-tamagochi-text-light'
         }`}>
           {label}
         </span>
@@ -82,7 +82,7 @@ export const MobileBottomNav = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-pink-300/40 py-2 px-4 z-[9999] block md:hidden shadow-lg">
+    <div className="mobile-nav fixed bottom-0 left-0 right-0 py-2 px-4 z-[9999] block md:hidden">
       <div className="flex justify-around items-center max-w-md mx-auto">
         <NavItem
           to="/"
@@ -92,12 +92,12 @@ export const MobileBottomNav = () => {
         
         <NavItem
           to="/ships"
-          icon={<span className="text-xl">🐕</span>}
+          icon={<span className="text-2xl">🐕</span>}
           label="Dogs"
         />
         
         <NavItem
-          icon={<Heart size={24} />}
+          icon={<span className="text-3xl">🍖</span>}
           label="Feed"
           isCenter
         />
@@ -110,7 +110,7 @@ export const MobileBottomNav = () => {
         
         <NavItem
           to="/game"
-          icon={<span className="text-xl">🎮</span>}
+          icon={<span className="text-2xl">🎮</span>}
           label="Game"
         />
         

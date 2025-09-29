@@ -405,19 +405,16 @@ export const Game = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
+    <div className="page-bg font-nunito">
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0">
+      <div className="floating-hearts">
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className="absolute animate-pulse"
+              className="floating-heart"
               style={{
                 left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 3}s`,
-                animationDuration: `${2 + Math.random() * 3}s`,
                 fontSize: `${12 + Math.random() * 8}px`,
                 color: ['#ff69b4', '#ec4899', '#d946ef', '#fbbf24'][Math.floor(Math.random() * 4)]
               }}
@@ -426,7 +423,6 @@ export const Game = () => {
             </div>
           ))}
         </div>
-      </div>
 
       <div className="relative z-10 container mx-auto px-6 py-8">
         <div className="space-y-8">
@@ -434,64 +430,64 @@ export const Game = () => {
           <div className="flex items-center justify-between">
             <Button
               onClick={() => navigate('/')}
-              className="bg-white/70 text-pink-600 border border-pink-300 hover:bg-pink-100 px-4 py-2 rounded-lg flex items-center gap-2"
+              className="cute-button-outline px-4 py-2 flex items-center gap-2"
             >
               <ArrowLeft size={16} />
               Back Home
             </Button>
             <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-4xl font-fredoka font-bold gradient-text">
                 Treat Catcher
               </h1>
-              <p className="text-gray-700">Help your dog catch falling treats! 🦴</p>
+              <p className="text-tamagochi-text-dark font-nunito">Help your dog catch falling treats! 🦴</p>
             </div>
-            <div className="flex items-center gap-2 bg-white/70 px-4 py-2 rounded-lg border border-pink-300">
-              <span className="text-pink-500">🍖</span>
-              <span className="text-pink-600 font-bold">
+            <div className="food-points">
+              <span>🍖</span>
+              <span className="font-fredoka font-bold">
                 {gameStats?.zenBalance?.toLocaleString() || '0'}
               </span>
             </div>
           </div>
 
           {/* Game Area */}
-          <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/40 shadow-lg">
+          <div className="cute-card p-6">
             <div className="space-y-4">
               {/* Game Stats */}
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-pink-600">{score}</div>
-                    <div className="text-gray-600 text-sm">Score</div>
+                  <div className="stat-card">
+                    <div className="stat-value text-xl">{score}</div>
+                    <div className="stat-label">Score</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">{remainingSeconds}s</div>
-                    <div className="text-gray-600 text-sm">Time Left</div>
+                  <div className="stat-card">
+                    <div className="stat-value text-xl">{remainingSeconds}s</div>
+                    <div className="stat-label">Time Left</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-green-600">Speed: {gameSpeed.toFixed(1)}x</div>
-                  <div className="text-gray-600 text-sm">Game Speed</div>
+                  <div className="text-lg font-fredoka font-bold text-tamagochi-green">Speed: {gameSpeed.toFixed(1)}x</div>
+                  <div className="text-tamagochi-text-light text-sm font-nunito">Game Speed</div>
                 </div>
               </div>
 
               {/* Game Canvas */}
-              <div className="relative bg-gradient-to-b from-blue-200 to-green-200 rounded-xl overflow-hidden border-2 border-pink-300">
+              <div className="game-canvas-container">
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none"
-                  style={{ background: 'linear-gradient(to bottom, #e0f2fe, #f0f9ff)' }}
+                  style={{ background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
                 />
                 
                 {/* Game Overlays */}
                 {!gameStarted && !gameOver && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="text-center space-y-4">
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
+                    <div className="text-center space-y-4 cute-card p-8">
                       <div className="text-6xl">🐕</div>
-                      <h2 className="text-2xl font-bold text-white">Treat Catcher</h2>
-                      <p className="text-white">Help your dog catch treats and avoid poison!</p>
+                      <h2 className="text-2xl font-fredoka font-bold text-tamagochi-text-dark">Treat Catcher</h2>
+                      <p className="text-tamagochi-text-light font-nunito">Help your dog catch treats and avoid poison!</p>
                       <Button
                         onClick={startGame}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-8 py-3 rounded-xl font-bold"
+                        className="cute-button px-8 py-3"
                       >
                         <Play size={16} />
                         Start Game
@@ -501,17 +497,17 @@ export const Game = () => {
                 )}
 
                 {gameOver && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                    <div className="text-center space-y-4 bg-white/90 p-8 rounded-xl">
+                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-3xl">
+                    <div className="text-center space-y-4 cute-card p-8">
                       <div className="text-4xl">🏆</div>
-                      <h2 className="text-2xl font-bold text-gray-800">Game Over!</h2>
+                      <h2 className="text-2xl font-fredoka font-bold text-tamagochi-text-dark">Game Over!</h2>
                       <div className="space-y-2">
-                        <p className="text-lg font-bold text-pink-600">Final Score: {score}</p>
-                        <p className="text-gray-600">Food Points Earned: {score} 🍖</p>
+                        <p className="text-lg font-fredoka font-bold text-tamagochi-500">Final Score: {score}</p>
+                        <p className="text-tamagochi-text-light font-nunito">Food Points Earned: {score} 🍖</p>
                       </div>
                       <Button
                         onClick={startGame}
-                        className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-xl font-bold"
+                        className="cute-button px-6 py-3"
                       >
                         <RotateCcw size={16} />
                         Play Again
@@ -522,27 +518,27 @@ export const Game = () => {
               </div>
 
               {/* Game Instructions */}
-              <div className="bg-pink-50/50 rounded-xl p-4 border border-pink-200">
-                <h3 className="font-bold text-gray-800 mb-2">How to Play:</h3>
+              <div className="cute-card p-4">
+                <h3 className="font-fredoka font-bold text-tamagochi-text-dark mb-2">How to Play:</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🦴</div>
-                    <div className="text-gray-700">Bone: +10 pts</div>
+                    <div className="text-tamagochi-text-dark font-nunito">Bone: +10 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">🥩</div>
-                    <div className="text-gray-700">Meat: +25 pts</div>
+                    <div className="text-tamagochi-text-dark font-nunito">Meat: +25 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">☠️</div>
-                    <div className="text-gray-700">Poison: -15 pts</div>
+                    <div className="text-tamagochi-text-dark font-nunito">Poison: -15 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">💣</div>
-                    <div className="text-gray-700">Bomb: Game Over</div>
+                    <div className="text-tamagochi-text-dark font-nunito">Bomb: Game Over</div>
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm mt-3 text-center">
+                <p className="text-tamagochi-text-light text-sm mt-3 text-center font-nunito">
                   Move your mouse or finger to control the dog bowl. Earn food points = score
                 </p>
               </div>

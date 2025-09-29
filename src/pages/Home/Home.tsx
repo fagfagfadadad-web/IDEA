@@ -89,24 +89,22 @@ export const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-indigo-100 font-inter">
+    <div className="page-bg font-nunito">
       {/* Animated Background */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-300/20 via-purple-300/20 to-yellow-300/20 animate-pulse"></div>
+      <div className="floating-hearts">
         {/* Floating hearts */}
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute text-pink-300 animate-pulse"
+            className="floating-heart"
             style={{
               left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-              fontSize: `${12 + Math.random() * 8}px`
+              fontSize: `${16 + Math.random() * 8}px`,
+              color: ['#ff69b4', '#d946ef', '#60a5fa', '#34d399'][Math.floor(Math.random() * 4)]
             }}
           >
-            💖
+            {['💖', '⭐', '🌟', '💫', '🎀'][Math.floor(Math.random() * 5)]}
           </div>
         ))}
       </div>
@@ -118,45 +116,45 @@ export const Home = () => {
             {/* Logo and Title */}
             <div className="space-y-4">
               <div className="flex justify-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center shadow-2xl animate-bounce">
+                <div className="w-24 h-24 bg-gradient-to-br from-tamagochi-500 to-tamagochi-700 rounded-full flex items-center justify-center shadow-cute-xl bounce-cute">
                   <span className="text-4xl">🐕</span>
                 </div>
               </div>
-              <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
+              <h1 className="title-responsive font-fredoka font-bold gradient-text">
                 ZenDOG
               </h1>
-              <p className="text-xl md:text-2xl text-gray-700 font-medium">
+              <p className="subtitle-responsive text-tamagochi-text-dark font-nunito font-semibold">
                 Virtual Pet Care Game
               </p>
             </div>
 
             {/* Stats Display for Logged In Users */}
             {isLoggedIn && gameStats && (
-              <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-6 border border-pink-300/40 max-w-2xl mx-auto shadow-lg">
+              <div className="cute-card p-6 max-w-2xl mx-auto">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-pink-600">
+                  <div className="stat-card">
+                    <div className="stat-value">
                       {gameStats.zenBalance?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-gray-600 text-sm">🍖 Food Points</div>
+                    <div className="stat-label">🍖 Food Points</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-purple-600">
+                  <div className="stat-card">
+                    <div className="stat-value">
                       {gameStats.totalMined?.toLocaleString() || '0'}
                     </div>
-                    <div className="text-gray-600 text-sm">❤️ Love Given</div>
+                    <div className="stat-label">❤️ Love Given</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-green-600">
+                  <div className="stat-card">
+                    <div className="stat-value">
                       {gameStats.miningLevel || 1}
                     </div>
-                    <div className="text-gray-600 text-sm">🏆 Care Level</div>
+                    <div className="stat-label">🏆 Care Level</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-orange-600">
+                  <div className="stat-card">
+                    <div className="stat-value">
                       {ships.length}
                     </div>
-                    <div className="text-gray-600 text-sm">🐕 Pet Dogs</div>
+                    <div className="stat-label">🐕 Pet Dogs</div>
                   </div>
                 </div>
               </div>
@@ -168,7 +166,7 @@ export const Home = () => {
                 <>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.mining)}
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                    className="cute-button px-8 py-4 text-lg flex items-center gap-3"
                   >
                     <span className="text-xl">🍖</span>
                     Feed Your Dogs
@@ -176,16 +174,14 @@ export const Home = () => {
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.ships)}
-                    variant="outline"
-                    className="border-2 border-pink-400 text-pink-600 hover:bg-pink-400 hover:text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
+                    className="cute-button-outline px-8 py-4 text-lg flex items-center gap-3"
                   >
                     <span className="text-xl">🐕</span>
                     My Dogs
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.game)}
-                    variant="outline"
-                    className="border-2 border-purple-400 text-purple-600 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-2"
+                    className="cute-button-secondary px-8 py-4 text-lg flex items-center gap-3"
                   >
                     <span className="text-xl">🎮</span>
                     Mini Game
@@ -194,7 +190,7 @@ export const Home = () => {
               ) : (
                 <Button
                   onClick={() => navigate(RouteNamesEnum.unlock)}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                  className="cute-button px-8 py-4 text-lg flex items-center gap-3"
                 >
                   <span className="text-xl">🐕</span>
                   Connect Wallet & Adopt Dog
@@ -208,10 +204,10 @@ export const Home = () => {
         {/* Features Section */}
         <div className="container mx-auto px-6 py-16">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+            <h2 className="text-4xl font-fredoka font-bold text-tamagochi-text-dark mb-4">
               Game Features
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-tamagochi-text-light text-lg max-w-2xl mx-auto font-nunito">
               Take care of your virtual dogs, feed them, play with them, and watch them grow happy!
             </p>
           </div>
@@ -220,16 +216,17 @@ export const Home = () => {
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-pink-200/50 hover:border-pink-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
+                className="cute-card p-6 float-cute"
+                style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-pink-200 to-purple-200 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-tamagochi-200 to-tamagochi-300 rounded-full flex items-center justify-center pulse-cute">
                     {feature.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800">
+                  <h3 className="text-xl font-fredoka font-bold text-tamagochi-text-dark">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">
+                  <p className="text-tamagochi-text-light text-sm leading-relaxed font-nunito">
                     {feature.description}
                   </p>
                 </div>
@@ -241,61 +238,63 @@ export const Home = () => {
         {/* Quick Actions for Logged In Users */}
         {isLoggedIn && gameStats && (
           <div className="container mx-auto px-6 py-12">
-            <div className="bg-white/70 backdrop-blur-lg rounded-2xl p-8 border border-pink-300/40 shadow-lg">
-              <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
+            <div className="cute-card p-8">
+              <h2 className="text-3xl font-fredoka font-bold text-tamagochi-text-dark mb-8 text-center">
                 Quick Actions
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button
                   onClick={() => navigate(RouteNamesEnum.mining)}
-                  className="bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="cute-button p-4 flex flex-col items-center gap-2"
                 >
                   <span className="text-2xl">🍖</span>
-                  <span className="font-bold">Feed</span>
-                  <div className="text-pink-100 text-sm">
+                  <span className="font-fredoka font-bold">Feed</span>
+                  <div className="text-white/80 text-sm font-nunito">
                     {gameStats.zenBalance?.toLocaleString() || '0'} 🍖
                   </div>
-                  <div className="text-pink-100 text-sm">Food Points</div>
+                  <div className="text-white/80 text-sm font-nunito">Food Points</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.ships)}
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="cute-button-secondary p-4 flex flex-col items-center gap-2"
                 >
                   <span className="text-2xl">🐕</span>
-                  <span className="font-bold">Dogs</span>
-                  <div className="text-purple-100 text-sm">{ships.length} 🐕</div>
-                  <div className="text-purple-100 text-sm">Pet Dogs</div>
+                  <span className="font-fredoka font-bold">Dogs</span>
+                  <div className="text-white/80 text-sm font-nunito">{ships.length} 🐕</div>
+                  <div className="text-white/80 text-sm font-nunito">Pet Dogs</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}
-                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="cute-button p-4 flex flex-col items-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, var(--tamagochi-green), #10b981)' }}
                 >
                   <span className="text-2xl">🎯</span>
-                  <span className="font-bold">Tasks</span>
-                  <div className="text-green-100 text-sm">
+                  <span className="font-fredoka font-bold">Tasks</span>
+                  <div className="text-white/80 text-sm font-nunito">
                     {gameStats.miningLevel || 1} 🌟
                   </div>
-                  <div className="text-green-100 text-sm">Care Level</div>
+                  <div className="text-white/80 text-sm font-nunito">Care Level</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="cute-button p-4 flex flex-col items-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, var(--tamagochi-orange), var(--tamagochi-yellow))' }}
                 >
                   <span className="text-2xl">👥</span>
-                  <span className="font-bold">Friends</span>
-                  <div className="text-orange-100 text-sm">
+                  <span className="font-fredoka font-bold">Friends</span>
+                  <div className="text-white/80 text-sm font-nunito">
                     {gameStats.totalReferrals || 0} 👥
                   </div>
-                  <div className="text-orange-100 text-sm">Friends</div>
+                  <div className="text-white/80 text-sm font-nunito">Friends</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.game)}
-                  className="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white p-4 rounded-xl flex flex-col items-center gap-2"
+                  className="cute-button-secondary p-4 flex flex-col items-center gap-2"
                 >
                   <span className="text-2xl">🎮</span>
-                  <span className="font-bold">Game</span>
-                  <div className="text-indigo-100 text-sm">Play & Earn</div>
-                  <div className="text-indigo-100 text-sm">Food Points</div>
+                  <span className="font-fredoka font-bold">Game</span>
+                  <div className="text-white/80 text-sm font-nunito">Play & Earn</div>
+                  <div className="text-white/80 text-sm font-nunito">Food Points</div>
                 </Button>
               </div>
             </div>

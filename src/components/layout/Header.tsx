@@ -43,32 +43,32 @@ export const Header = () => {
               <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
                 <span className="text-2xl">🐕</span>
               </div>
-              <span className="text-2xl font-black bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+              <span className="text-2xl font-fredoka font-black gradient-text">
                 ZenDOG
               </span>
             </Link>
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-6">
-              <Link to="/mining" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/mining" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Feed Dogs
               </Link>
-              <Link to="/ships" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/ships" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Dogs
               </Link>
-              <Link to="/shop" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/shop" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Pet Store
               </Link>
-              <Link to="/tasks" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/tasks" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Tasks
               </Link>
-              <Link to="/game" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/game" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Mini Game
               </Link>
-              <Link to="/referrals" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/referrals" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Friends
               </Link>
-              <Link to="/leaderboard" className="text-gray-600 hover:text-pink-600 transition-colors font-medium">
+              <Link to="/leaderboard" className="text-tamagochi-text-dark hover:text-tamagochi-500 transition-colors font-semibold font-nunito">
                 Leaderboard
               </Link>
             </div>
@@ -77,12 +77,12 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             {/* ZEN Balance */}
             {isLoggedIn && gameStats && (
-              <div className="hidden md:flex items-center gap-2 bg-white/70 px-4 py-2 rounded-lg border border-pink-300/40">
+              <div className="hidden md:flex food-points">
                 <span className="text-pink-500">🍖</span>
-                <span className="text-pink-600 font-bold">
+                <span className="font-fredoka font-bold">
                   {gameStats.zenBalance?.toLocaleString() || '0'}
                 </span>
-                <span className="text-gray-600 text-sm">Food</span>
+                <span className="text-tamagochi-text-light text-sm font-nunito">Food</span>
               </div>
             )}
 
