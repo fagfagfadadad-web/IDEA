@@ -194,53 +194,55 @@ export const AdminTasks: React.FC = () => {
           {tasks.map((task) => (
             <div
               key={task.id}
-              className={`cute-card p-6 transition-all duration-300 ${
+              className={`cute-card p-4 md:p-6 transition-all duration-300 ${
                 task.isActive ? 'border-success bg-green-50' : 'border-gray-300 bg-gray-50'
               }`}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div className="flex items-start gap-3 md:gap-4 flex-1">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-primary-200 rounded-full flex items-center justify-center flex-shrink-0">
                     {getTaskTypeIcon(task.taskType)}
                   </div>
                   
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-inter font-bold text-gray-800">
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-2">
+                      <h3 className="text-base md:text-lg font-inter font-bold text-gray-800">
                         {task.title}
                       </h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        task.isActive 
-                          ? 'bg-green-100 text-success' 
-                          : 'bg-red-100 text-red-600'
-                      }`}>
-                        {task.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                      <span className="px-2 py-1 bg-primary-100 text-primary-600 rounded-full text-xs font-medium capitalize font-inter">
-                        {task.taskType}
-                      </span>
+                      <div className="flex gap-2">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          task.isActive 
+                            ? 'bg-green-100 text-success' 
+                            : 'bg-red-100 text-red-600'
+                        }`}>
+                          {task.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        <span className="px-2 py-1 bg-primary-100 text-primary-600 rounded-full text-xs font-medium capitalize font-inter">
+                          {task.taskType}
+                        </span>
+                      </div>
                     </div>
                     
-                    <p className="text-gray-700 mb-3 font-inter">
+                    <p className="text-sm md:text-base text-gray-700 mb-3 font-inter leading-relaxed">
                       {task.description}
                     </p>
                     
-                    <div className="flex items-center gap-4 text-sm">
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm">
                       <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
                         <span>🍖</span>
                         {task.rewardAmount} Food Reward
                       </div>
-                      <div className="text-gray-600 font-inter">
+                      <div className="text-xs md:text-sm text-gray-600 font-inter">
                         Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-end gap-2 mt-2 md:mt-0">
                   <Button
                     onClick={() => toggleTaskStatus(task.id!, task.isActive)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium font-inter ${
+                    className={`px-2 md:px-3 py-1 md:py-2 rounded-lg text-xs md:text-sm font-medium font-inter ${
                       task.isActive
                         ? 'bg-red-500 hover:bg-red-600 text-white'
                         : 'bg-success hover:bg-green-600 text-white'
@@ -250,15 +252,15 @@ export const AdminTasks: React.FC = () => {
                   </Button>
                   <Button
                     onClick={() => handleEdit(task)}
-                    className="bg-primary-500 hover:bg-primary-600 text-white px-3 py-2 rounded-lg"
+                    className="bg-primary-500 hover:bg-primary-600 text-white px-2 md:px-3 py-1 md:py-2 rounded-lg"
                   >
-                    <Edit size={14} />
+                    <Edit size={12} className="md:w-4 md:h-4" />
                   </Button>
                   <Button
                     onClick={() => handleDelete(task.id!)}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 md:px-3 py-1 md:py-2 rounded-lg"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={12} className="md:w-4 md:h-4" />
                   </Button>
                 </div>
               </div>
