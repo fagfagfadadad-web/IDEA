@@ -265,10 +265,14 @@ export const Header = () => {
         {isMobileMenuOpen && (
           <>
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-[99999]"
+              className="fixed inset-0 bg-black bg-opacity-50"
+              style={{ zIndex: 2147483647 }}
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl z-[100000] transform transition-transform duration-300 border-l border-primary-300/40">
+            <div 
+              className="fixed top-0 right-0 h-full w-80 bg-white/95 backdrop-blur-lg shadow-xl transform transition-transform duration-300 border-l border-primary-300/40"
+              style={{ zIndex: 2147483647 }}
+            >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>
