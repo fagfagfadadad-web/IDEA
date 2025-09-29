@@ -26,6 +26,20 @@ export const Home = () => {
   const { gameStats, ships, isLoading } = useGame();
   const [animatedStats, setAnimatedStats] = useState({ zen: 0, mined: 0 });
 
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-pulse">
+            <Zap size={32} className="text-white -rotate-[45deg] scale-x-[-1]" />
+          </div>
+          <p className="text-xl text-gray-300">Loading ZenDOG...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Animate numbers
   useEffect(() => {
     console.log('🏠 Home: gameStats changed:', gameStats);
@@ -210,7 +224,7 @@ export const Home = () => {
         </div>
 
         {/* Quick Actions for Logged In Users */}
-        {isLoggedIn && (
+        {isLoggedIn && gameStats && (
           <div className="container mx-auto px-6 py-12">
             <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-8 border border-cyan-500/20">
               <h2 className="text-3xl font-orbitron font-bold text-white mb-8 text-center">
