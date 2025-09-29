@@ -468,6 +468,26 @@ export const AdminTasks: React.FC = () => {
                       {editingTask ? 'Update Task' : 'Create Task'}
                     </Button>
                   </div>
+                  
+                  <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setShowModal(false);
+                        setEditingTask(null);
+                        resetForm();
+                      }}
+                      className="cute-button-outline w-full md:flex-1 py-3 px-4"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="cute-button w-full md:flex-1 py-3 px-4"
+                    >
+                      {editingTask ? 'Update Task' : 'Create Task'}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>
