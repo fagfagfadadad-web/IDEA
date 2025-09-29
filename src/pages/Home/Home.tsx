@@ -26,21 +26,7 @@ export const Home = () => {
   const { gameStats, ships, isLoading } = useGame();
   const [animatedStats, setAnimatedStats] = useState({ zen: 0, mined: 0 });
 
-  // Show loading state while data is being fetched
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-pulse">
-            <Zap size={32} className="text-white -rotate-[45deg] scale-x-[-1]" />
-          </div>
-          <p className="text-xl text-gray-300">Loading ZenDOG...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Animate numbers
+  // Animate numbers - MUST be before any conditional returns
   useEffect(() => {
     console.log('🏠 Home: gameStats changed:', gameStats);
     if (gameStats) {
@@ -71,6 +57,20 @@ export const Home = () => {
       return () => clearInterval(interval);
     }
   }, [gameStats]);
+
+  // Show loading state while data is being fetched
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 font-inter flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-pulse">
+            <Zap size={32} className="text-white -rotate-[45deg] scale-x-[-1]" />
+          </div>
+          <p className="text-xl text-gray-300">Loading ZenDOG...</p>
+        </div>
+      </div>
+    );
+  }
 
   const features = [
     {
