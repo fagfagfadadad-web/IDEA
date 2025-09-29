@@ -215,40 +215,13 @@ export const Game = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw platform (dog bowl)
-    // Draw dog bowl platform
     const centerX = platform.current.x + platform.current.width / 2;
     const centerY = platform.current.y + platform.current.height / 2;
     
-    // Bowl shadow
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    ctx.beginPath();
-    ctx.ellipse(centerX + 2, centerY + 2, platform.current.width / 2, platform.current.height / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Bowl base
-    ctx.fillStyle = '#ff69b4';
-    ctx.beginPath();
-    ctx.ellipse(centerX, centerY, platform.current.width / 2, platform.current.height / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Bowl rim
-    ctx.strokeStyle = '#e91e63';
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.ellipse(centerX, centerY, platform.current.width / 2, platform.current.height / 2, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    
-    // Bowl inner highlight
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.beginPath();
-    ctx.ellipse(centerX - platform.current.width / 6, centerY - platform.current.height / 6, platform.current.width / 4, platform.current.height / 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Bowl emoji in center
-    ctx.fillStyle = '#ffffff';
+    // Simple dog bowl emoji
     ctx.font = '16px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('🥣', centerX, centerY + 5);
+    ctx.fillText('🥣', centerX, centerY + 8);
 
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
