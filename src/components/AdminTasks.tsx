@@ -63,6 +63,7 @@ export const AdminTasks: React.FC = () => {
         description: formData.description,
         rewardAmount: parseInt(formData.rewardAmount),
         taskType: formData.taskType,
+        requirements: {},
         miningOperationsRequired: formData.miningOperationsRequired ? parseInt(formData.miningOperationsRequired) : undefined,
         dailyMiningCountRequired: formData.dailyMiningCountRequired ? parseInt(formData.dailyMiningCountRequired) : undefined,
         shipCountRequired: formData.shipCountRequired ? parseInt(formData.shipCountRequired) : undefined,

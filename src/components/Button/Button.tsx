@@ -11,6 +11,7 @@ interface ButtonType extends WithClassnameType, PropsWithChildren {
   variant?: 'primary' | 'secondary' | 'gradient' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
+  style?: React.CSSProperties;
 }
 
 export const Button = ({
@@ -23,6 +24,7 @@ export const Button = ({
   fullWidth = false,
   id,
   className,
+  style,
   ...otherProps
 }: ButtonType) => {
   const getVariantClasses = () => {
@@ -101,6 +103,7 @@ export const Button = ({
       onClick={onClick}
       className={`${baseClasses} ${className || ''}`}
       type={type}
+      style={style}
     >
       {children}
     </button>
