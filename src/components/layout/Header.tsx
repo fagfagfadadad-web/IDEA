@@ -189,11 +189,8 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center z-[9999999]"
-              style={{
-                zIndex: '9999999 !important' as any,
-                position: 'relative !important' as any
-              }}
+              className="lg:hidden p-2 text-gray-600 hover:text-primary-600 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center relative"
+              style={{ zIndex: 2147483647 }}
             >
               <MenuIcon size={20} />
             </button>

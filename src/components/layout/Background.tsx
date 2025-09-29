@@ -47,7 +47,7 @@ export const Background = () => {
   }, []);
 
   return (
-    <section className="absolute top-0 left-0 w-full h-full">
+    <section className="absolute top-0 left-0 w-full h-full pointer-events-none">
       <canvas ref={canvasRef} className="absolute inset-0"></canvas>
       <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-white/10"></div>
     </section>

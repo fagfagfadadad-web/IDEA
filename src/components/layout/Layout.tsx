@@ -6,9 +6,9 @@ import { Background } from './Background';
 
 export const Layout = ({ children }: PropsWithChildren) => {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden" style={{ zIndex: 1 }}>
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden">
       <Background />
-      <div className="relative" style={{ zIndex: 10 }}>
+      <div className="relative z-10">
         <Header />
         <main className="flex flex-grow items-stretch justify-center p-0 pb-20 md:pb-0 overflow-x-hidden">
           <AuthRedirectWrapper>{children}</AuthRedirectWrapper>
