@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --x: rgb(107, 127, 111);
   --bg: #b9dcc5;
