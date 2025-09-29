@@ -90,7 +90,7 @@ export const Game = () => {
     if (!container) return;
 
     const isMobile = window.innerWidth < 768;
-    const width = isMobile ? Math.min(container.clientWidth - 20, window.innerWidth - 20) : Math.min(600, container.clientWidth - 40);
+    const width = isMobile ? Math.min(container.clientWidth - 10, window.innerWidth - 10) : Math.min(600, container.clientWidth - 40);
     const height = isMobile ? Math.min(window.innerHeight - 200, 500) : Math.min(400, window.innerHeight - 300);
 
     canvas.width = width;
