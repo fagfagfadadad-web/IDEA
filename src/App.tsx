@@ -19,7 +19,7 @@ const AppContent = () => {
   }, [location]);
 
   return (
-    <>
+    <div style={{ position: 'relative', zIndex: 1 }}>
       <Layout>
         <Suspense fallback={
           <div className="flex items-center justify-center min-h-screen bg-slate-900">
@@ -50,7 +50,7 @@ const AppContent = () => {
         </Suspense>
       </Layout>
       <MobileBottomNav />
-    </>
+    </div>
   );
 };
 
