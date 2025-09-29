@@ -278,22 +278,29 @@ export const AdminTasks: React.FC = () => {
 
               <form onSubmit={handleSubmit}>
                 <div className="space-y-3 md:space-y-4">
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
-                      Task Title
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
-                      className="cute-input"
-                      placeholder="Enter task title"
-                      required
-                    />
-                  </div>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="cute-card p-6 max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+              {/* Header - Fixed */}
+              <div className="flex-shrink-0 mb-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-2xl font-inter font-bold text-gray-800">
+                    {editingTask ? 'Edit Task' : 'Create New Task'}
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setShowModal(false);
+                      setEditingTask(null);
+                      resetForm();
+                    }}
+                      className="cute-button-outline flex-1 py-3"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
 
-                  <div>
-                    <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto pr-2">
                       Description
                     </label>
                     <textarea
@@ -448,7 +455,8 @@ export const AdminTasks: React.FC = () => {
                       Task is active
                     </label>
                   </div>
-                  
+
+                  {/* Buttons - Fixed at bottom */}
                   <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
                     <Button
                       type="button"
@@ -463,12 +471,13 @@ export const AdminTasks: React.FC = () => {
                     </Button>
                     <Button
                       type="submit"
-                      className="cute-button w-full md:flex-1 py-3 px-4"
+                      className="cute-button flex-1 py-3"
                     >
                       {editingTask ? 'Update Task' : 'Create Task'}
                     </Button>
                   </div>
                 </div>
+              </div>
               </form>
             </div>
           </div>
