@@ -277,7 +277,7 @@ export const AdminTasks: React.FC = () => {
               </h3>
 
               <form onSubmit={handleSubmit}>
-                <div className="flex-grow overflow-y-auto space-y-3 md:space-y-4 pr-1 md:pr-2 min-h-0 max-h-[60vh] md:max-h-none">
+                <div className="space-y-3 md:space-y-4">
                   <div>
                     <label className="block text-gray-800 text-sm font-medium mb-1 md:mb-2 font-inter">
                       Task Title
@@ -448,26 +448,26 @@ export const AdminTasks: React.FC = () => {
                       Task is active
                     </label>
                   </div>
-                </div>
-                
-                <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
-                  <Button
-                    type="button"
-                    onClick={() => {
-                      setShowModal(false);
-                      setEditingTask(null);
-                      resetForm();
-                    }}
-                    className="cute-button-outline w-full md:flex-1 py-3 px-4"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="cute-button w-full md:flex-1 py-3 px-4"
-                  >
-                    {editingTask ? 'Update Task' : 'Create Task'}
-                  </Button>
+                  
+                  <div className="flex flex-col md:flex-row gap-3 pt-4 mt-4 border-t border-gray-300">
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        setShowModal(false);
+                        setEditingTask(null);
+                        resetForm();
+                      }}
+                      className="cute-button-outline w-full md:flex-1 py-3 px-4"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="cute-button w-full md:flex-1 py-3 px-4"
+                    >
+                      {editingTask ? 'Update Task' : 'Create Task'}
+                    </Button>
+                  </div>
                 </div>
               </form>
             </div>
