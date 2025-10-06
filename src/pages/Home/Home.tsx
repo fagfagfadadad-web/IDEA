@@ -96,13 +96,13 @@ export const Home = () => {
         <div className="container mx-auto px-6 py-12 text-center">
           <div className="space-y-8">
             {/* Logo and Title */}
-            <div className="space-y-4">
+            <div className="space-y-2">
               <div className="flex justify-center">
-                <div className="w-32 h-32">
+                <div className="w-40 h-40">
                   <AnimatedDog />
                 </div>
               </div>
-              <h1 className="title-responsive font-fredoka font-bold gradient-text">
+              <h1 className="title-responsive font-fredoka font-bold gradient-text -mt-2">
                 PupFi
               </h1>
               <p className="subtitle-responsive text-gray-700 font-inter font-semibold">

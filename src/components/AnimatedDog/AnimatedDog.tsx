@@ -13,10 +13,11 @@ export const AnimatedDog = () => {
 
       const rect = dogRef.current.getBoundingClientRect();
 
-      const leftEyeCenterX = rect.left + 215;
-      const leftEyeCenterY = rect.top + 195;
-      const rightEyeCenterX = rect.left + 345;
-      const rightEyeCenterY = rect.top + 195;
+      const scale = 0.21;
+      const leftEyeCenterX = rect.left + rect.width / 2 - (85 * scale);
+      const leftEyeCenterY = rect.top + rect.height / 2 - (105 * scale);
+      const rightEyeCenterX = rect.left + rect.width / 2 + (45 * scale);
+      const rightEyeCenterY = rect.top + rect.height / 2 - (105 * scale);
 
       const calculateEyePosition = (eyeCenterX: number, eyeCenterY: number) => {
         const deltaX = e.clientX - eyeCenterX;
