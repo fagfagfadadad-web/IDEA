@@ -3,7 +3,7 @@ import { Button, MxLink } from 'components';
 import { environment } from '../../../config/config.mainnet';
 import { getAccountProvider, useGetIsLoggedIn, useGetAccount } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { AnimatedDog } from '../../AnimatedDog';
+import MultiversXLogo from '../../../assets/img/multiversx-logo.svg?react';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -22,9 +22,7 @@ export const Header = () => {
         className='flex items-center justify-between'
         to={isLoggedIn ? RouteNamesEnum.home : RouteNamesEnum.home}
       >
-        <div style={{ width: '80px', height: '80px' }}>
-          <AnimatedDog />
-        </div>
+        <MultiversXLogo className='w-full h-6' />
       </MxLink>
 
       <nav className='h-full w-full text-sm sm:relative sm:left-auto sm:top-auto sm:flex sm:w-auto sm:flex-row sm:justify-end sm:bg-transparent'>

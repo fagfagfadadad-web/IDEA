@@ -5,6 +5,7 @@ import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
+import { AnimatedDog } from '../../components/AnimatedDog';
 import {
   ArrowRight,
   Heart,
@@ -97,8 +98,8 @@ export const Home = () => {
             {/* Logo and Title */}
             <div className="space-y-4">
               <div className="flex justify-center">
-                <div className="w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center shadow-cute-xl">
-                  <span className="text-4xl">🐕</span>
+                <div className="w-32 h-32">
+                  <AnimatedDog />
                 </div>
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
