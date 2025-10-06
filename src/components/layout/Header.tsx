@@ -45,7 +45,7 @@ export const Header = () => {
                 <span className="text-xl md:text-2xl">🐕</span>
               </div>
               <span className="text-lg md:text-2xl font-inter font-black gradient-text">
-                ZenDOG
+                PupFi
               </span>
             </Link>
             
@@ -206,7 +206,7 @@ export const Header = () => {
             >
               <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-primary-600">ZenDOG Menu</h2>
+                  <h2 className="text-lg font-bold text-primary-600">PupFi Menu</h2>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"

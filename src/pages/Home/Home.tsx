@@ -59,7 +59,7 @@ export const Home = () => {
           <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center shadow-2xl mx-auto mb-4 animate-bounce">
             <span className="text-3xl">🐕</span>
           </div>
-          <p className="text-xl text-gray-700">Loading ZenDOG...</p>
+          <p className="text-xl text-gray-700">Loading PupFi...</p>
         </div>
       </div>
     );
@@ -102,7 +102,7 @@ export const Home = () => {
                 </div>
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
-                ZenDOG
+                PupFi
               </h1>
               <p className="subtitle-responsive text-gray-700 font-inter font-semibold">
                 Virtual Pet Care Game

@@ -68,7 +68,7 @@ export const Admin: React.FC = () => {
               Admin Control Center
             </h1>
             <p className="text-gray-700 text-lg font-inter">
-              Manage the ZenDOG pet care ecosystem
+              Manage the PupFi pet care ecosystem
             </p>
             <div className="cute-card p-4 max-w-md mx-auto border-success bg-green-50">
               <div className="flex items-center justify-center gap-2">

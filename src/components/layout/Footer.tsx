@@ -14,7 +14,7 @@ export const Footer = () => {
                 <span className="text-2xl">🐕</span>
               </div>
               <span className="text-2xl font-inter font-black gradient-text">
-                ZenDOG
+                PupFi
               </span>
             </div>
             <p className="text-gray-600 max-w-xs text-center md:text-left font-inter">
