@@ -223,7 +223,7 @@ export const Chat = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-28 md:bottom-6 right-4 md:left-6 md:right-auto z-[100000] bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="fixed bottom-[88px] md:bottom-6 right-4 md:left-6 md:right-auto z-[1000000] bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
       >
         <MessageCircle size={24} />
       </button>
@@ -234,12 +234,12 @@ export const Chat = () => {
     <>
       {/* Mobile Backdrop */}
       <div
-        className="md:hidden fixed inset-0 bg-black/50 z-[99999] animate-fade-in"
+        className="md:hidden fixed inset-0 bg-black/50 z-[1000001] animate-fade-in"
         onClick={() => setIsOpen(false)}
       />
 
       {/* Chat Window */}
-      <div className="fixed bottom-0 left-0 right-0 md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 h-[90vh] max-h-[700px] md:h-[600px] bg-white md:rounded-xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 md:inset-auto md:bottom-6 md:left-6 z-[1000002] md:w-96 h-[90vh] max-h-[700px] md:h-[600px] bg-white md:rounded-xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
