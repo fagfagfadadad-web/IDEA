@@ -249,9 +249,11 @@ export const AnimatedDog = () => {
 
     const createDog = () => {
       const { dog } = elements;
-      const { width, height, left, top } = dog.getBoundingClientRect();
-      dog.style.left = px(left);
-      dog.style.top = px(top);
+      const initialX = window.innerWidth / 2 - 48;
+      const initialY = window.innerHeight / 2 - 48;
+      dog.style.left = px(initialX);
+      dog.style.top = px(initialY);
+      const { width, height } = dog.getBoundingClientRect();
 
       positionLegs(dog, 0);
       const index = 0;
@@ -261,16 +263,16 @@ export const AnimatedDog = () => {
           head: null, body: null, all: null,
         },
         pos: {
-          x: left + (width / 2),
-          y: top + (height / 2),
+          x: initialX + (width / 2),
+          y: initialY + (height / 2),
         },
         actualPos: {
-          x: left,
-          y: top,
+          x: initialX,
+          y: initialY,
         },
         facing: {
-          x: left + (width / 2),
-          y: top + (height / 2) + 30,
+          x: initialX + (width / 2),
+          y: initialY + (height / 2) + 30,
         },
         animation: animationFrames.rotate,
         angle: 360,
