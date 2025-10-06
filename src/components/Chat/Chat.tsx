@@ -30,11 +30,7 @@ interface GiphyGif {
   };
 }
 
-interface ChatProps {
-  inHeader?: boolean;
-}
-
-export const Chat = ({ inHeader = false }: ChatProps) => {
+export const Chat = () => {
   const { user } = useAuth();
   const { gameStats, refetch } = useGame();
   const { success, error } = useToast();
@@ -224,20 +220,10 @@ export const Chat = ({ inHeader = false }: ChatProps) => {
   };
 
   if (!isOpen) {
-    if (inHeader) {
-      return (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
-        >
-          <MessageCircle size={20} />
-        </button>
-      );
-    }
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="hidden md:flex fixed bottom-6 left-6 z-[100000] bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+        className="fixed bottom-20 md:bottom-6 right-4 md:left-6 md:right-auto z-[100000] bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
       >
         <MessageCircle size={24} />
       </button>
