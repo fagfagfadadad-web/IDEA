@@ -25,6 +25,8 @@ export const AdminTasks: React.FC = () => {
     referralCountRequired: '',
     requiredLevel: '',
     referenceLink: '',
+    requiresProof: false,
+    proofType: 'none' as 'screenshot' | 'link' | 'none',
     isActive: true
   });
 
@@ -70,6 +72,8 @@ export const AdminTasks: React.FC = () => {
         referralCountRequired: formData.referralCountRequired ? parseInt(formData.referralCountRequired) : undefined,
         requiredLevel: formData.requiredLevel ? parseInt(formData.requiredLevel) : undefined,
         referenceLink: formData.referenceLink || undefined,
+        requiresProof: formData.requiresProof,
+        proofType: formData.proofType,
        isActive: formData.isActive,
        createdAt: new Date(),
        updatedAt: new Date()
@@ -106,6 +110,8 @@ export const AdminTasks: React.FC = () => {
       referralCountRequired: task.referralCountRequired?.toString() || '',
       requiredLevel: task.requiredLevel?.toString() || '',
       referenceLink: task.referenceLink || '',
+      requiresProof: task.requiresProof || false,
+      proofType: task.proofType || 'none',
       isActive: task.isActive
     });
     setShowModal(true);
@@ -147,6 +153,8 @@ export const AdminTasks: React.FC = () => {
       referralCountRequired: '',
       requiredLevel: '',
       referenceLink: '',
+      requiresProof: false,
+      proofType: 'none' as 'screenshot' | 'link' | 'none',
       isActive: true
     });
   };
@@ -430,6 +438,47 @@ export const AdminTasks: React.FC = () => {
                   className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="https://example.com/instructions"
                 />
+              </div>
+
+              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+                <label className="block text-gray-800 text-sm font-medium font-inter">
+                  Verification Settings
+                </label>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="requiresProof"
+                    checked={formData.requiresProof}
+                    onChange={(e) => setFormData({...formData, requiresProof: e.target.checked})}
+                    className="w-4 h-4 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <label htmlFor="requiresProof" className="text-gray-800 text-sm font-medium font-inter">
+                    Requires proof for completion
+                  </label>
+                </div>
+
+                {formData.requiresProof && (
+                  <div>
+                    <label className="block text-gray-700 text-sm mb-2 font-inter">
+                      Proof Type
+                    </label>
+                    <select
+                      value={formData.proofType}
+                      onChange={(e) => setFormData({...formData, proofType: e.target.value as 'screenshot' | 'link' | 'none'})}
+                      className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    >
+                      <option value="none">No proof required</option>
+                      <option value="screenshot">Screenshot</option>
+                      <option value="link">Link/URL</option>
+                    </select>
+                    <p className="text-xs text-gray-600 mt-1 font-inter">
+                      {formData.proofType === 'screenshot' && 'Users will upload a screenshot'}
+                      {formData.proofType === 'link' && 'Users will provide a link/URL'}
+                      {formData.proofType === 'none' && 'Task can be claimed immediately after starting'}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2">

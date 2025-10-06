@@ -58,6 +58,8 @@ export interface Task {
   referralCountRequired?: number;
   requiredLevel?: number;
   referenceLink?: string;
+  requiresProof?: boolean;
+  proofType?: 'screenshot' | 'link' | 'none';
   isActive: boolean;
   createdAt: any;
   updatedAt: any;
@@ -67,8 +69,9 @@ export interface UserTask {
   id?: string;
   taskId: string;
   userId: string;
-  status: 'not_started' | 'in_progress' | 'completed';
+  status: 'not_started' | 'in_progress' | 'completed' | 'pending_claim';
   progress: number;
+  proofUrl?: string;
   completedAt?: any;
   createdAt: any;
 }

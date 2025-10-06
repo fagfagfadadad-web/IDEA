@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift, ExternalLink } from 'lucide-react';
+import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift, ExternalLink, Upload, Link as LinkIcon } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
@@ -79,17 +79,19 @@ export const Tasks = () => {
     }
   };
 
-  const startTask = async (taskId: string) => {
+  const startTask = async (taskId: string, task: TaskWithProgress) => {
     try {
+      const isReferralTask = task.taskType === 'referral';
+
       await addDoc(collection(db, 'userTasks'), {
         taskId,
         userId: user?.id,
-        status: 'in_progress',
-        progress: 0,
+        status: isReferralTask ? 'in_progress' : 'pending_claim',
+        progress: isReferralTask ? 0 : 100,
         createdAt: serverTimestamp()
       });
 
-      success('Task started!');
+      success(isReferralTask ? 'Task started!' : 'Task ready to claim!');
       fetchTasks();
     } catch (err) {
       console.error('Error starting task:', err);
@@ -97,7 +99,7 @@ export const Tasks = () => {
     }
   };
 
-  const completeTask = async (userTaskId: string, rewardAmount: number) => {
+  const completeTask = async (userTaskId: string, rewardAmount: number, proofUrl?: string) => {
     try {
       if (!user?.id) return;
 
@@ -106,6 +108,7 @@ export const Tasks = () => {
       await updateDoc(userTaskRef, {
         status: 'completed',
         progress: 100,
+        proofUrl: proofUrl || undefined,
         completedAt: serverTimestamp()
       });
 
@@ -119,6 +122,28 @@ export const Tasks = () => {
     } catch (err) {
       console.error('Error completing task:', err);
       error('Failed to complete task');
+    }
+  };
+
+  const claimTask = async (task: TaskWithProgress) => {
+    const userTask = task.userTask;
+    if (!userTask) return;
+
+    // If task doesn't require proof, claim immediately
+    if (!task.requiresProof || task.proofType === 'none' || task.taskType === 'referral') {
+      await completeTask(userTask.id, task.rewardAmount);
+      return;
+    }
+
+    // If requires proof, show input dialog
+    if (task.proofType === 'link') {
+      const proofUrl = prompt('Enter the verification link/URL:');
+      if (!proofUrl) return;
+      await completeTask(userTask.id, task.rewardAmount, proofUrl);
+    } else if (task.proofType === 'screenshot') {
+      const proofUrl = prompt('Enter the screenshot URL (upload to imgur.com or similar):');
+      if (!proofUrl) return;
+      await completeTask(userTask.id, task.rewardAmount, proofUrl);
     }
   };
 
@@ -191,7 +216,8 @@ export const Tasks = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tasks.map((task) => {
                   const userTask = task.userTask;
-                  const canComplete = userTask?.status === 'in_progress' && userTask.progress >= 100;
+                  const canClaim = userTask?.status === 'pending_claim' || (userTask?.status === 'in_progress' && userTask.progress >= 100);
+                  const isReferralTask = task.taskType === 'referral';
                   
                   return (
                     <div
@@ -246,8 +272,8 @@ export const Tasks = () => {
                           </div>
                         )}
 
-                        {/* Progress Bar */}
-                        {userTask?.status === 'in_progress' && (
+                        {/* Progress Bar - only for referral tasks */}
+                        {userTask?.status === 'in_progress' && isReferralTask && (
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <span className="text-gray-600 text-sm font-inter">Progress</span>
@@ -262,31 +288,53 @@ export const Tasks = () => {
                           </div>
                         )}
 
+                        {/* Status indicator for pending claim */}
+                        {userTask?.status === 'pending_claim' && (
+                          <div className="p-3 bg-primary-50 border border-primary-300 rounded-lg">
+                            <div className="flex items-center gap-2 text-primary-600 text-sm font-inter">
+                              <Clock size={16} />
+                              <span>Ready to claim reward!</span>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Reward and Action */}
                         <div className="flex justify-between items-center pt-2">
                           <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
                             <span>🍖</span>
                             +{task.rewardAmount} Food
                           </div>
-                          
+
                           {!userTask && (
                             <Button
-                              onClick={() => startTask(task.id!)}
+                              onClick={() => startTask(task.id!, task)}
                               className="cute-button px-4 py-2"
                             >
                               Start
                             </Button>
                           )}
-                          
-                          {canComplete && (
+
+                          {canClaim && (
                             <Button
-                              onClick={() => completeTask(userTask.id, task.rewardAmount)}
-                              className="bg-success text-white px-4 py-2 rounded-lg font-inter font-bold hover:bg-green-600"
+                              onClick={() => claimTask(task)}
+                              className="bg-success text-white px-4 py-2 rounded-lg font-inter font-bold hover:bg-green-600 flex items-center gap-2"
                             >
+                              {task.requiresProof && task.proofType !== 'none' && (
+                                <>
+                                  {task.proofType === 'screenshot' ? <Upload size={16} /> : <LinkIcon size={16} />}
+                                </>
+                              )}
                               Claim Reward
                             </Button>
                           )}
-                          
+
+                          {userTask?.status === 'in_progress' && isReferralTask && !canClaim && (
+                            <div className="flex items-center gap-1 text-gray-600 text-sm font-inter">
+                              <Clock size={16} />
+                              In Progress
+                            </div>
+                          )}
+
                           {userTask?.status === 'completed' && (
                             <div className="flex items-center gap-1 text-success font-medium font-inter">
                               <CheckCircle size={16} />
