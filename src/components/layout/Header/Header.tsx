@@ -4,7 +4,6 @@ import { environment } from '../../../config/config.mainnet';
 import { getAccountProvider, useGetIsLoggedIn, useGetAccount } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import MultiversXLogo from '../../../assets/img/multiversx-logo.svg?react';
-import { NotificationsButton } from './components/NotificationsButton';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
@@ -34,15 +33,12 @@ export const Header = () => {
           </div>
 
           {isLoggedIn && (
-            <>
-              <NotificationsButton />
-              <Button
-                onClick={handleLogout}
-                className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
-              >
-                Close
-              </Button>
-            </>
+            <Button
+              onClick={handleLogout}
+              className='inline-block rounded-lg px-3 py-2 text-center hover:no-underline my-0 text-gray-600 hover:bg-slate-100 mx-0'
+            >
+              Close
+            </Button>
           )}
 
           {!isLoggedIn && (
