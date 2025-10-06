@@ -1,10 +1,10 @@
 {
-  "name": "@multiversx/mx-template-dapp",
-  "description": "xIdea Web3 Marketplace",
+  "name": "pupfi",
+  "description": "PupFi - Virtual Pet Care Game",
   "version": "1.0.0",
   "author": "MultiversX",
   "license": "GPL-3.0-or-later",
-  "repository": "@multiversx/mx-template-dapp",
+  "repository": "pupfi",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "6.5.1",
     "@fortawesome/free-solid-svg-icons": "6.5.1",
@@ -67,6 +67,7 @@
     "@wdio/mocha-framework": "8.32.4",
     "@wdio/spec-reporter": "8.32.4",
     "autoprefixer": "10.4.16",
+    "esbuild": "^0.18.20",
     "eslint": "8.50.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-import-resolver-typescript": "3.6.1",

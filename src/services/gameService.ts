@@ -122,7 +122,7 @@ export class GameService {
       miningLevel: 1,
       experience: 0,
       referralCode,
-      referredBy: referredBy || null,
+      referredBy: referredBy || undefined,
       totalReferrals: 0,
       referralEarnings: 0,
       createdAt: serverTimestamp(),

@@ -1,4 +1,4 @@
-# ZenDOG - Spiritual Energy Mining
+# PupFi - Spiritual Energy Mining
 
 A spiritual energy mining experience built on MultiversX blockchain with Firebase backend, where players mine ZEN energy with cosmic dogs, upgrade their pack, and explore the astral realm.
 
