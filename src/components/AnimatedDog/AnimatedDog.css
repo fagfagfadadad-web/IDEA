@@ -58,7 +58,7 @@
   height: 120px;
   background-color: #cc9b59;
   border-radius: 50%;
-  margin: 0 0 0 114px;
+  margin: 0 0 0 120px;
 }
 
 .face {
@@ -143,15 +143,15 @@
   height: 15px;
   background-color: #523026;
   border-radius: 50%;
-  margin-top: 285px;
+  margin-top: 240px;
 }
 
 .freckles--left {
-  margin-left: 220px;
+  margin-left: 210px;
 }
 
 .freckles--right {
-  margin-left: 350px;
+  margin-left: 355px;
 }
 
 .freckles--left:before,
