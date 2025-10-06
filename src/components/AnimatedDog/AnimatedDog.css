@@ -26,7 +26,7 @@
   height: 200px;
   background-color: #f25a2b;
   border-radius: 50%;
-  margin: 210px 200px;
+  margin: 210px 0 0 200px;
 }
 
 .collar:after {
@@ -34,7 +34,7 @@
   height: 50px;
   background-color: #e4bb3b;
   border-radius: 50%;
-  margin: 200px 0 0 80px;
+  margin: 75px 0 0 75px;
 }
 
 .neck {
@@ -42,7 +42,7 @@
   height: 180px;
   background-color: #f4e5be;
   border-radius: 50%;
-  margin: 200px 210px;
+  margin: 200px 0 0 210px;
 }
 
 .mouth {
@@ -50,7 +50,7 @@
   height: 120px;
   background-color: #cc9b59;
   border-radius: 50%;
-  margin: 210px 180px;
+  margin: 210px 0 0 180px;
 }
 
 .mouth:after {
@@ -64,7 +64,7 @@
 .face {
   background-color: #f4e5be;
   height: 150px;
-  margin: 120px 180px;
+  margin: 120px 0 0 180px;
   width: 235px;
 }
 
@@ -134,7 +134,7 @@
   border-right: 30px solid transparent;
   border-bottom: 45px solid #523026;
   transform: rotate(180deg);
-  margin: 230px 267px;
+  margin: 230px 0 0 267px;
 }
 
 .freckles--left,
@@ -178,5 +178,5 @@
   background-color: #f9b1e0;
   border-radius: 50%;
   transition-duration: 0.8s;
-  margin: 240px 270px;
+  margin: 240px 0 0 270px;
 }
