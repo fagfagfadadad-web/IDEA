@@ -21,7 +21,9 @@ export const Header = () => {
         className='flex items-center justify-between'
         to={isLoggedIn ? RouteNamesEnum.home : RouteNamesEnum.home}
       >
-        <img src='/PupFi.png' alt='PupFi' className='h-10' />
+        <div className='h-12 w-12 flex items-center justify-center'>
+          <img src='/PupFi.png' alt='PupFi' className='w-full h-auto object-contain' />
+        </div>
       </MxLink>
 
       <nav className='h-full w-full text-sm sm:relative sm:left-auto sm:top-auto sm:flex sm:w-auto sm:flex-row sm:justify-end sm:bg-transparent'>
