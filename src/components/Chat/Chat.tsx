@@ -30,7 +30,11 @@ interface GiphyGif {
   };
 }
 
-export const Chat = () => {
+interface ChatProps {
+  inHeader?: boolean;
+}
+
+export const Chat = ({ inHeader = false }: ChatProps) => {
   const { user } = useAuth();
   const { gameStats, refetch } = useGame();
   const { success, error } = useToast();
@@ -93,7 +97,7 @@ export const Chat = () => {
 
     setIsSearchingGifs(true);
     try {
-      const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=g`;
+      const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=g`;
       console.log('Searching GIFs with URL:', url);
 
       const response = await fetch(url);
@@ -220,18 +224,28 @@ export const Chat = () => {
   };
 
   if (!isOpen) {
+    if (inHeader) {
+      return (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+        >
+          <MessageCircle size={20} />
+        </button>
+      );
+    }
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-50 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-3 md:p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+        className="hidden md:flex fixed bottom-6 left-6 z-[100000] bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
       >
-        <MessageCircle size={20} className="md:w-6 md:h-6" />
+        <MessageCircle size={24} />
       </button>
     );
   }
 
   return (
-    <div className="fixed inset-4 md:inset-auto md:bottom-6 md:left-6 z-50 md:w-96 md:h-[600px] w-auto h-auto bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200">
+    <div className="fixed top-4 left-4 right-4 bottom-20 md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 md:h-[600px] w-auto h-auto bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
