@@ -1,10 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Gift } from 'lucide-react';
+import { MessageCircle, X, Send, Gift, Smile, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { ChatService, ChatMessage } from '../../services/chatService';
 import { Button } from '../Button';
+
+const EMOJI_LIST = ['😀', '😂', '🤣', '😍', '🥰', '😎', '🤔', '😮', '😢', '😭', '😡', '🤯', '🥳', '🤩', '😇', '🤗', '🙌', '👍', '👎', '❤️', '💕', '🔥', '✨', '⭐', '🎉', '🎊', '🎁', '🎈', '🌟', '💯', '🚀', '🐶', '🐕', '🍖', '💰', '💎'];
+
+const TRENDING_GIFS = [
+  'https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif',
+  'https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif',
+  'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
+  'https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif',
+  'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif',
+  'https://media.giphy.com/media/3o6Mb6PM6iLiMdlIre/giphy.gif',
+  'https://media.giphy.com/media/l0HlPystfePnAI3G8/giphy.gif',
+  'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif'
+];
 
 export const Chat = () => {
   const { user } = useAuth();
@@ -14,6 +27,8 @@ export const Chat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showSendFood, setShowSendFood] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const [selectedRecipient, setSelectedRecipient] = useState<{ id: string; username: string } | null>(null);
   const [foodAmount, setFoodAmount] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -37,6 +52,30 @@ export const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleEmojiClick = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);
+    setShowEmojiPicker(false);
+  };
+
+  const handleGifClick = async (gifUrl: string) => {
+    if (!user?.id) return;
+
+    try {
+      setIsSending(true);
+      await ChatService.sendMessage(
+        user.id,
+        user.username || 'Anonymous',
+        gifUrl,
+        user.avatarUrl
+      );
+      setShowGifPicker(false);
+    } catch (err: any) {
+      error(err.message || 'Failed to send GIF');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!user?.id || !newMessage.trim()) return;
 
@@ -49,6 +88,8 @@ export const Chat = () => {
         user.avatarUrl
       );
       setNewMessage('');
+      setShowEmojiPicker(false);
+      setShowGifPicker(false);
     } catch (err: any) {
       error(err.message || 'Failed to send message');
     } finally {
@@ -182,6 +223,13 @@ export const Chat = () => {
                           {isRecipient && ' (You received!)'}
                         </span>
                       </div>
+                    ) : msg.message.match(/^https?:\/\/.+\.(gif|giphy\.com)/i) ? (
+                      <img
+                        src={msg.message}
+                        alt="GIF"
+                        className="max-w-full rounded-lg"
+                        style={{ maxHeight: '200px' }}
+                      />
                     ) : (
                       <p className="text-sm break-words">{msg.message}</p>
                     )}
@@ -250,9 +298,76 @@ export const Chat = () => {
         </div>
       )}
 
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+        <div className="absolute bottom-20 left-4 bg-white rounded-lg shadow-xl p-4 border-2 border-primary-200 z-20">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-bold text-gray-700">Pick an Emoji</h4>
+            <button onClick={() => setShowEmojiPicker(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="grid grid-cols-7 gap-2 max-h-48 overflow-y-auto">
+            {EMOJI_LIST.map((emoji, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleEmojiClick(emoji)}
+                className="text-2xl hover:scale-125 transition-transform p-1"
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* GIF Picker */}
+      {showGifPicker && (
+        <div className="absolute bottom-20 left-4 bg-white rounded-lg shadow-xl p-4 border-2 border-primary-200 z-20 w-80">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-sm font-bold text-gray-700">Trending GIFs</h4>
+            <button onClick={() => setShowGifPicker(false)} className="text-gray-500 hover:text-gray-700">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+            {TRENDING_GIFS.map((gifUrl, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleGifClick(gifUrl)}
+                className="relative overflow-hidden rounded-lg hover:opacity-80 transition-opacity"
+                disabled={isSending}
+              >
+                <img src={gifUrl} alt={`GIF ${idx + 1}`} className="w-full h-24 object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Input */}
       <div className="p-4 bg-white border-t border-gray-200">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker);
+              setShowGifPicker(false);
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={!user?.id || isSending}
+          >
+            <Smile size={20} className="text-gray-600" />
+          </button>
+          <button
+            onClick={() => {
+              setShowGifPicker(!showGifPicker);
+              setShowEmojiPicker(false);
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={!user?.id || isSending}
+          >
+            <ImageIcon size={20} className="text-gray-600" />
+          </button>
           <input
             type="text"
             value={newMessage}
