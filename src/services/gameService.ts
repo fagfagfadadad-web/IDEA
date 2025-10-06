@@ -638,4 +638,52 @@ export class GameService {
       });
     }
   }
+
+  // Referral functions
+  static async processReferral(referralCode: string, newUserId: string): Promise<void> {
+    // Find the referrer by referral code
+    const q = query(
+      collection(db, 'gameStats'),
+      where('referralCode', '==', referralCode),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      console.log('⚠️ GameService: Referral code not found:', referralCode);
+      return;
+    }
+
+    const referrerDoc = querySnapshot.docs[0];
+    const referrerData = referrerDoc.data() as GameStats;
+    const referrerId = referrerDoc.id;
+
+    console.log('👤 GameService: Found referrer:', referrerId);
+
+    // Don't allow self-referral
+    if (referrerId === newUserId) {
+      console.log('⚠️ GameService: Self-referral not allowed');
+      return;
+    }
+
+    // Award referral bonus (100 Food for both)
+    const referralBonus = 100;
+
+    // Update referrer stats
+    await updateDoc(doc(db, 'gameStats', referrerId), {
+      totalReferrals: increment(1),
+      referralEarnings: increment(referralBonus),
+      zenBalance: increment(referralBonus),
+      updatedAt: serverTimestamp()
+    });
+
+    // Award bonus to new user
+    await updateDoc(doc(db, 'gameStats', newUserId), {
+      zenBalance: increment(referralBonus),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log('✅ GameService: Referral bonus awarded:', referralBonus, 'Food to both users');
+  }
 }

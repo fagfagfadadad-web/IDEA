@@ -94,13 +94,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (!userProfile) {
         console.log('🆕 AuthContext: Creating new user profile...');
-        
+
+        // Check for referral code in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const referralCode = urlParams.get('ref');
+        console.log('🔗 AuthContext: Referral code from URL:', referralCode);
+
         // Generate unique username
         const baseUsername = address.substring(0, 8);
         const uniqueUsername = await UserService.generateUniqueUsername(baseUsername);
-        
+
         console.log('👤 AuthContext: Generated username:', uniqueUsername);
-        
+
         // Create user profile
         userProfile = await UserService.createUser(address, {
           username: uniqueUsername,
@@ -110,13 +115,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           isAdmin: false,
           isBanned: false
         });
-        
+
         console.log('✅ AuthContext: User profile created:', userProfile);
 
-        // Create game stats and starter ship
+        // Create game stats with referral code
         console.log('🎮 AuthContext: Creating game stats...');
-        await GameService.createGameStats(userProfile.id!);
-        
+        await GameService.createGameStats(userProfile.id!, referralCode || undefined);
+
+        // If referral code was used, increment referrer's count
+        if (referralCode) {
+          console.log('🔗 AuthContext: Processing referral for code:', referralCode);
+          try {
+            await GameService.processReferral(referralCode, userProfile.id!);
+            console.log('✅ AuthContext: Referral processed successfully');
+          } catch (refError: any) {
+            console.error('❌ AuthContext: Failed to process referral:', refError.message);
+          }
+        }
+
         // Create starter dog
         console.log('🐕 AuthContext: Creating starter dog...');
         await GameService.createStarterShip(userProfile.id!);
