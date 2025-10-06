@@ -97,7 +97,7 @@ export const Home = () => {
           <div className="space-y-8">
             {/* Logo and Title */}
             <div className="flex flex-col items-center space-y-2">
-              <div className="w-[150px] h-[125px] flex items-center justify-center">
+              <div className="w-full flex justify-center">
                 <AnimatedDog />
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
