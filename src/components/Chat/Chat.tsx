@@ -19,7 +19,7 @@ const TRENDING_GIFS = [
   'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif'
 ];
 
-const GIPHY_API_KEY = 'C4pV1zpkQuoxi0ihoTZ2cljF9cE0ZeSn';
+const GIPHY_API_KEY = 'TaWKi4rH5zEd99WO7ZP6HMxIeiPh63bp';
 
 interface GiphyGif {
   id: string;
