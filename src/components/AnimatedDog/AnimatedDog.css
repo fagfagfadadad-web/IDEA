@@ -1,7 +1,7 @@
 .dog {
   position: relative;
-  width: 100%;
-  height: 100%;
+  width: 600px;
+  height: 500px;
   transform: scale(0.25);
   transform-origin: center center;
 }
@@ -108,10 +108,6 @@
   height: 30px;
   border: 15px solid #523026;
   border-radius: 50%;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .eye--left {
@@ -128,27 +124,6 @@
   height: 30px;
   background-color: #f4e5be;
   margin: 50% -50%;
-}
-
-.eye-pupil {
-  width: 20px;
-  height: 20px;
-  background-color: #523026;
-  border-radius: 50%;
-  transition: transform 0.1s ease;
-  position: relative;
-  z-index: 2;
-}
-
-.eye-pupil::after {
-  content: '';
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: white;
-  border-radius: 50%;
-  top: 3px;
-  left: 3px;
 }
 
 .nose {
