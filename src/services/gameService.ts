@@ -118,25 +118,30 @@ export class GameService {
   static async createGameStats(userId: string, referredBy?: string): Promise<GameStats> {
     const referralCode = this.generateReferralCode();
     console.log('🆕 GameService: Creating game stats with starting balance 1000 PupFi for user:', userId);
-    const gameStats: Omit<GameStats, 'id'> = {
+
+    const gameStatsData: any = {
       userId,
       zenBalance: 1000, // Starting balance
       totalMined: 0,
       miningLevel: 1,
       experience: 0,
       referralCode,
-      referredBy: referredBy || undefined,
       totalReferrals: 0,
       referralEarnings: 0,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
 
+    // Only add referredBy if it's a valid string
+    if (referredBy && typeof referredBy === 'string') {
+      gameStatsData.referredBy = referredBy;
+    }
+
     const docRef = doc(db, 'gameStats', userId);
-    await setDoc(docRef, gameStats);
-    console.log('✅ GameService: Game stats created successfully with data:', gameStats);
-    
-    return { id: userId, ...gameStats } as GameStats;
+    await setDoc(docRef, gameStatsData);
+    console.log('✅ GameService: Game stats created successfully');
+
+    return { id: userId, ...gameStatsData } as GameStats;
   }
 
   static async updateGameStats(userId: string, updates: Partial<GameStats>): Promise<void> {

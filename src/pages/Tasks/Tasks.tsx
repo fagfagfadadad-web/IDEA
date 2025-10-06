@@ -14,8 +14,9 @@ import {
   addDoc,
   updateDoc,
   doc,
+  getDoc,
+  setDoc,
   serverTimestamp,
-  writeBatch,
   increment
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -119,29 +120,48 @@ export const Tasks = () => {
         proofUrl
       });
 
-      // Use Firestore batch to ensure both operations succeed together
-      const batch = writeBatch(db);
-
       // Mark task as completed
       const userTaskRef = doc(db, 'userTasks', userTaskId);
-      batch.update(userTaskRef, {
+      const taskUpdateData: any = {
         status: 'completed',
         progress: 100,
-        proofUrl: proofUrl || undefined,
         completedAt: serverTimestamp()
-      });
-      console.log('📝 Added task update to batch');
+      };
+      if (proofUrl) {
+        taskUpdateData.proofUrl = proofUrl;
+      }
+      await updateDoc(userTaskRef, taskUpdateData);
+      console.log('📝 Task updated');
 
-      // Award Food tokens using increment
+      // Award Food tokens - check if gameStats exists first
       const statsRef = doc(db, 'gameStats', user.id);
-      batch.update(statsRef, {
-        zenBalance: increment(rewardAmount),
-        updatedAt: serverTimestamp()
-      });
-      console.log('💰 Added zenBalance increment to batch:', rewardAmount);
+      const statsSnap = await getDoc(statsRef);
 
-      await batch.commit();
-      console.log('✅ Batch committed successfully');
+      if (statsSnap.exists()) {
+        // Update existing document
+        await updateDoc(statsRef, {
+          zenBalance: increment(rewardAmount),
+          updatedAt: serverTimestamp()
+        });
+        console.log('💰 zenBalance incremented:', rewardAmount);
+      } else {
+        // Create new document with starting balance
+        await setDoc(statsRef, {
+          userId: user.id,
+          zenBalance: 1000 + rewardAmount,
+          totalMined: 0,
+          miningLevel: 1,
+          experience: 0,
+          referralCode: '',
+          totalReferrals: 0,
+          referralEarnings: 0,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+        console.log('💰 Created new gameStats with balance:', 1000 + rewardAmount);
+      }
+
+      console.log('✅ Task completed successfully');
 
       success(`Task completed! Earned ${rewardAmount} food points!`);
 
