@@ -95,10 +95,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!userProfile) {
         console.log('🆕 AuthContext: Creating new user profile...');
 
-        // Check for referral code in URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const referralCode = urlParams.get('ref');
-        console.log('🔗 AuthContext: Referral code from URL:', referralCode);
+        // Check for referral code in localStorage (stored by App.tsx)
+        const referralCode = localStorage.getItem('pendingReferralCode');
+        console.log('🔗 AuthContext: Referral code from localStorage:', referralCode);
+
+        // Clear the referral code after reading it
+        if (referralCode) {
+          localStorage.removeItem('pendingReferralCode');
+        }
 
         // Generate unique username
         const baseUsername = address.substring(0, 8);

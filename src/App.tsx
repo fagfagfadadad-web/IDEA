@@ -12,10 +12,18 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 const AppContent = () => {
   const location = useLocation();
-  
+
   useEffect(() => {
     console.log('🔄 App: Route changed to:', location.pathname);
     console.log('🔄 App: Available routes:', routes.map(r => r.path));
+
+    // Capture referral code from URL and store in localStorage
+    const urlParams = new URLSearchParams(location.search);
+    const referralCode = urlParams.get('ref');
+    if (referralCode) {
+      console.log('🔗 App: Storing referral code:', referralCode);
+      localStorage.setItem('pendingReferralCode', referralCode);
+    }
   }, [location]);
 
   return (
