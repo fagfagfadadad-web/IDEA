@@ -32,29 +32,51 @@ export const Referrals = () => {
   const fetchReferrals = async () => {
     try {
       setIsLoading(true);
-      
+
       if (!gameStats?.referralCode) return;
 
-      // Get users referred by this user
-      const q = query(
-        collection(db, 'gameStats'),
-        where('referredBy', '==', gameStats.referralCode),
-        orderBy('createdAt', 'desc')
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const referralStats = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      let referralStats = [];
+
+      try {
+        // Try with index-required query first
+        const q = query(
+          collection(db, 'gameStats'),
+          where('referredBy', '==', gameStats.referralCode),
+          orderBy('createdAt', 'desc')
+        );
+
+        const querySnapshot = await getDocs(q);
+        referralStats = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+      } catch (indexError: any) {
+        // Fallback: query without orderBy if index not ready
+        console.log('Using fallback query for referrals (index not ready)');
+        const fallbackQuery = query(
+          collection(db, 'gameStats'),
+          where('referredBy', '==', gameStats.referralCode)
+        );
+
+        const querySnapshot = await getDocs(fallbackQuery);
+        referralStats = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })).sort((a: any, b: any) => {
+          // Manual sorting by createdAt
+          const aTime = a.createdAt?.toMillis?.() || 0;
+          const bTime = b.createdAt?.toMillis?.() || 0;
+          return bTime - aTime;
+        });
+      }
 
       // Get user data for each referral
       const referralsWithUsers = await Promise.all(
-        referralStats.map(async (stats) => {
+        referralStats.map(async (stats: any) => {
           const userDoc = doc(db, 'users', stats.id);
           const userSnapshot = await getDoc(userDoc);
           const userData = userSnapshot.exists() ? userSnapshot.data() : null;
-          
+
           return {
             ...stats,
             user: userData
