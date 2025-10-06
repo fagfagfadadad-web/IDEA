@@ -41,8 +41,8 @@ export const Header = () => {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2 md:space-x-4">
             <Link to="/" className="flex items-center gap-2 md:gap-3 hover:scale-105 transition-transform">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
-                <span className="text-xl md:text-2xl">🐕</span>
+              <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
+                <img src='/PupFi.png' alt='PupFi' className='w-full h-auto object-contain' />
               </div>
               <span className="text-lg md:text-2xl font-inter font-black gradient-text">
                 PupFi
