@@ -10,8 +10,8 @@ export const Footer = () => {
           {/* Brand Section */}
           <div className="flex flex-col items-center md:items-start space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🐕</span>
+              <div className="w-10 h-10 flex items-center justify-center">
+                <img src='/PupFi.png' alt='PupFi' className='w-full h-auto object-contain' />
               </div>
               <span className="text-2xl font-inter font-black gradient-text">
                 PupFi
