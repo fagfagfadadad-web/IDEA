@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Gift, Smile, Image as ImageIcon } from 'lucide-react';
+import { MessageCircle, X, Send, Gift, Smile, Image as ImageIcon, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
@@ -19,6 +19,17 @@ const TRENDING_GIFS = [
   'https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif'
 ];
 
+const GIPHY_API_KEY = 'C4pV1zpkQuoxi0ihoTZ2cljF9cE0ZeSn';
+
+interface GiphyGif {
+  id: string;
+  images: {
+    fixed_height_small: {
+      url: string;
+    };
+  };
+}
+
 export const Chat = () => {
   const { user } = useAuth();
   const { gameStats, refetch } = useGame();
@@ -32,7 +43,11 @@ export const Chat = () => {
   const [selectedRecipient, setSelectedRecipient] = useState<{ id: string; username: string } | null>(null);
   const [foodAmount, setFoodAmount] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [gifSearchQuery, setGifSearchQuery] = useState('');
+  const [searchedGifs, setSearchedGifs] = useState<GiphyGif[]>([]);
+  const [isSearchingGifs, setIsSearchingGifs] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -48,8 +63,47 @@ export const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (!gifSearchQuery.trim()) {
+      setSearchedGifs([]);
+      return;
+    }
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      searchGifs(gifSearchQuery);
+    }, 500);
+
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [gifSearchQuery]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const searchGifs = async (query: string) => {
+    if (!query.trim()) return;
+
+    setIsSearchingGifs(true);
+    try {
+      const response = await fetch(
+        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=g`
+      );
+      const data = await response.json();
+      setSearchedGifs(data.data || []);
+    } catch (err) {
+      console.error('Failed to search GIFs:', err);
+      setSearchedGifs([]);
+    } finally {
+      setIsSearchingGifs(false);
+    }
   };
 
   const handleEmojiClick = (emoji: string) => {
@@ -69,6 +123,8 @@ export const Chat = () => {
         user.avatarUrl
       );
       setShowGifPicker(false);
+      setGifSearchQuery('');
+      setSearchedGifs([]);
     } catch (err: any) {
       error(err.message || 'Failed to send GIF');
     } finally {
@@ -326,22 +382,71 @@ export const Chat = () => {
       {showGifPicker && (
         <div className="absolute bottom-16 left-2 right-2 md:bottom-20 md:left-4 md:right-auto bg-white rounded-lg shadow-xl p-3 md:p-4 border-2 border-primary-200 z-20 md:w-80">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-sm font-bold text-gray-700">Trending GIFs</h4>
-            <button onClick={() => setShowGifPicker(false)} className="text-gray-500 hover:text-gray-700 p-1">
+            <h4 className="text-sm font-bold text-gray-700">
+              {gifSearchQuery ? 'Search Results' : 'Trending GIFs'}
+            </h4>
+            <button
+              onClick={() => {
+                setShowGifPicker(false);
+                setGifSearchQuery('');
+                setSearchedGifs([]);
+              }}
+              className="text-gray-500 hover:text-gray-700 p-1"
+            >
               <X size={18} />
             </button>
           </div>
+
+          {/* Search Input */}
+          <div className="mb-3 relative">
+            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={gifSearchQuery}
+              onChange={(e) => setGifSearchQuery(e.target.value)}
+              placeholder="Search GIFs..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
+
+          {/* GIF Grid */}
           <div className="grid grid-cols-2 gap-2 max-h-52 md:max-h-64 overflow-y-auto">
-            {TRENDING_GIFS.map((gifUrl, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleGifClick(gifUrl)}
-                className="relative overflow-hidden rounded-lg hover:opacity-80 active:opacity-60 transition-opacity"
-                disabled={isSending}
-              >
-                <img src={gifUrl} alt={`GIF ${idx + 1}`} className="w-full h-20 md:h-24 object-cover" />
-              </button>
-            ))}
+            {isSearchingGifs ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-2"></div>
+                <p className="text-sm">Searching...</p>
+              </div>
+            ) : searchedGifs.length > 0 ? (
+              searchedGifs.map((gif) => (
+                <button
+                  key={gif.id}
+                  onClick={() => handleGifClick(gif.images.fixed_height_small.url)}
+                  className="relative overflow-hidden rounded-lg hover:opacity-80 active:opacity-60 transition-opacity"
+                  disabled={isSending}
+                >
+                  <img
+                    src={gif.images.fixed_height_small.url}
+                    alt="GIF"
+                    className="w-full h-20 md:h-24 object-cover"
+                  />
+                </button>
+              ))
+            ) : gifSearchQuery ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                <p className="text-sm">No GIFs found</p>
+              </div>
+            ) : (
+              TRENDING_GIFS.map((gifUrl, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleGifClick(gifUrl)}
+                  className="relative overflow-hidden rounded-lg hover:opacity-80 active:opacity-60 transition-opacity"
+                  disabled={isSending}
+                >
+                  <img src={gifUrl} alt={`GIF ${idx + 1}`} className="w-full h-20 md:h-24 object-cover" />
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}
