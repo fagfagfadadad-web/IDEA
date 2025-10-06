@@ -93,13 +93,28 @@ export const Chat = () => {
 
     setIsSearchingGifs(true);
     try {
-      const response = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=g`
-      );
+      const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=12&rating=g`;
+      console.log('Searching GIFs with URL:', url);
+
+      const response = await fetch(url);
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
+      }
+
       const data = await response.json();
-      setSearchedGifs(data.data || []);
+      console.log('GIF search results:', data);
+
+      if (data.data && Array.isArray(data.data)) {
+        setSearchedGifs(data.data);
+      } else {
+        console.warn('Unexpected API response format:', data);
+        setSearchedGifs([]);
+      }
     } catch (err) {
       console.error('Failed to search GIFs:', err);
+      error('Failed to search GIFs. Please try again.');
       setSearchedGifs([]);
     } finally {
       setIsSearchingGifs(false);
@@ -398,15 +413,22 @@ export const Chat = () => {
           </div>
 
           {/* Search Input */}
-          <div className="mb-3 relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={gifSearchQuery}
-              onChange={(e) => setGifSearchQuery(e.target.value)}
-              placeholder="Search GIFs..."
-              className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
+          <div className="mb-3">
+            <div className="relative mb-2">
+              <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={gifSearchQuery}
+                onChange={(e) => setGifSearchQuery(e.target.value)}
+                placeholder="Search GIFs (e.g., 'dog', 'happy')..."
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+            {searchedGifs.length > 0 && (
+              <p className="text-xs text-gray-500 px-1">
+                Found {searchedGifs.length} GIF{searchedGifs.length !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
 
           {/* GIF Grid */}
@@ -414,7 +436,7 @@ export const Chat = () => {
             {isSearchingGifs ? (
               <div className="col-span-2 text-center py-8 text-gray-500">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mx-auto mb-2"></div>
-                <p className="text-sm">Searching...</p>
+                <p className="text-sm">Searching for "{gifSearchQuery}"...</p>
               </div>
             ) : searchedGifs.length > 0 ? (
               searchedGifs.map((gif) => (
@@ -433,7 +455,8 @@ export const Chat = () => {
               ))
             ) : gifSearchQuery ? (
               <div className="col-span-2 text-center py-8 text-gray-500">
-                <p className="text-sm">No GIFs found</p>
+                <p className="text-sm mb-2">No GIFs found for "{gifSearchQuery}"</p>
+                <p className="text-xs text-gray-400">Try a different search term</p>
               </div>
             ) : (
               TRENDING_GIFS.map((gifUrl, idx) => (
