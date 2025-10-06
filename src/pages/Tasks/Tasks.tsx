@@ -164,7 +164,7 @@ export const Tasks = () => {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="title-responsive font-inter font-bold gradient-text">
-              Pet Care Tasks
+              PupFi Tasks
             </h1>
             <p className="text-gray-700 text-lg font-inter">
               Complete tasks to earn bonus food points and experience
