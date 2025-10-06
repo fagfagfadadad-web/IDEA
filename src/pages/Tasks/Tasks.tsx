@@ -6,15 +6,17 @@ import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { GameService, Task } from '../../services/gameService';
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  updateDoc,
   doc,
-  serverTimestamp 
+  serverTimestamp,
+  writeBatch,
+  increment
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
@@ -107,19 +109,26 @@ export const Tasks = () => {
     try {
       if (!user?.id) return;
 
+      // Use Firestore batch to ensure both operations succeed together
+      const batch = writeBatch(db);
+
       // Mark task as completed
       const userTaskRef = doc(db, 'userTasks', userTaskId);
-      await updateDoc(userTaskRef, {
+      batch.update(userTaskRef, {
         status: 'completed',
         progress: 100,
         proofUrl: proofUrl || undefined,
         completedAt: serverTimestamp()
       });
 
-      // Award Food tokens
-      await GameService.updateGameStats(user.id, {
-        zenBalance: (gameStats?.zenBalance || 0) + rewardAmount
+      // Award Food tokens using increment
+      const statsRef = doc(db, 'gameStats', user.id);
+      batch.update(statsRef, {
+        zenBalance: increment(rewardAmount),
+        updatedAt: serverTimestamp()
       });
+
+      await batch.commit();
 
       success(`Task completed! Earned ${rewardAmount} food points!`);
       fetchTasks();
