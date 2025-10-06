@@ -5,6 +5,8 @@
   transform: scale(0.25);
   transform-origin: center center;
   margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%) scale(0.25);
 }
 
 .dog:hover .tongue {
@@ -34,7 +36,7 @@
   height: 50px;
   background-color: #e4bb3b;
   border-radius: 50%;
-  margin: 100% 40%;
+  margin: 75px 75px;
 }
 
 .neck {
@@ -58,7 +60,7 @@
   height: 120px;
   background-color: #cc9b59;
   border-radius: 50%;
-  margin: 0 95%;
+  margin: 0 114px;
 }
 
 .face {
@@ -124,7 +126,7 @@
   width: 60px;
   height: 30px;
   background-color: #f4e5be;
-  margin: 50% -50%;
+  margin: 15px -30px;
 }
 
 .nose {
