@@ -245,7 +245,7 @@ export const Chat = ({ inHeader = false }: ChatProps) => {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 h-[85vh] md:h-[600px] bg-white md:rounded-xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
+    <div className="fixed bottom-[72px] left-0 right-0 top-[80px] md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 md:h-[600px] md:top-auto bg-white md:rounded-xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
