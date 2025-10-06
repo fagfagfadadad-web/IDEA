@@ -114,7 +114,7 @@ export class GameService {
 
   static async createGameStats(userId: string, referredBy?: string): Promise<GameStats> {
     const referralCode = this.generateReferralCode();
-    console.log('🆕 GameService: Creating game stats with starting balance 1000 ZEN for user:', userId);
+    console.log('🆕 GameService: Creating game stats with starting balance 1000 PupFi for user:', userId);
     const gameStats: Omit<GameStats, 'id'> = {
       userId,
       zenBalance: 1000, // Starting balance
@@ -379,7 +379,7 @@ export class GameService {
       completedAt: serverTimestamp()
     });
 
-    // Award ZEN tokens
+    // Award PupFi tokens
     const statsRef = doc(db, 'gameStats', userId);
     batch.update(statsRef, {
       zenBalance: increment(rewardAmount),

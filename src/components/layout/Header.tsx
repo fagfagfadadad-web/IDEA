@@ -76,7 +76,7 @@ export const Header = () => {
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-4">
-            {/* ZEN Balance */}
+            {/* Food Balance */}
             {isLoggedIn && gameStats && (
               <div className="hidden md:flex food-points">
                 <span className="text-primary-500">🍖</span>
@@ -217,7 +217,7 @@ export const Header = () => {
               </div>
 
               <div className="p-4 space-y-2">
-                {/* ZEN Balance */}
+                {/* Food Balance */}
                 {isLoggedIn && gameStats && (
                   <div className="bg-primary-50 p-4 rounded-lg border border-primary-300/40 mb-4">
                     <div className="flex items-center gap-2 justify-center">

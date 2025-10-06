@@ -13,7 +13,7 @@ const defaultTasks = [
   },
   {
     title: 'Daily Miner',
-    description: 'Mine ZEN tokens 5 times in a single day',
+    description: 'Mine PupFi tokens 5 times in a single day',
     rewardAmount: 100,
     taskType: 'daily',
     requirements: { dailyMiningCount: 5 },

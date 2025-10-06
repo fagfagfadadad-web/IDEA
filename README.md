@@ -1,42 +1,42 @@
-# PupFi - Spiritual Energy Mining
+# PupFi - Virtual Pet Care Game
 
-A spiritual energy mining experience built on MultiversX blockchain with Firebase backend, where players mine ZEN energy with cosmic dogs, upgrade their pack, and explore the astral realm.
+A virtual pet care experience built on MultiversX blockchain with Firebase backend, where players feed and care for their dogs, upgrade their pack, and build a thriving community.
 
 ## 🎮 Game Features
 
 ### Core Gameplay
-- **Mining System** - Mine ZEN energy using different types of cosmic dogs
-- **Energy System** - Dogs consume spiritual energy and regenerate through meditation
+- **Mining System** - Mine PupFi tokens using different types of dogs
+- **Energy System** - Dogs consume energy and regenerate through rest
 - **Level System** - Gain experience and levels to increase mining efficiency
-- **Pack Management** - Adopt and upgrade different types of cosmic dogs
+- **Pack Management** - Adopt and upgrade different types of dogs
 
 ### Dog Types
-1. **Zen Puppy** - Starter dog (1000 ZEN starting balance)
+1. **Zen Puppy** - Starter dog (1000 PupFi starting balance)
    - Mining Power: 10
    - Energy Capacity: 100
 
-2. **Cosmic Retriever** - 1,000 ZEN
+2. **Cosmic Retriever** - 1,000 PupFi
    - Mining Power: 25
    - Energy Capacity: 200
 
-3. **Astral Shepherd** - 5,000 ZEN
+3. **Astral Shepherd** - 5,000 PupFi
    - Mining Power: 50
    - Energy Capacity: 300
 
-4. **Divine Wolf** - 20,000 ZEN
+4. **Divine Wolf** - 20,000 PupFi
    - Mining Power: 100
    - Energy Capacity: 500
 
 ### Dog Upgrades
-- **Spiritual Power** - Increase ZEN energy mined per meditation
+- **Spiritual Power** - Increase PupFi tokens mined per operation
 - **Energy Capacity** - Increase maximum energy storage
-- **Efficiency** - Reduce energy consumption per meditation session
+- **Efficiency** - Reduce energy consumption per operation
 
 ### Social Features
-- **Referral Program** - Earn 10% of referred players' spiritual rewards
-- **Quest System** - Complete spiritual quests for bonus ZEN energy
-- **Leaderboards** - Compete with other spiritual seekers
-- **Admin Panel** - Manage quests, users, and spiritual statistics
+- **Referral Program** - Earn 10% of referred players' rewards
+- **Quest System** - Complete quests for bonus PupFi tokens
+- **Leaderboards** - Compete with other players
+- **Admin Panel** - Manage quests, users, and statistics
 
 ## 🚀 Technology Stack
 
@@ -102,18 +102,18 @@ npm run dev
 ## 🎯 Game Mechanics
 
 ### Mining
-- Ships mine ZEN tokens every minute
+- Dogs mine PupFi tokens every minute
 - Energy consumption: 10 energy per mining operation
-- Mining rewards scale with ship power and player level
+- Mining rewards scale with dog power and player level
 - Random bonus multiplier (1.0x - 1.5x)
 
 ### Energy System
-- Ships regenerate 1 energy every 5 minutes
-- Energy capacity varies by ship type
-- Ships cannot mine without sufficient energy
+- Dogs regenerate 1 energy every 5 minutes
+- Energy capacity varies by dog type
+- Dogs cannot mine without sufficient energy
 
 ### Leveling
-- Gain 1 XP per 10 ZEN tokens mined
+- Gain 1 XP per 10 PupFi tokens mined
 - Level up every 1,000 XP
 - Higher levels increase mining efficiency
 
@@ -124,7 +124,7 @@ npm run dev
 
 ### Task System
 - Daily, mining, social, and referral tasks
-- Rewards in ZEN tokens
+- Rewards in PupFi tokens
 - Progress tracking and completion rewards
 
 ## 🔧 Admin Features
@@ -137,7 +137,7 @@ npm run dev
 - Create, edit, and manage tasks
 - View comprehensive game statistics
 - Manage users (ban/unban, grant admin privileges)
-- Award ZEN tokens to players
+- Award PupFi tokens to players
 - Monitor game economy
 
 ## 🎨 Design Features
@@ -178,19 +178,19 @@ firebase deploy --only hosting
 
 ## 📊 Game Economy
 
-- Starting balance: 100 ZEN tokens
-- Mining rewards: 10-150 ZEN per operation (based on ship and level)
-- Ship costs: 0-20,000 ZEN
-- Upgrade costs: 100-1,000+ ZEN (exponential scaling)
-- Task rewards: 50-500 ZEN
+- Starting balance: 1000 PupFi tokens
+- Mining rewards: 10-150 PupFi per operation (based on dog and level)
+- Dog costs: 0-20,000 PupFi
+- Upgrade costs: 100-1,000+ PupFi (exponential scaling)
+- Task rewards: 50-500 PupFi
 
 ## 🎮 Getting Started
 
 1. Connect your MultiversX wallet
-2. Receive starter ship and 100 ZEN tokens
-3. Start mining ZEN tokens
+2. Receive starter dog and 1000 PupFi tokens
+3. Start mining PupFi tokens
 4. Complete tasks for bonus rewards
-5. Upgrade ships and buy new ones
+5. Upgrade dogs and buy new ones
 6. Invite friends for referral bonuses
 7. Climb the leaderboards!
 
