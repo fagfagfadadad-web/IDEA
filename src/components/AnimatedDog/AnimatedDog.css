@@ -4,6 +4,7 @@
   height: 500px;
   transform: scale(0.25);
   transform-origin: center center;
+  margin: 0 auto;
 }
 
 .dog:hover .tongue {
