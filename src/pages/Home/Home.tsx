@@ -5,6 +5,7 @@ import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
+import { AnimatedDog } from '../../components/AnimatedDog';
 import {
   ArrowRight,
   Heart,
@@ -90,6 +91,7 @@ export const Home = () => {
 
   return (
     <div className="relative">
+      <AnimatedDog />
       <div className="relative z-10">
         {/* Hero Section */}
         <div className="container mx-auto px-6 py-12 text-center">

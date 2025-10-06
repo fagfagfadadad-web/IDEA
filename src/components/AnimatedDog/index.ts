@@ -1,0 +1,1 @@
+export { AnimatedDog } from './AnimatedDog';
