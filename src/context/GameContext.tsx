@@ -221,15 +221,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       const result = await GameService.performMining(user.id, shipId);
       
-      success(`Mined ${result.zenMined} ZEN tokens!`);
+      success(`Mined ${result.zenMined} Food!`);
       if (result.newLevel) {
         success(`Level up! You are now level ${result.newLevel}!`);
       }
       
       await fetchGameData();
     } catch (error: any) {
-      console.error('Error mining ZEN:', error);
-      showError(error.message || 'Failed to mine ZEN tokens');
+      console.error('Error mining Food:', error);
+      showError(error.message || 'Failed to mine Food');
     } finally {
       setIsMining(false);
     }
@@ -266,7 +266,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (currentBalance < upgradeCost) {
-        throw new Error('Insufficient ZEN tokens for upgrade');
+        throw new Error('Insufficient Food for upgrade');
       }
 
       // Apply upgrade
@@ -328,7 +328,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       });
       
       if (currentBalance < shipConfig.cost) {
-        throw new Error('Insufficient ZEN tokens to buy ship');
+        throw new Error('Insufficient Food to buy dog');
       }
 
       // Create new ship

@@ -109,7 +109,7 @@ export const Tasks = () => {
         completedAt: serverTimestamp()
       });
 
-      // Award ZEN tokens
+      // Award Food tokens
       await GameService.updateGameStats(user.id, {
         zenBalance: (gameStats?.zenBalance || 0) + rewardAmount
       });

@@ -67,11 +67,11 @@ export const AdminUsers: React.FC = () => {
   const handleAwardZen = async (userId: string, amount: number) => {
     try {
       await AdminService.awardZenTokens(userId, amount);
-      success(`Awarded ${amount} ZEN tokens successfully`);
+      success(`Awarded ${amount} Food successfully`);
       fetchUsers();
     } catch (err) {
-      console.error('Failed to award ZEN:', err);
-      error('Failed to award ZEN tokens');
+      console.error('Failed to award Food:', err);
+      error('Failed to award Food tokens');
     }
   };
 

@@ -25,7 +25,7 @@ const AppContent = () => {
           <div className="flex items-center justify-center min-h-screen bg-slate-900">
             <div className="text-center space-y-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto"></div>
-              <div className="text-lg text-cyan-400 font-orbitron">Loading ZEN Mining...</div>
+              <div className="text-lg text-cyan-400 font-orbitron">Loading PupFi...</div>
             </div>
           </div>
         }>
