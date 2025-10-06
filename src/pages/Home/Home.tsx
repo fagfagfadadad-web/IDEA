@@ -112,7 +112,7 @@ export const Home = () => {
 
             {/* Stats Display for Logged In Users */}
             {isLoggedIn && gameStats && (
-              <div className="cute-card p-6 max-w-2xl mx-auto">
+              <div className="cute-card p-6 max-w-2xl mx-auto space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="stat-card">
                     <div className="stat-value">
@@ -139,6 +139,57 @@ export const Home = () => {
                     <div className="stat-label">🐕 Dogs</div>
                   </div>
                 </div>
+
+                {/* Active Boosts */}
+                {gameStats.activeBoosts && gameStats.activeBoosts.length > 0 && (
+                  <div className="pt-4 border-t border-primary-200">
+                    <h3 className="text-sm font-bold text-gray-700 mb-2">⚡ Active Boosts</h3>
+                    <div className="space-y-2">
+                      {gameStats.activeBoosts.map((boost, index) => {
+                        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+                        const now = new Date();
+                        const timeLeft = Math.max(0, expiresAt.getTime() - now.getTime());
+                        const minutesLeft = Math.floor(timeLeft / 60000);
+                        const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
+
+                        if (timeLeft <= 0) return null;
+
+                        return (
+                          <div key={index} className="flex items-center justify-between bg-primary-50 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <span>{boost.type === 'mining' ? '🍖' : '💖'}</span>
+                              <span className="text-sm font-medium text-gray-700">
+                                {boost.multiplier}x {boost.type === 'mining' ? 'Food' : 'Experience'}
+                              </span>
+                            </div>
+                            <span className="text-xs text-gray-600">
+                              {minutesLeft}:{secondsLeft.toString().padStart(2, '0')}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Permanent Upgrades */}
+                {gameStats.permanentUpgrades && (gameStats.permanentUpgrades.autoFeeder || gameStats.permanentUpgrades.happinessBooster > 1) && (
+                  <div className="pt-4 border-t border-primary-200">
+                    <h3 className="text-sm font-bold text-gray-700 mb-2">🔧 Active Upgrades</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {gameStats.permanentUpgrades.autoFeeder && (
+                        <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                          🤖 Auto-Feeder
+                        </div>
+                      )}
+                      {gameStats.permanentUpgrades.happinessBooster > 1 && (
+                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                          ⚡ Happiness Booster ({gameStats.permanentUpgrades.happinessBooster}x)
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

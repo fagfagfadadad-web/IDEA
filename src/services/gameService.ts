@@ -16,6 +16,17 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
+export interface ActiveBoost {
+  type: 'mining' | 'experience';
+  multiplier: number;
+  expiresAt: any;
+}
+
+export interface PermanentUpgrade {
+  autoFeeder: boolean;
+  happinessBooster: number;
+}
+
 export interface GameStats {
   id?: string;
   userId: string;
@@ -27,6 +38,8 @@ export interface GameStats {
   referredBy?: string;
   totalReferrals: number;
   referralEarnings: number;
+  activeBoosts?: ActiveBoost[];
+  permanentUpgrades?: PermanentUpgrade;
   createdAt: any;
   updatedAt: any;
 }
@@ -251,11 +264,25 @@ export class GameService {
       throw new Error('Ship has insufficient energy');
     }
 
-    // Calculate mining reward
+    // Check for active mining boost
+    let miningMultiplier = 1;
+    if (stats.activeBoosts && stats.activeBoosts.length > 0) {
+      const now = new Date();
+      const activeMiningBoost = stats.activeBoosts.find(boost => {
+        if (boost.type !== 'mining') return false;
+        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+        return expiresAt > now;
+      });
+      if (activeMiningBoost) {
+        miningMultiplier = activeMiningBoost.multiplier;
+      }
+    }
+
+    // Calculate mining reward with boost
     const baseReward = ship.miningPower;
     const levelBonus = stats.miningLevel;
     const randomBonus = 1 + Math.random() * 0.5;
-    const zenMined = Math.floor(baseReward * levelBonus * randomBonus);
+    const zenMined = Math.floor(baseReward * levelBonus * randomBonus * miningMultiplier);
 
     // Update ship
     batch.update(shipRef, {
@@ -264,8 +291,23 @@ export class GameService {
       last_mining: serverTimestamp() // Update both fields for compatibility
     });
 
-    // Calculate new experience and level
-    const newExperience = stats.experience + Math.floor(zenMined / 10);
+    // Check for active experience boost
+    let expMultiplier = 1;
+    if (stats.activeBoosts && stats.activeBoosts.length > 0) {
+      const now = new Date();
+      const activeExpBoost = stats.activeBoosts.find(boost => {
+        if (boost.type !== 'experience') return false;
+        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+        return expiresAt > now;
+      });
+      if (activeExpBoost) {
+        expMultiplier = activeExpBoost.multiplier;
+      }
+    }
+
+    // Calculate new experience and level with boost
+    const baseExp = Math.floor(zenMined / 10);
+    const newExperience = stats.experience + Math.floor(baseExp * expMultiplier);
     const newLevel = Math.floor(newExperience / 1000) + 1;
     const leveledUp = newLevel > stats.miningLevel;
 
@@ -502,5 +544,98 @@ export class GameService {
       efficiency: 150
     };
     return Math.floor(baseCost[upgradeType as keyof typeof baseCost] * Math.pow(1.5, currentLevel));
+  }
+
+  // Shop functions
+  static async purchaseConsumable(userId: string, shipId: string, energyAmount: number, cost: number): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const shipRef = doc(db, 'ships', shipId);
+
+    const batch = writeBatch(db);
+
+    batch.update(statsRef, {
+      zenBalance: increment(-cost),
+      updatedAt: serverTimestamp()
+    });
+
+    batch.update(shipRef, {
+      currentEnergy: increment(energyAmount),
+      updatedAt: serverTimestamp()
+    });
+
+    await batch.commit();
+  }
+
+  static async activateBoost(userId: string, boostType: 'mining' | 'experience', multiplier: number, duration: number, cost: number): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + duration * 1000);
+
+    const activeBoosts = stats.activeBoosts || [];
+    activeBoosts.push({
+      type: boostType,
+      multiplier,
+      expiresAt
+    });
+
+    await updateDoc(statsRef, {
+      zenBalance: increment(-cost),
+      activeBoosts,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  static async purchasePermanentUpgrade(userId: string, upgradeType: 'autoFeeder' | 'happinessBooster', value: boolean | number, cost: number): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+    const permanentUpgrades = stats.permanentUpgrades || { autoFeeder: false, happinessBooster: 1 };
+
+    if (upgradeType === 'autoFeeder') {
+      permanentUpgrades.autoFeeder = value as boolean;
+    } else if (upgradeType === 'happinessBooster') {
+      permanentUpgrades.happinessBooster = value as number;
+    }
+
+    await updateDoc(statsRef, {
+      zenBalance: increment(-cost),
+      permanentUpgrades,
+      updatedAt: serverTimestamp()
+    });
+  }
+
+  static async cleanExpiredBoosts(userId: string): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) return;
+
+    const stats = statsSnap.data() as GameStats;
+    if (!stats.activeBoosts || stats.activeBoosts.length === 0) return;
+
+    const now = new Date();
+    const activeBoosts = stats.activeBoosts.filter(boost => {
+      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return expiresAt > now;
+    });
+
+    if (activeBoosts.length !== stats.activeBoosts.length) {
+      await updateDoc(statsRef, {
+        activeBoosts,
+        updatedAt: serverTimestamp()
+      });
+    }
   }
 }

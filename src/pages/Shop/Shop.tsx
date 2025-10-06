@@ -3,6 +3,8 @@ import { ShoppingCart, Zap, Battery, TrendingUp, Package, Star } from 'lucide-re
 import { Button } from 'components';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+import { GameService } from '../../services/gameService';
 
 const shopItems = [
   {
@@ -68,10 +70,12 @@ const shopItems = [
 ];
 
 export const Shop = () => {
-  const { gameStats, ships } = useGame();
+  const { user } = useAuth();
+  const { gameStats, ships, refetch } = useGame();
   const { success, error } = useToast();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedShip, setSelectedShip] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const categories = [
     { id: 'all', name: 'All Items', icon: <Package size={16} />, emoji: '📦' },
@@ -89,6 +93,11 @@ export const Shop = () => {
   };
 
   const handlePurchase = async (item: any) => {
+    if (!user?.id) {
+      error('Please log in to make purchases');
+      return;
+    }
+
     if (!canAfford(item.cost)) {
       error('Insufficient food points');
       return;
@@ -99,11 +108,42 @@ export const Shop = () => {
         error('Please select a dog to restore happiness');
         return;
       }
-      // Apply energy restoration logic here
-      success(`${item.name} used successfully!`);
-    } else {
-      // Handle other item types
-      success(`${item.name} purchased successfully!`);
+
+      try {
+        setIsProcessing(true);
+        await GameService.purchaseConsumable(user.id, selectedShip, item.effect.energy, item.cost);
+        success(`${item.name} used successfully! Restored ${item.effect.energy} happiness!`);
+        await refetch();
+      } catch (err: any) {
+        error(err.message || 'Failed to purchase item');
+      } finally {
+        setIsProcessing(false);
+      }
+    } else if (item.type === 'boost') {
+      try {
+        setIsProcessing(true);
+        const boostType = item.id === 'mining_boost' ? 'mining' : 'experience';
+        await GameService.activateBoost(user.id, boostType, item.effect.mining_multiplier || item.effect.exp_multiplier, item.effect.duration, item.cost);
+        success(`${item.name} activated! Enjoy ${item.effect.mining_multiplier || item.effect.exp_multiplier}x boost for 1 hour!`);
+        await refetch();
+      } catch (err: any) {
+        error(err.message || 'Failed to activate boost');
+      } finally {
+        setIsProcessing(false);
+      }
+    } else if (item.type === 'upgrade') {
+      try {
+        setIsProcessing(true);
+        const upgradeType = item.id === 'auto_miner' ? 'autoFeeder' : 'happinessBooster';
+        const value = item.id === 'auto_miner' ? true : 1.5;
+        await GameService.purchasePermanentUpgrade(user.id, upgradeType, value, item.cost);
+        success(`${item.name} purchased successfully! Upgrade is now active!`);
+        await refetch();
+      } catch (err: any) {
+        error(err.message || 'Failed to purchase upgrade');
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -204,15 +244,15 @@ export const Shop = () => {
                       </div>
                       <Button
                         onClick={() => handlePurchase(item)}
-                        disabled={!affordable || (item.type === 'consumable' && !selectedShip)}
+                        disabled={!affordable || (item.type === 'consumable' && !selectedShip) || isProcessing}
                         className={`px-4 py-2 rounded-lg font-inter font-bold transition-all duration-200 ${
-                          affordable && (item.type !== 'consumable' || selectedShip)
+                          affordable && (item.type !== 'consumable' || selectedShip) && !isProcessing
                             ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                       >
                         <ShoppingCart size={16} />
-                        Buy
+                        {isProcessing ? 'Processing...' : 'Buy'}
                       </Button>
                     </div>
                   </div>

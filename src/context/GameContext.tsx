@@ -244,27 +244,28 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Calculate upgrade cost locally
       const currentLevel = ship.upgrades[upgradeType] || 0;
-      const baseCost = {
-        mining_power: 100,
-        miningPower: 100,
-        energy_capacity: 80,
-        energyCapacity: 80,
-        efficiency: 150
+      // Normalize upgrade type for cost calculation
+      const normalizedUpgradeType = upgradeType.replace(/_/g, '').toLowerCase();
+      const baseCostMap: Record<string, number> = {
+        'miningpower': 100,
+        'energycapacity': 80,
+        'efficiency': 150
       };
-      const upgradeCost = Math.floor((baseCost[upgradeType as keyof typeof baseCost] || 100) * Math.pow(1.5, currentLevel));
-      
+      const baseCost = baseCostMap[normalizedUpgradeType] || 100;
+      const upgradeCost = Math.floor(baseCost * Math.pow(1.5, currentLevel));
+
       const currentBalance = Number(gameStats?.zenBalance || 0);
-      
+
       console.log('💰 GameContext: Upgrade calculation:', {
         currentBalance,
         upgradeCost,
         upgradeType,
         currentLevel,
-        baseCost: baseCost[upgradeType as keyof typeof baseCost],
+        baseCost,
         result: currentBalance - upgradeCost,
         gameStats: gameStats
       });
-      
+
       if (currentBalance < upgradeCost) {
         throw new Error('Insufficient Food for upgrade');
       }
@@ -274,15 +275,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       upgrades[upgradeType] = currentLevel + 1;
 
       let newStats = { ...ship };
-      switch (upgradeType) {
-        case 'miningPower':
+      // Handle both snake_case and camelCase upgrade types
+      switch (normalizedUpgradeType) {
+        case 'miningpower':
           newStats.miningPower = (newStats.miningPower || 0) + 5;
           break;
-        case 'energyCapacity':
+        case 'energycapacity':
           newStats.energyCapacity = (newStats.energyCapacity || 0) + 20;
           break;
         case 'efficiency':
-          // Efficiency reduces energy consumption
+          // Efficiency reduces energy consumption - stored in upgrades
           break;
       }
 
