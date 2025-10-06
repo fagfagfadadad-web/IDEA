@@ -98,7 +98,7 @@ export const Home = () => {
             {/* Logo and Title */}
             <div className="flex flex-col items-center space-y-2">
               <div className="w-full flex justify-center">
-                <AnimatedDog />
+                <img src='/PupFi.png' alt='PupFi' className='w-48 h-48 md:w-64 md:h-64' />
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
                 PupFi
