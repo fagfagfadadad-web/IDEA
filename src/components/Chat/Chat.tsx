@@ -507,6 +507,22 @@ export const Chat = () => {
           >
             <ImageIcon size={18} className="text-gray-600 md:w-5 md:h-5" />
           </button>
+          <button
+            onClick={() => {
+              // Find the latest message from someone else to send food to
+              const otherUsersMessages = messages.filter(m => m.userId !== user?.id && m.messageType !== 'food_transfer');
+              if (otherUsersMessages.length > 0) {
+                const latestMsg = otherUsersMessages[otherUsersMessages.length - 1];
+                setSelectedRecipient({ id: latestMsg.userId, username: latestMsg.username });
+                setShowSendFood(true);
+              }
+            }}
+            className="p-2 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors flex-shrink-0"
+            disabled={!user?.id || isSending || messages.filter(m => m.userId !== user?.id && m.messageType !== 'food_transfer').length === 0}
+            title="Send Food"
+          >
+            <Gift size={18} className="text-gray-600 md:w-5 md:h-5" />
+          </button>
           <input
             type="text"
             value={newMessage}
