@@ -23,15 +23,13 @@ export const MobileBottomNav = () => {
       path: RouteNamesEnum.mining,
       icon: '🍖',
       label: 'Feed',
-      color: 'from-orange-400 to-orange-600',
-      badge: gameStats?.zenBalance ? Math.min(gameStats.zenBalance, 999) : 0
+      color: 'from-orange-400 to-orange-600'
     },
     {
       path: RouteNamesEnum.ships,
       icon: '🐕',
       label: 'Dogs',
-      color: 'from-pink-400 to-pink-600',
-      badge: ships.length
+      color: 'from-amber-400 to-amber-600'
     },
     {
       path: RouteNamesEnum.tasks,
@@ -43,7 +41,7 @@ export const MobileBottomNav = () => {
       path: RouteNamesEnum.game,
       icon: '🎮',
       label: 'Game',
-      color: 'from-purple-400 to-purple-600'
+      color: 'from-cyan-400 to-cyan-600'
     }
   ];
 
@@ -85,12 +83,6 @@ export const MobileBottomNav = () => {
                     {item.icon}
                   </span>
                   
-                  {/* Badge */}
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white">
-                      {item.badge > 99 ? '99+' : item.badge}
-                    </div>
-                  )}
                   
                   {/* Active Indicator */}
                   {isActive && (
