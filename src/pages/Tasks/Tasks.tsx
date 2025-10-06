@@ -107,7 +107,17 @@ export const Tasks = () => {
 
   const completeTask = async (userTaskId: string, rewardAmount: number, proofUrl?: string) => {
     try {
-      if (!user?.id) return;
+      if (!user?.id) {
+        console.error('❌ No user ID found');
+        return;
+      }
+
+      console.log('🎯 Completing task:', {
+        userTaskId,
+        rewardAmount,
+        userId: user.id,
+        proofUrl
+      });
 
       // Use Firestore batch to ensure both operations succeed together
       const batch = writeBatch(db);
@@ -120,6 +130,7 @@ export const Tasks = () => {
         proofUrl: proofUrl || undefined,
         completedAt: serverTimestamp()
       });
+      console.log('📝 Added task update to batch');
 
       // Award Food tokens using increment
       const statsRef = doc(db, 'gameStats', user.id);
@@ -127,13 +138,19 @@ export const Tasks = () => {
         zenBalance: increment(rewardAmount),
         updatedAt: serverTimestamp()
       });
+      console.log('💰 Added zenBalance increment to batch:', rewardAmount);
 
       await batch.commit();
+      console.log('✅ Batch committed successfully');
 
       success(`Task completed! Earned ${rewardAmount} food points!`);
-      fetchTasks();
+
+      // Refresh game context to show updated balance
+      if (window.location) {
+        window.location.reload();
+      }
     } catch (err) {
-      console.error('Error completing task:', err);
+      console.error('❌ Error completing task:', err);
       error('Failed to complete task');
     }
   };
