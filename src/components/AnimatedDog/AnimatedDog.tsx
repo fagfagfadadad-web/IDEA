@@ -5,15 +5,14 @@ export const AnimatedDog = () => {
   const dogRef = useRef<HTMLDivElement>(null);
   const [eyeLeftPosition, setEyeLeftPosition] = useState({ x: 0, y: 0 });
   const [eyeRightPosition, setEyeRightPosition] = useState({ x: 0, y: 0 });
-  const [isHappy, setIsHappy] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!dogRef.current) return;
 
       const rect = dogRef.current.getBoundingClientRect();
+      const scale = 0.25;
 
-      const scale = 0.21;
       const leftEyeCenterX = rect.left + rect.width / 2 - (85 * scale);
       const leftEyeCenterY = rect.top + rect.height / 2 - (105 * scale);
       const rightEyeCenterX = rect.left + rect.width / 2 + (45 * scale);
@@ -35,14 +34,6 @@ export const AnimatedDog = () => {
 
       setEyeLeftPosition(calculateEyePosition(leftEyeCenterX, leftEyeCenterY));
       setEyeRightPosition(calculateEyePosition(rightEyeCenterX, rightEyeCenterY));
-
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const distanceToCenter = Math.sqrt(
-        Math.pow(e.clientX - centerX, 2) + Math.pow(e.clientY - centerY, 2)
-      );
-
-      setIsHappy(distanceToCenter < 150);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -50,7 +41,7 @@ export const AnimatedDog = () => {
   }, []);
 
   return (
-    <div ref={dogRef} className={`dog ${isHappy ? 'happy' : ''}`}>
+    <div ref={dogRef} className="dog">
       <div className="collar"></div>
       <div className="neck"></div>
       <div className="tongue"></div>
