@@ -170,7 +170,7 @@ export const Game = () => {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(60);
-  const [gameSpeed, setGameSpeed] = useState(1);
+  const [currentSpeed, setCurrentSpeed] = useState(1);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -318,8 +318,10 @@ export const Game = () => {
     const remaining = Math.ceil((gameTimeRef.current - elapsed) / 1000);
     setRemainingSeconds(remaining);
 
-    // Increase game speed over time
-    gameSpeedRef.current = 1 + (elapsed / gameTimeRef.current) * 2;
+    // Increase game speed over time - progressively faster
+    const speedProgress = elapsed / gameTimeRef.current;
+    gameSpeedRef.current = 1 + speedProgress * 3; // Speed increases from 1x to 4x
+    setCurrentSpeed(gameSpeedRef.current);
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -546,9 +548,9 @@ export const Game = () => {
             </Button>
             <div className="text-center">
               <h1 className="text-3xl md:text-4xl font-inter font-bold gradient-text">
-                Treat Catcher
+                PupFi Catcher
               </h1>
-              <p className="text-gray-700 font-inter">Help your dog catch falling treats! 🦴</p>
+              <p className="text-gray-700 font-inter">Help your pup catch falling treats! 🦴</p>
             </div>
             <div className="food-points">
               <span>🍖</span>
@@ -573,9 +575,9 @@ export const Game = () => {
                     <div className="stat-label">Time Left</div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-sm md:text-lg font-inter font-bold text-success">Speed: {gameSpeed.toFixed(1)}x</div>
-                  <div className="text-gray-600 text-xs md:text-sm font-inter">Game Speed</div>
+                <div className="stat-card">
+                  <div className="stat-value text-lg md:text-xl">{currentSpeed.toFixed(1)}x</div>
+                  <div className="stat-label">Speed</div>
                 </div>
               </div>
 
@@ -592,8 +594,8 @@ export const Game = () => {
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
                     <div className="text-center space-y-4 cute-card p-4 md:p-8 mx-4">
                       <div className="text-6xl">🐕</div>
-                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Treat Catcher</h2>
-                      <p className="text-sm md:text-base text-gray-600 font-inter">Help your dog catch treats and avoid poison!</p>
+                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">PupFi Catcher</h2>
+                      <p className="text-sm md:text-base text-gray-600 font-inter">Help your pup catch treats and avoid poison! Speed increases over time!</p>
                       <Button
                         onClick={startGame}
                         className="cute-button px-6 md:px-8 py-3"
