@@ -2,37 +2,46 @@ import React, { useEffect, useRef, useState } from 'react';
 import './AnimatedDog.css';
 
 export const AnimatedDog = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
+  const dogRef = useRef<HTMLDivElement>(null);
+  const [eyeLeftPosition, setEyeLeftPosition] = useState({ x: 0, y: 0 });
+  const [eyeRightPosition, setEyeRightPosition] = useState({ x: 0, y: 0 });
   const [isHappy, setIsHappy] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
+      if (!dogRef.current) return;
 
-      const rect = containerRef.current.getBoundingClientRect();
+      const rect = dogRef.current.getBoundingClientRect();
+
+      const leftEyeCenterX = rect.left + 215;
+      const leftEyeCenterY = rect.top + 195;
+      const rightEyeCenterX = rect.left + 345;
+      const rightEyeCenterY = rect.top + 195;
+
+      const calculateEyePosition = (eyeCenterX: number, eyeCenterY: number) => {
+        const deltaX = e.clientX - eyeCenterX;
+        const deltaY = e.clientY - eyeCenterY;
+        const angle = Math.atan2(deltaY, deltaX);
+        const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 100);
+        const maxMove = 8;
+        const normalizedDistance = (distance / 100) * maxMove;
+
+        return {
+          x: Math.cos(angle) * normalizedDistance,
+          y: Math.sin(angle) * normalizedDistance,
+        };
+      };
+
+      setEyeLeftPosition(calculateEyePosition(leftEyeCenterX, leftEyeCenterY));
+      setEyeRightPosition(calculateEyePosition(rightEyeCenterX, rightEyeCenterY));
+
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
+      const distanceToCenter = Math.sqrt(
+        Math.pow(e.clientX - centerX, 2) + Math.pow(e.clientY - centerY, 2)
+      );
 
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-
-      const angle = Math.atan2(deltaY, deltaX);
-      const distance = Math.min(Math.sqrt(deltaX * deltaX + deltaY * deltaY), 30);
-
-      const maxMove = 5;
-      const normalizedDistance = (distance / 30) * maxMove;
-
-      setEyePosition({
-        x: Math.cos(angle) * normalizedDistance,
-        y: Math.sin(angle) * normalizedDistance,
-      });
-
-      if (distance < 100) {
-        setIsHappy(true);
-      } else {
-        setIsHappy(false);
-      }
+      setIsHappy(distanceToCenter < 150);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -40,50 +49,33 @@ export const AnimatedDog = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="animated-dog-container">
-      <div className={`cartoon-dog ${isHappy ? 'happy' : ''}`}>
-        <div className="ear left-ear"></div>
-        <div className="ear right-ear"></div>
-
-        <div className="head">
-          <div className="eye left-eye">
-            <div
-              className="pupil"
-              style={{
-                transform: `translate(${eyePosition.x}px, ${eyePosition.y}px)`
-              }}
-            ></div>
-          </div>
-          <div className="eye right-eye">
-            <div
-              className="pupil"
-              style={{
-                transform: `translate(${eyePosition.x}px, ${eyePosition.y}px)`
-              }}
-            ></div>
-          </div>
-
-          <div className="snout">
-            <div className="nose"></div>
-            <div className="mouth-line"></div>
-          </div>
-
-          {isHappy && <div className="tongue"></div>}
-        </div>
-
-        <div className="body">
-          <div className="collar"></div>
-          <div className="spot spot-1"></div>
-          <div className="spot spot-2"></div>
-        </div>
-
-        <div className={`tail ${isHappy ? 'wagging' : ''}`}></div>
-
-        <div className="leg front-left"></div>
-        <div className="leg front-right"></div>
-        <div className="leg back-left"></div>
-        <div className="leg back-right"></div>
+    <div ref={dogRef} className={`dog ${isHappy ? 'happy' : ''}`}>
+      <div className="collar"></div>
+      <div className="neck"></div>
+      <div className="tongue"></div>
+      <div className="mouth"></div>
+      <div className="face"></div>
+      <div className="ear--left"></div>
+      <div className="ear--right"></div>
+      <div className="eye--left">
+        <div
+          className="eye-pupil"
+          style={{
+            transform: `translate(${eyeLeftPosition.x}px, ${eyeLeftPosition.y}px)`
+          }}
+        ></div>
       </div>
+      <div className="eye--right">
+        <div
+          className="eye-pupil"
+          style={{
+            transform: `translate(${eyeRightPosition.x}px, ${eyeRightPosition.y}px)`
+          }}
+        ></div>
+      </div>
+      <div className="nose"></div>
+      <div className="freckles--left"></div>
+      <div className="freckles--right"></div>
     </div>
   );
 };
