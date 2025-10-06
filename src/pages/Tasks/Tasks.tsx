@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift, ExternalLink, Upload, Link as LinkIcon } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { CheckCircle, Clock, Star, Zap, Target, Trophy, Gift, ExternalLink, Upload, Link as LinkIcon, X } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
@@ -32,6 +33,9 @@ export const Tasks = () => {
   const { success, error } = useToast();
   const [tasks, setTasks] = useState<TaskWithProgress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showProofModal, setShowProofModal] = useState(false);
+  const [proofUrl, setProofUrl] = useState('');
+  const [currentClaimTask, setCurrentClaimTask] = useState<TaskWithProgress | null>(null);
 
   useEffect(() => {
     if (user?.id) {
@@ -135,16 +139,25 @@ export const Tasks = () => {
       return;
     }
 
-    // If requires proof, show input dialog
-    if (task.proofType === 'link') {
-      const proofUrl = prompt('Enter the verification link/URL:');
-      if (!proofUrl) return;
-      await completeTask(userTask.id, task.rewardAmount, proofUrl);
-    } else if (task.proofType === 'screenshot') {
-      const proofUrl = prompt('Enter the screenshot URL (upload to imgur.com or similar):');
-      if (!proofUrl) return;
-      await completeTask(userTask.id, task.rewardAmount, proofUrl);
+    // If requires proof, show modal
+    setCurrentClaimTask(task);
+    setProofUrl('');
+    setShowProofModal(true);
+  };
+
+  const handleProofSubmit = async () => {
+    if (!currentClaimTask || !proofUrl.trim()) {
+      error('Please enter a valid URL');
+      return;
     }
+
+    const userTask = currentClaimTask.userTask;
+    if (!userTask) return;
+
+    await completeTask(userTask.id, currentClaimTask.rewardAmount, proofUrl);
+    setShowProofModal(false);
+    setProofUrl('');
+    setCurrentClaimTask(null);
   };
 
   const getTaskIcon = (taskType: string) => {
@@ -351,6 +364,93 @@ export const Tasks = () => {
           </div>
         </div>
       </div>
+
+      {/* Proof Modal */}
+      {showProofModal && currentClaimTask && createPortal(
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="cute-card p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-inter font-bold text-gray-800">
+                Submit Verification
+              </h3>
+              <button
+                onClick={() => {
+                  setShowProofModal(false);
+                  setProofUrl('');
+                  setCurrentClaimTask(null);
+                }}
+                className="text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-primary-50 border border-primary-300 rounded-lg">
+                <h4 className="font-inter font-bold text-gray-800 mb-2">
+                  {currentClaimTask.title}
+                </h4>
+                <p className="text-sm text-gray-700 font-inter">
+                  {currentClaimTask.description}
+                </p>
+                <div className="flex items-center gap-1 text-primary-600 font-inter font-bold mt-3">
+                  <span>🍖</span>
+                  +{currentClaimTask.rewardAmount} Food Reward
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  {currentClaimTask.proofType === 'screenshot'
+                    ? 'Screenshot URL'
+                    : 'Verification Link'}
+                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  {currentClaimTask.proofType === 'screenshot' ? (
+                    <Upload size={16} className="text-primary-600" />
+                  ) : (
+                    <LinkIcon size={16} className="text-primary-600" />
+                  )}
+                  <span className="text-xs text-gray-600 font-inter">
+                    {currentClaimTask.proofType === 'screenshot'
+                      ? 'Upload your screenshot to imgur.com or similar and paste the URL here'
+                      : 'Paste the verification link here'}
+                  </span>
+                </div>
+                <input
+                  type="url"
+                  value={proofUrl}
+                  onChange={(e) => setProofUrl(e.target.value)}
+                  className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-inter"
+                  placeholder="https://..."
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  onClick={() => {
+                    setShowProofModal(false);
+                    setProofUrl('');
+                    setCurrentClaimTask(null);
+                  }}
+                  className="cute-button-outline flex-1 py-3"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleProofSubmit}
+                  className="cute-button flex-1 py-3"
+                  disabled={!proofUrl.trim()}
+                >
+                  Submit & Claim
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
