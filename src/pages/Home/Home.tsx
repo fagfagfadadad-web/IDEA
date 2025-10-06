@@ -247,26 +247,26 @@ export const Home = () => {
                 <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}
                   className="cute-button p-4 flex flex-col items-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, var(--tamagochi-green), #10b981)' }}
+                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
                 >
                   <span className="text-2xl">🎯</span>
-                  <span className="font-inter font-bold">Tasks</span>
-                  <div className="text-white/80 text-sm font-inter">
+                  <span className="font-inter font-bold text-white">Tasks</span>
+                  <div className="text-white text-sm font-inter">
                     {gameStats.miningLevel || 1} 🌟
                   </div>
-                  <div className="text-white/80 text-sm font-inter">Level</div>
+                  <div className="text-white text-sm font-inter">Level</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
                   className="cute-button p-4 flex flex-col items-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, var(--tamagochi-orange), var(--tamagochi-yellow))' }}
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
                 >
                   <span className="text-2xl">👥</span>
-                  <span className="font-inter font-bold">Friends</span>
-                  <div className="text-white/80 text-sm font-inter">
+                  <span className="font-inter font-bold text-white">Friends</span>
+                  <div className="text-white text-sm font-inter">
                     {gameStats.totalReferrals || 0} 👥
                   </div>
-                  <div className="text-white/80 text-sm font-inter">Friends</div>
+                  <div className="text-white text-sm font-inter">Friends</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.game)}
