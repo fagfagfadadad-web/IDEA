@@ -14,6 +14,15 @@ const dogTypes = [
     emoji: '🐶'
   },
   {
+    type: 'beagle',
+    name: 'Curious Beagle',
+    cost: 500,
+    mining_power: 15,
+    energy_capacity: 150,
+    description: 'A friendly and curious pup who loves treats',
+    emoji: '🐕'
+  },
+  {
     type: 'advanced',
     name: 'Golden Retriever',
     cost: 1000,
@@ -23,12 +32,66 @@ const dogTypes = [
     emoji: '🦮'
   },
   {
+    type: 'poodle',
+    name: 'Smart Poodle',
+    cost: 1500,
+    mining_power: 30,
+    energy_capacity: 220,
+    description: 'An intelligent and elegant dog with refined taste',
+    emoji: '🐩'
+  },
+  {
+    type: 'bulldog',
+    name: 'Tough Bulldog',
+    cost: 2500,
+    mining_power: 35,
+    energy_capacity: 250,
+    description: 'A sturdy and determined companion',
+    emoji: '🐕'
+  },
+  {
+    type: 'shepherd',
+    name: 'German Shepherd',
+    cost: 4000,
+    mining_power: 45,
+    energy_capacity: 280,
+    description: 'A brave and protective guardian dog',
+    emoji: '🐕‍🦺'
+  },
+  {
     type: 'elite',
     name: 'Husky Explorer',
     cost: 5000,
     mining_power: 50,
     energy_capacity: 300,
     description: 'An adventurous dog with high energy and appetite',
+    emoji: '🐺'
+  },
+  {
+    type: 'dalmatian',
+    name: 'Spotted Dalmatian',
+    cost: 7500,
+    mining_power: 60,
+    energy_capacity: 350,
+    description: 'A energetic spotted beauty with endless enthusiasm',
+    emoji: '🐕'
+  },
+  {
+    type: 'akita',
+    name: 'Noble Akita',
+    cost: 10000,
+    mining_power: 70,
+    energy_capacity: 400,
+    description: 'A majestic and loyal Japanese companion',
+    emoji: '🐕'
+  },
+  {
+    type: 'doberman',
+    name: 'Elite Doberman',
+    cost: 15000,
+    mining_power: 85,
+    energy_capacity: 450,
+    description: 'A sleek and powerful protector',
     emoji: '🐕‍🦺'
   },
   {
@@ -39,6 +102,24 @@ const dogTypes = [
     energy_capacity: 500,
     description: 'The ultimate companion with royal appetite and charm',
     emoji: '👑🐕'
+  },
+  {
+    type: 'mythic',
+    name: 'Mystical Wolf',
+    cost: 50000,
+    mining_power: 150,
+    energy_capacity: 700,
+    description: 'A rare and powerful wolf with supernatural abilities',
+    emoji: '🐺✨'
+  },
+  {
+    type: 'divine',
+    name: 'Celestial Hound',
+    cost: 100000,
+    mining_power: 250,
+    energy_capacity: 1000,
+    description: 'A legendary divine companion from the heavens',
+    emoji: '🌟🐕'
   }
 ];
 
@@ -279,7 +360,11 @@ export const Ships = () => {
 
               {activeTab === 1 && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Choose Your Perfect Companion</h2>
+                    <p className="text-gray-600">From beginner pups to legendary guardians - find your ideal furry friend!</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {dogTypes.map((dogType) => {
                       const affordable = canAfford(dogType.cost);
                       const owned = ships.some(s => s.shipType === dogType.type);
