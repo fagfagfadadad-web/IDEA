@@ -245,7 +245,15 @@ export const Chat = ({ inHeader = false }: ChatProps) => {
   }
 
   return (
-    <div className="fixed bottom-[72px] left-0 right-0 top-[80px] md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 md:h-[600px] md:top-auto bg-white md:rounded-xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
+    <>
+      {/* Mobile Backdrop */}
+      <div
+        className="md:hidden fixed inset-0 bg-black/50 z-[99999] animate-fade-in"
+        onClick={() => setIsOpen(false)}
+      />
+
+      {/* Chat Window */}
+      <div className="fixed bottom-0 left-0 right-0 md:inset-auto md:bottom-6 md:left-6 z-[100000] md:w-96 h-[90vh] max-h-[700px] md:h-[600px] bg-white md:rounded-xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden border-2 border-primary-200 animate-slide-up">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -533,5 +541,6 @@ export const Chat = ({ inHeader = false }: ChatProps) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
