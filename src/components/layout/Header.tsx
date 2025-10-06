@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy } from 'lucide-react';
 import { Button } from 'components';
+import { Chat } from '../Chat';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useWindowSize } from '../../hooks/useWindowSize';
@@ -183,6 +184,13 @@ export const Header = () => {
                 </Button>
               )}
             </div>
+
+            {/* Mobile Chat Button */}
+            {isLoggedIn && (
+              <div className="lg:hidden">
+                <Chat inHeader={true} />
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
