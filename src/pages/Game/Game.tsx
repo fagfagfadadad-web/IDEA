@@ -368,14 +368,14 @@ export const Game = () => {
         
         switch (obj.type) {
           case 'treat':
-            scoreRef.current += 10;
-            createCollectionEffect(obj.x, obj.y, 10);
+            scoreRef.current += 5;
+            createCollectionEffect(obj.x, obj.y, 5);
             playCollectSound();
             vibrateCollect();
             break;
           case 'doubleTreat':
-            scoreRef.current += 25;
-            createCollectionEffect(obj.x, obj.y, 25);
+            scoreRef.current += 15;
+            createCollectionEffect(obj.x, obj.y, 15);
             playBonusSound();
             vibrateBonus();
             break;
