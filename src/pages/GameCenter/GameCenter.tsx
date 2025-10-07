@@ -104,6 +104,12 @@ export const GameCenter = () => {
                 <div className="stat-label">Total Food</div>
               </div>
               <div className="stat-card">
+                <div className="stat-value text-xl md:text-2xl flex items-center gap-2">
+                  🎫 {gameStats?.gameTickets || '0'}
+                </div>
+                <div className="stat-label">Game Tickets</div>
+              </div>
+              <div className="stat-card">
                 <div className="stat-value text-xl md:text-2xl">
                   {games.length}
                 </div>
