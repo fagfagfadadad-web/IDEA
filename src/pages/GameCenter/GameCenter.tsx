@@ -150,7 +150,7 @@ export const GameCenter = () => {
                   <div className="pt-4">
                     {game.isAvailable ? (
                       <Button className="cute-button w-full py-3 flex items-center justify-center gap-2">
-                        <Gamepad2 size={18} />
+                        <Gamepad2 size={18} className="text-white" />
                         Play Now
                       </Button>
                     ) : (
