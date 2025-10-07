@@ -271,11 +271,11 @@ export const Game = () => {
 
   const spawnObject = (timestamp: number) => {
     if (!gameStarted || !canvasRef.current) return;
-    
-    const spawnInterval = Math.max(800, 1500 - gameSpeedRef.current * 200);
+
+    const spawnInterval = Math.max(600, 1200 - gameSpeedRef.current * 250);
     if (timestamp - lastSpawnTime.current < spawnInterval) return;
-    if (fallingObjects.current.length >= 4) return;
-    
+    if (fallingObjects.current.length >= 5) return;
+
     lastSpawnTime.current = timestamp;
 
     const canvas = canvasRef.current;
@@ -287,7 +287,7 @@ export const Game = () => {
       x,
       y: -objectSize,
       type: generateObjectType(),
-      speed: 2 + gameSpeedRef.current,
+      speed: 3 + gameSpeedRef.current * 1.2,
     });
   };
 
@@ -320,7 +320,7 @@ export const Game = () => {
 
     // Increase game speed over time - progressively faster
     const speedProgress = elapsed / gameTimeRef.current;
-    gameSpeedRef.current = 1 + speedProgress * 3; // Speed increases from 1x to 4x
+    gameSpeedRef.current = 1 + speedProgress * 4; // Speed increases from 1x to 5x
     setCurrentSpeed(gameSpeedRef.current);
 
     // Clear canvas
