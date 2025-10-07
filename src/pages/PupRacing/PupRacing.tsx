@@ -235,7 +235,7 @@ export const PupRacing = () => {
 
     const isMobile = window.innerWidth < 768;
     const width = isMobile ? Math.min(window.innerWidth - 20, 400) : Math.min(600, window.innerWidth - 40);
-    const height = isMobile ? Math.min(500, window.innerHeight - 300) : Math.min(600, window.innerHeight - 250);
+    const height = isMobile ? Math.min(600, window.innerHeight - 300) : Math.min(720, window.innerHeight - 250);
 
     canvas.width = width;
     canvas.height = height;
