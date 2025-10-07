@@ -292,29 +292,46 @@ export const PupRacing = () => {
       keysPressed.current.delete(e.key);
     };
 
+    let touchStartX = 0;
+    let touchStartTime = 0;
+
     const handleTouchStart = (e: TouchEvent) => {
       if (!gameStarted || countdown > 0) return;
 
       const touch = e.touches[0];
-      const canvas = canvasRef.current;
-      if (!canvas) return;
+      touchStartX = touch.clientX;
+      touchStartTime = Date.now();
+    };
 
-      const rect = canvas.getBoundingClientRect();
-      const touchX = touch.clientX - rect.left;
-      const canvasWidth = rect.width;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!gameStarted || countdown > 0) return;
 
-      // Left third of screen = move left
-      if (touchX < canvasWidth / 3 && player.current.lane > 0) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - touchStartX;
+      const swipeThreshold = 30;
+
+      // Swipe left
+      if (deltaX < -swipeThreshold && player.current.lane > 0) {
         player.current.lane--;
         player.current.x = lanes.current[player.current.lane] - player.current.width / 2;
+        touchStartX = touch.clientX; // Reset for continuous swiping
       }
-      // Right third of screen = move right
-      else if (touchX > (canvasWidth * 2) / 3 && player.current.lane < 2) {
+      // Swipe right
+      else if (deltaX > swipeThreshold && player.current.lane < 2) {
         player.current.lane++;
         player.current.x = lanes.current[player.current.lane] - player.current.width / 2;
+        touchStartX = touch.clientX; // Reset for continuous swiping
       }
-      // Middle third = boost
-      else if (boostsRef.current > 0 && !isBoosting.current) {
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (!gameStarted || countdown > 0) return;
+
+      const touchEndTime = Date.now();
+      const touchDuration = touchEndTime - touchStartTime;
+
+      // Quick tap (less than 200ms) = boost
+      if (touchDuration < 200 && boostsRef.current > 0 && !isBoosting.current) {
         e.preventDefault();
         isBoosting.current = true;
         boostsRef.current--;
@@ -335,6 +352,8 @@ export const PupRacing = () => {
     const canvas = canvasRef.current;
     if (canvas) {
       canvas.addEventListener('touchstart', handleTouchStart);
+      canvas.addEventListener('touchmove', handleTouchMove);
+      canvas.addEventListener('touchend', handleTouchEnd);
     }
 
     return () => {
@@ -342,6 +361,8 @@ export const PupRacing = () => {
       document.removeEventListener('keyup', handleKeyUp);
       if (canvas) {
         canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
       }
     };
   }, [gameStarted, countdown]);
@@ -778,8 +799,9 @@ export const PupRacing = () => {
 
                       <div className="text-left space-y-0.5 text-xs text-gray-700 font-inter bg-blue-50 p-2 rounded-lg">
                         <p className="font-bold text-gray-800">How to Play:</p>
-                        <p>• 📱 Touch left/right/center to move & boost</p>
-                        <p>• ⌨️ Or use Arrow Keys / A/D + Space</p>
+                        <p>• 📱 Swipe left/right to move lanes</p>
+                        <p>• 👆 Tap for turbo boost</p>
+                        <p>• ⌨️ Or Arrow Keys / A/D + Space</p>
                         <p>• Avoid obstacles & collect 🍖</p>
                       </div>
 
