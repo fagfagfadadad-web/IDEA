@@ -79,7 +79,8 @@ export const PupRacing = () => {
   const [distance, setDistance] = useState(0);
   const [speed, setSpeed] = useState(5);
   const [boosts, setBoosts] = useState(3);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(0);
+  const [showStartScreen, setShowStartScreen] = useState(true);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -177,6 +178,7 @@ export const PupRacing = () => {
   };
 
   const startGame = () => {
+    setShowStartScreen(false);
     initializeRace();
     setGameStarted(false);
     setGameOver(false);
@@ -373,7 +375,7 @@ export const PupRacing = () => {
                   </div>
                 )}
 
-                {!gameStarted && !gameOver && countdown === 0 && (
+                {showStartScreen && !gameStarted && !gameOver && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
                     <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
                       <div className="text-6xl">🏁</div>
@@ -411,7 +413,10 @@ export const PupRacing = () => {
                         </p>
                       </div>
                       <Button
-                        onClick={startGame}
+                        onClick={() => {
+                          setShowStartScreen(true);
+                          setGameOver(false);
+                        }}
                         className="cute-button px-6 py-3"
                       >
                         <RotateCcw size={16} />
