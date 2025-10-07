@@ -106,7 +106,7 @@ export const Tasks = () => {
     }
   };
 
-  const completeTask = async (userTaskId: string, rewardAmount: number, proofUrl?: string) => {
+  const completeTask = async (userTaskId: string, rewardAmount: number, ticketReward?: number, proofUrl?: string) => {
     try {
       if (!user?.id) {
         console.error('❌ No user ID found');
@@ -116,6 +116,7 @@ export const Tasks = () => {
       console.log('🎯 Completing task:', {
         userTaskId,
         rewardAmount,
+        ticketReward,
         userId: user.id,
         proofUrl
       });
@@ -133,22 +134,32 @@ export const Tasks = () => {
       await updateDoc(userTaskRef, taskUpdateData);
       console.log('📝 Task updated');
 
-      // Award Food tokens - check if gameStats exists first
+      // Award Food tokens and tickets - check if gameStats exists first
       const statsRef = doc(db, 'gameStats', user.id);
       const statsSnap = await getDoc(statsRef);
 
+      const updateData: any = {
+        zenBalance: increment(rewardAmount),
+        updatedAt: serverTimestamp()
+      };
+
+      if (ticketReward && ticketReward > 0) {
+        updateData.gameTickets = increment(ticketReward);
+      }
+
       if (statsSnap.exists()) {
         // Update existing document
-        await updateDoc(statsRef, {
-          zenBalance: increment(rewardAmount),
-          updatedAt: serverTimestamp()
-        });
+        await updateDoc(statsRef, updateData);
         console.log('💰 zenBalance incremented:', rewardAmount);
+        if (ticketReward) {
+          console.log('🎫 gameTickets incremented:', ticketReward);
+        }
       } else {
         // Create new document with starting balance
         await setDoc(statsRef, {
           userId: user.id,
           zenBalance: 1000 + rewardAmount,
+          gameTickets: 5 + (ticketReward || 0),
           totalMined: 0,
           miningLevel: 1,
           experience: 0,
@@ -163,7 +174,13 @@ export const Tasks = () => {
 
       console.log('✅ Task completed successfully');
 
-      success(`Task completed! Earned ${rewardAmount} food points!`);
+      let rewardMessage = `Task completed! Earned ${rewardAmount} food points`;
+      if (ticketReward && ticketReward > 0) {
+        rewardMessage += ` and ${ticketReward} game tickets!`;
+      } else {
+        rewardMessage += '!';
+      }
+      success(rewardMessage);
 
       // Refresh game context to show updated balance
       if (window.location) {
@@ -181,7 +198,7 @@ export const Tasks = () => {
 
     // If task doesn't require proof, claim immediately
     if (!task.requiresProof || task.proofType === 'none' || task.taskType === 'referral') {
-      await completeTask(userTask.id, task.rewardAmount);
+      await completeTask(userTask.id, task.rewardAmount, task.ticketReward);
       return;
     }
 
@@ -200,7 +217,7 @@ export const Tasks = () => {
     const userTask = currentClaimTask.userTask;
     if (!userTask) return;
 
-    await completeTask(userTask.id, currentClaimTask.rewardAmount, proofUrl);
+    await completeTask(userTask.id, currentClaimTask.rewardAmount, currentClaimTask.ticketReward, proofUrl);
     setShowProofModal(false);
     setProofUrl('');
     setCurrentClaimTask(null);
@@ -359,9 +376,17 @@ export const Tasks = () => {
 
                         {/* Reward and Action */}
                         <div className="flex justify-between items-center pt-2">
-                          <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
-                            <span>🍖</span>
-                            +{task.rewardAmount} Food
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                              <span>🍖</span>
+                              +{task.rewardAmount} Food
+                            </div>
+                            {task.ticketReward && task.ticketReward > 0 && (
+                              <div className="flex items-center gap-1 text-purple-600 font-inter font-bold">
+                                <span>🎫</span>
+                                +{task.ticketReward} Tickets
+                              </div>
+                            )}
                           </div>
 
                           {!userTask && (
@@ -439,9 +464,17 @@ export const Tasks = () => {
                 <p className="text-sm text-gray-700 font-inter">
                   {currentClaimTask.description}
                 </p>
-                <div className="flex items-center gap-1 text-primary-600 font-inter font-bold mt-3">
-                  <span>🍖</span>
-                  +{currentClaimTask.rewardAmount} Food Reward
+                <div className="flex flex-col gap-1 mt-3">
+                  <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                    <span>🍖</span>
+                    +{currentClaimTask.rewardAmount} Food Reward
+                  </div>
+                  {currentClaimTask.ticketReward && currentClaimTask.ticketReward > 0 && (
+                    <div className="flex items-center gap-1 text-purple-600 font-inter font-bold">
+                      <span>🎫</span>
+                      +{currentClaimTask.ticketReward} Ticket Reward
+                    </div>
+                  )}
                 </div>
               </div>
 

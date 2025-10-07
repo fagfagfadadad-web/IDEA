@@ -1,8 +1,11 @@
-import React from 'react';
-import { ArrowLeft, Gamepad2, Trophy, Zap, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Gamepad2, Trophy, Zap, Lock, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'components';
 import { useGame } from '../../context/GameContext';
+import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
+import { GameService } from '../../services/gameService';
 
 interface GameCard {
   id: string;
@@ -52,10 +55,35 @@ const games: GameCard[] = [
 export const GameCenter = () => {
   const navigate = useNavigate();
   const { gameStats } = useGame();
+  const { user } = useAuth();
+  const { success, error } = useToast();
+  const [isClaimingTickets, setIsClaimingTickets] = useState(false);
 
   const handleGameClick = (game: GameCard) => {
     if (game.isAvailable) {
       navigate(game.route);
+    }
+  };
+
+  const handleClaimDailyTickets = async () => {
+    if (!user?.id || isClaimingTickets) return;
+
+    setIsClaimingTickets(true);
+    try {
+      const result = await GameService.claimDailyTickets(user.id);
+
+      if (result.success) {
+        success(result.message);
+        // Reload to update stats
+        window.location.reload();
+      } else {
+        error(result.message);
+      }
+    } catch (err) {
+      console.error('Error claiming daily tickets:', err);
+      error('Failed to claim daily tickets');
+    } finally {
+      setIsClaimingTickets(false);
     }
   };
 
@@ -86,6 +114,31 @@ export const GameCenter = () => {
               <span className="font-inter font-bold">
                 {gameStats?.zenBalance?.toLocaleString() || '0'}
               </span>
+            </div>
+          </div>
+
+          {/* Daily Tickets Banner */}
+          <div className="cute-card p-4 md:p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="text-4xl md:text-5xl">🎫</div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-inter font-bold text-gray-800">
+                    Daily Free Tickets
+                  </h3>
+                  <p className="text-sm text-gray-600 font-inter">
+                    Claim 5 free tickets every day!
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={handleClaimDailyTickets}
+                disabled={isClaimingTickets}
+                className="cute-button px-6 py-3 flex items-center gap-2"
+              >
+                <Gift size={18} />
+                {isClaimingTickets ? 'Claiming...' : 'Claim Daily Tickets'}
+              </Button>
             </div>
           </div>
 
@@ -195,6 +248,14 @@ export const GameCenter = () => {
                   <li className="flex items-start gap-2">
                     <span className="text-primary-500">•</span>
                     <span>Higher scores earn more rewards!</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary-500">•</span>
+                    <span>Claim 5 free tickets daily to play more games!</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary-500">•</span>
+                    <span>Earn tickets by completing tasks and leveling up</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary-500">•</span>

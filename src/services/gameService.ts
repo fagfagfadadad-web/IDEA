@@ -39,6 +39,7 @@ export interface GameStats {
   totalReferrals: number;
   referralEarnings: number;
   gameTickets: number;
+  lastDailyTicketClaim?: any;
   activeBoosts?: ActiveBoost[];
   permanentUpgrades?: PermanentUpgrade;
   createdAt: any;
@@ -64,6 +65,7 @@ export interface Task {
   title: string;
   description: string;
   rewardAmount: number;
+  ticketReward?: number;
   taskType: string;
   requirements: Record<string, any>;
   miningOperationsRequired?: number;
@@ -156,6 +158,8 @@ export class GameService {
     const gameStatsData: any = {
       userId,
       zenBalance: 1000, // Starting balance
+      gameTickets: 5, // Starting tickets
+      lastDailyTicketClaim: null, // Track daily free tickets
       totalMined: 0,
       miningLevel: 1,
       experience: 0,
@@ -800,6 +804,62 @@ export class GameService {
       updatedAt: serverTimestamp()
     });
     console.log(`🎫 GameService: Awarded ${amount} tickets to user ${userId}`);
+  }
+
+  static async claimDailyTickets(userId: string): Promise<{ success: boolean; ticketsAwarded?: number; message: string }> {
+    const stats = await this.getGameStats(userId);
+
+    if (!stats) {
+      return { success: false, message: 'User stats not found' };
+    }
+
+    const now = new Date();
+    const lastClaim = stats.lastDailyTicketClaim?.toDate?.() || (stats.lastDailyTicketClaim ? new Date(stats.lastDailyTicketClaim) : null);
+
+    // Check if already claimed today
+    if (lastClaim) {
+      const lastClaimDate = new Date(lastClaim);
+      const isToday = lastClaimDate.toDateString() === now.toDateString();
+
+      if (isToday) {
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        const hoursUntilReset = Math.ceil((tomorrow.getTime() - now.getTime()) / (1000 * 60 * 60));
+        return {
+          success: false,
+          message: `Already claimed today! Next claim in ${hoursUntilReset}h`
+        };
+      }
+    }
+
+    // Award 5 daily tickets
+    const ticketsToAward = 5;
+    await updateDoc(doc(db, 'gameStats', userId), {
+      gameTickets: increment(ticketsToAward),
+      lastDailyTicketClaim: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`🎫 GameService: Awarded ${ticketsToAward} daily tickets to user ${userId}`);
+    return {
+      success: true,
+      ticketsAwarded: ticketsToAward,
+      message: `Claimed ${ticketsToAward} free tickets!`
+    };
+  }
+
+  static async awardLevelUpTickets(userId: string, newLevel: number): Promise<number> {
+    // Award tickets based on level: 2 tickets per level
+    const ticketsToAward = Math.floor(newLevel / 2) + 1;
+
+    await updateDoc(doc(db, 'gameStats', userId), {
+      gameTickets: increment(ticketsToAward),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`🎫 GameService: Awarded ${ticketsToAward} level-up tickets to user ${userId} for reaching level ${newLevel}`);
+    return ticketsToAward;
   }
 }
 

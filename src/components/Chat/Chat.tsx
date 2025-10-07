@@ -38,10 +38,12 @@ export const Chat = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showSendFood, setShowSendFood] = useState(false);
+  const [showSendTickets, setShowSendTickets] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [selectedRecipient, setSelectedRecipient] = useState<{ id: string; username: string } | null>(null);
   const [foodAmount, setFoodAmount] = useState('');
+  const [ticketAmount, setTicketAmount] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [gifSearchQuery, setGifSearchQuery] = useState('');
   const [searchedGifs, setSearchedGifs] = useState<GiphyGif[]>([]);
@@ -204,6 +206,42 @@ export const Chat = () => {
     }
   };
 
+  const handleSendTickets = async () => {
+    if (!user || !selectedRecipient) return;
+
+    const amount = parseInt(ticketAmount);
+    if (isNaN(amount) || amount <= 0) {
+      error('Please enter a valid ticket amount');
+      return;
+    }
+
+    if (amount > (gameStats?.gameTickets || 0)) {
+      error('Insufficient ticket balance');
+      return;
+    }
+
+    try {
+      setIsSending(true);
+      await ChatService.sendTicketTransfer(
+        user.id || '',
+        user.username || 'Anonymous',
+        selectedRecipient.id,
+        selectedRecipient.username,
+        amount,
+        user.avatarUrl
+      );
+      success(`Sent ${amount} 🎫 Tickets to ${selectedRecipient.username}!`);
+      setShowSendTickets(false);
+      setSelectedRecipient(null);
+      setTicketAmount('');
+      await refetch();
+    } catch (err: any) {
+      error(err.message || 'Failed to send Tickets');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const formatTime = (timestamp: any) => {
     if (!timestamp) return '';
     const date = timestamp.toDate?.() || new Date(timestamp);
@@ -265,6 +303,8 @@ export const Chat = () => {
           messages.map((msg) => {
             const isOwnMessage = msg.userId === user?.id;
             const isFoodTransfer = msg.messageType === 'food_transfer';
+            const isTicketTransfer = msg.messageType === 'ticket_transfer';
+            const isTransfer = isFoodTransfer || isTicketTransfer;
             const isRecipient = msg.recipientId === user?.id;
             const isGif = msg.message.match(/^https?:\/\/.+\.(gif|giphy\.com)/i);
 
@@ -289,6 +329,8 @@ export const Chat = () => {
                     className={`rounded-lg px-2.5 py-1.5 md:px-3 md:py-2 ${
                       isFoodTransfer
                         ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border border-orange-200'
+                        : isTicketTransfer
+                        ? 'bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200'
                         : isOwnMessage
                         ? 'bg-primary-500 text-white'
                         : 'bg-white border border-gray-200'
@@ -297,6 +339,15 @@ export const Chat = () => {
                     {isFoodTransfer ? (
                       <div className="flex items-center gap-1.5">
                         <Gift size={14} className="text-orange-600 flex-shrink-0 md:w-4 md:h-4" />
+                        <span className={`text-xs md:text-sm ${isRecipient ? 'font-bold text-green-600' : 'text-gray-700'}`}>
+                          {msg.message}
+                          {msg.recipientUsername && ` to ${msg.recipientUsername}`}
+                          {isRecipient && ' (You!)'}
+                        </span>
+                      </div>
+                    ) : isTicketTransfer ? (
+                      <div className="flex items-center gap-1.5">
+                        <Gift size={14} className="text-purple-600 flex-shrink-0 md:w-4 md:h-4" />
                         <span className={`text-xs md:text-sm ${isRecipient ? 'font-bold text-green-600' : 'text-gray-700'}`}>
                           {msg.message}
                           {msg.recipientUsername && ` to ${msg.recipientUsername}`}
@@ -314,16 +365,28 @@ export const Chat = () => {
                       <p className="text-xs md:text-sm break-words">{msg.message}</p>
                     )}
                   </div>
-                  {!isOwnMessage && !isFoodTransfer && (
-                    <button
-                      onClick={() => {
-                        setSelectedRecipient({ id: msg.userId, username: msg.username });
-                        setShowSendFood(true);
-                      }}
-                      className="text-xs text-primary-600 hover:text-primary-700 active:text-primary-800 mt-0.5 md:mt-1"
-                    >
-                      Send Food 🍖
-                    </button>
+                  {!isOwnMessage && !isTransfer && (
+                    <div className="flex items-center gap-2 mt-0.5 md:mt-1">
+                      <button
+                        onClick={() => {
+                          setSelectedRecipient({ id: msg.userId, username: msg.username });
+                          setShowSendFood(true);
+                        }}
+                        className="text-xs text-primary-600 hover:text-primary-700 active:text-primary-800"
+                      >
+                        Send Food 🍖
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        onClick={() => {
+                          setSelectedRecipient({ id: msg.userId, username: msg.username });
+                          setShowSendTickets(true);
+                        }}
+                        className="text-xs text-purple-600 hover:text-purple-700 active:text-purple-800"
+                      >
+                        Send Tickets 🎫
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -369,6 +432,51 @@ export const Chat = () => {
                 onClick={handleSendFood}
                 disabled={isSending || !foodAmount}
                 className="flex-1 bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:from-primary-600 hover:to-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                <Gift size={16} />
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send Tickets Modal */}
+      {showSendTickets && selectedRecipient && (
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-3 md:p-4 z-10">
+          <div className="bg-white rounded-xl p-4 md:p-6 max-w-sm w-full space-y-3 md:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="font-bold text-sm md:text-base text-gray-800 truncate">Send Tickets to {selectedRecipient.username}</h4>
+              <button onClick={() => setShowSendTickets(false)} className="text-gray-500 hover:text-gray-700 flex-shrink-0 p-1">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs md:text-sm font-medium text-gray-700">Amount (🎫 Tickets)</label>
+              <input
+                type="number"
+                value={ticketAmount}
+                onChange={(e) => setTicketAmount(e.target.value)}
+                placeholder="Enter amount..."
+                className="w-full px-3 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                min="1"
+                max={gameStats?.gameTickets || 0}
+              />
+              <p className="text-xs text-gray-600">
+                Your balance: {gameStats?.gameTickets?.toLocaleString() || 0} 🎫
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowSendTickets(false)}
+                className="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300 active:bg-gray-400 px-4 py-2 rounded-lg font-medium text-sm transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSendTickets}
+                disabled={isSending || !ticketAmount}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
                 <Gift size={16} />
                 Send

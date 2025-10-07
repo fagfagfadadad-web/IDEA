@@ -20,8 +20,9 @@ export interface ChatMessage {
   username: string;
   avatarUrl?: string;
   message: string;
-  messageType: 'text' | 'food_transfer';
+  messageType: 'text' | 'food_transfer' | 'ticket_transfer';
   foodAmount?: number;
+  ticketAmount?: number;
   recipientId?: string;
   recipientUsername?: string;
   createdAt: any;
@@ -88,6 +89,48 @@ export class ChatService {
 
     await batch.commit();
     console.log('💸 ChatService: Food transfer completed:', amount, 'from', senderUsername, 'to', recipientUsername);
+  }
+
+  static async sendTicketTransfer(
+    senderId: string,
+    senderUsername: string,
+    recipientId: string,
+    recipientUsername: string,
+    amount: number,
+    senderAvatarUrl?: string
+  ): Promise<void> {
+    const batch = writeBatch(db);
+
+    // Check sender balance
+    const senderStatsRef = doc(db, 'gameStats', senderId);
+    const recipientStatsRef = doc(db, 'gameStats', recipientId);
+
+    // Deduct from sender
+    batch.update(senderStatsRef, {
+      gameTickets: increment(-amount)
+    });
+
+    // Add to recipient
+    batch.update(recipientStatsRef, {
+      gameTickets: increment(amount)
+    });
+
+    // Create chat message
+    const messageRef = doc(collection(db, 'chatMessages'));
+    batch.set(messageRef, {
+      userId: senderId,
+      username: senderUsername,
+      avatarUrl: senderAvatarUrl || '🐕',
+      message: `sent ${amount} 🎫 Tickets`,
+      messageType: 'ticket_transfer',
+      ticketAmount: amount,
+      recipientId,
+      recipientUsername,
+      createdAt: serverTimestamp()
+    });
+
+    await batch.commit();
+    console.log('🎫 ChatService: Ticket transfer completed:', amount, 'from', senderUsername, 'to', recipientUsername);
   }
 
   static subscribeToMessages(
