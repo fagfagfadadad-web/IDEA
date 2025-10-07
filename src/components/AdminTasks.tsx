@@ -18,6 +18,7 @@ export const AdminTasks: React.FC = () => {
     title: '',
     description: '',
     rewardAmount: '',
+    ticketReward: '',
     taskType: 'mining',
     miningOperationsRequired: '',
     dailyMiningCountRequired: '',
@@ -64,6 +65,7 @@ export const AdminTasks: React.FC = () => {
         title: formData.title,
         description: formData.description,
         rewardAmount: parseInt(formData.rewardAmount),
+        ticketReward: formData.ticketReward ? parseInt(formData.ticketReward) : undefined,
         taskType: formData.taskType,
         requirements: {},
         miningOperationsRequired: formData.miningOperationsRequired ? parseInt(formData.miningOperationsRequired) : undefined,
@@ -103,6 +105,7 @@ export const AdminTasks: React.FC = () => {
       title: task.title,
       description: task.description,
       rewardAmount: task.rewardAmount.toString(),
+      ticketReward: task.ticketReward?.toString() || '',
       taskType: task.taskType,
       miningOperationsRequired: task.miningOperationsRequired?.toString() || '',
       dailyMiningCountRequired: task.dailyMiningCountRequired?.toString() || '',
@@ -146,6 +149,7 @@ export const AdminTasks: React.FC = () => {
       title: '',
       description: '',
       rewardAmount: '',
+      ticketReward: '',
       taskType: 'mining',
       miningOperationsRequired: '',
       dailyMiningCountRequired: '',
@@ -238,8 +242,14 @@ export const AdminTasks: React.FC = () => {
                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm">
                       <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
                         <span>🍖</span>
-                        {task.rewardAmount} Food Reward
+                        {task.rewardAmount} Food
                       </div>
+                      {task.ticketReward && task.ticketReward > 0 && (
+                        <div className="flex items-center gap-1 text-purple-600 font-inter font-bold">
+                          <span>🎫</span>
+                          {task.ticketReward} Tickets
+                        </div>
+                      )}
                       <div className="text-xs md:text-sm text-gray-600 font-inter">
                         Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                       </div>
@@ -286,24 +296,24 @@ export const AdminTasks: React.FC = () => {
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  Task Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Enter task title"
+                  required
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
-                    Task Title
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Enter task title"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
-                    Reward (Food Points)
+                    Food Reward 🍖
                   </label>
                   <input
                     type="number"
@@ -313,6 +323,20 @@ export const AdminTasks: React.FC = () => {
                     placeholder="100"
                     min="1"
                     required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                    Ticket Reward 🎫 (Optional)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.ticketReward}
+                    onChange={(e) => setFormData({...formData, ticketReward: e.target.value})}
+                    className="w-full px-3 py-2 text-sm bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    placeholder="5"
+                    min="0"
                   />
                 </div>
               </div>
