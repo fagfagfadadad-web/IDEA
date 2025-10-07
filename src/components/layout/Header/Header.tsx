@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy } from 'lucide-react';
+import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy, Twitter, Send } from 'lucide-react';
 import { Button } from 'components';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
@@ -317,6 +317,29 @@ export const Header = () => {
                       <LogOut size={18} />
                       Disconnect
                     </button>
+
+                    {/* Social Media Icons */}
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-600 mb-3 px-3">Follow us</p>
+                      <div className="flex gap-4 px-3">
+                        <a
+                          href="https://twitter.com/pupfi"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
+                        >
+                          <Twitter size={20} />
+                        </a>
+                        <a
+                          href="https://t.me/pupfi"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
+                        >
+                          <Send size={20} />
+                        </a>
+                      </div>
+                    </div>
                   </>
                 ) : (
                   <Button
