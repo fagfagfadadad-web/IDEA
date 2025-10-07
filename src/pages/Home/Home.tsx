@@ -106,7 +106,7 @@ export const Home = () => {
                 PupFi
               </h1>
               <p className="subtitle-responsive text-gray-700 font-inter font-semibold">
-                Virtual Pet Care Game
+                Feed. Play. Earn. The PupFi Way.
               </p>
             </div>
 
