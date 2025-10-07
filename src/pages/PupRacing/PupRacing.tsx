@@ -5,7 +5,7 @@ import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
-import { awardFoodPoints } from '../../services/gameService';
+import { GameService, awardFoodPoints } from '../../services/gameService';
 
 interface Obstacle {
   x: number;
@@ -85,6 +85,10 @@ export const PupRacing = () => {
   const [boosts, setBoosts] = useState(3);
   const [countdown, setCountdown] = useState(0);
   const [coinsCollected, setCoinsCollected] = useState(0);
+  const [canPlayGame, setCanPlayGame] = useState(false);
+  const [needsTicket, setNeedsTicket] = useState(false);
+  const [hasTicket, setHasTicket] = useState(false);
+  const [checkingTickets, setCheckingTickets] = useState(true);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
@@ -128,6 +132,28 @@ export const PupRacing = () => {
       }
     };
   }, []);
+
+  // Check if player can play the game
+  useEffect(() => {
+    const checkGameAccess = async () => {
+      if (!user?.id) return;
+
+      setCheckingTickets(true);
+      try {
+        const result = await GameService.canPlayGame(user.id, 'racing');
+        setCanPlayGame(result.canPlay);
+        setNeedsTicket(result.needsTicket);
+        setHasTicket(result.hasTicket);
+      } catch (err) {
+        console.error('Error checking game access:', err);
+        setCanPlayGame(true); // Allow play on error
+      } finally {
+        setCheckingTickets(false);
+      }
+    };
+
+    checkGameAccess();
+  }, [user]);
 
   const drawInitialCanvas = () => {
     const canvas = canvasRef.current;
@@ -279,8 +305,28 @@ export const PupRacing = () => {
     }, 1000);
   };
 
-  const startGame = () => {
+  const startGame = async () => {
     console.log('🚀 START GAME CALLED');
+
+    // Handle ticket logic
+    if (needsTicket && user?.id) {
+      try {
+        await GameService.useTicket(user.id, 'racing');
+        success('Ticket used! Good luck! 🎫');
+        refetch(); // Refresh game stats to show updated ticket count
+      } catch (err) {
+        error('Failed to use ticket');
+        return;
+      }
+    } else if (!needsTicket && user?.id) {
+      // Record free daily play
+      try {
+        await GameService.recordGamePlay(user.id, 'racing');
+      } catch (err) {
+        console.error('Failed to record game play:', err);
+      }
+    }
+
     setShowStartScreen(false);
     setGameOver(false);
     setSpeed(5);
@@ -629,6 +675,33 @@ export const PupRacing = () => {
                     <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
                       <div className="text-6xl">🏁</div>
                       <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Pup Racing</h2>
+
+                      {checkingTickets ? (
+                        <div className="text-gray-600 font-inter">Checking access...</div>
+                      ) : (
+                        <>
+                          {needsTicket && (
+                            <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-xl">
+                              <p className="text-yellow-800 font-inter font-bold mb-2">🎫 Daily Play Used</p>
+                              <p className="text-yellow-700 text-sm font-inter">
+                                {hasTicket
+                                  ? `You have ${gameStats?.gameTickets || 0} tickets. Using 1 ticket to play.`
+                                  : 'You need a ticket to play again today. Complete tasks or level up to earn tickets!'}
+                              </p>
+                            </div>
+                          )}
+
+                          {!needsTicket && (
+                            <div className="bg-green-50 border-2 border-green-400 p-4 rounded-xl">
+                              <p className="text-green-800 font-inter font-bold">✨ Free Daily Play</p>
+                              <p className="text-green-700 text-sm font-inter mt-1">
+                                Available tickets: {gameStats?.gameTickets || 0} 🎫
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+
                       <div className="text-left space-y-2 text-sm md:text-base text-gray-700 font-inter bg-blue-50 p-4 rounded-xl">
                         <p className="font-bold text-gray-800">How to Play:</p>
                         <p>• Use Arrow Keys or A/D to move left/right</p>
@@ -636,14 +709,15 @@ export const PupRacing = () => {
                         <p>• Avoid obstacles to survive!</p>
                         <p>• Collect 🍖 coins for points</p>
                         <p>• How long can you last?</p>
-                        <p className="font-bold text-primary-500">Goal: Reach the finish line!</p>
                       </div>
+
                       <Button
                         onClick={startGame}
+                        disabled={!canPlayGame || checkingTickets}
                         className="cute-button px-6 md:px-8 py-3 w-full"
                       >
                         <Play size={16} />
-                        Start Race
+                        {checkingTickets ? 'Loading...' : canPlayGame ? 'Start Race' : 'Need Tickets'}
                       </Button>
                     </div>
                   </div>
@@ -663,9 +737,20 @@ export const PupRacing = () => {
                         </p>
                       </div>
                       <Button
-                        onClick={() => {
+                        onClick={async () => {
                           setShowStartScreen(true);
                           setGameOver(false);
+                          // Re-check game access for next play
+                          if (user?.id) {
+                            try {
+                              const result = await GameService.canPlayGame(user.id, 'racing');
+                              setCanPlayGame(result.canPlay);
+                              setNeedsTicket(result.needsTicket);
+                              setHasTicket(result.hasTicket);
+                            } catch (err) {
+                              console.error('Error checking game access:', err);
+                            }
+                          }
                         }}
                         className="cute-button px-6 py-3"
                       >

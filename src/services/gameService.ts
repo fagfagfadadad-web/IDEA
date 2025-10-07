@@ -38,6 +38,7 @@ export interface GameStats {
   referredBy?: string;
   totalReferrals: number;
   referralEarnings: number;
+  gameTickets: number;
   activeBoosts?: ActiveBoost[];
   permanentUpgrades?: PermanentUpgrade;
   createdAt: any;
@@ -89,6 +90,15 @@ export interface UserTask {
   createdAt: any;
 }
 
+export interface GamePlay {
+  id?: string;
+  userId: string;
+  gameId: 'racing' | 'memory-match' | 'puzzle' | 'pupfi-catcher';
+  lastPlayed: any;
+  totalPlays: number;
+  createdAt: any;
+}
+
 export class GameService {
   // Helper function to remove undefined values from objects
   private static filterUndefinedProperties(obj: Record<string, any>): Record<string, any> {
@@ -119,6 +129,17 @@ export class GameService {
         });
         rawData.zenBalance = 1000;
         console.log('✅ GameService: zenBalance field fixed');
+      }
+
+      // Initialize gameTickets if missing
+      if (rawData.gameTickets === undefined) {
+        console.log('🎫 GameService: Initializing gameTickets field...');
+        await updateDoc(docRef, {
+          gameTickets: 5,
+          updatedAt: serverTimestamp()
+        });
+        rawData.gameTickets = 5;
+        console.log('✅ GameService: gameTickets initialized to 5');
       }
       
       const gameStats = { id: docSnap.id, ...rawData } as GameStats;
@@ -310,15 +331,23 @@ export class GameService {
     const newExperience = stats.experience + Math.floor(baseExp * expMultiplier);
     const newLevel = Math.floor(newExperience / 1000) + 1;
     const leveledUp = newLevel > stats.miningLevel;
+    const levelsGained = leveledUp ? newLevel - stats.miningLevel : 0;
 
-    // Update game stats
-    batch.update(statsRef, {
+    // Update game stats (award 2 tickets per level up)
+    const updateData: any = {
       zenBalance: increment(zenMined),
       totalMined: increment(zenMined),
       experience: newExperience,
       miningLevel: newLevel,
       updatedAt: serverTimestamp()
-    });
+    };
+
+    if (leveledUp) {
+      updateData.gameTickets = increment(levelsGained * 2);
+      console.log(`🎫 GameService: Level up! Awarded ${levelsGained * 2} game tickets (${levelsGained} levels)`);
+    }
+
+    batch.update(statsRef, updateData);
 
     // Handle referral earnings
     if (stats.referredBy) {
@@ -420,7 +449,7 @@ export class GameService {
 
   static async completeTask(userTaskId: string, userId: string, rewardAmount: number): Promise<void> {
     const batch = writeBatch(db);
-    
+
     // Update task status
     const userTaskRef = doc(db, 'userTasks', userTaskId);
     batch.update(userTaskRef, {
@@ -429,14 +458,16 @@ export class GameService {
       completedAt: serverTimestamp()
     });
 
-    // Award PupFi tokens
+    // Award PupFi tokens + 1 game ticket for each completed task
     const statsRef = doc(db, 'gameStats', userId);
     batch.update(statsRef, {
       zenBalance: increment(rewardAmount),
+      gameTickets: increment(1),
       updatedAt: serverTimestamp()
     });
 
     await batch.commit();
+    console.log(`🎫 GameService: Awarded 1 game ticket + ${rewardAmount} food for completing task`);
   }
 
   // Admin functions
@@ -694,6 +725,81 @@ export class GameService {
     });
 
     console.log('✅ GameService: Referral bonus awarded:', referralBonus, 'Food to both users');
+  }
+
+  // Game Tickets Management
+  static async canPlayGame(userId: string, gameId: string): Promise<{ canPlay: boolean; needsTicket: boolean; hasTicket: boolean }> {
+    const gamePlayRef = doc(db, 'gamePlays', `${userId}_${gameId}`);
+    const gamePlaySnap = await getDoc(gamePlayRef);
+
+    if (!gamePlaySnap.exists()) {
+      return { canPlay: true, needsTicket: false, hasTicket: false };
+    }
+
+    const gamePlay = gamePlaySnap.data() as GamePlay;
+    const lastPlayed = gamePlay.lastPlayed?.toDate();
+    const now = new Date();
+
+    // Check if last play was today
+    const isToday = lastPlayed &&
+      lastPlayed.getDate() === now.getDate() &&
+      lastPlayed.getMonth() === now.getMonth() &&
+      lastPlayed.getFullYear() === now.getFullYear();
+
+    if (!isToday) {
+      return { canPlay: true, needsTicket: false, hasTicket: false };
+    }
+
+    // Already played today, need ticket
+    const stats = await this.getGameStats(userId);
+    const hasTicket = (stats?.gameTickets || 0) > 0;
+
+    return { canPlay: hasTicket, needsTicket: true, hasTicket };
+  }
+
+  static async useTicket(userId: string, gameId: string): Promise<void> {
+    const stats = await this.getGameStats(userId);
+
+    if (!stats || stats.gameTickets <= 0) {
+      throw new Error('No tickets available');
+    }
+
+    // Deduct ticket
+    await updateDoc(doc(db, 'gameStats', userId), {
+      gameTickets: increment(-1),
+      updatedAt: serverTimestamp()
+    });
+
+    // Record game play
+    await this.recordGamePlay(userId, gameId);
+  }
+
+  static async recordGamePlay(userId: string, gameId: string): Promise<void> {
+    const gamePlayRef = doc(db, 'gamePlays', `${userId}_${gameId}`);
+    const gamePlaySnap = await getDoc(gamePlayRef);
+
+    if (gamePlaySnap.exists()) {
+      await updateDoc(gamePlayRef, {
+        lastPlayed: serverTimestamp(),
+        totalPlays: increment(1)
+      });
+    } else {
+      await setDoc(gamePlayRef, {
+        userId,
+        gameId,
+        lastPlayed: serverTimestamp(),
+        totalPlays: 1,
+        createdAt: serverTimestamp()
+      });
+    }
+  }
+
+  static async awardTickets(userId: string, amount: number): Promise<void> {
+    await updateDoc(doc(db, 'gameStats', userId), {
+      gameTickets: increment(amount),
+      updatedAt: serverTimestamp()
+    });
+    console.log(`🎫 GameService: Awarded ${amount} tickets to user ${userId}`);
   }
 }
 
