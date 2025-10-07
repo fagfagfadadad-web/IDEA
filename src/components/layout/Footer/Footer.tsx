@@ -2,7 +2,7 @@ import { Twitter, Send } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className='w-full border-t border-gray-200 bg-white py-12 px-6'>
+    <footer className='w-full border-t border-gray-200 bg-white py-12 px-6 pb-32 md:pb-12'>
       <div className='mx-auto max-w-7xl'>
         <div className='grid grid-cols-2 md:grid-cols-4 gap-8'>
           <div className='space-y-4'>
