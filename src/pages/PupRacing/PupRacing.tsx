@@ -1,69 +1,76 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Trophy, RotateCcw, Play, Zap } from 'lucide-react';
+import { ArrowLeft, Play, RotateCcw, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
-
-const createSound = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  oscillator.frequency.value = frequency;
-  oscillator.type = type;
-
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + duration);
-};
-
-const playBoostSound = () => createSound(800, 0.1);
-const playCollisionSound = () => createSound(150, 0.2, 'sawtooth');
-const playWinSound = () => {
-  createSound(523, 0.2);
-  setTimeout(() => createSound(659, 0.2), 150);
-  setTimeout(() => createSound(784, 0.2), 300);
-  setTimeout(() => createSound(1047, 0.3), 450);
-};
-const playStartSound = () => {
-  createSound(262, 0.15);
-  setTimeout(() => createSound(330, 0.15), 150);
-  setTimeout(() => createSound(392, 0.15), 300);
-  setTimeout(() => createSound(523, 0.2), 450);
-};
-
-const vibrate = (pattern: number | number[]) => {
-  if ('vibrate' in navigator) {
-    navigator.vibrate(pattern);
-  }
-};
-
-const vibrateBoost = () => vibrate(40);
-const vibrateCollision = () => vibrate(100);
-const vibrateWin = () => vibrate([100, 50, 100, 50, 200]);
-
-interface Racer {
-  id: number;
-  name: string;
-  emoji: string;
-  position: number;
-  speed: number;
-  color: string;
-}
+import { awardFoodPoints } from '../../services/gameService';
 
 interface Obstacle {
   x: number;
   y: number;
   width: number;
   height: number;
+  emoji: string;
+  lane: number;
 }
+
+interface Coin {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  lane: number;
+}
+
+interface Tree {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  side: 'left' | 'right';
+}
+
+interface Player {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  lane: number;
+}
+
+const createSound = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + duration);
+  } catch (e) {
+    console.error('Sound error:', e);
+  }
+};
+
+const playBoostSound = () => createSound(800, 0.1);
+const playCollisionSound = () => createSound(150, 0.2, 'sawtooth');
+const playCoinSound = () => createSound(660, 0.1);
+const playWinSound = () => {
+  createSound(523, 0.2);
+  setTimeout(() => createSound(659, 0.2), 150);
+  setTimeout(() => createSound(784, 0.2), 300);
+  setTimeout(() => createSound(1047, 0.3), 450);
+};
 
 export const PupRacing = () => {
   const navigate = useNavigate();
@@ -73,60 +80,102 @@ export const PupRacing = () => {
 
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [playerPosition, setPlayerPosition] = useState(50);
-  const [racers, setRacers] = useState<Racer[]>([]);
-  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
+  const [showStartScreen, setShowStartScreen] = useState(true);
   const [distance, setDistance] = useState(0);
   const [speed, setSpeed] = useState(5);
   const [boosts, setBoosts] = useState(3);
   const [countdown, setCountdown] = useState(0);
-  const [showStartScreen, setShowStartScreen] = useState(true);
+  const [coinsCollected, setCoinsCollected] = useState(0);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
+
+  const player = useRef<Player>({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    lane: 1
+  });
+
+  const lanes = useRef<number[]>([]);
+  const obstacles = useRef<Obstacle[]>([]);
+  const coins = useRef<Coin[]>([]);
+  const trees = useRef<Tree[]>([]);
+
   const distanceRef = useRef(0);
-  const playerPosRef = useRef(50);
   const speedRef = useRef(5);
   const boostsRef = useRef(3);
+  const roadOffsetRef = useRef(0);
+  const lastObstacleSpawn = useRef(0);
+  const lastCoinSpawn = useRef(0);
+  const lastTreeSpawn = useRef(0);
+  const isBoosting = useRef(false);
+  const coinsRef = useRef(0);
 
   useEffect(() => {
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
-    return () => window.removeEventListener('resize', updateCanvasSize);
+    return () => {
+      window.removeEventListener('resize', updateCanvasSize);
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
   }, []);
 
   const updateCanvasSize = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const container = canvas.parentElement;
-    if (!container) return;
-
     const isMobile = window.innerWidth < 768;
-    const width = isMobile ? Math.min(container.clientWidth - 10, window.innerWidth - 10) : Math.min(600, container.clientWidth - 40);
-    const height = isMobile ? Math.min(400, window.innerHeight - 300) : Math.min(500, window.innerHeight - 250);
+    const width = isMobile ? Math.min(window.innerWidth - 20, 400) : Math.min(600, window.innerWidth - 40);
+    const height = isMobile ? Math.min(500, window.innerHeight - 300) : Math.min(600, window.innerHeight - 250);
 
     canvas.width = width;
     canvas.height = height;
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
+
+    const laneWidth = width * 0.6 / 3;
+    const roadStart = width * 0.2;
+    lanes.current = [
+      roadStart + laneWidth * 0.5,
+      roadStart + laneWidth * 1.5,
+      roadStart + laneWidth * 2.5
+    ];
+
+    player.current.width = width * 0.12;
+    player.current.height = player.current.width * 1.5;
+    player.current.x = lanes.current[1] - player.current.width / 2;
+    player.current.y = height - player.current.height - 50;
+    player.current.lane = 1;
   };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!gameStarted || gameOver) return;
+      if (!gameStarted || countdown > 0) return;
       keysPressed.current.add(e.key);
 
-      if (e.key === ' ' && boostsRef.current > 0) {
-        speedRef.current = 12;
+      if ((e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') && player.current.lane > 0) {
+        player.current.lane--;
+        player.current.x = lanes.current[player.current.lane] - player.current.width / 2;
+      } else if ((e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') && player.current.lane < 2) {
+        player.current.lane++;
+        player.current.x = lanes.current[player.current.lane] - player.current.width / 2;
+      } else if (e.key === ' ' && boostsRef.current > 0 && !isBoosting.current) {
+        e.preventDefault();
+        isBoosting.current = true;
         boostsRef.current--;
         setBoosts(boostsRef.current);
         playBoostSound();
-        vibrateBoost();
+        speedRef.current *= 3;
+
         setTimeout(() => {
-          speedRef.current = 5;
-        }, 1000);
+          isBoosting.current = false;
+          speedRef.current = 5 + Math.floor(distanceRef.current / 100);
+        }, 2000);
       }
     };
 
@@ -134,185 +183,312 @@ export const PupRacing = () => {
       keysPressed.current.delete(e.key);
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
     };
-  }, [gameStarted, gameOver]);
+  }, [gameStarted, countdown]);
 
-  const initializeRace = () => {
-    const opponents: Racer[] = [
-      { id: 1, name: 'Speed Pup', emoji: '🐕', position: 0, speed: 4.5, color: '#FF6B6B' },
-      { id: 2, name: 'Fast Doggo', emoji: '🦮', position: 0, speed: 4.2, color: '#4ECDC4' },
-      { id: 3, name: 'Zoom Pup', emoji: '🐕‍🦺', position: 0, speed: 4.8, color: '#95E1D3' },
-    ];
-    setRacers(opponents);
-    setObstacles([]);
-    setDistance(0);
-    setSpeed(5);
-    setBoosts(3);
-    setPlayerPosition(50);
-    distanceRef.current = 0;
-    playerPosRef.current = 50;
-    speedRef.current = 5;
-    boostsRef.current = 3;
-  };
-
-  const startCountdown = async () => {
+  const startCountdown = () => {
     setCountdown(3);
-
-    for (let i = 3; i > 0; i--) {
-      setCountdown(i);
-      createSound(440, 0.2);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    playStartSound();
-    vibrate([50, 30, 50]);
-    setGameStarted(true);
-    setCountdown(0);
-    animationFrameId.current = requestAnimationFrame(gameLoop);
+    const countInterval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(countInterval);
+          setGameStarted(true);
+          animationFrameId.current = requestAnimationFrame(gameLoop);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   const startGame = () => {
     setShowStartScreen(false);
-    initializeRace();
-    setGameStarted(false);
     setGameOver(false);
+    setDistance(0);
+    setSpeed(5);
+    setBoosts(3);
+    setCoinsCollected(0);
+
+    distanceRef.current = 0;
+    speedRef.current = 5;
+    boostsRef.current = 3;
+    roadOffsetRef.current = 0;
+    isBoosting.current = false;
+    coinsRef.current = 0;
+
+    obstacles.current = [];
+    coins.current = [];
+    trees.current = [];
+
+    lastObstacleSpawn.current = 0;
+    lastCoinSpawn.current = 0;
+    lastTreeSpawn.current = 0;
+
+    player.current.lane = 1;
+    player.current.x = lanes.current[1] - player.current.width / 2;
+
     startCountdown();
   };
 
-  const gameLoop = () => {
-    if (!canvasRef.current) return;
+  const spawnObstacle = (timestamp: number) => {
+    if (timestamp - lastObstacleSpawn.current < 1500) return;
+    lastObstacleSpawn.current = timestamp;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const lane = Math.floor(Math.random() * 3);
+    const emojis = ['🚧', '🛑', '⚠️', '🪨'];
+
+    obstacles.current.push({
+      x: lanes.current[lane],
+      y: -50,
+      width: canvas.width * 0.1,
+      height: canvas.width * 0.1,
+      emoji: emojis[Math.floor(Math.random() * emojis.length)],
+      lane
+    });
+  };
+
+  const spawnCoin = (timestamp: number) => {
+    if (timestamp - lastCoinSpawn.current < 800) return;
+    lastCoinSpawn.current = timestamp;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const lane = Math.floor(Math.random() * 3);
+
+    coins.current.push({
+      x: lanes.current[lane],
+      y: -30,
+      width: canvas.width * 0.06,
+      height: canvas.width * 0.06,
+      lane
+    });
+  };
+
+  const spawnTree = (timestamp: number) => {
+    if (timestamp - lastTreeSpawn.current < 600) return;
+    lastTreeSpawn.current = timestamp;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const side = Math.random() < 0.5 ? 'left' : 'right';
+    const width = canvas.width * 0.08;
+
+    trees.current.push({
+      x: side === 'left' ? canvas.width * 0.05 : canvas.width * 0.87,
+      y: -width * 1.5,
+      width,
+      height: width * 1.5,
+      side
+    });
+  };
+
+  const gameLoop = (timestamp: number) => {
+    if (!gameStarted || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    distanceRef.current += speedRef.current * 0.1;
+    setDistance(Math.floor(distanceRef.current));
+    roadOffsetRef.current = (roadOffsetRef.current + speedRef.current) % 40;
+
+    if (distanceRef.current % 100 < 0.5) {
+      speedRef.current = Math.min(5 + Math.floor(distanceRef.current / 100), 15);
+      setSpeed(speedRef.current);
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = '#90EE90';
+    const grassGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grassGradient.addColorStop(0, '#2d5016');
+    grassGradient.addColorStop(1, '#1a3d0a');
+    ctx.fillStyle = grassGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < canvas.height; i += 40) {
-      ctx.fillStyle = i % 80 === 0 ? '#7CCD7C' : '#90EE90';
-      ctx.fillRect(0, i - (distanceRef.current % 40), canvas.width, 40);
-    }
+    const roadStart = canvas.width * 0.2;
+    const roadWidth = canvas.width * 0.6;
 
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 4;
-    for (let i = 0; i < canvas.height; i += 40) {
-      const y = i - (distanceRef.current % 40);
-      ctx.beginPath();
-      ctx.moveTo(canvas.width / 2 - 2, y);
-      ctx.lineTo(canvas.width / 2 - 2, y + 20);
-      ctx.stroke();
-    }
+    const roadGradient = ctx.createLinearGradient(roadStart, 0, roadStart + roadWidth, 0);
+    roadGradient.addColorStop(0, '#1a1a1a');
+    roadGradient.addColorStop(0.5, '#2f2f2f');
+    roadGradient.addColorStop(1, '#1a1a1a');
+    ctx.fillStyle = roadGradient;
+    ctx.fillRect(roadStart, 0, roadWidth, canvas.height);
 
-    if (keysPressed.current.has('ArrowLeft') || keysPressed.current.has('a')) {
-      playerPosRef.current = Math.max(15, playerPosRef.current - 5);
-    }
-    if (keysPressed.current.has('ArrowRight') || keysPressed.current.has('d')) {
-      playerPosRef.current = Math.min(canvas.width - 15, playerPosRef.current + 5);
-    }
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([20, 20]);
+    ctx.lineDashOffset = -roadOffsetRef.current;
 
-    setPlayerPosition(playerPosRef.current);
+    const laneLineX1 = roadStart + roadWidth / 3;
+    const laneLineX2 = roadStart + (roadWidth / 3) * 2;
 
-    obstacles.forEach((obs, index) => {
-      obs.y += speedRef.current;
+    ctx.beginPath();
+    ctx.moveTo(laneLineX1, 0);
+    ctx.lineTo(laneLineX1, canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(laneLineX2, 0);
+    ctx.lineTo(laneLineX2, canvas.height);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    trees.current.forEach((tree, index) => {
+      tree.y += speedRef.current;
 
       ctx.fillStyle = '#8B4513';
-      ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-      ctx.fillText('🪨', obs.x + obs.width / 4, obs.y + obs.height / 1.5);
+      ctx.fillRect(tree.x - tree.width * 0.15, tree.y + tree.height * 0.4, tree.width * 0.3, tree.height * 0.6);
+
+      ctx.fillStyle = '#228B22';
+      ctx.beginPath();
+      ctx.arc(tree.x, tree.y + tree.height * 0.3, tree.width * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (tree.y > canvas.height) {
+        trees.current.splice(index, 1);
+      }
+    });
+
+    coins.current.forEach((coin, index) => {
+      coin.y += speedRef.current;
+
+      ctx.save();
+      ctx.translate(coin.x, coin.y);
+      ctx.rotate(timestamp * 0.003);
+
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(0, 0, coin.width / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#FFA500';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFF';
+      ctx.font = `${coin.width * 0.6}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🍖', 0, 0);
+
+      ctx.restore();
 
       if (
-        playerPosRef.current < obs.x + obs.width &&
-        playerPosRef.current + 30 > obs.x &&
-        canvas.height - 80 < obs.y + obs.height &&
-        canvas.height - 50 > obs.y
+        Math.abs(player.current.x + player.current.width / 2 - coin.x) < player.current.width / 2 &&
+        Math.abs(player.current.y + player.current.height / 2 - coin.y) < player.current.height / 2
+      ) {
+        playCoinSound();
+        coinsRef.current++;
+        setCoinsCollected(coinsRef.current);
+        coins.current.splice(index, 1);
+      } else if (coin.y > canvas.height) {
+        coins.current.splice(index, 1);
+      }
+    });
+
+    obstacles.current.forEach((obstacle, index) => {
+      obstacle.y += speedRef.current;
+
+      ctx.font = `${obstacle.width}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(obstacle.emoji, obstacle.x, obstacle.y);
+
+      if (
+        Math.abs(player.current.lane - obstacle.lane) === 0 &&
+        obstacle.y + obstacle.height > player.current.y &&
+        obstacle.y < player.current.y + player.current.height
       ) {
         playCollisionSound();
-        vibrateCollision();
-        speedRef.current = Math.max(2, speedRef.current - 1);
-        obstacles.splice(index, 1);
-      }
-
-      if (obs.y > canvas.height) {
-        obstacles.splice(index, 1);
+        endGame();
+      } else if (obstacle.y > canvas.height) {
+        obstacles.current.splice(index, 1);
       }
     });
 
-    if (Math.random() < 0.02) {
-      obstacles.push({
-        x: Math.random() * (canvas.width - 40),
-        y: -30,
-        width: 40,
-        height: 40,
-      });
-    }
-
-    ctx.font = '32px Arial';
+    ctx.font = `${player.current.height * 0.8}px Arial`;
     ctx.textAlign = 'center';
-    ctx.fillText('🐕', playerPosRef.current, canvas.height - 60);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
 
-    distanceRef.current += speedRef.current;
-    setDistance(Math.floor(distanceRef.current / 10));
-    setSpeed(speedRef.current);
-
-    racers.forEach((racer) => {
-      racer.position += racer.speed + Math.random() * 0.5;
-    });
-    setRacers([...racers]);
-
-    if (distanceRef.current >= 5000) {
-      endGame(true);
-      return;
+    if (isBoosting.current) {
+      ctx.font = `${player.current.width * 0.6}px Arial`;
+      ctx.fillText('💨', player.current.x + player.current.width / 2, player.current.y + player.current.height + 10);
     }
 
-    animationFrameId.current = requestAnimationFrame(gameLoop);
+    if (countdown > 0) {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#fff';
+      ctx.font = `${canvas.width * 0.3}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+    }
+
+    spawnObstacle(timestamp);
+    spawnCoin(timestamp);
+    spawnTree(timestamp);
+
+    if (distanceRef.current >= 500) {
+      winGame();
+    } else {
+      animationFrameId.current = requestAnimationFrame(gameLoop);
+    }
   };
 
-  const endGame = async (won: boolean) => {
+  const endGame = () => {
     setGameOver(true);
     setGameStarted(false);
-
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
     }
+  };
 
-    if (won) {
-      playWinSound();
-      vibrateWin();
+  const winGame = async () => {
+    setGameOver(true);
+    setGameStarted(false);
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+    }
+    playWinSound();
 
-      const basePoints = 200;
-      const speedBonus = Math.floor(distance / 10);
-      const totalPoints = basePoints + speedBonus;
+    if (user?.id) {
+      try {
+        const basePoints = 200;
+        const distanceBonus = Math.floor(distanceRef.current / 10);
+        const coinBonus = coinsRef.current * 10;
+        const totalPoints = basePoints + distanceBonus + coinBonus;
 
-      if (totalPoints > 0 && user?.id) {
-        try {
-          const currentBalance = gameStats?.zenBalance || 0;
-          await import('../../services/gameService').then(({ GameService }) => {
-            return GameService.updateGameStats(user.id!, {
-              zenBalance: currentBalance + totalPoints
-            });
-          });
-
-          success(`You Won! Earned ${totalPoints} food points! 🍖`);
-          refetch();
-        } catch (err) {
-          error('Failed to award food points');
-        }
+        await awardFoodPoints(user.id, totalPoints);
+        success(`You Won! Earned ${totalPoints} food points! 🍖`);
+        refetch();
+      } catch (err) {
+        error('Failed to award food points');
       }
     }
   };
 
   const calculateScore = () => {
     const basePoints = 200;
-    const speedBonus = Math.floor(distance / 10);
-    return basePoints + speedBonus;
+    const distanceBonus = Math.floor(distance / 10);
+    const coinBonus = coinsCollected * 10;
+    return basePoints + distanceBonus + coinBonus;
   };
 
   return (
@@ -359,6 +535,10 @@ export const PupRacing = () => {
                   </div>
                   <div className="stat-label">Boosts</div>
                 </div>
+                <div className="stat-card">
+                  <div className="stat-value text-lg md:text-xl">🍖 {coinsCollected}</div>
+                  <div className="stat-label">Coins</div>
+                </div>
               </div>
 
               <div className="relative">
@@ -366,14 +546,6 @@ export const PupRacing = () => {
                   ref={canvasRef}
                   className="block mx-auto w-full max-w-full rounded-3xl border-4 border-primary-300"
                 />
-
-                {countdown > 0 && (
-                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-3xl">
-                    <div className="text-9xl font-black text-white animate-pulse">
-                      {countdown}
-                    </div>
-                  </div>
-                )}
 
                 {showStartScreen && !gameStarted && !gameOver && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
@@ -385,6 +557,7 @@ export const PupRacing = () => {
                         <p>• Use Arrow Keys or A/D to move left/right</p>
                         <p>• Press Spacebar for speed boost (3x)</p>
                         <p>• Avoid obstacles to maintain speed</p>
+                        <p>• Collect 🍖 for bonus points</p>
                         <p>• Race to 500m to win!</p>
                         <p className="font-bold text-primary-500">Goal: Reach the finish line!</p>
                       </div>
@@ -407,6 +580,9 @@ export const PupRacing = () => {
                       <div className="space-y-2">
                         <p className="text-base md:text-lg font-inter font-bold text-primary-500">
                           Distance: {distance}m
+                        </p>
+                        <p className="text-base md:text-lg font-inter font-bold text-primary-500">
+                          Coins: {coinsCollected} 🍖
                         </p>
                         <p className="text-sm md:text-base text-gray-600 font-inter">
                           Earned: {calculateScore()} food points! 🍖
@@ -432,7 +608,8 @@ export const PupRacing = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700 font-inter">
                   <div>• Arrow Keys or A/D: Move left/right</div>
                   <div>• Spacebar: Speed boost (3x)</div>
-                  <div>• Avoid obstacles to keep speed</div>
+                  <div>• Avoid obstacles to keep racing</div>
+                  <div>• Collect 🍖 for bonus points</div>
                   <div>• Reach 500m to win!</div>
                 </div>
               </div>

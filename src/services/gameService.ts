@@ -639,6 +639,15 @@ export class GameService {
     }
   }
 
+  // Game rewards function
+  static async awardFoodPoints(userId: string, points: number): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    await updateDoc(statsRef, {
+      zenBalance: increment(points),
+      updatedAt: serverTimestamp()
+    });
+  }
+
   // Referral functions
   static async processReferral(referralCode: string, newUserId: string): Promise<void> {
     // Find the referrer by referral code
@@ -687,3 +696,6 @@ export class GameService {
     console.log('✅ GameService: Referral bonus awarded:', referralBonus, 'Food to both users');
   }
 }
+
+// Export helper function for convenience
+export const awardFoodPoints = GameService.awardFoodPoints.bind(GameService);
