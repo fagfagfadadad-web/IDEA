@@ -106,47 +106,47 @@ export const Leaderboard = () => {
   };
 
   return (
-    <div className="page-bg font-inter">
-      <div className="container mx-auto px-6 py-8">
-        <div className="space-y-8">
+    <div className="page-bg font-inter min-h-screen">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-4xl">
+        <div className="space-y-4 sm:space-y-8">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <h1 className="title-responsive font-inter font-bold gradient-text">
+          <div className="text-center space-y-2 sm:space-y-4 px-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-inter font-bold gradient-text">
               Pet Care Champions
             </h1>
-            <p className="text-gray-700 text-lg font-inter">
+            <p className="text-gray-700 text-sm sm:text-base md:text-lg font-inter">
               See how you rank against other pet care enthusiasts
             </p>
           </div>
 
           {/* Tabs */}
           <div className="cute-card overflow-hidden">
-            <div className="flex flex-wrap border-b border-primary-200">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap border-b border-primary-200">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 min-w-[120px] px-4 py-4 font-inter font-bold transition-all duration-200 ${
+                  className={`flex-1 min-w-0 px-2 sm:px-4 py-3 sm:py-4 font-inter text-xs sm:text-sm font-bold transition-all duration-200 ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
                       : 'text-gray-600 hover:text-primary-600'
                   }`}
                 >
-                  <div className="flex items-center justify-center gap-2">
-                    {getFieldIcon(tab.field)}
-                    {tab.label}
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
+                    <span className="text-sm sm:text-base">{getFieldIcon(tab.field)}</span>
+                    <span className="truncate">{tab.label}</span>
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="p-6">
+            <div className="p-3 sm:p-6">
               {isLoading ? (
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400"></div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {leaderboard.map((entry, index) => {
                     const rank = index + 1;
                     const isCurrentUser = entry.userId === user?.id;
@@ -155,50 +155,50 @@ export const Leaderboard = () => {
                     return (
                       <div
                         key={entry.userId}
-                        className={`p-4 rounded-xl border transition-all duration-300 hover:transform hover:scale-[1.02] ${
-                          isCurrentUser 
+                        className={`p-3 sm:p-4 rounded-xl border transition-all duration-300 hover:transform hover:scale-[1.02] ${
+                          isCurrentUser
                             ? 'border-primary-400 bg-primary-100 shadow-lg'
                             : getRankBg(rank)
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center justify-center w-12 h-12">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                            <div className="flex items-center justify-center w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0">
                               {getRankIcon(rank)}
                             </div>
-                            
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600">
-                                <div className="w-full h-full flex items-center justify-center text-2xl">
+
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600 flex-shrink-0">
+                                <div className="w-full h-full flex items-center justify-center text-xl sm:text-2xl">
                                   {entry.user?.avatarUrl || '🐕'}
                                 </div>
                               </div>
-                              
-                              <div>
-                                <div className={`font-inter font-bold ${
+
+                              <div className="min-w-0 flex-1">
+                                <div className={`font-inter font-bold text-sm sm:text-base truncate ${
                                   isCurrentUser ? 'text-primary-600' : 'text-gray-800'
                                 }`}>
                                   {entry.user?.username || 'Anonymous'}
                                   {isCurrentUser && (
-                                    <span className="ml-2 text-primary-600 text-sm font-inter">(You)</span>
+                                    <span className="ml-1 sm:ml-2 text-primary-600 text-xs sm:text-sm font-inter">(You)</span>
                                   )}
                                 </div>
-                                <div className="text-gray-600 text-sm font-inter">
+                                <div className="text-gray-600 text-xs sm:text-sm font-inter">
                                   Level {entry.miningLevel}
                                 </div>
                               </div>
                             </div>
                           </div>
 
-                          <div className="text-right">
-                            <div className="flex items-center gap-1 text-lg font-inter font-bold text-gray-800">
-                              {getFieldIcon(currentTab.field)}
+                          <div className="text-right flex-shrink-0">
+                            <div className="flex items-center gap-1 text-sm sm:text-lg font-inter font-bold text-gray-800 whitespace-nowrap">
+                              <span className="hidden sm:inline">{getFieldIcon(currentTab.field)}</span>
                               {formatValue(entry[currentTab.field as keyof GameStats] as number || 0, currentTab.field)}
                               {(currentTab.field === 'zenBalance' || currentTab.field === 'totalMined') && (
-                                <span className="text-primary-600 ml-1 font-inter">Food</span>
+                                <span className="text-primary-600 ml-1 font-inter hidden sm:inline">Food</span>
                               )}
                             </div>
-                            <div className="text-gray-600 text-sm font-inter">
+                            <div className="text-gray-600 text-xs sm:text-sm font-inter">
                               Rank #{rank}
                             </div>
                           </div>
