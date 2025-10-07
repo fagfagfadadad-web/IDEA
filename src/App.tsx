@@ -17,6 +17,9 @@ const AppContent = () => {
     console.log('🔄 App: Route changed to:', location.pathname);
     console.log('🔄 App: Available routes:', routes.map(r => r.path));
 
+    // Scroll to top on route change
+    window.scrollTo(0, 0);
+
     // Capture referral code from URL and store in localStorage
     const urlParams = new URLSearchParams(location.search);
     const referralCode = urlParams.get('ref');
