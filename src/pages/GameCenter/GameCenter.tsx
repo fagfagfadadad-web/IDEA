@@ -73,8 +73,9 @@ export const GameCenter = () => {
               Back Home
             </Button>
             <div className="text-center flex-1">
-              <h1 className="text-3xl md:text-5xl font-inter font-black gradient-text mb-2">
-                🎮 Game Center
+              <h1 className="text-3xl md:text-5xl font-inter font-black mb-2">
+                <span className="text-5xl md:text-6xl">🎮</span>{' '}
+                <span className="gradient-text">Game Center</span>
               </h1>
               <p className="text-gray-700 font-inter text-sm md:text-base">
                 Choose your favorite mini-game and start playing!
