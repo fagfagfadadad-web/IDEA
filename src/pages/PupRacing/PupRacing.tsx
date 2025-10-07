@@ -113,6 +113,7 @@ export const PupRacing = () => {
   const lastTreeSpawn = useRef(0);
   const isBoosting = useRef(false);
   const coinsRef = useRef(0);
+  const gameStartedRef = useRef(false);
 
   useEffect(() => {
     updateCanvasSize();
@@ -258,8 +259,9 @@ export const PupRacing = () => {
   const startCountdown = () => {
     console.log('🎮 Starting countdown...');
     setCountdown(3);
-    setGameStarted(true); // Start game loop immediately
-    console.log('🎮 Game started set to true, requesting animation frame...');
+    setGameStarted(true);
+    gameStartedRef.current = true; // Set ref immediately
+    console.log('🎮 Game started set to true (state + ref), requesting animation frame...');
     animationFrameId.current = requestAnimationFrame(gameLoop);
     console.log('🎮 Animation frame requested:', animationFrameId.current);
 
@@ -364,8 +366,8 @@ export const PupRacing = () => {
   };
 
   const gameLoop = (timestamp: number) => {
-    console.log('🔄 Game loop called. gameStarted:', gameStarted, 'countdown:', countdown, 'canvas:', !!canvasRef.current);
-    if (!gameStarted || !canvasRef.current) {
+    console.log('🔄 Game loop called. gameStartedRef:', gameStartedRef.current, 'countdown:', countdown, 'canvas:', !!canvasRef.current);
+    if (!gameStartedRef.current || !canvasRef.current) {
       console.log('❌ Game loop returning early');
       return;
     }
@@ -555,6 +557,7 @@ export const PupRacing = () => {
   const endGame = () => {
     setGameOver(true);
     setGameStarted(false);
+    gameStartedRef.current = false;
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
     }
@@ -564,6 +567,7 @@ export const PupRacing = () => {
   const winGame = async () => {
     setGameOver(true);
     setGameStarted(false);
+    gameStartedRef.current = false;
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
     }
