@@ -257,12 +257,13 @@ export const PupRacing = () => {
 
   const startCountdown = () => {
     setCountdown(3);
+    setGameStarted(true); // Start game loop immediately
+    animationFrameId.current = requestAnimationFrame(gameLoop);
+
     const countInterval = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(countInterval);
-          setGameStarted(true);
-          animationFrameId.current = requestAnimationFrame(gameLoop);
           return 0;
         }
         return prev - 1;
@@ -363,13 +364,21 @@ export const PupRacing = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    distanceRef.current += speedRef.current * 0.1;
-    setDistance(Math.floor(distanceRef.current));
-    roadOffsetRef.current = (roadOffsetRef.current + speedRef.current) % 40;
+    // Only update game state if countdown is finished
+    const isCountingDown = countdown > 0;
 
-    if (distanceRef.current % 100 < 0.5) {
-      speedRef.current = Math.min(5 + Math.floor(distanceRef.current / 100), 15);
-      setSpeed(speedRef.current);
+    if (!isCountingDown) {
+      distanceRef.current += speedRef.current * 0.1;
+      setDistance(Math.floor(distanceRef.current));
+      roadOffsetRef.current = (roadOffsetRef.current + speedRef.current) % 40;
+
+      if (distanceRef.current % 100 < 0.5) {
+        speedRef.current = Math.min(5 + Math.floor(distanceRef.current / 100), 15);
+        setSpeed(speedRef.current);
+      }
+    } else {
+      // During countdown, still animate the road
+      roadOffsetRef.current = (roadOffsetRef.current + 3) % 40;
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -411,7 +420,9 @@ export const PupRacing = () => {
     ctx.setLineDash([]);
 
     trees.current.forEach((tree, index) => {
-      tree.y += speedRef.current;
+      if (!isCountingDown) {
+        tree.y += speedRef.current;
+      }
 
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(tree.x - tree.width * 0.15, tree.y + tree.height * 0.4, tree.width * 0.3, tree.height * 0.6);
@@ -427,7 +438,9 @@ export const PupRacing = () => {
     });
 
     coins.current.forEach((coin, index) => {
-      coin.y += speedRef.current;
+      if (!isCountingDown) {
+        coin.y += speedRef.current;
+      }
 
       ctx.save();
       ctx.translate(coin.x, coin.y);
@@ -451,6 +464,7 @@ export const PupRacing = () => {
       ctx.restore();
 
       if (
+        !isCountingDown &&
         Math.abs(player.current.x + player.current.width / 2 - coin.x) < player.current.width / 2 &&
         Math.abs(player.current.y + player.current.height / 2 - coin.y) < player.current.height / 2
       ) {
@@ -464,7 +478,9 @@ export const PupRacing = () => {
     });
 
     obstacles.current.forEach((obstacle, index) => {
-      obstacle.y += speedRef.current;
+      if (!isCountingDown) {
+        obstacle.y += speedRef.current;
+      }
 
       ctx.font = `${obstacle.width}px Arial`;
       ctx.textAlign = 'center';
@@ -472,6 +488,7 @@ export const PupRacing = () => {
       ctx.fillText(obstacle.emoji, obstacle.x, obstacle.y);
 
       if (
+        !isCountingDown &&
         Math.abs(player.current.lane - obstacle.lane) === 0 &&
         obstacle.y + obstacle.height > player.current.y &&
         obstacle.y < player.current.y + player.current.height
@@ -504,11 +521,14 @@ export const PupRacing = () => {
       ctx.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
     }
 
-    spawnObstacle(timestamp);
-    spawnCoin(timestamp);
-    spawnTree(timestamp);
+    // Only spawn objects if countdown is finished
+    if (!isCountingDown) {
+      spawnObstacle(timestamp);
+      spawnCoin(timestamp);
+      spawnTree(timestamp);
+    }
 
-    if (distanceRef.current >= 500) {
+    if (distanceRef.current >= 500 && !isCountingDown) {
       winGame();
     } else {
       animationFrameId.current = requestAnimationFrame(gameLoop);
