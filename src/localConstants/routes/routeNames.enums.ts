@@ -9,5 +9,6 @@ export enum RouteNamesEnum {
   leaderboard = '/leaderboard',
   profile = '/profile',
   admin = '/admin',
-  game = '/game'
+  game = '/game',
+  pupfiCatcher = '/game/pupfi-catcher'
 }

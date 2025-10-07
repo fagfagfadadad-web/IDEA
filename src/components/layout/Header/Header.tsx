@@ -64,7 +64,7 @@ export const Header = () => {
                 Tasks
               </Link>
               <Link to="/game" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Mini Game
+                Games
               </Link>
               <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Friends
@@ -268,7 +268,7 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🎮</span>
-                  Mini Game
+                  Games
                 </Link>
                 <Link
                   to="/referrals"

@@ -14,6 +14,8 @@ const Shop = lazy(() => import('pages').then(module => ({ default: module.Shop }
 const Mining = lazy(() => import('pages').then(module => ({ default: module.Mining })));
 const Ships = lazy(() => import('pages').then(module => ({ default: module.Ships })));
 const Game = lazy(() => import('pages').then(module => ({ default: module.Game })));
+const GameCenter = lazy(() => import('pages').then(module => ({ default: module.GameCenter })));
+const PupFiCatcher = lazy(() => import('pages').then(module => ({ default: module.PupFiCatcher })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -82,8 +84,14 @@ export const routes: RouteWithTitleType[] = [
   },
   {
     path: RouteNamesEnum.game,
-    title: 'Mini Game',
-    component: Game,
+    title: 'Game Center',
+    component: GameCenter,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.pupfiCatcher,
+    title: 'PupFi Catcher',
+    component: PupFiCatcher,
     authenticatedRoute: true
   }
 ];

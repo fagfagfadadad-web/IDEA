@@ -10,3 +10,5 @@ export * from './Tasks';
 export * from './Referrals';
 export * from './Leaderboard';
 export * from './Game';
+export * from './GameCenter';
+export * from './PupFiCatcher';

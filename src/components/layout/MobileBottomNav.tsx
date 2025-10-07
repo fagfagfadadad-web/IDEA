@@ -40,7 +40,7 @@ export const MobileBottomNav = () => {
     {
       path: RouteNamesEnum.game,
       icon: '🎮',
-      label: 'Game',
+      label: 'Games',
       color: 'from-cyan-400 to-cyan-600'
     }
   ];
