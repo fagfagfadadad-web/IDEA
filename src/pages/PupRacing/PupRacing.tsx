@@ -117,6 +117,10 @@ export const PupRacing = () => {
   useEffect(() => {
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
+
+    // Draw initial canvas state
+    drawInitialCanvas();
+
     return () => {
       window.removeEventListener('resize', updateCanvasSize);
       if (animationFrameId.current) {
@@ -124,6 +128,60 @@ export const PupRacing = () => {
       }
     };
   }, []);
+
+  const drawInitialCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw grass
+    const grassGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grassGradient.addColorStop(0, '#2d5016');
+    grassGradient.addColorStop(1, '#1a3d0a');
+    ctx.fillStyle = grassGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw road
+    const roadStart = canvas.width * 0.2;
+    const roadWidth = canvas.width * 0.6;
+
+    const roadGradient = ctx.createLinearGradient(roadStart, 0, roadStart + roadWidth, 0);
+    roadGradient.addColorStop(0, '#1a1a1a');
+    roadGradient.addColorStop(0.5, '#2f2f2f');
+    roadGradient.addColorStop(1, '#1a1a1a');
+    ctx.fillStyle = roadGradient;
+    ctx.fillRect(roadStart, 0, roadWidth, canvas.height);
+
+    // Draw lane lines
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([20, 20]);
+
+    const laneLineX1 = roadStart + roadWidth / 3;
+    const laneLineX2 = roadStart + (roadWidth / 3) * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(laneLineX1, 0);
+    ctx.lineTo(laneLineX1, canvas.height);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(laneLineX2, 0);
+    ctx.lineTo(laneLineX2, canvas.height);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    // Draw player at starting position
+    ctx.font = `${player.current.height * 0.8}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
+  };
 
   const updateCanvasSize = () => {
     const canvas = canvasRef.current;
@@ -151,6 +209,11 @@ export const PupRacing = () => {
     player.current.x = lanes.current[1] - player.current.width / 2;
     player.current.y = height - player.current.height - 50;
     player.current.lane = 1;
+
+    // Redraw canvas after resize if not in game
+    if (!gameStarted) {
+      setTimeout(() => drawInitialCanvas(), 0);
+    }
   };
 
   useEffect(() => {
@@ -458,6 +521,7 @@ export const PupRacing = () => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
     }
+    setTimeout(() => drawInitialCanvas(), 100);
   };
 
   const winGame = async () => {
@@ -467,6 +531,7 @@ export const PupRacing = () => {
       cancelAnimationFrame(animationFrameId.current);
     }
     playWinSound();
+    setTimeout(() => drawInitialCanvas(), 100);
 
     if (user?.id) {
       try {
