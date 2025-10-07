@@ -114,6 +114,7 @@ export const PupRacing = () => {
   const isBoosting = useRef(false);
   const coinsRef = useRef(0);
   const gameStartedRef = useRef(false);
+  const countdownRef = useRef(0);
 
   useEffect(() => {
     updateCanvasSize();
@@ -259,6 +260,7 @@ export const PupRacing = () => {
   const startCountdown = () => {
     console.log('🎮 Starting countdown...');
     setCountdown(3);
+    countdownRef.current = 3;
     setGameStarted(true);
     gameStartedRef.current = true; // Set ref immediately
     console.log('🎮 Game started set to true (state + ref), requesting animation frame...');
@@ -267,13 +269,14 @@ export const PupRacing = () => {
 
     const countInterval = setInterval(() => {
       setCountdown(prev => {
-        console.log('⏱️ Countdown:', prev);
+        const newVal = prev <= 1 ? 0 : prev - 1;
+        countdownRef.current = newVal;
+        console.log('⏱️ Countdown:', prev, '→', newVal);
         if (prev <= 1) {
           clearInterval(countInterval);
           console.log('🎮 Countdown finished! Game should start now.');
-          return 0;
         }
-        return prev - 1;
+        return newVal;
       });
     }, 1000);
   };
@@ -366,7 +369,7 @@ export const PupRacing = () => {
   };
 
   const gameLoop = (timestamp: number) => {
-    console.log('🔄 Game loop called. gameStartedRef:', gameStartedRef.current, 'countdown:', countdown, 'canvas:', !!canvasRef.current);
+    console.log('🔄 Game loop called. gameStartedRef:', gameStartedRef.current, 'countdownRef:', countdownRef.current, 'canvas:', !!canvasRef.current);
     if (!gameStartedRef.current || !canvasRef.current) {
       console.log('❌ Game loop returning early');
       return;
@@ -380,8 +383,8 @@ export const PupRacing = () => {
     }
 
     // Only update game state if countdown is finished
-    const isCountingDown = countdown > 0;
-    console.log('🎮 isCountingDown:', isCountingDown);
+    const isCountingDown = countdownRef.current > 0;
+    console.log('🎮 isCountingDown:', isCountingDown, 'countdownRef.current:', countdownRef.current);
 
     if (!isCountingDown) {
       distanceRef.current += speedRef.current * 0.1;
@@ -526,8 +529,8 @@ export const PupRacing = () => {
       ctx.fillText('💨', player.current.x + player.current.width / 2, player.current.y + player.current.height + 10);
     }
 
-    if (countdown > 0) {
-      console.log('🎯 Drawing countdown:', countdown);
+    if (countdownRef.current > 0) {
+      console.log('🎯 Drawing countdown:', countdownRef.current);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -535,7 +538,7 @@ export const PupRacing = () => {
       ctx.font = `${canvas.width * 0.3}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+      ctx.fillText(countdownRef.current.toString(), canvas.width / 2, canvas.height / 2);
     }
 
     // Only spawn objects if countdown is finished
