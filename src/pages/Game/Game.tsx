@@ -634,11 +634,11 @@ export const Game = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <div className="text-center">
                     <div className="text-2xl mb-1">🦴</div>
-                    <div className="text-gray-700 font-inter">Bone: +10 pts</div>
+                    <div className="text-gray-700 font-inter">Bone: +5 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">🥩</div>
-                    <div className="text-gray-700 font-inter">Meat: +25 pts</div>
+                    <div className="text-gray-700 font-inter">Meat: +15 pts</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl mb-1">☠️</div>
