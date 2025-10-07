@@ -141,7 +141,7 @@ body::before {
   }
 
   .stat-value {
-    @apply text-3xl font-bold mb-2;
+    @apply text-xl md:text-3xl font-bold mb-2;
     background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
