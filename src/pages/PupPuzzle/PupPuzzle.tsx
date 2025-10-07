@@ -5,6 +5,7 @@ import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
+import { GameService } from '../../services/gameService';
 
 const createSound = (frequency: number, duration: number, type: OscillatorType = 'sine') => {
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -68,6 +69,10 @@ export const PupPuzzle = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [canPlayGame, setCanPlayGame] = useState(false);
+  const [needsTicket, setNeedsTicket] = useState(false);
+  const [hasTicket, setHasTicket] = useState(false);
+  const [checkingTickets, setCheckingTickets] = useState(true);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -100,6 +105,27 @@ export const PupPuzzle = () => {
   useEffect(() => {
     initializePuzzle();
   }, []);
+
+  useEffect(() => {
+    const checkGameAccess = async () => {
+      if (!user?.id) return;
+
+      setCheckingTickets(true);
+      try {
+        const result = await GameService.canPlayGame(user.id, 'puzzle');
+        setCanPlayGame(result.canPlay);
+        setNeedsTicket(result.needsTicket);
+        setHasTicket(result.hasTicket);
+      } catch (err) {
+        console.error('Error checking game access:', err);
+        setCanPlayGame(false);
+      } finally {
+        setCheckingTickets(false);
+      }
+    };
+
+    checkGameAccess();
+  }, [user?.id]);
 
   useEffect(() => {
     if (gameStarted && !gameOver) {
@@ -165,7 +191,21 @@ export const PupPuzzle = () => {
     return true;
   };
 
-  const startGame = () => {
+  const startGame = async () => {
+    if (!canPlayGame || !user?.id) return;
+
+    try {
+      if (needsTicket) {
+        await GameService.useTicket(user.id, 'puzzle');
+      } else {
+        await GameService.recordGamePlay(user.id, 'puzzle');
+      }
+      refetch();
+    } catch (err) {
+      error('Failed to start game');
+      return;
+    }
+
     playStartSound();
     vibrate([50, 30, 50]);
     setGameStarted(true);
@@ -285,24 +325,53 @@ export const PupPuzzle = () => {
                 </div>
 
                 {!gameStarted && !gameOver && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
-                      <div className="text-6xl">🧩</div>
-                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Pup Puzzle</h2>
-                      <div className="text-left space-y-2 text-sm md:text-base text-gray-700 font-inter bg-yellow-50 p-4 rounded-xl">
-                        <p className="font-bold text-gray-800">How to Play:</p>
-                        <p>• Click tiles next to the empty space</p>
-                        <p>• Tiles will slide into the empty spot</p>
-                        <p>• Arrange emojis by number (1, 2, 3...)</p>
-                        <p>• Empty space must be bottom-right</p>
-                        <p className="font-bold text-primary-500">Goal: All emojis in correct order!</p>
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl p-2">
+                    <div className="text-center space-y-3 cute-card p-4 md:p-6 mx-2 max-w-sm w-full max-h-[90vh] overflow-y-auto">
+                      <div className="text-4xl md:text-6xl">🧩</div>
+                      <h2 className="text-lg md:text-2xl font-inter font-bold text-gray-800">Pup Puzzle</h2>
+
+                      {checkingTickets ? (
+                        <div className="text-gray-600 font-inter text-sm">Checking access...</div>
+                      ) : (
+                        <>
+                          {needsTicket && (
+                            <div className="bg-yellow-50 border-2 border-yellow-400 p-3 rounded-xl">
+                              <p className="text-yellow-800 font-inter font-bold mb-1 text-sm">🎫 Daily Play Used</p>
+                              <p className="text-yellow-700 text-xs font-inter">
+                                {hasTicket
+                                  ? `You have ${gameStats?.gameTickets || 0} tickets. Using 1 ticket to play.`
+                                  : 'You need a ticket to play again today. Complete tasks or level up to earn tickets!'}
+                              </p>
+                            </div>
+                          )}
+
+                          {!needsTicket && (
+                            <div className="bg-green-50 border-2 border-green-400 p-3 rounded-xl">
+                              <p className="text-green-800 font-inter font-bold text-sm">✨ Free Daily Play</p>
+                              <p className="text-green-700 text-xs font-inter mt-1">
+                                Available tickets: {gameStats?.gameTickets || 0} 🎫
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      <div className="text-left space-y-1 text-xs md:text-sm text-gray-700 font-inter bg-blue-50 p-3 rounded-xl">
+                        <p className="font-bold text-gray-800 text-sm">How to Play:</p>
+                        <p>• Click tiles next to empty space</p>
+                        <p>• Tiles slide into empty spot</p>
+                        <p>• Arrange emojis by numbers (1-15)</p>
+                        <p>• Empty space = bottom-right</p>
+                        <p>• Faster & fewer moves = more points!</p>
                       </div>
+
                       <Button
                         onClick={startGame}
-                        className="cute-button px-6 md:px-8 py-3 w-full"
+                        disabled={!canPlayGame || checkingTickets}
+                        className="cute-button px-6 md:px-8 py-2.5 w-full text-sm md:text-base"
                       >
                         <Play size={16} />
-                        Start Game
+                        {checkingTickets ? 'Loading...' : canPlayGame ? 'Start Game' : 'Need Tickets'}
                       </Button>
                     </div>
                   </div>
@@ -322,7 +391,19 @@ export const PupPuzzle = () => {
                         </p>
                       </div>
                       <Button
-                        onClick={startGame}
+                        onClick={async () => {
+                          setGameOver(false);
+                          if (user?.id) {
+                            try {
+                              const result = await GameService.canPlayGame(user.id, 'puzzle');
+                              setCanPlayGame(result.canPlay);
+                              setNeedsTicket(result.needsTicket);
+                              setHasTicket(result.hasTicket);
+                            } catch (err) {
+                              console.error('Error checking game access:', err);
+                            }
+                          }
+                        }}
                         className="cute-button px-6 py-3"
                       >
                         <RotateCcw size={16} />
