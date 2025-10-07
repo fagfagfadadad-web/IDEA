@@ -113,6 +113,7 @@ export const PupPuzzle = () => {
       setCheckingTickets(true);
       try {
         const result = await GameService.canPlayGame(user.id, 'puzzle');
+        console.log('Pup Puzzle access check:', result);
         setCanPlayGame(result.canPlay);
         setNeedsTicket(result.needsTicket);
         setHasTicket(result.hasTicket);
@@ -125,7 +126,7 @@ export const PupPuzzle = () => {
     };
 
     checkGameAccess();
-  }, [user?.id]);
+  }, [user?.id, gameStats?.gameTickets]);
 
   useEffect(() => {
     if (gameStarted && !gameOver) {

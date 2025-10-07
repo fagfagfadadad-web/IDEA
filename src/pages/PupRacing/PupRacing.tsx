@@ -150,6 +150,7 @@ export const PupRacing = () => {
       setCheckingTickets(true);
       try {
         const result = await GameService.canPlayGame(user.id, 'racing');
+        console.log('Pup Racing access check:', result);
         setCanPlayGame(result.canPlay);
         setNeedsTicket(result.needsTicket);
         setHasTicket(result.hasTicket);
@@ -162,7 +163,7 @@ export const PupRacing = () => {
     };
 
     checkGameAccess();
-  }, [user]);
+  }, [user?.id, gameStats?.gameTickets]);
 
   const drawInitialCanvas = () => {
     const canvas = canvasRef.current;

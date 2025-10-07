@@ -205,6 +205,7 @@ export const PupFiCatcher = () => {
       setCheckingTickets(true);
       try {
         const result = await GameService.canPlayGame(user.id, 'pupfi-catcher');
+        console.log('PupFi Catcher access check:', result);
         setCanPlayGame(result.canPlay);
         setNeedsTicket(result.needsTicket);
         setHasTicket(result.hasTicket);
@@ -217,7 +218,7 @@ export const PupFiCatcher = () => {
     };
 
     checkGameAccess();
-  }, [user?.id]);
+  }, [user?.id, gameStats?.gameTickets]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
