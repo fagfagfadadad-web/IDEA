@@ -78,28 +78,21 @@ export const PupPuzzle = () => {
     }));
 
     let shuffled = [...initialTiles];
-    for (let i = 0; i < 200; i++) {
-      const validMoves = getValidMoves(
-        shuffled.findIndex(t => t.value === TOTAL_TILES) !== -1
-          ? shuffled.findIndex(t => t.value === TOTAL_TILES)
-          : TOTAL_TILES - 1,
-        shuffled.length
-      );
-      const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-      const emptyIdx = shuffled.findIndex(t => t.value === TOTAL_TILES);
-      const currentEmpty = emptyIdx !== -1 ? emptyIdx : TOTAL_TILES - 1;
+    let currentEmpty = TOTAL_TILES - 1;
 
-      const temp = shuffled[currentEmpty];
-      shuffled[currentEmpty] = shuffled[randomMove] || { value: TOTAL_TILES, position: randomMove };
-      if (shuffled[randomMove]) {
-        shuffled[randomMove] = temp;
+    for (let i = 0; i < 200; i++) {
+      const validMoves = getValidMoves(currentEmpty, TOTAL_TILES);
+      const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+
+      const tileAtRandomMove = shuffled.find(t => t.position === randomMove);
+      if (tileAtRandomMove) {
+        tileAtRandomMove.position = currentEmpty;
+        currentEmpty = randomMove;
       }
     }
 
     setTiles(shuffled);
-    setEmptyPosition(shuffled.findIndex(t => t.value === TOTAL_TILES) !== -1
-      ? shuffled.findIndex(t => t.value === TOTAL_TILES)
-      : TOTAL_TILES - 1);
+    setEmptyPosition(currentEmpty);
     setMoves(0);
     setTimeElapsed(0);
   };
