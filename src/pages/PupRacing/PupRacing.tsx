@@ -375,15 +375,20 @@ export const PupRacing = () => {
 
                 {!gameStarted && !gameOver && countdown === 0 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4">
+                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
                       <div className="text-6xl">🏁</div>
                       <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Pup Racing</h2>
-                      <p className="text-sm md:text-base text-gray-600 font-inter">
-                        Race 500m! Use arrows or A/D to move. Space for boost!
-                      </p>
+                      <div className="text-left space-y-2 text-sm md:text-base text-gray-700 font-inter bg-blue-50 p-4 rounded-xl">
+                        <p className="font-bold text-gray-800">How to Play:</p>
+                        <p>• Use Arrow Keys or A/D to move left/right</p>
+                        <p>• Press Spacebar for speed boost (3x)</p>
+                        <p>• Avoid obstacles to maintain speed</p>
+                        <p>• Race to 500m to win!</p>
+                        <p className="font-bold text-primary-500">Goal: Reach the finish line!</p>
+                      </div>
                       <Button
                         onClick={startGame}
-                        className="cute-button px-6 md:px-8 py-3"
+                        className="cute-button px-6 md:px-8 py-3 w-full"
                       >
                         <Play size={16} />
                         Start Race
