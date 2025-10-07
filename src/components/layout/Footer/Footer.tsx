@@ -1,4 +1,4 @@
-import { Twitter, Github } from 'lucide-react';
+import { Twitter, Send } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -54,16 +54,6 @@ export const Footer = () => {
                   Referrals
                 </a>
               </li>
-              <li>
-                <a href='#' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
-                  Discord
-                </a>
-              </li>
-              <li>
-                <a href='#' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
-                  Telegram
-                </a>
-              </li>
             </ul>
           </div>
 
@@ -79,12 +69,12 @@ export const Footer = () => {
                 <Twitter size={20} />
               </a>
               <a
-                href='https://github.com/pupfi'
+                href='https://t.me/pupfi'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-gray-600 hover:text-gray-900 transition-colors'
               >
-                <Github size={20} />
+                <Send size={20} />
               </a>
             </div>
             <p className='text-gray-600 text-sm'>Built on MultiversX</p>
