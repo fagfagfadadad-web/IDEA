@@ -67,7 +67,7 @@ export const GameCenter = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <Button
               onClick={() => navigate('/')}
-              className="cute-button-outline px-4 py-2 flex items-center gap-2 self-start"
+              className="cute-button px-4 py-2 flex items-center gap-2 self-start"
             >
               <ArrowLeft size={16} />
               Back Home
