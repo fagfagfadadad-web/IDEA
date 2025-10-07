@@ -256,14 +256,19 @@ export const PupRacing = () => {
   }, [gameStarted, countdown]);
 
   const startCountdown = () => {
+    console.log('🎮 Starting countdown...');
     setCountdown(3);
     setGameStarted(true); // Start game loop immediately
+    console.log('🎮 Game started set to true, requesting animation frame...');
     animationFrameId.current = requestAnimationFrame(gameLoop);
+    console.log('🎮 Animation frame requested:', animationFrameId.current);
 
     const countInterval = setInterval(() => {
       setCountdown(prev => {
+        console.log('⏱️ Countdown:', prev);
         if (prev <= 1) {
           clearInterval(countInterval);
+          console.log('🎮 Countdown finished! Game should start now.');
           return 0;
         }
         return prev - 1;
@@ -272,6 +277,7 @@ export const PupRacing = () => {
   };
 
   const startGame = () => {
+    console.log('🚀 START GAME CALLED');
     setShowStartScreen(false);
     setGameOver(false);
     setDistance(0);
@@ -358,14 +364,22 @@ export const PupRacing = () => {
   };
 
   const gameLoop = (timestamp: number) => {
-    if (!gameStarted || !canvasRef.current) return;
+    console.log('🔄 Game loop called. gameStarted:', gameStarted, 'countdown:', countdown, 'canvas:', !!canvasRef.current);
+    if (!gameStarted || !canvasRef.current) {
+      console.log('❌ Game loop returning early');
+      return;
+    }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.log('❌ No context');
+      return;
+    }
 
     // Only update game state if countdown is finished
     const isCountingDown = countdown > 0;
+    console.log('🎮 isCountingDown:', isCountingDown);
 
     if (!isCountingDown) {
       distanceRef.current += speedRef.current * 0.1;
@@ -511,6 +525,7 @@ export const PupRacing = () => {
     }
 
     if (countdown > 0) {
+      console.log('🎯 Drawing countdown:', countdown);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -529,8 +544,10 @@ export const PupRacing = () => {
     }
 
     if (distanceRef.current >= 500 && !isCountingDown) {
+      console.log('🏆 Win condition met!');
       winGame();
     } else {
+      console.log('➡️ Requesting next frame...');
       animationFrameId.current = requestAnimationFrame(gameLoop);
     }
   };
