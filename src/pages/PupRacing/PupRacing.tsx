@@ -703,19 +703,19 @@ export const PupRacing = () => {
                 />
 
                 {showStartScreen && !gameStarted && !gameOver && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
-                      <div className="text-6xl">🏁</div>
-                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Pup Racing</h2>
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl p-2">
+                    <div className="text-center space-y-3 cute-card p-4 md:p-6 mx-2 max-w-sm w-full max-h-[90vh] overflow-y-auto">
+                      <div className="text-4xl md:text-6xl">🏁</div>
+                      <h2 className="text-lg md:text-2xl font-inter font-bold text-gray-800">Pup Racing</h2>
 
                       {checkingTickets ? (
-                        <div className="text-gray-600 font-inter">Checking access...</div>
+                        <div className="text-gray-600 font-inter text-sm">Checking access...</div>
                       ) : (
                         <>
                           {needsTicket && (
-                            <div className="bg-yellow-50 border-2 border-yellow-400 p-4 rounded-xl">
-                              <p className="text-yellow-800 font-inter font-bold mb-2">🎫 Daily Play Used</p>
-                              <p className="text-yellow-700 text-sm font-inter">
+                            <div className="bg-yellow-50 border-2 border-yellow-400 p-3 rounded-xl">
+                              <p className="text-yellow-800 font-inter font-bold mb-1 text-sm">🎫 Daily Play Used</p>
+                              <p className="text-yellow-700 text-xs font-inter">
                                 {hasTicket
                                   ? `You have ${gameStats?.gameTickets || 0} tickets. Using 1 ticket to play.`
                                   : 'You need a ticket to play again today. Complete tasks or level up to earn tickets!'}
@@ -724,9 +724,9 @@ export const PupRacing = () => {
                           )}
 
                           {!needsTicket && (
-                            <div className="bg-green-50 border-2 border-green-400 p-4 rounded-xl">
-                              <p className="text-green-800 font-inter font-bold">✨ Free Daily Play</p>
-                              <p className="text-green-700 text-sm font-inter mt-1">
+                            <div className="bg-green-50 border-2 border-green-400 p-3 rounded-xl">
+                              <p className="text-green-800 font-inter font-bold text-sm">✨ Free Daily Play</p>
+                              <p className="text-green-700 text-xs font-inter mt-1">
                                 Available tickets: {gameStats?.gameTickets || 0} 🎫
                               </p>
                             </div>
@@ -734,8 +734,8 @@ export const PupRacing = () => {
                         </>
                       )}
 
-                      <div className="text-left space-y-2 text-sm md:text-base text-gray-700 font-inter bg-blue-50 p-4 rounded-xl">
-                        <p className="font-bold text-gray-800">How to Play:</p>
+                      <div className="text-left space-y-1 text-xs md:text-sm text-gray-700 font-inter bg-blue-50 p-3 rounded-xl">
+                        <p className="font-bold text-gray-800 text-sm">How to Play:</p>
                         <p>• Use Arrow Keys or A/D to move left/right</p>
                         <p>• Press Spacebar for speed boost (3x)</p>
                         <p>• Avoid obstacles to survive!</p>
@@ -746,7 +746,7 @@ export const PupRacing = () => {
                       <Button
                         onClick={startGame}
                         disabled={!canPlayGame || checkingTickets}
-                        className="cute-button px-6 md:px-8 py-3 w-full"
+                        className="cute-button px-6 md:px-8 py-2.5 w-full text-sm md:text-base"
                       >
                         <Play size={16} />
                         {checkingTickets ? 'Loading...' : canPlayGame ? 'Start Race' : 'Need Tickets'}
