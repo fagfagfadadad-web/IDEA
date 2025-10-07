@@ -5,9 +5,9 @@ import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Targe
 import { Button } from 'components';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { useWindowSize } from '../../hooks/useWindowSize';
-import { useAuth } from '../../context/AuthContext';
-import { useGame } from '../../context/GameContext';
+import { useWindowSize } from '../../../hooks/useWindowSize';
+import { useAuth } from '../../../context/AuthContext';
+import { useGame } from '../../../context/GameContext';
 
 export const Header = () => {
   const isLoggedIn = useGetIsLoggedIn();
