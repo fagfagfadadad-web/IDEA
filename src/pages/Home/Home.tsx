@@ -106,7 +106,7 @@ export const Home = () => {
                 PupFi
               </h1>
               <p className="subtitle-responsive text-gray-700 font-inter font-semibold">
-                Feed. Play. Earn. The PupFi Way.
+                Virtual Pet Care Game
               </p>
             </div>
 
@@ -241,7 +241,7 @@ export const Home = () => {
               Game Features
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto font-inter">
-              Take care of your dogs, feed them, play with them, and watch them grow happy!
+              Take care of your virtual dogs, feed them, play with them, and watch them grow happy!
             </p>
           </div>
 
