@@ -10,5 +10,8 @@ export enum RouteNamesEnum {
   profile = '/profile',
   admin = '/admin',
   game = '/game',
-  pupfiCatcher = '/game/pupfi-catcher'
+  pupfiCatcher = '/game/pupfi-catcher',
+  memoryMatch = '/game/memory-match',
+  pupPuzzle = '/game/puzzle',
+  pupRacing = '/game/racing'
 }

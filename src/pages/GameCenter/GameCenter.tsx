@@ -29,8 +29,7 @@ const games: GameCard[] = [
     description: 'Match pairs of adorable pups to earn rewards!',
     emoji: '🧠',
     route: '/game/memory-match',
-    isAvailable: false,
-    minLevel: 5,
+    isAvailable: true,
   },
   {
     id: 'puzzle-game',
@@ -38,8 +37,7 @@ const games: GameCard[] = [
     description: 'Solve fun puzzles with your virtual pets!',
     emoji: '🧩',
     route: '/game/puzzle',
-    isAvailable: false,
-    minLevel: 10,
+    isAvailable: true,
   },
   {
     id: 'racing-game',
@@ -47,8 +45,7 @@ const games: GameCard[] = [
     description: 'Race with your dogs and win amazing prizes!',
     emoji: '🏁',
     route: '/game/racing',
-    isAvailable: false,
-    minLevel: 15,
+    isAvailable: true,
   },
 ];
 

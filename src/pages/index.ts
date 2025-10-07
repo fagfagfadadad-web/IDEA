@@ -12,3 +12,6 @@ export * from './Leaderboard';
 export * from './Game';
 export * from './GameCenter';
 export * from './PupFiCatcher';
+export * from './MemoryMatch';
+export * from './PupPuzzle';
+export * from './PupRacing';

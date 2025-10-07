@@ -16,6 +16,9 @@ const Ships = lazy(() => import('pages').then(module => ({ default: module.Ships
 const Game = lazy(() => import('pages').then(module => ({ default: module.Game })));
 const GameCenter = lazy(() => import('pages').then(module => ({ default: module.GameCenter })));
 const PupFiCatcher = lazy(() => import('pages').then(module => ({ default: module.PupFiCatcher })));
+const MemoryMatch = lazy(() => import('pages').then(module => ({ default: module.MemoryMatch })));
+const PupPuzzle = lazy(() => import('pages').then(module => ({ default: module.PupPuzzle })));
+const PupRacing = lazy(() => import('pages').then(module => ({ default: module.PupRacing })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -92,6 +95,24 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.pupfiCatcher,
     title: 'PupFi Catcher',
     component: PupFiCatcher,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.memoryMatch,
+    title: 'Memory Match',
+    component: MemoryMatch,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.pupPuzzle,
+    title: 'Pup Puzzle',
+    component: PupPuzzle,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.pupRacing,
+    title: 'Pup Racing',
+    component: PupRacing,
     authenticatedRoute: true
   }
 ];
