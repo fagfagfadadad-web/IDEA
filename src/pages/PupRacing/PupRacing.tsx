@@ -81,7 +81,6 @@ export const PupRacing = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [showStartScreen, setShowStartScreen] = useState(true);
-  const [distance, setDistance] = useState(0);
   const [speed, setSpeed] = useState(5);
   const [boosts, setBoosts] = useState(3);
   const [countdown, setCountdown] = useState(0);
@@ -104,7 +103,6 @@ export const PupRacing = () => {
   const coins = useRef<Coin[]>([]);
   const trees = useRef<Tree[]>([]);
 
-  const distanceRef = useRef(0);
   const speedRef = useRef(5);
   const boostsRef = useRef(3);
   const roadOffsetRef = useRef(0);
@@ -239,7 +237,7 @@ export const PupRacing = () => {
 
         setTimeout(() => {
           isBoosting.current = false;
-          speedRef.current = 5 + Math.floor(distanceRef.current / 100);
+          speedRef.current = 5;
         }, 2000);
       }
     };
@@ -285,12 +283,10 @@ export const PupRacing = () => {
     console.log('🚀 START GAME CALLED');
     setShowStartScreen(false);
     setGameOver(false);
-    setDistance(0);
     setSpeed(5);
     setBoosts(3);
     setCoinsCollected(0);
 
-    distanceRef.current = 0;
     speedRef.current = 5;
     boostsRef.current = 3;
     roadOffsetRef.current = 0;
@@ -387,12 +383,11 @@ export const PupRacing = () => {
     console.log('🎮 isCountingDown:', isCountingDown, 'countdownRef.current:', countdownRef.current);
 
     if (!isCountingDown) {
-      distanceRef.current += speedRef.current * 0.1;
-      setDistance(Math.floor(distanceRef.current));
       roadOffsetRef.current = (roadOffsetRef.current + speedRef.current) % 40;
 
-      if (distanceRef.current % 100 < 0.5) {
-        speedRef.current = Math.min(5 + Math.floor(distanceRef.current / 100), 15);
+      // Gradually increase speed over time
+      if (speedRef.current < 15) {
+        speedRef.current += 0.001;
         setSpeed(speedRef.current);
       }
     } else {
@@ -548,16 +543,11 @@ export const PupRacing = () => {
       spawnTree(timestamp);
     }
 
-    if (distanceRef.current >= 500 && !isCountingDown) {
-      console.log('🏆 Win condition met!');
-      winGame();
-    } else {
-      console.log('➡️ Requesting next frame...');
-      animationFrameId.current = requestAnimationFrame(gameLoop);
-    }
+    console.log('➡️ Requesting next frame...');
+    animationFrameId.current = requestAnimationFrame(gameLoop);
   };
 
-  const endGame = () => {
+  const endGame = async () => {
     setGameOver(true);
     setGameStarted(false);
     gameStartedRef.current = false;
@@ -565,39 +555,21 @@ export const PupRacing = () => {
       cancelAnimationFrame(animationFrameId.current);
     }
     setTimeout(() => drawInitialCanvas(), 100);
+    await awardPoints();
   };
 
-  const winGame = async () => {
-    setGameOver(true);
-    setGameStarted(false);
-    gameStartedRef.current = false;
-    if (animationFrameId.current) {
-      cancelAnimationFrame(animationFrameId.current);
-    }
-    playWinSound();
-    setTimeout(() => drawInitialCanvas(), 100);
 
+  const awardPoints = async () => {
     if (user?.id) {
       try {
-        const basePoints = 200;
-        const distanceBonus = Math.floor(distanceRef.current / 10);
         const coinBonus = coinsRef.current * 10;
-        const totalPoints = basePoints + distanceBonus + coinBonus;
-
-        await awardFoodPoints(user.id, totalPoints);
-        success(`You Won! Earned ${totalPoints} food points! 🍖`);
+        await awardFoodPoints(user.id, coinBonus);
+        success(`Game Over! Earned ${coinBonus} food points! 🍖`);
         refetch();
       } catch (err) {
         error('Failed to award food points');
       }
     }
-  };
-
-  const calculateScore = () => {
-    const basePoints = 200;
-    const distanceBonus = Math.floor(distance / 10);
-    const coinBonus = coinsCollected * 10;
-    return basePoints + distanceBonus + coinBonus;
   };
 
   return (
@@ -630,10 +602,6 @@ export const PupRacing = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center flex-wrap gap-3">
                 <div className="stat-card">
-                  <div className="stat-value text-lg md:text-xl">{distance}m</div>
-                  <div className="stat-label">Distance</div>
-                </div>
-                <div className="stat-card">
                   <div className="stat-value text-lg md:text-xl">{speed.toFixed(1)}x</div>
                   <div className="stat-label">Speed</div>
                 </div>
@@ -665,9 +633,9 @@ export const PupRacing = () => {
                         <p className="font-bold text-gray-800">How to Play:</p>
                         <p>• Use Arrow Keys or A/D to move left/right</p>
                         <p>• Press Spacebar for speed boost (3x)</p>
-                        <p>• Avoid obstacles to maintain speed</p>
-                        <p>• Collect 🍖 for bonus points</p>
-                        <p>• Race to 500m to win!</p>
+                        <p>• Avoid obstacles to survive!</p>
+                        <p>• Collect 🍖 coins for points</p>
+                        <p>• How long can you last?</p>
                         <p className="font-bold text-primary-500">Goal: Reach the finish line!</p>
                       </div>
                       <Button
@@ -684,17 +652,14 @@ export const PupRacing = () => {
                 {gameOver && (
                   <div className="absolute inset-0 bg-black/70 flex items-center justify-center rounded-3xl">
                     <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4">
-                      <div className="text-4xl">🏆</div>
-                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Finish Line!</h2>
+                      <div className="text-4xl">💥</div>
+                      <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Game Over!</h2>
                       <div className="space-y-2">
                         <p className="text-base md:text-lg font-inter font-bold text-primary-500">
-                          Distance: {distance}m
-                        </p>
-                        <p className="text-base md:text-lg font-inter font-bold text-primary-500">
-                          Coins: {coinsCollected} 🍖
+                          Coins Collected: {coinsCollected} 🍖
                         </p>
                         <p className="text-sm md:text-base text-gray-600 font-inter">
-                          Earned: {calculateScore()} food points! 🍖
+                          Earned: {coinsCollected * 10} food points! 🍖
                         </p>
                       </div>
                       <Button
@@ -705,7 +670,7 @@ export const PupRacing = () => {
                         className="cute-button px-6 py-3"
                       >
                         <RotateCcw size={16} />
-                        Race Again
+                        Play Again
                       </Button>
                     </div>
                   </div>
