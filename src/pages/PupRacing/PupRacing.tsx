@@ -93,6 +93,7 @@ export const PupRacing = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
+  const playerImageRef = useRef<HTMLImageElement | null>(null);
 
   const player = useRef<Player>({
     x: 0,
@@ -119,6 +120,14 @@ export const PupRacing = () => {
   const countdownRef = useRef(0);
 
   useEffect(() => {
+    // Load player image
+    const img = new Image();
+    img.src = '/player-dog.png';
+    img.onload = () => {
+      playerImageRef.current = img;
+      drawInitialCanvas();
+    };
+
     updateCanvasSize();
     window.addEventListener('resize', updateCanvasSize);
 
@@ -203,10 +212,20 @@ export const PupRacing = () => {
     ctx.setLineDash([]);
 
     // Draw player at starting position
-    ctx.font = `${player.current.height * 0.8}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
+    if (playerImageRef.current) {
+      ctx.drawImage(
+        playerImageRef.current,
+        player.current.x,
+        player.current.y,
+        player.current.width,
+        player.current.height
+      );
+    } else {
+      ctx.font = `${player.current.height * 0.8}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
+    }
   };
 
   const updateCanvasSize = () => {
@@ -560,13 +579,26 @@ export const PupRacing = () => {
       }
     });
 
-    ctx.font = `${player.current.height * 0.8}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
+    // Draw player
+    if (playerImageRef.current) {
+      ctx.drawImage(
+        playerImageRef.current,
+        player.current.x,
+        player.current.y,
+        player.current.width,
+        player.current.height
+      );
+    } else {
+      ctx.font = `${player.current.height * 0.8}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🐕', player.current.x + player.current.width / 2, player.current.y + player.current.height / 2);
+    }
 
     if (isBoosting.current) {
       ctx.font = `${player.current.width * 0.6}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillText('💨', player.current.x + player.current.width / 2, player.current.y + player.current.height + 10);
     }
 
