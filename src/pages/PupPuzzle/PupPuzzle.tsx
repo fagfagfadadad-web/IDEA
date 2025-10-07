@@ -274,7 +274,10 @@ export const PupPuzzle = () => {
                         `}
                       >
                         {!isEmpty && (
-                          <span>{dogEmojis[(tile.value - 1) % dogEmojis.length]}</span>
+                          <div className="flex flex-col items-center justify-center">
+                            <span className="text-3xl md:text-5xl">{dogEmojis[(tile.value - 1) % dogEmojis.length]}</span>
+                            <span className="text-xs md:text-sm font-bold text-white/70 mt-1">{tile.value}</span>
+                          </div>
                         )}
                       </button>
                     );
@@ -283,18 +286,23 @@ export const PupPuzzle = () => {
 
                 {!gameStarted && !gameOver && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl">
-                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4">
+                    <div className="text-center space-y-4 cute-card p-6 md:p-8 mx-4 max-w-sm">
                       <div className="text-6xl">🧩</div>
                       <h2 className="text-xl md:text-2xl font-inter font-bold text-gray-800">Pup Puzzle</h2>
-                      <p className="text-sm md:text-base text-gray-600 font-inter">
-                        Slide tiles to arrange them in order!
-                      </p>
+                      <div className="text-left space-y-2 text-sm md:text-base text-gray-700 font-inter bg-yellow-50 p-4 rounded-xl">
+                        <p className="font-bold text-gray-800">Ako hrať:</p>
+                        <p>• Klikni na dlaždice vedľa prázdneho miesta</p>
+                        <p>• Dlaždice sa posunú do prázdneho priestoru</p>
+                        <p>• Usporiadaj emoji v poradí: 🐕 🦴 🐾...</p>
+                        <p>• Prázdne miesto musí byť dole vpravo</p>
+                        <p className="font-bold text-primary-500">Cieľ: Všetky emoji v správnom poradí!</p>
+                      </div>
                       <Button
                         onClick={startGame}
-                        className="cute-button px-6 md:px-8 py-3"
+                        className="cute-button px-6 md:px-8 py-3 w-full"
                       >
                         <Play size={16} />
-                        Start Game
+                        Začať hru
                       </Button>
                     </div>
                   </div>
@@ -326,12 +334,12 @@ export const PupPuzzle = () => {
               </div>
 
               <div className="cute-card p-4">
-                <h3 className="font-inter font-bold text-gray-800 mb-2">How to Play:</h3>
+                <h3 className="font-inter font-bold text-gray-800 mb-2">Ako hrať:</h3>
                 <ul className="space-y-1 text-sm text-gray-700 font-inter">
-                  <li>• Click tiles next to the empty space to move them</li>
-                  <li>• Arrange all emojis in order to win</li>
-                  <li>• Solve faster with fewer moves for more points!</li>
-                  <li>• Base reward: 150 points + time & move bonuses</li>
+                  <li>• Klikaj na dlaždice vedľa prázdneho miesta</li>
+                  <li>• Usporiadaj emoji podľa čísel (1, 2, 3...)</li>
+                  <li>• Rýchlejšie a menej ťahov = viac bodov!</li>
+                  <li>• Odmena: 150 bodov + časový a pohybový bonus</li>
                 </ul>
               </div>
             </div>

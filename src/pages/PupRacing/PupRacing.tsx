@@ -160,10 +160,7 @@ export const PupRacing = () => {
     boostsRef.current = 3;
   };
 
-  const startGame = async () => {
-    initializeRace();
-    setGameStarted(false);
-    setGameOver(false);
+  const startCountdown = async () => {
     setCountdown(3);
 
     for (let i = 3; i > 0; i--) {
@@ -177,6 +174,13 @@ export const PupRacing = () => {
     setGameStarted(true);
     setCountdown(0);
     animationFrameId.current = requestAnimationFrame(gameLoop);
+  };
+
+  const startGame = () => {
+    initializeRace();
+    setGameStarted(false);
+    setGameOver(false);
+    startCountdown();
   };
 
   const gameLoop = () => {
