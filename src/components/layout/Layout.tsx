@@ -14,10 +14,12 @@ export const Layout = ({ children }: PropsWithChildren) => {
       <Background />
       <div className="relative z-10">
         <Header />
-        <main className="flex flex-grow items-stretch justify-center p-0 pb-20 md:pb-0 overflow-x-hidden">
+        <main className="flex flex-grow items-stretch justify-center p-0 overflow-x-hidden">
           <AuthRedirectWrapper>{children}</AuthRedirectWrapper>
         </main>
-        <Footer />
+        <div className={`${isLoggedIn ? 'pb-24 md:pb-6' : 'pb-6'}`}>
+          <Footer />
+        </div>
       </div>
       {isLoggedIn && <Chat />}
     </div>
