@@ -17,7 +17,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         <main className="flex flex-grow items-stretch justify-center p-0 overflow-x-hidden">
           <AuthRedirectWrapper>{children}</AuthRedirectWrapper>
         </main>
-        <div className={`${isLoggedIn ? 'pb-24 md:pb-6' : 'pb-6'}`}>
+        <div className={`${isLoggedIn ? 'mb-28 md:mb-0' : ''}`}>
           <Footer />
         </div>
       </div>
