@@ -72,9 +72,9 @@ export const MobileBottomNav = () => {
                 <div className={`
                   ${isCenter ? 'w-16 h-16' : 'w-12 h-12'} 
                   rounded-full flex items-center justify-center relative
-                  ${isActive 
-                    ? `bg-gradient-to-br ${item.color} shadow-lg` 
-                    : 'bg-primary-100 hover:bg-primary-200'
+                  ${isActive
+                    ? `bg-gradient-to-br ${item.color} shadow-lg`
+                    : 'bg-purple-400 hover:bg-purple-300'
                   }
                   border-2 border-white shadow-md
                 `}>

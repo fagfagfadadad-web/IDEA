@@ -2,39 +2,39 @@ import { Twitter, Send } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className='w-full border-t border-gray-200 bg-white py-12 px-6 pb-32 md:pb-12'>
+    <footer className='w-full border-t border-purple-600 bg-purple-700 py-12 px-6 pb-32 md:pb-12'>
       <div className='mx-auto max-w-7xl'>
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8'>
           <div className='space-y-4'>
             <div className='flex items-center gap-2'>
               <img src='/PupFi.png' alt='PupFi' className='w-8 h-8' />
-              <span className='text-xl font-bold text-purple-500'>PupFi</span>
+              <span className='text-xl font-bold text-white'>PupFi</span>
             </div>
-            <p className='text-gray-600 text-sm'>
+            <p className='text-white/80 text-sm'>
               The ultimate virtual pet care experience on MultiversX blockchain
             </p>
           </div>
 
           <div>
-            <h3 className='text-gray-900 font-semibold mb-4'>Game</h3>
+            <h3 className='text-white font-semibold mb-4'>Game</h3>
             <ul className='space-y-2'>
               <li>
-                <a href='/game' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/game' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Feed Dogs
                 </a>
               </li>
               <li>
-                <a href='/ships' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/ships' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Dogs
                 </a>
               </li>
               <li>
-                <a href='/shop' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/shop' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Pet Store
                 </a>
               </li>
               <li>
-                <a href='/leaderboard' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/leaderboard' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Leaderboard
                 </a>
               </li>
@@ -42,15 +42,15 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className='text-gray-900 font-semibold mb-4'>Community</h3>
+            <h3 className='text-white font-semibold mb-4'>Community</h3>
             <ul className='space-y-2'>
               <li>
-                <a href='/tasks' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/tasks' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Tasks
                 </a>
               </li>
               <li>
-                <a href='/referrals' className='text-gray-600 hover:text-gray-900 transition-colors text-sm'>
+                <a href='/referrals' className='text-white/80 hover:text-white transition-colors text-sm'>
                   Referrals
                 </a>
               </li>
@@ -58,13 +58,13 @@ export const Footer = () => {
           </div>
 
           <div>
-            <h3 className='text-gray-900 font-semibold mb-4'>Connect</h3>
+            <h3 className='text-white font-semibold mb-4'>Connect</h3>
             <div className='flex gap-4 mb-4'>
               <a
                 href='https://twitter.com/pupfi'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-600 hover:text-gray-900 transition-colors'
+                className='text-white/80 hover:text-white transition-colors'
               >
                 <Twitter size={20} />
               </a>
@@ -72,12 +72,12 @@ export const Footer = () => {
                 href='https://t.me/pupfi'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-600 hover:text-gray-900 transition-colors'
+                className='text-white/80 hover:text-white transition-colors'
               >
                 <Send size={20} />
               </a>
             </div>
-            <p className='text-gray-600 text-sm'>Built on MultiversX</p>
+            <p className='text-white/80 text-sm'>Built on MultiversX</p>
           </div>
         </div>
       </div>
