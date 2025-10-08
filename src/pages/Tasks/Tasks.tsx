@@ -299,11 +299,11 @@ export const Tasks = () => {
                     <div
                       key={task.id}
                       className={`cute-card p-6 transition-all duration-300 hover:transform hover:scale-105 ${
-                        userTask?.status === 'completed' 
-                          ? 'border-success bg-green-50'
+                        userTask?.status === 'completed'
+                          ? 'ring-2 ring-green-500'
                           : userTask?.status === 'in_progress'
-                          ? 'border-primary-400 bg-primary-50'
-                          : 'border-gray-300 hover:border-primary-400'
+                          ? 'ring-2 ring-purple-500'
+                          : ''
                       }`}
                     >
                       <div className="space-y-4">
@@ -366,8 +366,8 @@ export const Tasks = () => {
 
                         {/* Status indicator for pending claim */}
                         {userTask?.status === 'pending_claim' && (
-                          <div className="p-3 bg-primary-50 border border-primary-300 rounded-lg">
-                            <div className="flex items-center gap-2 text-primary-600 text-sm font-inter">
+                          <div className="p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
+                            <div className="flex items-center gap-2 text-yellow-800 text-sm font-inter">
                               <Clock size={16} />
                               <span>Ready to claim reward!</span>
                             </div>
@@ -457,7 +457,7 @@ export const Tasks = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-primary-50 border border-primary-300 rounded-lg">
+              <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
                 <h4 className="font-inter font-bold text-gray-800 mb-2">
                   {currentClaimTask.title}
                 </h4>
