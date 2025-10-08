@@ -202,7 +202,7 @@ export const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div
-              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] shadow-2xl transform transition-transform duration-300 z-50"
+              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] shadow-2xl transform transition-transform duration-300 z-50 overflow-y-auto"
               style={{ background: 'linear-gradient(180deg, #7C3AED 0%, #6b21a8 100%)' }}
             >
               <div className="p-4 border-b border-primary-400/30">
@@ -217,7 +217,7 @@ export const Header = () => {
                 </div>
               </div>
 
-              <div className="p-4 space-y-2">
+              <div className="p-4 space-y-2 pb-24">
                 {/* Food Balance */}
                 {isLoggedIn && gameStats && (
                   <div className="p-4 rounded-lg mb-4" style={{ background: '#FFA724' }}>
