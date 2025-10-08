@@ -200,10 +200,10 @@ export const Mining = () => {
                   return (
                     <div
                       key={ship.id}
-                      className={`bg-white/70 backdrop-blur-lg rounded-xl p-4 md:p-6 border transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
-                        selectedShip === ship.id 
-                          ? 'border-primary-400 shadow-primary-200' 
-                          : 'border-primary-200/50 hover:border-primary-400/50'
+                      className={`cute-card p-4 md:p-6 transition-all duration-300 hover:transform hover:scale-105 ${
+                        selectedShip === ship.id
+                          ? 'ring-2 ring-yellow-400 shadow-2xl'
+                          : 'hover:shadow-2xl'
                       }`}
                      onClick={() => setSelectedShip(ship.id || null)}
                     >
