@@ -180,13 +180,11 @@ export const PupFiCatcher = () => {
     if (!container) return;
 
     const isMobile = window.innerWidth < 768;
-    const width = isMobile ? Math.min(container.clientWidth - 10, window.innerWidth - 10) : Math.min(600, container.clientWidth - 40);
-    const height = isMobile ? Math.min((window.innerHeight - 200) * 0.77, 400) : Math.min(460, window.innerHeight - 250);
+    const width = isMobile ? window.innerWidth - 32 : Math.min(800, container.clientWidth - 40);
+    const height = 650;
 
     canvas.width = width;
     canvas.height = height;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
 
     const platformWidth = width * 0.15;
     const platformHeight = 20;
@@ -576,11 +574,11 @@ export const PupFiCatcher = () => {
                 </div>
               </div>
 
-              <div className="game-canvas-container">
+              <div className="relative">
                 <canvas
                   ref={canvasRef}
-                  className="block mx-auto cursor-none w-full max-w-full touch-none"
-                  style={{ background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
+                  className="block mx-auto cursor-none touch-none rounded-3xl border-4 border-primary-300"
+                  style={{ width: '100%', height: '650px', maxWidth: '800px', background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
                 />
 
                 {!gameStarted && !gameOver && (
