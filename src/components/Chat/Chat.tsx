@@ -95,7 +95,7 @@ export const Chat = () => {
 
     setIsSearchingGifs(true);
     try {
-      const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=24&rating=g`;
+      const url = `https://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=100&rating=g`;
       console.log('Searching GIFs with URL:', url);
 
       const response = await fetch(url);
