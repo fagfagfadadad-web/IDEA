@@ -463,7 +463,7 @@ export const Tasks = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+              <div className="p-4 bg-white border border-gray-300 rounded-lg">
                 <h4 className="font-inter font-bold text-gray-800 mb-2">
                   {currentClaimTask.title}
                 </h4>
@@ -471,12 +471,12 @@ export const Tasks = () => {
                   {currentClaimTask.description}
                 </p>
                 <div className="flex flex-col gap-1 mt-3">
-                  <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                  <div className="flex items-center gap-1 text-[#f97316] font-inter font-bold">
                     <span>🍖</span>
                     +{currentClaimTask.rewardAmount} Food Reward
                   </div>
                   {currentClaimTask.ticketReward && currentClaimTask.ticketReward > 0 && (
-                    <div className="flex items-center gap-1 text-purple-600 font-inter font-bold">
+                    <div className="flex items-center gap-1 text-[#7C3AED] font-inter font-bold">
                       <span>🎫</span>
                       +{currentClaimTask.ticketReward} Ticket Reward
                     </div>
