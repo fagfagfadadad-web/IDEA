@@ -114,10 +114,10 @@ export const Header = () => {
                           className="fixed inset-0 z-40" 
                           onClick={() => setIsProfileMenuOpen(false)}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-primary-300 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-2xl z-50 overflow-hidden" style={{ background: '#7C3AED' }}>
                           <Link
                             to="/profile"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -125,7 +125,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/mining"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🍖</span>
@@ -133,7 +133,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/ships"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🐕</span>
@@ -141,7 +141,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/tasks"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Target size={16} />
@@ -149,10 +149,10 @@ export const Header = () => {
                           </Link>
                           {user?.isAdmin && (
                             <>
-                              <div className="border-t border-gray-200 my-1"></div>
+                              <div className="border-t border-primary-400/30 my-1"></div>
                               <Link
                                 to="/admin"
-                                className="flex items-center gap-3 px-4 py-3 text-gray-800 hover:bg-accent-100 hover:text-accent-600 transition-all duration-200 font-medium"
+                                className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                                 onClick={() => setIsProfileMenuOpen(false)}
                               >
                                 <Settings size={16} />
@@ -160,10 +160,10 @@ export const Header = () => {
                               </Link>
                             </>
                           )}
-                          <div className="border-t border-gray-200 my-1"></div>
+                          <div className="border-t border-primary-400/30 my-1"></div>
                           <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-200 w-full text-left font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-red-600 transition-all duration-200 w-full text-left font-medium"
                           >
                             <LogOut size={16} />
                             Disconnect Wallet
@@ -202,14 +202,15 @@ export const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <div
-              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white shadow-2xl transform transition-transform duration-300 border-l border-primary-300 z-50"
+              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] shadow-2xl transform transition-transform duration-300 z-50"
+              style={{ background: 'linear-gradient(180deg, #7C3AED 0%, #6b21a8 100%)' }}
             >
-              <div className="p-4 border-b border-primary-200">
+              <div className="p-4 border-b border-primary-400/30">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-primary-600">PupFi Menu</h2>
+                  <h2 className="text-lg font-bold text-white">PupFi Menu</h2>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 text-gray-700 hover:text-gray-900 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
+                    className="p-2 text-white hover:text-white/80 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
                   >
                     <X size={20} />
                   </button>
@@ -219,20 +220,20 @@ export const Header = () => {
               <div className="p-4 space-y-2">
                 {/* Food Balance */}
                 {isLoggedIn && gameStats && (
-                  <div className="bg-primary-50 p-4 rounded-lg border border-primary-300 mb-4">
+                  <div className="p-4 rounded-lg mb-4" style={{ background: '#FFA724' }}>
                     <div className="flex items-center gap-2 justify-center">
-                      <span className="text-primary-500 text-xl">🍖</span>
-                      <span className="text-primary-600 font-bold text-lg">
+                      <span className="text-white text-xl">🍖</span>
+                      <span className="text-white font-bold text-lg">
                         {gameStats.zenBalance?.toLocaleString() || '0'}
                       </span>
-                      <span className="text-gray-700">Food</span>
+                      <span className="text-white">Food</span>
                     </div>
                   </div>
                 )}
 
                 <Link
                   to="/mining"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🍖</span>
@@ -240,7 +241,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/ships"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🐕</span>
@@ -248,7 +249,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/shop"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <ShoppingCart size={18} />
@@ -256,7 +257,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/tasks"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Target size={18} />
@@ -264,7 +265,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/game"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🎮</span>
@@ -272,7 +273,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/referrals"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Users size={18} />
@@ -280,7 +281,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/leaderboard"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Trophy size={18} />
@@ -291,7 +292,7 @@ export const Header = () => {
                   <>
                     <Link
                       to="/profile"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200 font-medium"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <User size={18} />
@@ -300,7 +301,7 @@ export const Header = () => {
                     {user?.isAdmin && (
                       <Link
                         to="/admin"
-                        className="flex items-center gap-3 py-3 px-3 text-base text-gray-800 hover:bg-accent-100 hover:text-accent-600 rounded-lg transition-all duration-200 font-medium"
+                        className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <Settings size={18} />
@@ -312,7 +313,7 @@ export const Header = () => {
                         handleLogout();
                         setIsMobileMenuOpen(false);
                       }}
-                      className="flex items-center gap-3 py-3 px-3 text-base text-red-600 hover:bg-red-100 hover:text-red-700 rounded-lg transition-all duration-200 w-full text-left mt-4 font-medium"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-red-600 rounded-lg transition-all duration-200 w-full text-left mt-4 font-medium"
                     >
                       <LogOut size={18} />
                       Disconnect
