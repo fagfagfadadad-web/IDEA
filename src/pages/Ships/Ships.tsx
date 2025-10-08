@@ -374,11 +374,11 @@ export const Ships = () => {
                           key={dogType.type}
                           className="bg-white/70 rounded-xl overflow-hidden border border-purple-200/50 hover:border-purple-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
-                          <div className="aspect-video bg-gradient-to-br from-purple-300 to-purple-400 flex items-center justify-center">
+                          <div className="aspect-video bg-gradient-to-br from-purple-400 to-purple-500 flex items-center justify-center">
                             <span className="text-6xl">{dogType.emoji}</span>
                           </div>
 
-                          <div className="p-4 space-y-4 bg-gradient-to-br from-yellow-100 to-orange-100">
+                          <div className="p-4 space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50">
                             <div>
                               <h3 className="text-lg font-bold text-gray-800">
                                 {dogType.name}
@@ -406,7 +406,7 @@ export const Ships = () => {
                                 dogType.cost === 0 ? 'bg-gray-300 text-white cursor-not-allowed' :
                                 owned ? 'bg-green-500 text-white cursor-not-allowed' :
                                 affordable
-                                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
+                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white'
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
