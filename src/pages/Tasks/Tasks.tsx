@@ -320,18 +320,13 @@ export const Tasks = () => {
                       <div className="bg-gradient-to-br from-[#f97316] to-[#fb923c] p-6 space-y-4">
                         {/* Task Header */}
                         <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
-                              {getTaskIcon(task.taskType)}
-                            </div>
-                            <div>
-                              <h3 className="text-lg font-inter font-bold text-white">
-                                {task.title}
-                              </h3>
-                              <p className="text-white/80 text-sm capitalize font-inter">
-                                {task.taskType} Task
-                              </p>
-                            </div>
+                          <div>
+                            <h3 className="text-lg font-inter font-bold text-white">
+                              {task.title}
+                            </h3>
+                            <p className="text-white/80 text-sm capitalize font-inter">
+                              {task.taskType} Task
+                            </p>
                           </div>
                           <div className={`text-sm font-medium text-white`}>
                             {userTask?.status === 'completed' && <CheckCircle size={16} />}
