@@ -67,41 +67,41 @@ body::before {
 @layer components {
   .cute-button {
     @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl transition-all duration-300 transform hover:scale-105;
-    background: #FFA724;
+    background: #7C3AED;
     color: white;
-    box-shadow: 0 4px 12px rgba(255, 167, 36, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
     border: none;
   }
 
   .cute-button:hover {
-    box-shadow: 0 6px 16px rgba(255, 167, 36, 0.6);
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
     transform: scale(1.05) translateY(-2px);
-    background: #FFB744;
+    background: #8B5CF6;
   }
 
   .cute-button-secondary {
     @apply cute-button;
-    background: #FFA724;
+    background: #7C3AED;
     color: white;
-    box-shadow: 0 4px 12px rgba(255, 167, 36, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
   }
 
   .cute-button-secondary:hover {
-    background: #FFB744;
-    box-shadow: 0 6px 16px rgba(255, 167, 36, 0.6);
+    background: #8B5CF6;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
   }
 
   .cute-button-outline {
     @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl transition-all duration-300 transform hover:scale-105;
-    background: #FFA724;
+    background: #7C3AED;
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(255, 167, 36, 0.4);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
   }
 
   .cute-button-outline:hover {
-    background: #FFB744;
-    box-shadow: 0 6px 16px rgba(255, 167, 36, 0.6);
+    background: #8B5CF6;
+    box-shadow: 0 6px 16px rgba(124, 58, 237, 0.6);
   }
 
   .cute-card {
