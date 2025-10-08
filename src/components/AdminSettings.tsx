@@ -305,7 +305,7 @@ export const AdminSettings: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-gray-900 font-inter text-base font-semibold bg-gradient-to-r from-orange-100 to-yellow-100 p-3 rounded-lg border-2 border-orange-300">{msg.message}</p>
+                  <p className="text-white font-inter text-base font-bold bg-gradient-to-r from-orange-500 to-yellow-500 p-3 rounded-lg border-2 border-orange-600 shadow-md">{msg.message}</p>
                 </div>
               ))
             )}
