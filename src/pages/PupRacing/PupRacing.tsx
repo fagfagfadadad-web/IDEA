@@ -767,50 +767,43 @@ export const PupRacing = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto w-full max-w-full rounded-3xl border-4 border-primary-300"
+                  style={{ height: '650px' }}
                 />
 
                 {showStartScreen && !gameStarted && !gameOver && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-3xl p-2">
-                    <div className="text-center space-y-2 cute-card p-3 mx-2 max-w-xs w-full max-h-[80vh] overflow-y-auto">
-                      <div className="text-3xl">🏁</div>
-                      <h2 className="text-base font-inter font-bold text-gray-800">Pup Racing</h2>
+                    <div className="text-center space-y-4 cute-card p-6 mx-2 max-w-xs w-full">
+                      <div className="text-5xl">🏁</div>
+                      <h2 className="text-2xl font-inter font-bold text-gray-800">Pup Racing</h2>
 
                       {checkingTickets ? (
-                        <div className="text-gray-600 font-inter text-xs">Checking...</div>
+                        <div className="text-gray-600 font-inter text-sm">Checking...</div>
                       ) : (
                         <>
                           {needsTicket && (
-                            <div className="bg-yellow-50 border border-yellow-400 p-2 rounded-lg">
-                              <p className="text-yellow-800 font-inter font-bold text-xs">🎫 Daily Play Used</p>
-                              <p className="text-yellow-700 text-xs font-inter">
+                            <div className="bg-yellow-50 border border-yellow-400 p-3 rounded-lg">
+                              <p className="text-yellow-800 font-inter font-bold text-sm">🎫 Daily Play Used</p>
+                              <p className="text-yellow-700 text-sm font-inter">
                                 {hasTicket ? `Have ${gameStats?.gameTickets || 0} tickets` : 'Need ticket'}
                               </p>
                             </div>
                           )}
 
                           {!needsTicket && (
-                            <div className="bg-green-50 border border-green-400 p-2 rounded-lg">
-                              <p className="text-green-800 font-inter font-bold text-xs">✨ Free Play</p>
-                              <p className="text-green-700 text-xs font-inter">Tickets: {gameStats?.gameTickets || 0}</p>
+                            <div className="bg-green-50 border border-green-400 p-3 rounded-lg">
+                              <p className="text-green-800 font-inter font-bold text-sm">✨ Free Play</p>
+                              <p className="text-green-700 text-sm font-inter">Tickets: {gameStats?.gameTickets || 0}</p>
                             </div>
                           )}
                         </>
                       )}
 
-                      <div className="text-left space-y-0.5 text-xs text-gray-700 font-inter bg-blue-50 p-2 rounded-lg">
-                        <p className="font-bold text-gray-800">How to Play:</p>
-                        <p>• 📱 Swipe left/right to move lanes</p>
-                        <p>• 👆 Tap for turbo boost</p>
-                        <p>• ⌨️ Or Arrow Keys / A/D + Space</p>
-                        <p>• Avoid obstacles & collect 🍖</p>
-                      </div>
-
                       <Button
                         onClick={startGame}
                         disabled={!canPlayGame || checkingTickets}
-                        className="cute-button px-4 py-2 w-full text-sm"
+                        className="cute-button px-6 py-3 w-full text-lg"
                       >
-                        <Play size={14} />
+                        <Play size={20} />
                         {checkingTickets ? 'Loading...' : canPlayGame ? 'Start Race' : 'Need Tickets'}
                       </Button>
                     </div>
