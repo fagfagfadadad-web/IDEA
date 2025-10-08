@@ -202,9 +202,9 @@ export const Referrals = () => {
               Your Friend Invitation Link
             </h2>
             <div className="flex gap-3">
-              <div className="flex-1 bg-primary-100 rounded-lg p-3 border border-primary-300">
-                <div className="text-gray-700 text-sm mb-1 font-inter">Friend Code</div>
-                <div className="text-gray-800 font-inter font-bold text-lg">
+              <div className="flex-1 bg-purple-600 rounded-lg p-3 border border-purple-500">
+                <div className="text-white/90 text-sm mb-1 font-inter">Friend Code</div>
+                <div className="text-white font-inter font-bold text-lg">
                   {gameStats?.referralCode || 'Loading...'}
                 </div>
               </div>
@@ -249,25 +249,25 @@ export const Referrals = () => {
                     key={index}
                     className={`p-4 rounded-xl border transition-all duration-300 ${
                       isCurrent
-                        ? 'border-primary-400 bg-primary-100'
+                        ? 'border-purple-400 bg-purple-600'
                         : isUnlocked
-                        ? 'border-success bg-green-50'
-                        : 'border-gray-300 bg-gray-50'
+                        ? 'border-green-400 bg-green-600'
+                        : 'border-gray-400 bg-gray-700'
                     }`}
                   >
                     <div className="text-center space-y-2">
                       <div className="text-2xl">{tier.icon}</div>
-                      <h3 className="font-inter font-bold text-gray-800">
+                      <h3 className="font-inter font-bold text-white">
                         {tier.title}
                       </h3>
-                      <p className="text-gray-600 text-sm font-inter">
+                      <p className="text-white/80 text-sm font-inter">
                         {tier.referrals} friends
                       </p>
-                      <div className="text-primary-600 font-inter font-bold">
+                      <div className="text-yellow-300 font-inter font-bold">
                         +{tier.bonus} 🍖 bonus
                       </div>
                       {isCurrent && (
-                        <div className="text-primary-600 text-xs font-medium font-inter">
+                        <div className="text-yellow-300 text-xs font-medium font-inter">
                           Current Tier
                         </div>
                       )}
@@ -299,26 +299,26 @@ export const Referrals = () => {
                 {referrals.map((referral, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between bg-primary-50 rounded-lg p-4"
+                    className="flex items-center justify-between bg-purple-600 rounded-lg p-4"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-inter font-bold">
+                      <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-700 rounded-full flex items-center justify-center text-white font-inter font-bold">
                         {referral.user?.username?.charAt(0)?.toUpperCase() || '?'}
                       </div>
                       <div>
-                        <div className="text-gray-800 font-medium font-inter">
+                        <div className="text-white font-medium font-inter">
                           {referral.user?.username || 'Anonymous'}
                         </div>
-                        <div className="text-gray-600 text-sm font-inter">
+                        <div className="text-white/80 text-sm font-inter">
                           Joined {referral.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-primary-600 font-inter font-bold">
+                      <div className="text-yellow-300 font-inter font-bold">
                         +{Math.floor((referral.totalMined || 0) * 0.1)} 🍖
                       </div>
-                      <div className="text-gray-600 text-sm font-inter">
+                      <div className="text-white/80 text-sm font-inter">
                         Earned from friend
                       </div>
                     </div>
