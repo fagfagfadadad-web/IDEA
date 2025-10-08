@@ -234,13 +234,11 @@ export const PupRacing = () => {
     if (!canvas) return;
 
     const isMobile = window.innerWidth < 768;
-    const width = isMobile ? Math.min(window.innerWidth - 20, 400) : Math.min(600, window.innerWidth - 40);
-    const height = isMobile ? Math.min(600, window.innerHeight - 300) : Math.min(720, window.innerHeight - 250);
+    const width = isMobile ? window.innerWidth - 32 : Math.min(800, window.innerWidth - 40);
+    const height = 650;
 
     canvas.width = width;
     canvas.height = height;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
 
     const laneWidth = width * 0.6 / 3;
     const roadStart = width * 0.2;
@@ -766,8 +764,8 @@ export const PupRacing = () => {
               <div className="relative">
                 <canvas
                   ref={canvasRef}
-                  className="block mx-auto w-full max-w-full rounded-3xl border-4 border-primary-300"
-                  style={{ height: '650px' }}
+                  className="block mx-auto rounded-3xl border-4 border-primary-300"
+                  style={{ width: '100%', height: '650px', maxWidth: '800px' }}
                 />
 
                 {showStartScreen && !gameStarted && !gameOver && (
