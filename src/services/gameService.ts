@@ -612,10 +612,28 @@ export class GameService {
 
     const stats = statsSnap.data() as GameStats;
     const now = new Date();
+
+    // Check if there's already an active boost of this type
+    const activeBoosts = stats.activeBoosts || [];
+    const hasActiveBoostOfType = activeBoosts.some(boost => {
+      if (boost.type !== boostType) return false;
+      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return expiresAt > now;
+    });
+
+    if (hasActiveBoostOfType) {
+      throw new Error(`You already have an active ${boostType} boost! Wait for it to expire before purchasing another.`);
+    }
+
     const expiresAt = new Date(now.getTime() + duration * 1000);
 
-    const activeBoosts = stats.activeBoosts || [];
-    activeBoosts.push({
+    // Remove expired boosts and add new one
+    const updatedBoosts = activeBoosts.filter(boost => {
+      const boostExpiry = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return boostExpiry > now;
+    });
+
+    updatedBoosts.push({
       type: boostType,
       multiplier,
       expiresAt
@@ -623,7 +641,7 @@ export class GameService {
 
     await updateDoc(statsRef, {
       zenBalance: increment(-cost),
-      activeBoosts,
+      activeBoosts: updatedBoosts,
       updatedAt: serverTimestamp()
     });
   }
