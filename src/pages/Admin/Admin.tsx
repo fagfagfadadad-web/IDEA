@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { AdminTasks } from '../../components/AdminTasks';
 import { AdminStats } from '../../components/AdminStats';
 import { AdminUsers } from '../../components/AdminUsers';
+import { AdminSettings } from '../../components/AdminSettings';
 import { Settings, BarChart3, Users, Target } from 'lucide-react';
 
 export const Admin: React.FC = () => {
@@ -13,7 +14,7 @@ export const Admin: React.FC = () => {
     { id: 0, label: 'Statistics', component: AdminStats, icon: <BarChart3 size={16} />, emoji: '📊' },
     { id: 1, label: 'Task Management', component: AdminTasks, icon: <Target size={16} />, emoji: '🎯' },
     { id: 2, label: 'User Management', component: AdminUsers, icon: <Users size={16} />, emoji: '👥' },
-    { id: 3, label: 'System Settings', component: () => <div className="p-8 text-gray-700 font-inter">System settings coming soon...</div>, icon: <Settings size={16} />, emoji: '⚙️' }
+    { id: 3, label: 'System Settings', component: AdminSettings, icon: <Settings size={16} />, emoji: '⚙️' }
   ];
 
   // Show loading while auth is still loading
