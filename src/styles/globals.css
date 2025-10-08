@@ -23,14 +23,14 @@
 }
 
 html {
-  background: #7C3AED;
+  background: #1a0b2e;
   -webkit-font-smoothing: antialiased;
   font-family: 'Inter', sans-serif;
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #7C3AED;
+  background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%);
   min-height: 100vh;
   position: relative;
 }
@@ -43,8 +43,8 @@ body::before {
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(107, 33, 168, 0.3) 0%, transparent 50%);
+    radial-gradient(circle at 20% 30%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -61,26 +61,27 @@ body::before {
 
 @layer components {
   .cute-button {
-    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-2xl transition-all duration-300 transform hover:scale-105;
-    background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%);
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 font-bold rounded-xl transition-all duration-300 transform hover:scale-105;
+    background: linear-gradient(135deg, #FCD34D 0%, #FBD347 100%);
     color: #1f2937;
-    box-shadow: 0 10px 30px rgba(251, 191, 36, 0.5), 0 4px 12px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 4px 12px rgba(252, 211, 77, 0.4);
+    border: none;
   }
 
   .cute-button:hover {
-    box-shadow: 0 15px 40px rgba(251, 191, 36, 0.6), 0 6px 16px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 6px 16px rgba(252, 211, 77, 0.6);
     transform: scale(1.05) translateY(-2px);
   }
 
   .cute-button-secondary {
     @apply cute-button;
-    background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+    background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
     color: white;
-    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.5), 0 4px 12px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
   }
 
   .cute-button-secondary:hover {
-    box-shadow: 0 15px 40px rgba(245, 158, 11, 0.6), 0 6px 16px rgba(245, 158, 11, 0.4);
+    box-shadow: 0 6px 16px rgba(255, 140, 0, 0.6);
   }
 
   .cute-button-outline {
@@ -98,23 +99,27 @@ body::before {
   }
 
   .cute-card {
-    @apply relative backdrop-blur-xl rounded-3xl border-2 transition-all duration-300 hover:shadow-2xl overflow-hidden;
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    border-color: rgba(251, 191, 36, 0.8);
-    box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+    @apply relative backdrop-blur-xl rounded-2xl border transition-all duration-300 overflow-hidden;
+    background: rgba(45, 27, 78, 0.6);
+    border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     color: white;
   }
 
   .cute-card::before {
     content: '';
     @apply absolute inset-0 opacity-0 transition-opacity duration-500;
-    background: linear-gradient(135deg, rgba(251, 146, 60, 0.2), rgba(249, 115, 22, 0.2));
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(139, 92, 246, 0.1));
   }
 
   .cute-card:hover {
-    border-color: rgba(251, 191, 36, 1);
-    box-shadow: 0 12px 48px rgba(249, 115, 22, 0.6);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     transform: translateY(-2px);
+  }
+
+  .cute-card:hover::before {
+    @apply opacity-100;
   }
 
   .cute-card:hover::before {
@@ -139,10 +144,10 @@ body::before {
   }
 
   .stat-card {
-    @apply p-6 text-center backdrop-blur-xl rounded-3xl border-2 transition-all duration-300;
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    border-color: rgba(251, 191, 36, 0.8);
-    box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+    @apply p-4 text-center backdrop-blur-xl rounded-xl border transition-all duration-300;
+    background: rgba(45, 27, 78, 0.6);
+    border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     color: white;
   }
 
@@ -157,57 +162,98 @@ body::before {
   }
 
   .food-points {
-    @apply flex items-center gap-2 px-4 py-2 rounded-2xl font-bold;
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    border: 2px solid rgba(251, 191, 36, 0.8);
+    @apply flex items-center gap-2 px-4 py-2 rounded-xl font-bold;
+    background: rgba(45, 27, 78, 0.8);
+    border: 1px solid rgba(124, 58, 237, 0.4);
     color: white;
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, #fbbf24 0%, #fcd34d 50%, #f59e0b 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: white;
     font-weight: 800;
   }
 
   .page-bg {
-    background: #7C3AED;
+    background: linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%);
     min-height: 100vh;
     position: relative;
   }
 
   .app-header {
-    background: rgba(107, 33, 168, 0.7);
+    background: rgba(26, 11, 46, 0.8);
     backdrop-filter: blur(30px);
-    border-bottom: 2px solid rgba(251, 191, 36, 0.3);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
   .app-footer {
-    background: rgba(107, 33, 168, 0.7);
+    background: rgba(26, 11, 46, 0.8);
     backdrop-filter: blur(30px);
-    border-top: 2px solid rgba(251, 191, 36, 0.3);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   }
 
   .dog-card {
-    @apply p-6 cursor-pointer backdrop-blur-xl rounded-3xl border-2 transition-all duration-300;
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    border-color: rgba(251, 191, 36, 0.8);
-    box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+    @apply p-6 cursor-pointer backdrop-blur-xl rounded-2xl border transition-all duration-300;
+    background: rgba(45, 27, 78, 0.6);
+    border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     color: white;
   }
 
   .dog-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 48px rgba(249, 115, 22, 0.6);
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
 
   .dog-card.selected {
-    border-color: #fbbf24;
-    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3), 0 25px 70px rgba(124, 58, 237, 0.2);
+    border-color: #FCD34D;
+    box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.4), 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .feature-card-purple {
+    @apply relative backdrop-blur-xl rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer;
+    background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+    min-height: 200px;
+  }
+
+  .feature-card-purple:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .feature-card-orange {
+    @apply relative backdrop-blur-xl rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer;
+    background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%);
+    border-color: rgba(255, 165, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+    min-height: 200px;
+  }
+
+  .feature-card-orange:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .game-card-small {
+    @apply relative backdrop-blur-xl rounded-xl border transition-all duration-300 overflow-hidden cursor-pointer;
+    background: rgba(45, 27, 78, 0.8);
+    border-color: rgba(124, 58, 237, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    color: white;
+    aspect-ratio: 1;
+  }
+
+  .game-card-small:hover {
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transform: scale(1.05);
   }
 
   .level-badge {

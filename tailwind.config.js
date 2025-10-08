@@ -50,15 +50,15 @@ module.exports = {
         error: '#ef4444',
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%)',
-        'secondary-gradient': 'linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%)',
-        'accent-gradient': 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
-        'pastel-gradient': 'linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%)',
+        'primary-gradient': 'linear-gradient(135deg, #1a0b2e 0%, #2d1b4e 100%)',
+        'secondary-gradient': 'linear-gradient(135deg, #FCD34D 0%, #FBD347 100%)',
+        'accent-gradient': 'linear-gradient(135deg, #FF8C00 0%, #FFA500 100%)',
+        'purple-gradient': 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)',
       },
       boxShadow: {
-        'cute': '0 20px 60px rgba(124, 58, 237, 0.2), 0 8px 24px rgba(251, 191, 36, 0.1)',
-        'cute-lg': '0 25px 80px rgba(124, 58, 237, 0.25), 0 10px 30px rgba(251, 191, 36, 0.15)',
-        'cute-xl': '0 35px 100px rgba(124, 58, 237, 0.3), 0 12px 36px rgba(251, 191, 36, 0.2)',
+        'cute': '0 4px 12px rgba(0, 0, 0, 0.3)',
+        'cute-lg': '0 8px 24px rgba(0, 0, 0, 0.4)',
+        'cute-xl': '0 12px 36px rgba(0, 0, 0, 0.5)',
       },
       borderRadius: {
         'cute': '20px',
