@@ -328,7 +328,7 @@ export const Chat = () => {
                   <div
                     className={`rounded-lg px-2.5 py-1.5 md:px-3 md:py-2 ${
                       isFoodTransfer
-                        ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border border-orange-200'
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 border border-orange-400'
                         : isTicketTransfer
                         ? 'bg-gradient-to-r from-purple-600 to-pink-600 border border-purple-500 text-white'
                         : isOwnMessage
@@ -338,8 +338,8 @@ export const Chat = () => {
                   >
                     {isFoodTransfer ? (
                       <div className="flex items-center gap-1.5">
-                        <Gift size={14} className="text-orange-400 flex-shrink-0 md:w-4 md:h-4" />
-                        <span className={`text-xs md:text-sm ${isRecipient ? 'font-bold text-green-400' : 'text-gray-200'}`}>
+                        <Gift size={14} className="text-white flex-shrink-0 md:w-4 md:h-4" />
+                        <span className={`text-xs md:text-sm ${isRecipient ? 'font-bold text-white' : 'text-white'}`}>
                           {msg.message}
                           {msg.recipientUsername && ` to ${msg.recipientUsername}`}
                           {isRecipient && ' (You!)'}
