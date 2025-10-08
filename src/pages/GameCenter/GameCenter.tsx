@@ -123,10 +123,10 @@ export const GameCenter = () => {
               <div className="flex items-center gap-3">
                 <div className="text-4xl md:text-5xl">🎫</div>
                 <div>
-                  <h3 className="text-lg md:text-xl font-inter font-bold text-gray-800">
+                  <h3 className="text-lg md:text-xl font-inter font-bold text-black">
                     Daily Free Tickets
                   </h3>
-                  <p className="text-sm text-gray-600 font-inter">
+                  <p className="text-sm text-black font-inter">
                     Claim 5 free tickets every day!
                   </p>
                 </div>
