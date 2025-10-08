@@ -48,7 +48,7 @@ export const MobileBottomNav = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 md:hidden z-[999999]" style={{ zIndex: '999999 !important' as any }}>
       {/* Gradient Background */}
-      <div className="bg-gradient-to-t from-purple-500 via-purple-500/95 to-purple-500/90 backdrop-blur-xl border-t-2 border-purple-600/50 shadow-2xl">
+      <div className="bg-gradient-to-t from-orange-500 via-orange-500/95 to-orange-500/90 backdrop-blur-xl border-t-2 border-orange-600/50 shadow-2xl">
         <div className="flex justify-around items-end py-2 px-2 relative">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.path;
@@ -74,7 +74,7 @@ export const MobileBottomNav = () => {
                   rounded-full flex items-center justify-center relative
                   ${isActive
                     ? `bg-gradient-to-br ${item.color} shadow-lg`
-                    : 'bg-purple-400 hover:bg-purple-300'
+                    : 'bg-orange-400 hover:bg-orange-300'
                   }
                   border-2 border-white shadow-md
                 `}>
@@ -105,16 +105,16 @@ export const MobileBottomNav = () => {
         
         {/* Decorative Elements */}
         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="w-8 h-1 bg-gradient-to-r from-purple-300 to-purple-400 rounded-full"></div>
+          <div className="w-8 h-1 bg-gradient-to-r from-orange-300 to-orange-400 rounded-full"></div>
         </div>
 
         {/* Paw Prints Decoration */}
-        <div className="absolute top-1 left-4 text-purple-300 text-xs opacity-50">🐾</div>
-        <div className="absolute top-1 right-4 text-purple-300 text-xs opacity-50">🐾</div>
+        <div className="absolute top-1 left-4 text-orange-300 text-xs opacity-50">🐾</div>
+        <div className="absolute top-1 right-4 text-orange-300 text-xs opacity-50">🐾</div>
       </div>
 
       {/* Safe Area for iPhone */}
-      <div className="h-safe-area-inset-bottom bg-purple-500"></div>
+      <div className="h-safe-area-inset-bottom bg-orange-500"></div>
     </div>
   );
 };
