@@ -781,18 +781,18 @@ export const PupRacing = () => {
                       ) : (
                         <>
                           {needsTicket && (
-                            <div className="bg-yellow-50 border border-yellow-400 p-3 rounded-lg">
-                              <p className="text-yellow-800 font-inter font-bold text-sm">🎫 Daily Play Used</p>
-                              <p className="text-yellow-700 text-sm font-inter">
+                            <div style={{ background: '#FFA724' }} className="border border-orange-400 p-3 rounded-lg">
+                              <p className="text-white font-inter font-bold text-sm">🎫 Daily Play Used</p>
+                              <p className="text-white/90 text-sm font-inter">
                                 {hasTicket ? `Have ${gameStats?.gameTickets || 0} tickets` : 'Need ticket'}
                               </p>
                             </div>
                           )}
 
                           {!needsTicket && (
-                            <div className="bg-green-50 border border-green-400 p-3 rounded-lg">
-                              <p className="text-green-800 font-inter font-bold text-sm">✨ Free Play</p>
-                              <p className="text-green-700 text-sm font-inter">Tickets: {gameStats?.gameTickets || 0}</p>
+                            <div style={{ background: '#FFA724' }} className="border border-orange-400 p-3 rounded-lg">
+                              <p className="text-white font-inter font-bold text-sm">✨ Free Play</p>
+                              <p className="text-white/90 text-sm font-inter">Tickets: {gameStats?.gameTickets || 0}</p>
                             </div>
                           )}
                         </>
