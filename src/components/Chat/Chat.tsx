@@ -31,7 +31,7 @@ interface GiphyGif {
 }
 
 export const Chat = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { gameStats, refetch } = useGame();
   const { success, error } = useToast();
   const [isOpen, setIsOpen] = useState(false);
@@ -48,11 +48,15 @@ export const Chat = () => {
   const [gifSearchQuery, setGifSearchQuery] = useState('');
   const [searchedGifs, setSearchedGifs] = useState<GiphyGif[]>([]);
   const [isSearchingGifs, setIsSearchingGifs] = useState(false);
+  const [banTimeLeft, setBanTimeLeft] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
+
+    // Refresh user data to get latest ban status
+    refreshUser();
 
     const unsubscribe = ChatService.subscribeToMessages((msgs) => {
       setMessages(msgs);
@@ -60,6 +64,36 @@ export const Chat = () => {
 
     return () => unsubscribe();
   }, [isOpen]);
+
+  // Check ban status and update timer
+  useEffect(() => {
+    if (!user?.isChatBanned || !user?.chatBanUntil) {
+      setBanTimeLeft(null);
+      return;
+    }
+
+    const updateBanTime = () => {
+      if (!user?.chatBanUntil) return;
+
+      const banUntil = user.chatBanUntil instanceof Date
+        ? user.chatBanUntil
+        : (user.chatBanUntil as any).toDate();
+      const now = new Date();
+      const minutesLeft = Math.ceil((banUntil.getTime() - now.getTime()) / 60000);
+
+      if (minutesLeft <= 0) {
+        setBanTimeLeft(null);
+        refreshUser(); // Refresh to clear ban status
+      } else {
+        setBanTimeLeft(minutesLeft);
+      }
+    };
+
+    updateBanTime();
+    const interval = setInterval(updateBanTime, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, [user?.isChatBanned, user?.chatBanUntil]);
 
   useEffect(() => {
     scrollToBottom();
@@ -592,6 +626,11 @@ export const Chat = () => {
 
       {/* Input */}
       <div className="p-2 md:p-4 bg-gray-800 border-t border-gray-700">
+        {banTimeLeft !== null && banTimeLeft > 0 ? (
+          <div className="bg-red-500 text-white px-4 py-3 rounded-lg mb-2 text-center font-bold">
+            🚫 You are banned from chat for {banTimeLeft} more minutes
+          </div>
+        ) : null}
         <div className="flex gap-1 md:gap-2 items-center">
           <button
             onClick={() => {
@@ -599,7 +638,7 @@ export const Chat = () => {
               setShowGifPicker(false);
             }}
             className="p-2 hover:bg-gray-700 active:bg-gray-600 rounded-lg transition-colors flex-shrink-0"
-            disabled={!user?.id || isSending}
+            disabled={!user?.id || isSending || (banTimeLeft !== null && banTimeLeft > 0)}
             title="Add emoji"
           >
             <Smile size={18} className="text-gray-400 md:w-5 md:h-5" />
@@ -610,7 +649,7 @@ export const Chat = () => {
               setShowEmojiPicker(false);
             }}
             className="p-2 hover:bg-gray-700 active:bg-gray-600 rounded-lg transition-colors flex-shrink-0"
-            disabled={!user?.id || isSending}
+            disabled={!user?.id || isSending || (banTimeLeft !== null && banTimeLeft > 0)}
             title="Add GIF"
           >
             <ImageIcon size={18} className="text-gray-400 md:w-5 md:h-5" />
@@ -620,13 +659,13 @@ export const Chat = () => {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-            placeholder="Type a message..."
+            placeholder={banTimeLeft !== null && banTimeLeft > 0 ? "You are banned from chat..." : "Type a message..."}
             className="flex-1 px-3 py-2 text-sm md:text-base bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 min-w-0"
-            disabled={!user?.id || isSending}
+            disabled={!user?.id || isSending || (banTimeLeft !== null && banTimeLeft > 0)}
           />
           <button
             onClick={handleSendMessage}
-            disabled={!user?.id || !newMessage.trim() || isSending}
+            disabled={!user?.id || !newMessage.trim() || isSending || (banTimeLeft !== null && banTimeLeft > 0)}
             className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-2 md:px-4 md:py-2 rounded-lg hover:from-purple-600 hover:to-purple-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0"
             title="Send message"
           >

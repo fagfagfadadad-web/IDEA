@@ -12,7 +12,8 @@ import {
   doc,
   increment,
   deleteDoc,
-  updateDoc
+  updateDoc,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -37,6 +38,31 @@ export class ChatService {
     message: string,
     avatarUrl?: string
   ): Promise<string> {
+    // Check if user is banned
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+
+      // Check if user has active chat ban
+      if (userData.isChatBanned && userData.chatBanUntil) {
+        const banUntil = userData.chatBanUntil.toDate();
+        const now = new Date();
+
+        if (now < banUntil) {
+          const minutesLeft = Math.ceil((banUntil.getTime() - now.getTime()) / 60000);
+          throw new Error(`You are banned from chat for ${minutesLeft} more minutes`);
+        } else {
+          // Ban expired, unban the user
+          await updateDoc(userRef, {
+            isChatBanned: false,
+            chatBanUntil: null
+          });
+        }
+      }
+    }
+
     const messageData = {
       userId,
       username,
