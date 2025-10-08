@@ -298,7 +298,7 @@ export const Tasks = () => {
                   return (
                     <div
                       key={task.id}
-                      className={`cute-card p-6 transition-all duration-300 hover:transform hover:scale-105 ${
+                      className={`cute-card overflow-hidden transition-all duration-300 hover:transform hover:scale-105 ${
                         userTask?.status === 'completed'
                           ? 'ring-2 ring-green-500'
                           : userTask?.status === 'in_progress'
@@ -306,7 +306,18 @@ export const Tasks = () => {
                           : ''
                       }`}
                     >
-                      <div className="space-y-4">
+                      {/* Banner Image */}
+                      {task.bannerImage && (
+                        <div className="w-full h-32 overflow-hidden">
+                          <img
+                            src={task.bannerImage}
+                            alt={task.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+
+                      <div className="p-6 space-y-4">
                         {/* Task Header */}
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -427,7 +438,7 @@ export const Tasks = () => {
                           )}
                         </div>
                       </div>
-                    </div>
+                      </div>
                   );
                 })}
               </div>
