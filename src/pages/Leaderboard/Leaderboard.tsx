@@ -66,20 +66,20 @@ export const Leaderboard = () => {
       case 3:
         return <Medal className="text-amber-600" size={24} />;
       default:
-        return <div className="w-6 h-6 bg-primary-200 rounded-full flex items-center justify-center text-gray-700 text-sm font-bold">{rank}</div>;
+        return <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">{rank}</div>;
     }
   };
 
   const getRankBg = (rank: number) => {
     switch (rank) {
       case 1:
-        return 'bg-gradient-to-r from-yellow-100 to-yellow-200 border-yellow-400';
+        return 'bg-gradient-to-r from-yellow-500 to-yellow-600 border-yellow-400 text-white';
       case 2:
-        return 'bg-gradient-to-r from-gray-100 to-gray-200 border-gray-400';
+        return 'bg-gradient-to-r from-gray-500 to-gray-600 border-gray-400 text-white';
       case 3:
-        return 'bg-gradient-to-r from-amber-100 to-amber-200 border-amber-500';
+        return 'bg-gradient-to-r from-amber-500 to-amber-600 border-amber-500 text-white';
       default:
-        return 'bg-white border-gray-300';
+        return 'bg-purple-600 border-purple-500 text-white';
     }
   };
 
@@ -128,8 +128,8 @@ export const Leaderboard = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 min-w-0 px-2 sm:px-4 py-3 sm:py-4 font-inter text-xs sm:text-sm font-bold transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
-                      : 'text-gray-600 hover:text-primary-600'
+                      ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-b-2 border-purple-400'
+                      : 'text-gray-700 hover:text-purple-600'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-1 sm:gap-2">
@@ -157,7 +157,7 @@ export const Leaderboard = () => {
                         key={entry.userId}
                         className={`p-3 sm:p-4 rounded-xl border transition-all duration-300 hover:transform hover:scale-[1.02] ${
                           isCurrentUser
-                            ? 'border-primary-400 bg-primary-100 shadow-lg'
+                            ? 'border-yellow-400 bg-yellow-500 shadow-lg text-white'
                             : getRankBg(rank)
                         }`}
                       >
@@ -175,15 +175,13 @@ export const Leaderboard = () => {
                               </div>
 
                               <div className="min-w-0 flex-1">
-                                <div className={`font-inter font-bold text-sm sm:text-base truncate ${
-                                  isCurrentUser ? 'text-primary-600' : 'text-gray-800'
-                                }`}>
+                                <div className="font-inter font-bold text-sm sm:text-base truncate text-white">
                                   {entry.user?.username || 'Anonymous'}
                                   {isCurrentUser && (
-                                    <span className="ml-1 sm:ml-2 text-primary-600 text-xs sm:text-sm font-inter">(You)</span>
+                                    <span className="ml-1 sm:ml-2 text-yellow-200 text-xs sm:text-sm font-inter">(You)</span>
                                   )}
                                 </div>
-                                <div className="text-gray-600 text-xs sm:text-sm font-inter">
+                                <div className="text-white/80 text-xs sm:text-sm font-inter">
                                   Level {entry.miningLevel}
                                 </div>
                               </div>
@@ -191,14 +189,14 @@ export const Leaderboard = () => {
                           </div>
 
                           <div className="text-right flex-shrink-0">
-                            <div className="flex items-center gap-1 text-sm sm:text-lg font-inter font-bold text-gray-800 whitespace-nowrap">
+                            <div className="flex items-center gap-1 text-sm sm:text-lg font-inter font-bold text-white whitespace-nowrap">
                               <span className="hidden sm:inline">{getFieldIcon(currentTab.field)}</span>
                               {formatValue(entry[currentTab.field as keyof GameStats] as number || 0, currentTab.field)}
                               {(currentTab.field === 'zenBalance' || currentTab.field === 'totalMined') && (
-                                <span className="text-primary-600 ml-1 font-inter hidden sm:inline">Food</span>
+                                <span className="text-yellow-300 ml-1 font-inter hidden sm:inline">Food</span>
                               )}
                             </div>
-                            <div className="text-gray-600 text-xs sm:text-sm font-inter">
+                            <div className="text-white/80 text-xs sm:text-sm font-inter">
                               Rank #{rank}
                             </div>
                           </div>
