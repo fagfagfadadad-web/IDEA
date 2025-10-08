@@ -212,11 +212,23 @@ export const Shop = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredItems.map((item) => {
               const affordable = canAfford(item.cost);
-              
+
+              // Check if upgrade is already purchased
+              const isUpgradePurchased = item.type === 'upgrade' && (() => {
+                if (item.id === 'auto_miner') {
+                  return gameStats?.permanentUpgrades?.autoFeeder === true;
+                } else if (item.id === 'energy_regenerator') {
+                  return (gameStats?.permanentUpgrades?.happinessBooster || 1) > 1;
+                }
+                return false;
+              })();
+
               return (
                 <div
                   key={item.id}
-                  className="cute-card p-6 hover:transform hover:scale-105"
+                  className={`cute-card p-6 hover:transform hover:scale-105 ${
+                    isUpgradePurchased ? 'opacity-60' : ''
+                  }`}
                 >
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
@@ -229,6 +241,7 @@ export const Shop = () => {
                         </h3>
                         <p className="text-gray-600 text-sm capitalize">
                           {item.type}
+                          {isUpgradePurchased && ' • Owned'}
                         </p>
                       </div>
                     </div>
@@ -244,15 +257,15 @@ export const Shop = () => {
                       </div>
                       <Button
                         onClick={() => handlePurchase(item)}
-                        disabled={!affordable || (item.type === 'consumable' && !selectedShip) || isProcessing}
+                        disabled={!affordable || (item.type === 'consumable' && !selectedShip) || isProcessing || isUpgradePurchased}
                         className={`px-4 py-2 rounded-lg font-inter font-bold transition-all duration-200 ${
-                          affordable && (item.type !== 'consumable' || selectedShip) && !isProcessing
+                          affordable && (item.type !== 'consumable' || selectedShip) && !isProcessing && !isUpgradePurchased
                             ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                       >
                         <ShoppingCart size={16} />
-                        {isProcessing ? 'Processing...' : 'Buy'}
+                        {isProcessing ? 'Processing...' : isUpgradePurchased ? 'Owned' : 'Buy'}
                       </Button>
                     </div>
                   </div>

@@ -98,29 +98,37 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
   const updateEnergyRegeneration = async () => {
     try {
+      // Get Happiness Booster multiplier (1.5x if purchased, 1x otherwise)
+      const happinessBooster = gameStats?.permanentUpgrades?.happinessBooster || 1;
+
       // Regenerate energy for ships
       const updatedShips = ships.map(ship => {
         const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastMining.getTime();
         const minutesPassed = Math.floor(timeDiff / (1000 * 60));
-        
+
         if (minutesPassed > 0 && ship.currentEnergy < ship.energyCapacity) {
+          // Base: 1 energy per 5 minutes
+          // With Happiness Booster (1.5x): 1.5 energy per 5 minutes = 1 energy per 3.33 minutes
+          const baseEnergyPerMinute = 1 / 5;
+          const boostedEnergyPerMinute = baseEnergyPerMinute * happinessBooster;
           const energyToAdd = Math.min(
             ship.energyCapacity - ship.currentEnergy,
-            Math.floor(minutesPassed / 5) // 1 energy per 5 minutes
+            Math.floor(minutesPassed * boostedEnergyPerMinute)
           );
-          
+
           if (energyToAdd > 0) {
             const newEnergy = ship.currentEnergy + energyToAdd;
             GameService.updateShip(ship.id!, { currentEnergy: newEnergy });
+            console.log(`⚡ Happiness Booster: Regenerated ${energyToAdd} energy (${happinessBooster}x boost) for ${ship.name}`);
             return { ...ship, currentEnergy: newEnergy };
           }
         }
-        
+
         return ship;
       });
-      
+
       setShips(updatedShips);
     } catch (error) {
       console.error('Error updating energy:', error);

@@ -18,23 +18,31 @@ export const Mining = () => {
     }
   }, [ships, selectedShip]);
 
-  // Update feeding progress for dogs
+  // Update feeding progress for dogs + Auto-Feeder
   useEffect(() => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
-      ships.forEach(ship => {
+      const autoFeederEnabled = gameStats?.permanentUpgrades?.autoFeeder || false;
+
+      ships.forEach(async (ship) => {
        if (!ship.id) return;
        const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastFeeding.getTime();
         const progress = Math.min(100, (timeDiff / (60 * 1000)) * 100); // 1 minute = 100%
        newProgress[ship.id] = progress;
+
+        // Auto-Feeder: Automatically feed if cooldown passed and dog has enough energy
+        if (autoFeederEnabled && canFeed(ship) && !isMining) {
+          console.log('🤖 Auto-Feeder: Automatically feeding', ship.name);
+          await handleFeed(ship.id);
+        }
       });
       setFeedingProgress(newProgress);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [ships]);
+  }, [ships, gameStats, isMining]);
 
   const handleFeed = async (shipId: string) => {
     await mineZen(shipId);
