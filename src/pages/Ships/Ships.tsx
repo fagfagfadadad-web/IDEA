@@ -372,13 +372,13 @@ export const Ships = () => {
                       return (
                         <div
                           key={dogType.type}
-                          className="bg-white/70 rounded-xl overflow-hidden border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
+                          className="bg-white/70 rounded-xl overflow-hidden border border-purple-200/50 hover:border-purple-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
-                          <div className="aspect-video bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
+                          <div className="aspect-video bg-gradient-to-br from-purple-300 to-purple-400 flex items-center justify-center">
                             <span className="text-6xl">{dogType.emoji}</span>
                           </div>
-                          
-                          <div className="p-4 space-y-4">
+
+                          <div className="p-4 space-y-4 bg-gradient-to-br from-yellow-100 to-orange-100">
                             <div>
                               <h3 className="text-lg font-bold text-gray-800">
                                 {dogType.name}
@@ -390,12 +390,12 @@ export const Ships = () => {
 
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-gray-600 text-sm">Appetite:</span>
-                                <span className="text-primary-600 font-bold">{dogType.mining_power}</span>
+                                <span className="text-gray-700 text-sm">Appetite:</span>
+                                <span className="text-orange-600 font-bold">{dogType.mining_power}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-600 text-sm">Happiness Capacity:</span>
-                                <span className="text-success font-bold">{dogType.energy_capacity}</span>
+                                <span className="text-gray-700 text-sm">Happiness Capacity:</span>
+                                <span className="text-orange-600 font-bold">{dogType.energy_capacity}</span>
                               </div>
                             </div>
 
@@ -403,10 +403,10 @@ export const Ships = () => {
                               onClick={() => buyShip(dogType.type)}
                               disabled={!affordable || owned || dogType.cost === 0}
                               className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${
-                                dogType.cost === 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' :
+                                dogType.cost === 0 ? 'bg-gray-300 text-white cursor-not-allowed' :
                                 owned ? 'bg-green-500 text-white cursor-not-allowed' :
                                 affordable
-                                  ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white'
+                                  ? 'bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white'
                                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               }`}
                             >
