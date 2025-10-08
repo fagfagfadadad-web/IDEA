@@ -331,38 +331,38 @@ export const AdminUsers: React.FC = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="bg-primary-50 rounded-lg p-3">
-                    <p className="text-gray-600 text-xs font-inter mb-1">Food Balance</p>
-                    <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                  <div className="bg-purple-100 rounded-lg p-3">
+                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Food Balance</p>
+                    <div className="flex items-center gap-1 text-purple-700 font-inter font-bold" style={{ color: '#6b21a8' }}>
                       <span>🍖</span>
-                      {userData.gameStats?.zenBalance?.toLocaleString() || 0}
+                      <span style={{ color: '#6b21a8' }}>{userData.gameStats?.zenBalance?.toLocaleString() || 0}</span>
                     </div>
                   </div>
 
-                  <div className="bg-accent-50 rounded-lg p-3">
-                    <p className="text-gray-600 text-xs font-inter mb-1">Care Level</p>
-                    <span className="text-accent-600 font-inter font-bold text-lg">
+                  <div className="bg-orange-100 rounded-lg p-3">
+                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Care Level</p>
+                    <span className="text-orange-700 font-inter font-bold text-lg" style={{ color: '#c2410c' }}>
                       {userData.gameStats?.miningLevel || 1}
                     </span>
                   </div>
 
-                  <div className="bg-green-50 rounded-lg p-3">
-                    <p className="text-gray-600 text-xs font-inter mb-1">Total Fed</p>
-                    <span className="text-success font-inter font-bold text-lg">
+                  <div className="bg-green-100 rounded-lg p-3">
+                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Total Fed</p>
+                    <span className="text-green-700 font-inter font-bold text-lg" style={{ color: '#15803d' }}>
                       {userData.gameStats?.totalMined?.toLocaleString() || 0}
                     </span>
                   </div>
 
-                  <div className="bg-gray-50 rounded-lg p-3">
-                    <p className="text-gray-600 text-xs font-inter mb-1">Status</p>
+                  <div className="bg-gray-200 rounded-lg p-3">
+                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Status</p>
                     <div className="flex flex-wrap gap-1">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        userData.isBanned ? 'bg-red-100 text-red-600' : 'bg-green-100 text-success'
-                      }`}>
+                        userData.isBanned ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
+                      }`} style={{ color: userData.isBanned ? '#991b1b' : '#166534' }}>
                         {userData.isBanned ? 'Banned' : 'Active'}
                       </span>
                       {userData.isAdmin && (
-                        <span className="px-2 py-0.5 bg-accent-100 text-accent-600 rounded-full text-xs font-medium">
+                        <span className="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium" style={{ color: '#854d0e' }}>
                           Admin
                         </span>
                       )}
