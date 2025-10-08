@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { useToast } from '../context/ToastContext';
-import { Save, AlertTriangle, Award, Clock, DollarSign, Zap, Trophy, Gift, Download, MessageSquare, Trash2, Ban } from 'lucide-react';
+import { Save, AlertTriangle, Award, Clock, DollarSign, Zap, Trophy, Gift, Download, MessageSquare, Trash2, Ban, Loader as LoaderIcon } from 'lucide-react';
 import { UserService } from '../services/userService';
 import { ChatService } from '../services/chatService';
+import { SettingsService } from '../services/settingsService';
 
 export const AdminSettings: React.FC = () => {
   const { success, error } = useToast();
   const [recentChatMessages, setRecentChatMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [gameSettings, setGameSettings] = useState({
     startingBalance: 1000,
@@ -61,29 +63,84 @@ export const AdminSettings: React.FC = () => {
     message: 'System is under maintenance. Please check back soon!'
   });
 
-  const handleSaveGameSettings = () => {
-    success('Game settings saved successfully!');
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      const settings = await SettingsService.getSettings();
+      setGameSettings(settings.gameSettings);
+      setBoostSettings(settings.boostSettings);
+      setUpgradeSettings(settings.upgradeSettings);
+      setShopSettings(settings.shopSettings);
+      setGameRewards(settings.gameRewards);
+      setMaintenanceMode(settings.maintenanceMode);
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+      error('Failed to load settings from database');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveBoostSettings = () => {
-    success('Boost settings saved successfully!');
+  const handleSaveGameSettings = async () => {
+    try {
+      await SettingsService.updateGameSettings(gameSettings);
+      success('Game settings saved successfully!');
+    } catch (err) {
+      error('Failed to save game settings');
+      console.error(err);
+    }
   };
 
-  const handleSaveUpgradeSettings = () => {
-    success('Upgrade settings saved successfully!');
+  const handleSaveBoostSettings = async () => {
+    try {
+      await SettingsService.updateBoostSettings(boostSettings);
+      success('Boost settings saved successfully!');
+    } catch (err) {
+      error('Failed to save boost settings');
+      console.error(err);
+    }
   };
 
-  const handleSaveShopSettings = () => {
-    success('Shop settings saved successfully!');
+  const handleSaveUpgradeSettings = async () => {
+    try {
+      await SettingsService.updateUpgradeSettings(upgradeSettings);
+      success('Upgrade settings saved successfully!');
+    } catch (err) {
+      error('Failed to save upgrade settings');
+      console.error(err);
+    }
   };
 
-  const handleSaveGameRewards = () => {
-    success('Game rewards saved successfully!');
+  const handleSaveShopSettings = async () => {
+    try {
+      await SettingsService.updateShopSettings(shopSettings);
+      success('Shop settings saved successfully!');
+    } catch (err) {
+      error('Failed to save shop settings');
+      console.error(err);
+    }
   };
 
-  const handleToggleMaintenance = () => {
-    setMaintenanceMode(prev => ({ ...prev, enabled: !prev.enabled }));
-    success(maintenanceMode.enabled ? 'Maintenance mode disabled' : 'Maintenance mode enabled');
+  const handleSaveGameRewards = async () => {
+    try {
+      await SettingsService.updateGameRewards(gameRewards);
+      success('Game rewards saved successfully!');
+    } catch (err) {
+      error('Failed to save game rewards');
+      console.error(err);
+    }
+  };
+
+  const handleToggleMaintenance = async () => {
+    try {
+      const newMode = { ...maintenanceMode, enabled: !maintenanceMode.enabled };
+      await SettingsService.updateMaintenanceMode(newMode);
+      setMaintenanceMode(newMode);
+      success(newMode.enabled ? 'Maintenance mode enabled' : 'Maintenance mode disabled');
+    } catch (err) {
+      error('Failed to update maintenance mode');
+      console.error(err);
+    }
   };
 
   const handleExportWallets = async () => {
@@ -122,8 +179,17 @@ export const AdminSettings: React.FC = () => {
   };
 
   useEffect(() => {
+    loadSettings();
     loadRecentMessages();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <LoaderIcon className="animate-spin text-primary-500" size={48} />
+      </div>
+    );
+  }
 
   const handleDeleteMessage = async (messageId: string) => {
     if (!window.confirm('Delete this message?')) return;
@@ -657,14 +723,14 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* Info Note */}
-      <div className="bg-blue-100 border-2 border-blue-400 p-4 rounded-lg">
+      <div className="bg-green-100 border-2 border-green-400 p-4 rounded-lg">
         <div className="flex items-start gap-3">
-          <div className="text-blue-500 text-2xl">ℹ️</div>
+          <div className="text-green-500 text-2xl">✅</div>
           <div>
-            <div className="font-bold text-blue-800 font-inter mb-1">Important Note</div>
-            <div className="text-blue-700 text-sm font-inter">
-              Settings are currently stored locally. Changes will apply immediately but may not persist across sessions.
-              To make these settings permanent, they need to be stored in the database and integrated with the game logic.
+            <div className="font-bold text-green-800 font-inter mb-1">Settings Active</div>
+            <div className="text-green-700 text-sm font-inter">
+              All settings are now stored in the Firebase database and persist across sessions.
+              Changes you make here will be automatically applied throughout the application and accessible via the Settings API.
             </div>
           </div>
         </div>

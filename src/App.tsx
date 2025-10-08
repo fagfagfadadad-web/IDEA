@@ -7,6 +7,7 @@ import { BatchTransactionsContextProvider } from 'wrappers';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { GameProvider } from './context/GameContext';
+import { SettingsProvider } from './context/SettingsContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
@@ -69,13 +70,15 @@ export const App = () => {
   return (
     <Router>
       <ToastProvider>
-        <AuthProvider>
-          <GameProvider>
-            <BatchTransactionsContextProvider>
-              <AppContent />
-            </BatchTransactionsContextProvider>
-          </GameProvider>
-        </AuthProvider>
+        <SettingsProvider>
+          <AuthProvider>
+            <GameProvider>
+              <BatchTransactionsContextProvider>
+                <AppContent />
+              </BatchTransactionsContextProvider>
+            </GameProvider>
+          </AuthProvider>
+        </SettingsProvider>
       </ToastProvider>
     </Router>
   );
