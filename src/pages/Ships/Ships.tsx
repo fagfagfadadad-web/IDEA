@@ -266,34 +266,34 @@ export const Ships = () => {
                         return (
                           <div
                             key={ship.id}
-                            className="bg-white/70 rounded-xl p-4 md:p-6 border border-primary-200/50 hover:border-primary-400/50 transition-all duration-300 shadow-lg"
+                            className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 md:p-6 border border-purple-700 transition-all duration-300 shadow-lg"
                           >
                             <div className="space-y-3 md:space-y-4">
                               {/* Dog Info */}
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h3 className="text-lg md:text-xl font-bold text-gray-800">
+                                  <h3 className="text-lg md:text-xl font-bold text-white">
                                     {ship.name}
                                   </h3>
-                                  <p className="text-gray-600">
+                                  <p className="text-white/90">
                                     Level {ship.level} • {ship.shipType} 🐕
                                   </p>
                                 </div>
                                 <div className="text-right">
-                                  <div className="text-primary-600 font-bold text-base md:text-lg">
+                                  <div className="text-white font-bold text-base md:text-lg">
                                     {ship.miningPower}
                                   </div>
-                                  <div className="text-gray-600 text-sm">Appetite</div>
+                                  <div className="text-white/80 text-sm">Appetite</div>
                                 </div>
                               </div>
 
                               {/* Happiness Status */}
                               <div className="space-y-2">
                                 <div className="flex justify-between items-center">
-                                  <span className="text-gray-600 text-sm">
+                                  <span className="text-white/90 text-sm">
                                     💖 Happiness Level
                                   </span>
-                                  <span className="text-gray-800 text-sm">
+                                  <span className="text-white text-sm">
                                     {ship.currentEnergy}/{ship.energyCapacity}
                                   </span>
                                 </div>
@@ -310,7 +310,7 @@ export const Ships = () => {
 
                               {/* Training */}
                               <div className="space-y-3">
-                                <h4 className="text-gray-800 font-bold">Training & Care</h4>
+                                <h4 className="text-white font-bold">Training & Care</h4>
                                 <div className="grid grid-cols-1 gap-2">
                                   {upgradeTypes.map((upgrade) => {
                                     const currentLevel = ship.upgrades[upgrade.type] || 0;
@@ -320,15 +320,15 @@ export const Ships = () => {
                                     return (
                                       <div
                                         key={upgrade.type}
-                                        className="flex items-center justify-between bg-primary-50/50 rounded-lg p-3"
+                                        className="flex items-center justify-between bg-white/10 rounded-lg p-3"
                                       >
                                         <div className="flex items-center gap-3">
                                           {upgrade.icon}
                                           <div>
-                                            <div className="text-gray-800 font-medium text-sm">
+                                            <div className="text-white font-medium text-sm">
                                               {upgrade.name} (Lv.{currentLevel})
                                             </div>
-                                            <div className="text-gray-600 text-xs">
+                                            <div className="text-white/80 text-xs">
                                               {upgrade.description}
                                             </div>
                                           </div>
@@ -338,7 +338,7 @@ export const Ships = () => {
                                           disabled={!affordable}
                                           className={`px-3 py-1 text-xs font-bold rounded-lg ${
                                             affordable
-                                              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white'
+                                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
                                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                           }`}
                                         >
