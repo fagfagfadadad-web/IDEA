@@ -138,20 +138,21 @@ body::before {
 
   .cute-input {
     @apply w-full px-6 py-4 text-lg border-2 rounded-2xl focus:ring-4 transition-all duration-300;
-    background: #FFA724;
-    border-color: rgba(255, 167, 36, 0.4);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     color: white;
     font-weight: 600;
   }
 
   .cute-input:focus {
-    border-color: #FFB744;
-    box-shadow: 0 0 0 4px rgba(255, 167, 36, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
     outline: none;
   }
 
   .cute-input::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .stat-card {
