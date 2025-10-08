@@ -235,7 +235,7 @@ export const PupRacing = () => {
 
     const isMobile = window.innerWidth < 768;
     const width = isMobile ? window.innerWidth - 32 : Math.min(800, window.innerWidth - 40);
-    const height = 650;
+    const height = 520;
 
     canvas.width = width;
     canvas.height = height;
@@ -765,7 +765,7 @@ export const PupRacing = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto rounded-3xl border-4 border-primary-300"
-                  style={{ width: '100%', height: '650px', maxWidth: '800px' }}
+                  style={{ width: '100%', height: '520px', maxWidth: '800px' }}
                 />
 
                 {showStartScreen && !gameStarted && !gameOver && (
