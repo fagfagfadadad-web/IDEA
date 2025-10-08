@@ -359,21 +359,22 @@ export const Profile = () => {
                 {ships.map((ship) => (
                   <div
                     key={ship.id}
-                    className="bg-primary-50 rounded-lg p-4 border border-primary-300"
+                    className="rounded-lg p-4 border-2 border-primary-400"
+                    style={{ background: '#7C3AED' }}
                   >
-                    <h3 className="text-gray-800 font-inter font-bold mb-2">{ship.name}</h3>
+                    <h3 className="text-white font-inter font-bold mb-2">{ship.name}</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600 font-inter">Level:</span>
-                        <span className="text-gray-800 font-bold font-inter">{ship.level}</span>
+                        <span className="text-white/90 font-inter">Level:</span>
+                        <span className="text-white font-bold font-inter">{ship.level}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 font-inter">Appetite:</span>
-                        <span className="text-primary-600 font-bold font-inter">{ship.miningPower}</span>
+                        <span className="text-white/90 font-inter">Appetite:</span>
+                        <span className="text-secondary-400 font-bold font-inter">{ship.miningPower}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 font-inter">Happiness:</span>
-                        <span className="text-success font-bold font-inter">
+                        <span className="text-white/90 font-inter">Happiness:</span>
+                        <span className="text-secondary-400 font-bold font-inter">
                           {ship.currentEnergy}/{ship.energyCapacity}
                         </span>
                       </div>
