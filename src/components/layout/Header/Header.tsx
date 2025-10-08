@@ -51,25 +51,25 @@ export const Header = () => {
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-              <Link to="/mining" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/mining" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Feed Dogs
               </Link>
-              <Link to="/ships" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/ships" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Dogs
               </Link>
-              <Link to="/shop" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Pet Store
               </Link>
-              <Link to="/tasks" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/tasks" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Tasks
               </Link>
-              <Link to="/game" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/game" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Games
               </Link>
-              <Link to="/referrals" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Friends
               </Link>
-              <Link to="/leaderboard" className="text-gray-700 hover:text-orange-500 transition-colors font-semibold font-inter">
+              <Link to="/leaderboard" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Leaderboard
               </Link>
             </div>
@@ -79,7 +79,7 @@ export const Header = () => {
             {/* Food Balance */}
             {isLoggedIn && gameStats && (
               <div className="hidden md:flex food-points">
-                <span className="text-orange-500">🍖</span>
+                <span className="text-primary-500">🍖</span>
                 <span className="font-inter font-bold">
                   {gameStats.zenBalance?.toLocaleString() || '0'}
                 </span>
@@ -95,14 +95,14 @@ export const Header = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-orange-400/50 shadow-lg"
+                      className="w-10 h-10 rounded-full overflow-hidden relative hover:scale-105 transition-all duration-200 border-2 border-primary-400/50 shadow-lg"
                     >
                       {user?.avatarUrl ? (
                         <div className="w-full h-full flex items-center justify-center text-2xl">
                           {user.avatarUrl}
                         </div>
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-orange-400 to-orange-600 flex items-center justify-center text-white font-bold">
+                        <div className="w-full h-full bg-gradient-to-r from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold">
                           {user?.username?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
@@ -114,10 +114,10 @@ export const Header = () => {
                           className="fixed inset-0 z-40" 
                           onClick={() => setIsProfileMenuOpen(false)}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-lg border border-orange-300/40 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-white/95 backdrop-blur-lg border border-primary-300/40 rounded-xl shadow-2xl z-50 overflow-hidden">
                           <Link
                             to="/profile"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-100 hover:text-orange-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <User size={16} />
@@ -125,7 +125,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/mining"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-100 hover:text-orange-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🍖</span>
@@ -133,7 +133,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/ships"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-100 hover:text-orange-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🐕</span>
@@ -141,7 +141,7 @@ export const Header = () => {
                           </Link>
                           <Link
                             to="/tasks"
-                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-orange-100 hover:text-orange-600 transition-all duration-200 font-medium"
+                            className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-primary-100 hover:text-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <Target size={16} />
@@ -176,7 +176,7 @@ export const Header = () => {
               ) : (
                 <Button
                   onClick={handleConnect}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg"
+                  className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg"
                 >
                   <Wallet size={16} />
                   Connect Wallet
@@ -201,12 +201,12 @@ export const Header = () => {
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setIsMobileMenuOpen(false)}
             />
-            <div
-              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-orange-300/40 z-50"
+            <div 
+              className="fixed top-0 right-0 h-screen w-80 max-w-[90vw] bg-white/95 backdrop-blur-xl shadow-2xl transform transition-transform duration-300 border-l border-primary-300/40 z-50"
             >
-              <div className="p-4 border-b border-orange-200">
+              <div className="p-4 border-b border-primary-200">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold text-orange-600">PupFi Menu</h2>
+                  <h2 className="text-lg font-bold text-primary-600">PupFi Menu</h2>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 text-gray-600 hover:text-gray-800 min-w-[44px] min-h-[44px] flex items-center justify-center relative z-10"
@@ -219,10 +219,10 @@ export const Header = () => {
               <div className="p-4 space-y-2">
                 {/* Food Balance */}
                 {isLoggedIn && gameStats && (
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-300/40 mb-4">
+                  <div className="bg-primary-50 p-4 rounded-lg border border-primary-300/40 mb-4">
                     <div className="flex items-center gap-2 justify-center">
-                      <span className="text-orange-500 text-xl">🍖</span>
-                      <span className="text-orange-600 font-bold text-lg">
+                      <span className="text-primary-500 text-xl">🍖</span>
+                      <span className="text-primary-600 font-bold text-lg">
                         {gameStats.zenBalance?.toLocaleString() || '0'}
                       </span>
                       <span className="text-gray-600">Food</span>
@@ -232,7 +232,7 @@ export const Header = () => {
 
                 <Link
                   to="/mining"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🍖</span>
@@ -240,7 +240,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/ships"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🐕</span>
@@ -248,7 +248,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/shop"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <ShoppingCart size={18} />
@@ -256,7 +256,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/tasks"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Target size={18} />
@@ -264,7 +264,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/game"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🎮</span>
@@ -272,7 +272,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/referrals"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Users size={18} />
@@ -280,7 +280,7 @@ export const Header = () => {
                 </Link>
                 <Link
                   to="/leaderboard"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Trophy size={18} />
@@ -291,7 +291,7 @@ export const Header = () => {
                   <>
                     <Link
                       to="/profile"
-                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-orange-100 hover:text-orange-600 rounded-lg transition-all duration-200"
+                      className="flex items-center gap-3 py-3 px-3 text-base text-gray-700 hover:bg-primary-100 hover:text-primary-600 rounded-lg transition-all duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <User size={18} />
@@ -326,7 +326,7 @@ export const Header = () => {
                           href="https://twitter.com/pupfi"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
                         >
                           <Twitter size={20} />
                         </a>
@@ -334,7 +334,7 @@ export const Header = () => {
                           href="https://t.me/pupfi"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 text-orange-600 hover:bg-orange-200 transition-colors"
+                          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
                         >
                           <Send size={20} />
                         </a>
@@ -347,7 +347,7 @@ export const Header = () => {
                       handleConnect();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
+                    className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
                   >
                     <Wallet size={18} />
                     Connect Wallet
