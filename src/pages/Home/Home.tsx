@@ -99,7 +99,7 @@ export const Home = () => {
             <div className="flex flex-col items-center space-y-2">
               <div className="w-full flex justify-center">
                 <div className="w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-                  <img src='/PupFi.png' alt='PupFi' className='w-full h-auto object-contain' />
+                  <img src='/pupfi new (1) (1).png' alt='PupFi' className='w-full h-auto object-contain' />
                 </div>
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
