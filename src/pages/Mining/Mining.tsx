@@ -238,10 +238,7 @@ export const Mining = () => {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
-                              className={`h-2 rounded-full transition-all duration-300 ${
-                                happinessPercentage > 50 ? 'bg-gradient-to-r from-green-400 to-green-500' :
-                                happinessPercentage > 25 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500' : 'bg-gradient-to-r from-red-400 to-red-500'
-                              }`}
+                              className="h-2 rounded-full transition-all duration-300 bg-gradient-to-r from-purple-500 to-purple-600"
                               style={{ width: `${happinessPercentage}%` }}
                             />
                           </div>
@@ -261,11 +258,7 @@ export const Mining = () => {
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div
-                              className={`h-2 rounded-full transition-all duration-300 ${
-                                canFeedNow 
-                                  ? 'bg-gradient-to-r from-green-400 to-green-500' 
-                                  : 'bg-gradient-to-r from-orange-400 to-yellow-500'
-                              }`}
+                              className="h-2 rounded-full transition-all duration-300 bg-gradient-to-r from-purple-500 to-purple-600"
                               style={{ width: `${canFeedNow ? 100 : progress}%` }}
                             />
                           </div>
@@ -312,8 +305,8 @@ export const Mining = () => {
           </div>
 
           {/* Pet Care Tips */}
-          <div className="bg-white/70 backdrop-blur-lg rounded-xl p-6 border border-primary-300/40 shadow-lg">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">
+          <div className="cute-card p-6">
+            <h3 className="text-xl font-bold mb-4" style={{ color: '#000000' }}>
               Pet Care Tips
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
