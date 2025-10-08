@@ -91,11 +91,11 @@ export const AdminSettings: React.FC = () => {
       const users = await UserService.getUsersWithWallets();
 
       const csvContent = [
-        'Username,Wallet Address,User ID',
-        ...users.map(u => `${u.username},${u.walletAddress},${u.userId}`)
-      ].join('\n');
+        '\uFEFF"Username","Wallet Address","User ID"',
+        ...users.map(u => `"${u.username}","${u.walletAddress}","${u.userId}"`)
+      ].join('\r\n');
 
-      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -209,37 +209,37 @@ export const AdminSettings: React.FC = () => {
             </Button>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-2 max-h-96 overflow-y-auto bg-white p-4 rounded-lg border-2 border-gray-300">
             {recentChatMessages.length === 0 ? (
-              <div className="text-center text-gray-500 py-8 font-inter">No messages to display</div>
+              <div className="text-center text-gray-600 py-8 font-inter font-bold">No messages to display</div>
             ) : (
               recentChatMessages.map((msg) => (
-                <div key={msg.id} className="bg-gray-100 p-3 rounded-lg">
+                <div key={msg.id} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg border-2 border-orange-200 shadow-sm">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <span className="font-bold text-gray-800 font-inter">{msg.username}</span>
-                      <span className="text-xs text-gray-500 ml-2 font-inter">
+                      <span className="font-bold text-gray-900 font-inter text-base">{msg.username}</span>
+                      <span className="text-xs text-gray-600 ml-2 font-inter font-semibold">
                         {msg.createdAt?.toDate?.()?.toLocaleString() || 'Just now'}
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <Button
+                      <button
                         onClick={() => handleBanUser(msg.userId, msg.username)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 text-xs rounded"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 text-xs rounded-lg font-bold shadow-md transition-all flex items-center gap-1"
                       >
-                        <Ban size={12} />
+                        <Ban size={14} />
                         Ban
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         onClick={() => handleDeleteMessage(msg.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded"
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 text-xs rounded-lg font-bold shadow-md transition-all flex items-center gap-1"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={14} />
                         Delete
-                      </Button>
+                      </button>
                     </div>
                   </div>
-                  <p className="text-gray-700 font-inter text-sm">{msg.message}</p>
+                  <p className="text-gray-800 font-inter text-sm font-medium bg-white p-2 rounded border border-gray-200">{msg.message}</p>
                 </div>
               ))
             )}
