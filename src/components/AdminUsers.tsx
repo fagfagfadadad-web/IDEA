@@ -290,13 +290,16 @@ export const AdminUsers: React.FC = () => {
                           className="fixed inset-0 z-10"
                           onClick={() => setShowMenu(null)}
                         />
-                        <div className="absolute right-0 top-8 bg-white border border-gray-300 rounded-lg shadow-lg z-20 min-w-48">
+                        <div className="absolute right-0 top-8 rounded-lg shadow-lg z-20 min-w-48" style={{ backgroundColor: '#1F2937', border: '1px solid rgba(255,255,255,0.1)' }}>
                           <button
                             onClick={() => {
                               handleAwardZen(userData.id!, 1000);
                               setShowMenu(null);
                             }}
-                            className="w-full text-left px-4 py-2 text-primary-600 hover:bg-primary-100 flex items-center gap-2 font-inter"
+                            className="w-full text-left px-4 py-2 flex items-center gap-2 font-inter rounded-t-lg"
+                            style={{ color: '#10B981' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(16, 185, 129, 0.1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
                             <span>🍖</span>
                             Award 1000 Food
@@ -306,7 +309,10 @@ export const AdminUsers: React.FC = () => {
                               handleToggleAdmin(userData.id!, !userData.isAdmin);
                               setShowMenu(null);
                             }}
-                            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2 font-inter"
+                            className="w-full text-left px-4 py-2 flex items-center gap-2 font-inter"
+                            style={{ color: '#fff' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
                             {userData.isAdmin ? <User size={16} /> : <Shield size={16} />}
                             {userData.isAdmin ? 'Remove Admin' : 'Make Admin'}
@@ -316,9 +322,10 @@ export const AdminUsers: React.FC = () => {
                               handleBanUser(userData.id!, !userData.isBanned);
                               setShowMenu(null);
                             }}
-                            className={`w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center gap-2 font-inter ${
-                              userData.isBanned ? 'text-success' : 'text-red-600'
-                            }`}
+                            className="w-full text-left px-4 py-2 flex items-center gap-2 font-inter rounded-b-lg"
+                            style={{ color: userData.isBanned ? '#10B981' : '#EF4444' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = userData.isBanned ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
                             {userData.isBanned ? <CheckCircle size={16} /> : <Ban size={16} />}
                             {userData.isBanned ? 'Unban User' : 'Ban User'}
