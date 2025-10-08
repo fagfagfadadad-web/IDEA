@@ -506,9 +506,10 @@ export const Tasks = () => {
                   type="url"
                   value={proofUrl}
                   onChange={(e) => setProofUrl(e.target.value)}
-                  className="w-full px-4 py-3 text-sm text-gray-800 bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] font-inter placeholder:text-gray-400"
+                  className="w-full px-4 py-3 text-sm text-gray-900 bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] font-inter placeholder:text-gray-500"
                   placeholder="https://..."
                   autoFocus
+                  style={{ color: '#111827' }}
                 />
               </div>
 
