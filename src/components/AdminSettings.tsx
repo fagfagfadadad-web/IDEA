@@ -275,9 +275,9 @@ export const AdminSettings: React.FC = () => {
             </Button>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto bg-white p-4 rounded-lg border-2 border-gray-300">
+          <div className="space-y-2 max-h-96 overflow-y-auto bg-gradient-to-b from-orange-100 to-yellow-100 p-4 rounded-lg border-2 border-orange-400">
             {recentChatMessages.length === 0 ? (
-              <div className="text-center text-gray-600 py-8 font-inter font-bold">No messages to display</div>
+              <div className="text-center text-gray-900 py-8 font-inter font-bold text-lg">No messages to display</div>
             ) : (
               recentChatMessages.map((msg) => (
                 <div key={msg.id} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg border-2 border-orange-200 shadow-sm">
@@ -320,10 +320,10 @@ export const AdminSettings: React.FC = () => {
           <h3 className="text-xl font-bold text-gray-800 font-inter">Maintenance Mode</h3>
         </div>
         <div className="space-y-4">
-          <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg">
+          <div className="flex items-center justify-between bg-gradient-to-r from-red-100 to-orange-100 p-4 rounded-lg border-2 border-red-300">
             <div>
-              <div className="font-bold text-gray-800 font-inter">System Status</div>
-              <div className="text-sm text-gray-600 font-inter">
+              <div className="font-bold text-gray-900 font-inter text-lg">System Status</div>
+              <div className="text-base text-gray-800 font-inter font-semibold">
                 {maintenanceMode.enabled ? 'Maintenance Active' : 'System Operational'}
               </div>
             </div>
@@ -338,12 +338,12 @@ export const AdminSettings: React.FC = () => {
               {maintenanceMode.enabled ? 'Disable' : 'Enable'}
             </Button>
           </div>
-          <div>
-            <label className="block text-gray-700 font-bold mb-2 font-inter">Maintenance Message</label>
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-lg border-2 border-red-200">
+            <label className="block text-gray-900 font-bold mb-2 font-inter text-base">Maintenance Message</label>
             <textarea
               value={maintenanceMode.message}
               onChange={(e) => setMaintenanceMode({ ...maintenanceMode, message: e.target.value })}
-              className="w-full p-3 border-2 border-gray-300 rounded-lg font-inter"
+              className="w-full p-3 border-2 border-red-300 rounded-lg font-inter text-gray-900 bg-white"
               rows={3}
             />
           </div>
