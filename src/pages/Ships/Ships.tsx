@@ -372,7 +372,7 @@ export const Ships = () => {
                       return (
                         <div
                           key={dogType.type}
-                          className="bg-white/70 rounded-xl overflow-hidden border border-purple-200/50 hover:border-purple-400/50 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
+                          className="bg-purple-900 rounded-xl overflow-hidden border border-purple-700 hover:border-purple-500 transition-all duration-300 hover:transform hover:scale-105 shadow-lg"
                         >
                           <div className="aspect-video bg-gradient-to-br from-purple-400 to-purple-500 flex items-center justify-center">
                             <span className="text-6xl">{dogType.emoji}</span>
