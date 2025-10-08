@@ -336,7 +336,7 @@ export const PupPuzzle = () => {
                       ) : (
                         <>
                           {needsTicket && (
-                            <div style={{ background: '#FFA724' }} className="border border-orange-400 p-3 rounded-lg">
+                            <div style={{ background: '#7C3AED' }} className="border border-purple-400 p-3 rounded-lg">
                               <p className="text-white font-inter font-bold text-sm">🎫 Daily Play Used</p>
                               <p className="text-white/90 text-sm font-inter">
                                 {hasTicket ? `Have ${gameStats?.gameTickets || 0} tickets` : 'Need ticket'}
@@ -345,7 +345,7 @@ export const PupPuzzle = () => {
                           )}
 
                           {!needsTicket && (
-                            <div style={{ background: '#FFA724' }} className="border border-orange-400 p-3 rounded-lg">
+                            <div style={{ background: '#7C3AED' }} className="border border-purple-400 p-3 rounded-lg">
                               <p className="text-white font-inter font-bold text-sm">✨ Free Play</p>
                               <p className="text-white/90 text-sm font-inter">Tickets: {gameStats?.gameTickets || 0}</p>
                             </div>
