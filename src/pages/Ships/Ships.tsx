@@ -320,7 +320,7 @@ export const Ships = () => {
                                     return (
                                       <div
                                         key={upgrade.type}
-                                        className="flex items-center justify-between bg-white/10 rounded-lg p-3"
+                                        className="flex items-center justify-between bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg p-3"
                                       >
                                         <div className="flex items-center gap-3">
                                           {upgrade.icon}
@@ -328,7 +328,7 @@ export const Ships = () => {
                                             <div className="text-white font-medium text-sm">
                                               {upgrade.name} (Lv.{currentLevel})
                                             </div>
-                                            <div className="text-white/80 text-xs">
+                                            <div className="text-white/90 text-xs">
                                               {upgrade.description}
                                             </div>
                                           </div>
@@ -338,7 +338,7 @@ export const Ships = () => {
                                           disabled={!affordable}
                                           className={`px-3 py-1 text-xs font-bold rounded-lg ${
                                             affordable
-                                              ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white'
+                                              ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
                                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                                           }`}
                                         >
