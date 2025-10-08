@@ -331,38 +331,48 @@ export const AdminUsers: React.FC = () => {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div className="bg-purple-100 rounded-lg p-3">
-                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Food Balance</p>
-                    <div className="flex items-center gap-1 text-purple-700 font-inter font-bold" style={{ color: '#6b21a8' }}>
+                  <div className="rounded-lg p-3" style={{ backgroundColor: '#7C3AED' }}>
+                    <p className="text-xs font-inter mb-1" style={{ color: 'rgba(255, 255, 255, 0.9)' }}>Food Balance</p>
+                    <div className="flex items-center gap-1 font-inter font-bold" style={{ color: '#fff' }}>
                       <span>🍖</span>
-                      <span style={{ color: '#6b21a8' }}>{userData.gameStats?.zenBalance?.toLocaleString() || 0}</span>
+                      <span>{userData.gameStats?.zenBalance?.toLocaleString() || 0}</span>
                     </div>
                   </div>
 
-                  <div className="bg-orange-100 rounded-lg p-3">
-                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Care Level</p>
-                    <span className="text-orange-700 font-inter font-bold text-lg" style={{ color: '#c2410c' }}>
+                  <div className="rounded-lg p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+                    <p className="text-xs font-inter mb-1" style={{ color: '#fff' }}>Care Level</p>
+                    <span className="font-inter font-bold text-lg" style={{ color: '#fff' }}>
                       {userData.gameStats?.miningLevel || 1}
                     </span>
                   </div>
 
-                  <div className="bg-green-100 rounded-lg p-3">
-                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Total Fed</p>
-                    <span className="text-green-700 font-inter font-bold text-lg" style={{ color: '#15803d' }}>
+                  <div className="rounded-lg p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+                    <p className="text-xs font-inter mb-1" style={{ color: '#fff' }}>Total Fed</p>
+                    <span className="font-inter font-bold text-lg" style={{ color: '#fff' }}>
                       {userData.gameStats?.totalMined?.toLocaleString() || 0}
                     </span>
                   </div>
 
-                  <div className="bg-gray-200 rounded-lg p-3">
-                    <p className="text-gray-700 text-xs font-inter mb-1" style={{ color: '#374151' }}>Status</p>
+                  <div className="rounded-lg p-3" style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}>
+                    <p className="text-xs font-inter mb-1" style={{ color: '#fff' }}>Status</p>
                     <div className="flex flex-wrap gap-1">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        userData.isBanned ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'
-                      }`} style={{ color: userData.isBanned ? '#991b1b' : '#166534' }}>
+                      <span
+                        className="px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={{
+                          backgroundColor: userData.isBanned ? '#DC2626' : '#10B981',
+                          color: '#fff'
+                        }}
+                      >
                         {userData.isBanned ? 'Banned' : 'Active'}
                       </span>
                       {userData.isAdmin && (
-                        <span className="px-2 py-0.5 bg-yellow-200 text-yellow-800 rounded-full text-xs font-medium" style={{ color: '#854d0e' }}>
+                        <span
+                          className="px-2 py-0.5 rounded-full text-xs font-medium"
+                          style={{
+                            backgroundColor: '#FBBF24',
+                            color: '#1F2937'
+                          }}
+                        >
                           Admin
                         </span>
                       )}
