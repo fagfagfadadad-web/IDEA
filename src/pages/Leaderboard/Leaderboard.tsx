@@ -60,24 +60,24 @@ export const Leaderboard = () => {
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Crown className="text-yellow-500" size={24} />;
+        return <Crown className="text-white" size={24} />;
       case 2:
-        return <Medal className="text-gray-400" size={24} />;
+        return <Medal className="text-white" size={24} />;
       case 3:
-        return <Medal className="text-amber-600" size={24} />;
+        return <Medal className="text-white" size={24} />;
       default:
-        return <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">{rank}</div>;
+        return <div className="w-6 h-6 bg-purple-800 rounded-full flex items-center justify-center text-white text-sm font-bold">{rank}</div>;
     }
   };
 
   const getRankBg = (rank: number) => {
     switch (rank) {
       case 1:
-        return 'bg-gradient-to-r from-yellow-500 to-yellow-600 border-yellow-400 text-white';
+        return 'bg-gradient-to-r from-yellow-600 to-orange-600 border-yellow-500 text-white';
       case 2:
-        return 'bg-gradient-to-r from-gray-500 to-gray-600 border-gray-400 text-white';
+        return 'bg-gradient-to-r from-gray-600 to-gray-700 border-gray-500 text-white';
       case 3:
-        return 'bg-gradient-to-r from-amber-500 to-amber-600 border-amber-500 text-white';
+        return 'bg-gradient-to-r from-orange-600 to-red-600 border-orange-500 text-white';
       default:
         return 'bg-purple-600 border-purple-500 text-white';
     }
