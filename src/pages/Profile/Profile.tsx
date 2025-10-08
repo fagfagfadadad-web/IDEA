@@ -317,24 +317,25 @@ export const Profile = () => {
                   key={index}
                   className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                     achievement.unlocked
-                      ? 'border-success bg-green-50'
-                      : 'border-gray-300 bg-gray-50'
+                      ? 'border-primary-400'
+                      : 'border-primary-300/40'
                   }`}
+                  style={{
+                    background: achievement.unlocked ? '#7C3AED' : 'rgba(124, 58, 237, 0.3)'
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">{achievement.icon}</div>
                     <div className="flex-1">
-                      <h3 className={`font-inter font-bold ${
-                        achievement.unlocked ? 'text-green-400' : 'text-gray-400'
-                      }`}>
+                      <h3 className="font-inter font-bold text-white">
                         {achievement.title}
                       </h3>
-                      <p className="text-gray-600 text-sm font-inter">
+                      <p className="text-white/90 text-sm font-inter">
                         {achievement.description}
                       </p>
                     </div>
                     {achievement.unlocked && (
-                      <div className="text-success">
+                      <div className="text-secondary-400">
                         <Trophy size={20} />
                       </div>
                     )}
