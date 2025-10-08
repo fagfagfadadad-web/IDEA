@@ -142,8 +142,8 @@ export const Home = () => {
 
                 {/* Active Boosts */}
                 {gameStats.activeBoosts && gameStats.activeBoosts.length > 0 && (
-                  <div className="pt-4 border-t border-primary-200">
-                    <h3 className="text-sm font-bold text-gray-700 mb-2">⚡ Active Boosts</h3>
+                  <div className="pt-4 border-t border-white/20">
+                    <h3 className="text-sm font-bold text-white mb-2">⚡ Active Boosts</h3>
                     <div className="space-y-2">
                       {gameStats.activeBoosts.map((boost, index) => {
                         const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
@@ -155,14 +155,14 @@ export const Home = () => {
                         if (timeLeft <= 0) return null;
 
                         return (
-                          <div key={index} className="flex items-center justify-between bg-primary-50 rounded-lg px-3 py-2">
+                          <div key={index} className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                             <div className="flex items-center gap-2">
                               <span>{boost.type === 'mining' ? '🍖' : '💖'}</span>
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-white">
                                 {boost.multiplier}x {boost.type === 'mining' ? 'Food' : 'Experience'}
                               </span>
                             </div>
-                            <span className="text-xs text-gray-600">
+                            <span className="text-xs text-white/80">
                               {minutesLeft}:{secondsLeft.toString().padStart(2, '0')}
                             </span>
                           </div>
@@ -174,16 +174,16 @@ export const Home = () => {
 
                 {/* Permanent Upgrades */}
                 {gameStats.permanentUpgrades && (gameStats.permanentUpgrades.autoFeeder || gameStats.permanentUpgrades.happinessBooster > 1) && (
-                  <div className="pt-4 border-t border-primary-200">
-                    <h3 className="text-sm font-bold text-gray-700 mb-2">🔧 Active Upgrades</h3>
+                  <div className="pt-4 border-t border-white/20">
+                    <h3 className="text-sm font-bold text-white mb-2">🔧 Active Upgrades</h3>
                     <div className="flex flex-wrap gap-2">
                       {gameStats.permanentUpgrades.autoFeeder && (
-                        <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                        <div className="bg-green-500/20 text-green-300 border border-green-400/30 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
                           🤖 Auto-Feeder
                         </div>
                       )}
                       {gameStats.permanentUpgrades.happinessBooster > 1 && (
-                        <div className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                        <div className="bg-blue-500/20 text-blue-300 border border-blue-400/30 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
                           ⚡ Happiness Booster ({gameStats.permanentUpgrades.happinessBooster}x)
                         </div>
                       )}
