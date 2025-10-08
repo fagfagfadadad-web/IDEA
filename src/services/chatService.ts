@@ -10,7 +10,9 @@ import {
   getDocs,
   writeBatch,
   doc,
-  increment
+  increment,
+  deleteDoc,
+  updateDoc
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -170,5 +172,48 @@ export class ChatService {
     })) as ChatMessage[];
 
     return messages.reverse();
+  }
+
+  static async deleteMessage(messageId: string): Promise<void> {
+    const messageRef = doc(db, 'chatMessages', messageId);
+    await deleteDoc(messageRef);
+    console.log('🗑️ ChatService: Message deleted:', messageId);
+  }
+
+  static async clearAllMessages(): Promise<void> {
+    const q = query(collection(db, 'chatMessages'));
+    const snapshot = await getDocs(q);
+
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+    console.log('🗑️ ChatService: All messages cleared');
+  }
+
+  static async banUserFromChat(userId: string, durationMinutes: number = 60): Promise<void> {
+    const userRef = doc(db, 'users', userId);
+    const banUntil = new Date();
+    banUntil.setMinutes(banUntil.getMinutes() + durationMinutes);
+
+    await updateDoc(userRef, {
+      chatBanUntil: banUntil,
+      isChatBanned: true
+    });
+
+    console.log('🚫 ChatService: User banned from chat until:', banUntil);
+  }
+
+  static async unbanUserFromChat(userId: string): Promise<void> {
+    const userRef = doc(db, 'users', userId);
+
+    await updateDoc(userRef, {
+      chatBanUntil: null,
+      isChatBanned: false
+    });
+
+    console.log('✅ ChatService: User unbanned from chat');
   }
 }

@@ -23,6 +23,8 @@ export interface User {
   walletAddress?: string;
   isAdmin?: boolean;
   isBanned?: boolean;
+  isChatBanned?: boolean;
+  chatBanUntil?: Date | null;
   emailNotificationsEnabled?: boolean;
   twitterUrl?: string;
   githubUrl?: string;
@@ -56,6 +58,8 @@ export class UserService {
       walletAddress: userData.walletAddress || '',
       isAdmin: false,
       isBanned: false,
+      isChatBanned: false,
+      chatBanUntil: null,
       emailNotificationsEnabled: false,
       twitterUrl: '',
       githubUrl: '',
@@ -69,7 +73,7 @@ export class UserService {
 
     const docRef = doc(db, 'users', userId);
     await setDoc(docRef, user);
-    
+
     return { id: userId, ...user } as User;
   }
 
@@ -135,13 +139,29 @@ export class UserService {
   static async generateUniqueUsername(baseUsername: string): Promise<string> {
     let username = baseUsername;
     let counter = 1;
-    
+
     while (!(await this.isUsernameAvailable(username))) {
       username = `${baseUsername}${counter}`;
       counter++;
-      if (counter > 100) break; // Prevent infinite loop
+      if (counter > 100) break;
     }
-    
+
     return username;
+  }
+
+  static async getUsersWithWallets(): Promise<Array<{ username: string; walletAddress: string; userId: string }>> {
+    const q = query(
+      collection(db, 'users'),
+      where('walletAddress', '!=', '')
+    );
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs
+      .map(doc => ({
+        userId: doc.id,
+        username: doc.data().username || 'Unknown',
+        walletAddress: doc.data().walletAddress || ''
+      }))
+      .filter(user => user.walletAddress);
   }
 }

@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './Button';
 import { useToast } from '../context/ToastContext';
-import { Save, AlertTriangle, Award, Clock, DollarSign, Zap, Trophy, Gift } from 'lucide-react';
+import { Save, AlertTriangle, Award, Clock, DollarSign, Zap, Trophy, Gift, Download, MessageSquare, Trash2, Ban } from 'lucide-react';
+import { UserService } from '../services/userService';
+import { ChatService } from '../services/chatService';
 
 export const AdminSettings: React.FC = () => {
   const { success, error } = useToast();
+  const [recentChatMessages, setRecentChatMessages] = useState<any[]>([]);
 
   const [gameSettings, setGameSettings] = useState({
     startingBalance: 1000,
@@ -83,8 +86,167 @@ export const AdminSettings: React.FC = () => {
     success(maintenanceMode.enabled ? 'Maintenance mode disabled' : 'Maintenance mode enabled');
   };
 
+  const handleExportWallets = async () => {
+    try {
+      const users = await UserService.getUsersWithWallets();
+
+      const csvContent = [
+        'Username,Wallet Address,User ID',
+        ...users.map(u => `${u.username},${u.walletAddress},${u.userId}`)
+      ].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `airdrop-wallets-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      success(`Exported ${users.length} wallet addresses for airdrop!`);
+    } catch (err) {
+      error('Failed to export wallet addresses');
+      console.error(err);
+    }
+  };
+
+  const loadRecentMessages = async () => {
+    try {
+      const messages = await ChatService.getRecentMessages(20);
+      setRecentChatMessages(messages);
+    } catch (err) {
+      console.error('Failed to load messages:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadRecentMessages();
+  }, []);
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!window.confirm('Delete this message?')) return;
+
+    try {
+      await ChatService.deleteMessage(messageId);
+      success('Message deleted successfully!');
+      loadRecentMessages();
+    } catch (err) {
+      error('Failed to delete message');
+      console.error(err);
+    }
+  };
+
+  const handleClearAllMessages = async () => {
+    if (!window.confirm('Are you sure you want to clear ALL chat messages? This cannot be undone!')) return;
+
+    try {
+      await ChatService.clearAllMessages();
+      success('All chat messages cleared!');
+      setRecentChatMessages([]);
+    } catch (err) {
+      error('Failed to clear messages');
+      console.error(err);
+    }
+  };
+
+  const handleBanUser = async (userId: string, username: string) => {
+    const duration = prompt(`Ban user "${username}" from chat for how many minutes? (Default: 60)`, '60');
+    if (!duration) return;
+
+    try {
+      await ChatService.banUserFromChat(userId, parseInt(duration));
+      success(`User "${username}" banned from chat for ${duration} minutes!`);
+    } catch (err) {
+      error('Failed to ban user');
+      console.error(err);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Airdrop Export */}
+      <div className="cute-card p-6 border-2 border-blue-400">
+        <div className="flex items-center gap-3 mb-4">
+          <Download className="text-blue-500" size={24} />
+          <h3 className="text-xl font-bold text-gray-800 font-inter">Airdrop Export</h3>
+        </div>
+        <div className="space-y-4">
+          <p className="text-gray-700 font-inter">
+            Export all user wallet addresses for airdrop distribution. The CSV file will include username, wallet address, and user ID.
+          </p>
+          <Button
+            onClick={handleExportWallets}
+            className="cute-button px-6 py-3"
+          >
+            <Download size={16} />
+            Export Wallet Addresses (CSV)
+          </Button>
+        </div>
+      </div>
+
+      {/* Chat Moderation */}
+      <div className="cute-card p-6 border-2 border-orange-400">
+        <div className="flex items-center gap-3 mb-4">
+          <MessageSquare className="text-orange-500" size={24} />
+          <h3 className="text-xl font-bold text-gray-800 font-inter">Chat Moderation</h3>
+        </div>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Button
+              onClick={handleClearAllMessages}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold"
+            >
+              <Trash2 size={16} />
+              Clear All Messages
+            </Button>
+            <Button
+              onClick={loadRecentMessages}
+              className="cute-button px-4 py-2"
+            >
+              Refresh Messages
+            </Button>
+          </div>
+
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {recentChatMessages.length === 0 ? (
+              <div className="text-center text-gray-500 py-8 font-inter">No messages to display</div>
+            ) : (
+              recentChatMessages.map((msg) => (
+                <div key={msg.id} className="bg-gray-100 p-3 rounded-lg">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className="font-bold text-gray-800 font-inter">{msg.username}</span>
+                      <span className="text-xs text-gray-500 ml-2 font-inter">
+                        {msg.createdAt?.toDate?.()?.toLocaleString() || 'Just now'}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleBanUser(msg.userId, msg.username)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 text-xs rounded"
+                      >
+                        <Ban size={12} />
+                        Ban
+                      </Button>
+                      <Button
+                        onClick={() => handleDeleteMessage(msg.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs rounded"
+                      >
+                        <Trash2 size={12} />
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 font-inter text-sm">{msg.message}</p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Maintenance Mode */}
       <div className="cute-card p-6 border-2 border-red-400">
         <div className="flex items-center gap-3 mb-4">
