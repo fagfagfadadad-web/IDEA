@@ -152,8 +152,8 @@ body::before {
 
   .stat-card {
     @apply p-4 text-center backdrop-blur-xl rounded-xl border transition-all duration-300;
-    background: #FFA724;
-    border-color: rgba(255, 167, 36, 0.3);
+    background: #7C3AED;
+    border-color: rgba(124, 58, 237, 0.3);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     color: white;
   }
