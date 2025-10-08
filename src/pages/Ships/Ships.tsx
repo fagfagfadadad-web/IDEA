@@ -230,7 +230,7 @@ export const Ships = () => {
                 onClick={() => setActiveTab(1)}
                 className={`flex-1 px-6 py-4 font-inter font-bold transition-all duration-200 ${
                   activeTab === 1
-                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-b-2 border-orange-600'
+                    ? 'bg-gradient-to-r from-purple-900 to-purple-950 text-white border-b-2 border-purple-700'
                     : 'text-gray-600 hover:text-primary-500'
                 }`}
               >
