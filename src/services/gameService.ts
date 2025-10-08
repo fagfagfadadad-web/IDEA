@@ -74,6 +74,7 @@ export interface Task {
   referralCountRequired?: number;
   requiredLevel?: number;
   referenceLink?: string;
+  bannerImage?: string;
   requiresProof?: boolean;
   proofType?: 'screenshot' | 'link' | 'none';
   isActive: boolean;

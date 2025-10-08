@@ -26,6 +26,7 @@ export const AdminTasks: React.FC = () => {
     referralCountRequired: '',
     requiredLevel: '',
     referenceLink: '',
+    bannerImage: '',
     requiresProof: false,
     proofType: 'none' as 'screenshot' | 'link' | 'none',
     isActive: true
@@ -74,6 +75,7 @@ export const AdminTasks: React.FC = () => {
         referralCountRequired: formData.referralCountRequired ? parseInt(formData.referralCountRequired) : undefined,
         requiredLevel: formData.requiredLevel ? parseInt(formData.requiredLevel) : undefined,
         referenceLink: formData.referenceLink || undefined,
+        bannerImage: formData.bannerImage || undefined,
         requiresProof: formData.requiresProof,
         proofType: formData.proofType,
        isActive: formData.isActive,
@@ -113,6 +115,7 @@ export const AdminTasks: React.FC = () => {
       referralCountRequired: task.referralCountRequired?.toString() || '',
       requiredLevel: task.requiredLevel?.toString() || '',
       referenceLink: task.referenceLink || '',
+      bannerImage: task.bannerImage || '',
       requiresProof: task.requiresProof || false,
       proofType: task.proofType || 'none',
       isActive: task.isActive
@@ -157,6 +160,7 @@ export const AdminTasks: React.FC = () => {
       referralCountRequired: '',
       requiredLevel: '',
       referenceLink: '',
+      bannerImage: '',
       requiresProof: false,
       proofType: 'none' as 'screenshot' | 'link' | 'none',
       isActive: true
@@ -182,7 +186,7 @@ export const AdminTasks: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-inter font-bold text-gray-800">Task Management</h2>
+        <h2 className="text-2xl font-inter font-bold text-white">Task Management</h2>
         <Button
           onClick={() => {
             setEditingTask(null);
@@ -206,8 +210,8 @@ export const AdminTasks: React.FC = () => {
           {tasks.map((task) => (
             <div
               key={task.id}
-              className={`cute-card p-4 md:p-6 transition-all duration-300 ${
-                task.isActive ? 'border-success bg-green-50' : 'border-gray-300 bg-gray-50'
+              className={`bg-gray-700 border-2 rounded-xl p-4 md:p-6 transition-all duration-300 ${
+                task.isActive ? 'border-green-500' : 'border-gray-600'
               }`}
             >
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
@@ -218,7 +222,7 @@ export const AdminTasks: React.FC = () => {
                   
                   <div className="flex-1">
                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3 mb-2">
-                      <h3 className="text-base md:text-lg font-inter font-bold text-gray-800">
+                      <h3 className="text-base md:text-lg font-inter font-bold text-white">
                         {task.title}
                       </h3>
                       <div className="flex gap-2">
@@ -234,8 +238,8 @@ export const AdminTasks: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    
-                    <p className="text-sm md:text-base text-gray-700 mb-3 font-inter leading-relaxed">
+
+                    <p className="text-sm md:text-base text-gray-300 mb-3 font-inter leading-relaxed">
                       {task.description}
                     </p>
                     
@@ -290,21 +294,21 @@ export const AdminTasks: React.FC = () => {
       {/* Create/Edit Task Modal */}
       {showModal && createPortal(
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="cute-card p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-inter font-bold text-gray-800 mb-6">
+          <div className="bg-gray-800 border-2 border-gray-700 rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-inter font-bold text-white mb-6">
               {editingTask ? 'Edit Task' : 'Create New Task'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                <label className="block text-white text-sm font-medium mb-2 font-inter">
                   Task Title
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                   placeholder="Enter task title"
                   required
                 />
@@ -312,14 +316,14 @@ export const AdminTasks: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  <label className="block text-white text-sm font-medium mb-2 font-inter">
                     Food Reward 🍖
                   </label>
                   <input
                     type="number"
                     value={formData.rewardAmount}
                     onChange={(e) => setFormData({...formData, rewardAmount: e.target.value})}
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                     placeholder="100"
                     min="1"
                     required
@@ -327,14 +331,14 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  <label className="block text-white text-sm font-medium mb-2 font-inter">
                     Ticket Reward 🎫 (Optional)
                   </label>
                   <input
                     type="number"
                     value={formData.ticketReward}
                     onChange={(e) => setFormData({...formData, ticketReward: e.target.value})}
-                    className="w-full px-3 py-2 text-sm bg-white border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     placeholder="5"
                     min="0"
                   />
@@ -342,13 +346,13 @@ export const AdminTasks: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                <label className="block text-white text-sm font-medium mb-2 font-inter">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] resize-none"
                   placeholder="Enter task description"
                   rows={3}
                   required
@@ -357,13 +361,13 @@ export const AdminTasks: React.FC = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  <label className="block text-white text-sm font-medium mb-2 font-inter">
                     Task Type
                   </label>
                   <select
                     value={formData.taskType}
                     onChange={(e) => setFormData({...formData, taskType: e.target.value})}
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                   >
                     {taskTypes.map((type) => (
                       <option key={type.value} value={type.value}>
@@ -374,14 +378,14 @@ export const AdminTasks: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                  <label className="block text-white text-sm font-medium mb-2 font-inter">
                     Required Level
                   </label>
                   <input
                     type="number"
                     value={formData.requiredLevel}
                     onChange={(e) => setFormData({...formData, requiredLevel: e.target.value})}
-                    className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                     placeholder="e.g. 10"
                     min="1"
                   />
@@ -389,61 +393,61 @@ export const AdminTasks: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                <label className="block text-white text-sm font-medium mb-2 font-inter">
                   Task Requirements (leave empty if not needed)
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    <label className="block text-gray-300 text-xs font-medium mb-1 font-inter">
                       Pet Care Ops
                     </label>
                     <input
                       type="number"
                       value={formData.miningOperationsRequired}
                       onChange={(e) => setFormData({...formData, miningOperationsRequired: e.target.value})}
-                      className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                      className="w-full px-2 py-1 text-xs bg-gray-700 text-white border border-gray-600 rounded focus:ring-1 focus:ring-[#f97316]"
                       placeholder="5"
                       min="0"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    <label className="block text-gray-300 text-xs font-medium mb-1 font-inter">
                       Daily Care
                     </label>
                     <input
                       type="number"
                       value={formData.dailyMiningCountRequired}
                       onChange={(e) => setFormData({...formData, dailyMiningCountRequired: e.target.value})}
-                      className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                      className="w-full px-2 py-1 text-xs bg-gray-700 text-white border border-gray-600 rounded focus:ring-1 focus:ring-[#f97316]"
                       placeholder="10"
                       min="0"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    <label className="block text-gray-300 text-xs font-medium mb-1 font-inter">
                       Dog Count
                     </label>
                     <input
                       type="number"
                       value={formData.shipCountRequired}
                       onChange={(e) => setFormData({...formData, shipCountRequired: e.target.value})}
-                      className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                      className="w-full px-2 py-1 text-xs bg-gray-700 text-white border border-gray-600 rounded focus:ring-1 focus:ring-[#f97316]"
                       placeholder="3"
                       min="0"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-gray-600 text-xs font-medium mb-1 font-inter">
+                    <label className="block text-gray-300 text-xs font-medium mb-1 font-inter">
                       Friends
                     </label>
                     <input
                       type="number"
                       value={formData.referralCountRequired}
                       onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
-                      className="w-full px-2 py-1 text-xs bg-white border border-gray-300 rounded focus:ring-1 focus:ring-primary-500"
+                      className="w-full px-2 py-1 text-xs bg-gray-700 text-white border border-gray-600 rounded focus:ring-1 focus:ring-[#f97316]"
                       placeholder="5"
                       min="0"
                     />
@@ -452,20 +456,36 @@ export const AdminTasks: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
+                <label className="block text-white text-sm font-medium mb-2 font-inter">
                   Reference Link (Optional)
                 </label>
                 <input
                   type="url"
                   value={formData.referenceLink}
                   onChange={(e) => setFormData({...formData, referenceLink: e.target.value})}
-                  className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                   placeholder="https://example.com/instructions"
                 />
               </div>
 
-              <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
-                <label className="block text-gray-800 text-sm font-medium font-inter">
+              <div>
+                <label className="block text-white text-sm font-medium mb-2 font-inter">
+                  Banner Image URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.bannerImage}
+                  onChange={(e) => setFormData({...formData, bannerImage: e.target.value})}
+                  className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
+                  placeholder="https://example.com/banner.png"
+                />
+                <p className="text-xs text-gray-400 mt-1 font-inter">
+                  Add a banner image URL to display a card similar to the adoption center
+                </p>
+              </div>
+
+              <div className="space-y-3 p-4 bg-gray-900 border border-gray-700 rounded-lg">
+                <label className="block text-white text-sm font-medium font-inter">
                   Verification Settings
                 </label>
 
@@ -475,28 +495,28 @@ export const AdminTasks: React.FC = () => {
                     id="requiresProof"
                     checked={formData.requiresProof}
                     onChange={(e) => setFormData({...formData, requiresProof: e.target.checked})}
-                    className="w-4 h-4 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
+                    className="w-4 h-4 text-[#f97316] bg-gray-700 border-gray-600 rounded focus:ring-[#f97316]"
                   />
-                  <label htmlFor="requiresProof" className="text-gray-800 text-sm font-medium font-inter">
+                  <label htmlFor="requiresProof" className="text-white text-sm font-medium font-inter">
                     Requires proof for completion
                   </label>
                 </div>
 
                 {formData.requiresProof && (
                   <div>
-                    <label className="block text-gray-700 text-sm mb-2 font-inter">
+                    <label className="block text-gray-300 text-sm mb-2 font-inter">
                       Proof Type
                     </label>
                     <select
                       value={formData.proofType}
                       onChange={(e) => setFormData({...formData, proofType: e.target.value as 'screenshot' | 'link' | 'none'})}
-                      className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 text-sm bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316]"
                     >
                       <option value="none">No proof required</option>
                       <option value="screenshot">Screenshot</option>
                       <option value="link">Link/URL</option>
                     </select>
-                    <p className="text-xs text-gray-600 mt-1 font-inter">
+                    <p className="text-xs text-gray-400 mt-1 font-inter">
                       {formData.proofType === 'screenshot' && 'Users will upload a screenshot'}
                       {formData.proofType === 'link' && 'Users will provide a link/URL'}
                       {formData.proofType === 'none' && 'Task can be claimed immediately after starting'}
@@ -511,14 +531,14 @@ export const AdminTasks: React.FC = () => {
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                  className="w-4 h-4 text-primary-600 bg-white border-gray-300 rounded focus:ring-primary-500"
+                  className="w-4 h-4 text-[#f97316] bg-gray-700 border-gray-600 rounded focus:ring-[#f97316]"
                 />
-                <label htmlFor="isActive" className="text-gray-800 text-sm font-medium font-inter">
+                <label htmlFor="isActive" className="text-white text-sm font-medium font-inter">
                   Task is active
                 </label>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gray-300">
+              <div className="flex gap-3 pt-4 border-t border-gray-700">
                 <Button
                   type="button"
                   onClick={() => {

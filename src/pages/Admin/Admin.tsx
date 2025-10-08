@@ -33,10 +33,10 @@ export const Admin: React.FC = () => {
     return (
       <div className="page-bg">
         <div className="container mx-auto px-6 py-8">
-          <div className="cute-card p-8 text-center border-red-400 bg-red-50">
+          <div className="bg-gray-800 p-8 text-center border-2 border-red-500 rounded-xl">
             <div className="text-red-500 text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-inter font-bold text-red-600 mb-4">Access Denied</h2>
-            <p className="text-gray-700 font-inter">Please log in to access the admin panel.</p>
+            <h2 className="text-2xl font-inter font-bold text-red-500 mb-4">Access Denied</h2>
+            <p className="text-gray-300 font-inter">Please log in to access the admin panel.</p>
           </div>
         </div>
       </div>
@@ -48,10 +48,10 @@ export const Admin: React.FC = () => {
     return (
       <div className="page-bg">
         <div className="container mx-auto px-6 py-8">
-          <div className="cute-card p-8 text-center border-red-400 bg-red-50">
+          <div className="bg-gray-800 p-8 text-center border-2 border-red-500 rounded-xl">
             <div className="text-red-500 text-6xl mb-4">🔒</div>
-            <h2 className="text-2xl font-inter font-bold text-red-600 mb-4">Admin Access Required</h2>
-            <p className="text-gray-700 font-inter">You need administrator privileges to access this panel.</p>
+            <h2 className="text-2xl font-inter font-bold text-red-500 mb-4">Admin Access Required</h2>
+            <p className="text-gray-300 font-inter">You need administrator privileges to access this panel.</p>
           </div>
         </div>
       </div>
@@ -67,28 +67,28 @@ export const Admin: React.FC = () => {
             <h1 className="title-responsive font-inter font-bold gradient-text">
               Admin Control Center
             </h1>
-            <p className="text-gray-700 text-lg font-inter">
+            <p className="text-gray-300 text-lg font-inter">
               Manage the PupFi pet care ecosystem
             </p>
-            <div className="cute-card p-4 max-w-md mx-auto border-success bg-green-50">
+            <div className="bg-gray-800 p-4 max-w-md mx-auto border-2 border-green-500 rounded-xl">
               <div className="flex items-center justify-center gap-2">
-                <span className="text-success text-2xl">✅</span>
-                <span className="text-gray-800 font-inter font-bold">Admin Access Granted</span>
+                <span className="text-green-500 text-2xl">✅</span>
+                <span className="text-white font-inter font-bold">Admin Access Granted</span>
               </div>
             </div>
           </div>
 
           {/* Tabs Section */}
-          <div className="cute-card overflow-hidden">
-            <div className="flex flex-wrap border-b border-primary-200">
+          <div className="bg-gray-800 rounded-xl overflow-hidden border-2 border-gray-700">
+            <div className="flex flex-wrap border-b border-gray-700">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 min-w-[150px] px-6 py-4 font-inter font-bold transition-all duration-200 ${
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-primary-200 to-primary-300 text-primary-700 border-b-2 border-primary-500'
-                      : 'text-gray-600 hover:text-primary-600'
+                      ? 'bg-[#f97316] text-white border-b-2 border-[#ea580c]'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
