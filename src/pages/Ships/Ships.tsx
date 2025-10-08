@@ -378,24 +378,24 @@ export const Ships = () => {
                             <span className="text-6xl">{dogType.emoji}</span>
                           </div>
 
-                          <div className="p-4 space-y-4 bg-gradient-to-br from-yellow-50 to-orange-50">
+                          <div className="p-4 space-y-4 bg-gradient-to-br from-purple-900 to-purple-950">
                             <div>
-                              <h3 className="text-lg font-bold text-gray-800">
+                              <h3 className="text-lg font-bold text-white">
                                 {dogType.name}
                               </h3>
-                              <p className="text-gray-600 text-sm">
+                              <p className="text-purple-200 text-sm">
                                 {dogType.description}
                               </p>
                             </div>
 
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-gray-700 text-sm">Appetite:</span>
-                                <span className="text-orange-600 font-bold">{dogType.mining_power}</span>
+                                <span className="text-purple-300 text-sm">Appetite:</span>
+                                <span className="text-orange-400 font-bold">{dogType.mining_power}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-gray-700 text-sm">Happiness Capacity:</span>
-                                <span className="text-orange-600 font-bold">{dogType.energy_capacity}</span>
+                                <span className="text-purple-300 text-sm">Happiness Capacity:</span>
+                                <span className="text-orange-400 font-bold">{dogType.energy_capacity}</span>
                               </div>
                             </div>
 
