@@ -325,23 +325,39 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const buyShip = async (shipType: string) => {
     try {
       if (!user?.id) throw new Error('User not authenticated');
-      
+
       const shipConfig = GameService.getShipConfig(shipType);
-      
+
+      if (shipConfig.cost === 0) {
+        throw new Error('Cannot purchase starter dog');
+      }
+
       const currentBalance = Number(gameStats?.zenBalance || 0);
-      
+
       console.log('🛒 GameContext: Ship purchase calculation:', {
         currentBalance,
         shipCost: shipConfig.cost,
         result: currentBalance - shipConfig.cost,
         gameStats: gameStats
       });
-      
+
       if (currentBalance < shipConfig.cost) {
         throw new Error('Insufficient Food to buy dog');
       }
 
-      // Create new ship
+      // Deduct cost FIRST before creating ship
+      const newBalance = currentBalance - shipConfig.cost;
+      console.log('🛒 GameContext: Deducting cost first, new balance:', {
+        currentBalance,
+        shipCost: shipConfig.cost,
+        newBalance
+      });
+
+      await GameService.updateGameStats(user.id, {
+        zenBalance: newBalance
+      });
+
+      // Then create new ship
       await GameService.createShip({
         userId: user.id,
         name: shipConfig.name,
@@ -355,23 +371,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         createdAt: new Date()
       });
 
-      // Deduct cost
-      const newBalance = currentBalance - shipConfig.cost;
-      console.log('🛒 GameContext: New balance after purchase:', {
-        currentBalance,
-        shipCost: shipConfig.cost,
-        newBalance
-      });
-      
-      await GameService.updateGameStats(user.id, {
-        zenBalance: newBalance
-      });
-
+      success(`${shipConfig.name} adopted for ${shipConfig.cost.toLocaleString()} food! 🐕`);
       await fetchGameData();
-      success(`${shipConfig.name} purchased successfully!`);
     } catch (error: any) {
       console.error('Error buying ship:', error);
-      showError(error.message || 'Failed to purchase ship');
+      showError(error.message || 'Failed to purchase dog');
     }
   };
 

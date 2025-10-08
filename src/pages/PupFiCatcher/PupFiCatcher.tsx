@@ -368,15 +368,15 @@ export const PupFiCatcher = () => {
             playBonusSound();
             vibrateBonus();
             break;
-          case 'poison':
+          case 'bomb':
             scoreRef.current = Math.max(0, scoreRef.current - 15);
             createExplosion(obj.x, obj.y);
-            playPoisonSound();
-            vibratePoison();
-            break;
-          case 'bomb':
             playExplosionSound();
             vibrateExplosion();
+            break;
+          case 'poison':
+            playPoisonSound();
+            vibratePoison();
             setTimeout(() => playGameOverSound(), 500);
             endGame();
             return;
@@ -392,7 +392,7 @@ export const PupFiCatcher = () => {
             speedX: (Math.random() - 0.5) * 4,
             speedY: (Math.random() - 0.5) * 4,
             opacity: 1,
-            color: obj.type === 'poison' ? '#ff0000' : '#ff69b4',
+            color: obj.type === 'bomb' ? '#ff0000' : '#ff69b4',
             frame: 0,
             maxFrame: 30,
           });
@@ -666,12 +666,12 @@ export const PupFiCatcher = () => {
                     <div className="text-gray-700 font-inter">Meat: +15 pts</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-1">☠️</div>
-                    <div className="text-gray-700 font-inter">Poison: -15 pts</div>
+                    <div className="text-2xl mb-1">💣</div>
+                    <div className="text-gray-700 font-inter">Bomb: -15 pts</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl mb-1">💣</div>
-                    <div className="text-gray-700 font-inter">Bomb: Game Over</div>
+                    <div className="text-2xl mb-1">☠️</div>
+                    <div className="text-gray-700 font-inter">Poison: Game Over</div>
                   </div>
                 </div>
                 <p className="text-gray-600 text-sm mt-3 text-center font-inter">
