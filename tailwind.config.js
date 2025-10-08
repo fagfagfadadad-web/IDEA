@@ -50,10 +50,10 @@ module.exports = {
         error: '#ef4444',
       },
       backgroundImage: {
-        'primary-gradient': 'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #8b5cf6 100%)',
+        'primary-gradient': 'linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%)',
         'secondary-gradient': 'linear-gradient(135deg, #fbbf24 0%, #fcd34d 100%)',
-        'accent-gradient': 'linear-gradient(135deg, #f59e0b 0%, #fb923c 100%)',
-        'pastel-gradient': 'linear-gradient(135deg, #6b21a8 0%, #7c3aed 50%, #8b5cf6 100%)',
+        'accent-gradient': 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',
+        'pastel-gradient': 'linear-gradient(135deg, #7C3AED 0%, #7C3AED 100%)',
       },
       boxShadow: {
         'cute': '0 20px 60px rgba(124, 58, 237, 0.2), 0 8px 24px rgba(251, 191, 36, 0.1)',
