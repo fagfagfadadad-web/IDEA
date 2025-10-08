@@ -463,20 +463,20 @@ export const Tasks = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="p-4 bg-white border border-gray-300 rounded-lg">
-                <h4 className="font-inter font-bold text-gray-800 mb-2">
+              <div className="p-4 bg-gradient-to-br from-[#f97316] to-[#fb923c] border border-[#f97316] rounded-lg">
+                <h4 className="font-inter font-bold text-white mb-2">
                   {currentClaimTask.title}
                 </h4>
-                <p className="text-sm text-gray-700 font-inter">
+                <p className="text-sm text-white font-inter">
                   {currentClaimTask.description}
                 </p>
                 <div className="flex flex-col gap-1 mt-3">
-                  <div className="flex items-center gap-1 text-[#f97316] font-inter font-bold">
+                  <div className="flex items-center gap-1 text-white font-inter font-bold">
                     <span>🍖</span>
                     +{currentClaimTask.rewardAmount} Food Reward
                   </div>
                   {currentClaimTask.ticketReward && currentClaimTask.ticketReward > 0 && (
-                    <div className="flex items-center gap-1 text-[#7C3AED] font-inter font-bold">
+                    <div className="flex items-center gap-1 text-white font-inter font-bold">
                       <span>🎫</span>
                       +{currentClaimTask.ticketReward} Ticket Reward
                     </div>
@@ -492,9 +492,9 @@ export const Tasks = () => {
                 </label>
                 <div className="flex items-center gap-2 mb-2">
                   {currentClaimTask.proofType === 'screenshot' ? (
-                    <Upload size={16} className="text-primary-600" />
+                    <Upload size={16} className="text-[#f97316]" />
                   ) : (
-                    <LinkIcon size={16} className="text-primary-600" />
+                    <LinkIcon size={16} className="text-[#f97316]" />
                   )}
                   <span className="text-xs text-gray-600 font-inter">
                     {currentClaimTask.proofType === 'screenshot'
@@ -506,7 +506,7 @@ export const Tasks = () => {
                   type="url"
                   value={proofUrl}
                   onChange={(e) => setProofUrl(e.target.value)}
-                  className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-inter"
+                  className="w-full px-4 py-3 text-sm bg-white border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-[#f97316] focus:border-[#f97316] font-inter"
                   placeholder="https://..."
                   autoFocus
                 />
@@ -519,13 +519,13 @@ export const Tasks = () => {
                     setProofUrl('');
                     setCurrentClaimTask(null);
                   }}
-                  className="cute-button-outline flex-1 py-3"
+                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-3 rounded-lg font-inter font-bold flex-1"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleProofSubmit}
-                  className="cute-button flex-1 py-3"
+                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-3 rounded-lg font-inter font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!proofUrl.trim()}
                 >
                   Submit & Claim
