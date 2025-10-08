@@ -261,7 +261,8 @@ export const Chat = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-[88px] md:bottom-6 right-4 md:left-6 md:right-auto z-[1000000] bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className="fixed bottom-[88px] md:bottom-6 right-4 md:left-6 md:right-auto z-[1000000] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
       >
         <MessageCircle size={24} />
       </button>
