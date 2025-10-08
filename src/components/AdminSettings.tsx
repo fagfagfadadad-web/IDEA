@@ -224,8 +224,22 @@ export const AdminSettings: React.FC = () => {
     try {
       await ChatService.banUserFromChat(userId, parseInt(duration));
       success(`User "${username}" banned from chat for ${duration} minutes!`);
+      loadRecentMessages();
     } catch (err) {
       error('Failed to ban user');
+      console.error(err);
+    }
+  };
+
+  const handleUnbanUser = async (userId: string, username: string) => {
+    if (!window.confirm(`Unban user "${username}" from chat?`)) return;
+
+    try {
+      await ChatService.unbanUserFromChat(userId);
+      success(`User "${username}" unbanned from chat!`);
+      loadRecentMessages();
+    } catch (err) {
+      error('Failed to unban user');
       console.error(err);
     }
   };
@@ -275,16 +289,16 @@ export const AdminSettings: React.FC = () => {
             </Button>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto bg-gradient-to-b from-orange-100 to-yellow-100 p-4 rounded-lg border-2 border-orange-400">
+          <div className="space-y-2 max-h-96 overflow-y-auto bg-gradient-to-b from-purple-100 to-purple-200 p-4 rounded-lg border-2 border-purple-400">
             {recentChatMessages.length === 0 ? (
-              <div className="text-center text-gray-900 py-8 font-inter font-bold text-lg">No messages to display</div>
+              <div className="text-center text-purple-900 py-8 font-inter font-bold text-lg">No messages to display</div>
             ) : (
               recentChatMessages.map((msg) => (
-                <div key={msg.id} className="bg-white p-4 rounded-lg border-2 border-orange-400 shadow-lg">
+                <div key={msg.id} className="bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-lg border-2 border-purple-500 shadow-lg">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <span className="font-bold text-gray-900 font-inter text-lg">{msg.username}</span>
-                      <span className="text-sm text-gray-700 ml-2 font-inter font-semibold">
+                      <span className="font-bold text-white font-inter text-lg">{msg.username}</span>
+                      <span className="text-sm text-purple-200 ml-2 font-inter font-semibold">
                         {msg.createdAt?.toDate?.()?.toLocaleString() || 'Just now'}
                       </span>
                     </div>
@@ -297,6 +311,13 @@ export const AdminSettings: React.FC = () => {
                         Ban
                       </button>
                       <button
+                        onClick={() => handleUnbanUser(msg.userId, msg.username)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 text-xs rounded-lg font-bold shadow-md transition-all flex items-center gap-1"
+                      >
+                        <Ban size={14} />
+                        Unban
+                      </button>
+                      <button
                         onClick={() => handleDeleteMessage(msg.id)}
                         className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 text-xs rounded-lg font-bold shadow-md transition-all flex items-center gap-1"
                       >
@@ -305,7 +326,7 @@ export const AdminSettings: React.FC = () => {
                       </button>
                     </div>
                   </div>
-                  <p className="text-white font-inter text-base font-bold bg-gradient-to-r from-orange-500 to-yellow-500 p-3 rounded-lg border-2 border-orange-600 shadow-md">{msg.message}</p>
+                  <p className="text-white font-inter text-base font-bold p-3 rounded-lg bg-purple-800/50 border border-purple-400">{msg.message}</p>
                 </div>
               ))
             )}
