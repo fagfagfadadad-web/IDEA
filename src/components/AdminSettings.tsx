@@ -280,11 +280,11 @@ export const AdminSettings: React.FC = () => {
               <div className="text-center text-gray-900 py-8 font-inter font-bold text-lg">No messages to display</div>
             ) : (
               recentChatMessages.map((msg) => (
-                <div key={msg.id} className="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-lg border-2 border-orange-200 shadow-sm">
+                <div key={msg.id} className="bg-white p-4 rounded-lg border-2 border-orange-400 shadow-lg">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <span className="font-bold text-gray-900 font-inter text-base">{msg.username}</span>
-                      <span className="text-xs text-gray-600 ml-2 font-inter font-semibold">
+                      <span className="font-bold text-gray-900 font-inter text-lg">{msg.username}</span>
+                      <span className="text-sm text-gray-700 ml-2 font-inter font-semibold">
                         {msg.createdAt?.toDate?.()?.toLocaleString() || 'Just now'}
                       </span>
                     </div>
