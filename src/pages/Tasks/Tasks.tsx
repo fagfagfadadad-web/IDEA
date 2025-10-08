@@ -298,7 +298,7 @@ export const Tasks = () => {
                   return (
                     <div
                       key={task.id}
-                      className={`cute-card overflow-hidden transition-all duration-300 hover:transform hover:scale-105 ${
+                      className={`overflow-hidden rounded-2xl transition-all duration-300 hover:transform hover:scale-105 shadow-lg ${
                         userTask?.status === 'completed'
                           ? 'ring-2 ring-green-500'
                           : userTask?.status === 'in_progress'
@@ -308,7 +308,7 @@ export const Tasks = () => {
                     >
                       {/* Banner Image */}
                       {task.bannerImage && (
-                        <div className="w-full h-32 overflow-hidden">
+                        <div className="w-full h-48 overflow-hidden bg-gradient-to-br from-[#f97316] to-[#fb923c]">
                           <img
                             src={task.bannerImage}
                             alt={task.title}
@@ -317,30 +317,30 @@ export const Tasks = () => {
                         </div>
                       )}
 
-                      <div className="p-6 space-y-4">
+                      <div className="bg-gradient-to-br from-[#f97316] to-[#fb923c] p-6 space-y-4">
                         {/* Task Header */}
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
+                            <div className="w-12 h-12 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center">
                               {getTaskIcon(task.taskType)}
                             </div>
                             <div>
-                              <h3 className="text-lg font-inter font-bold text-gray-800">
+                              <h3 className="text-lg font-inter font-bold text-white">
                                 {task.title}
                               </h3>
-                              <p className="text-gray-600 text-sm capitalize font-inter">
+                              <p className="text-white/80 text-sm capitalize font-inter">
                                 {task.taskType} Task
                               </p>
                             </div>
                           </div>
-                          <div className={`text-sm font-medium ${getStatusColor(userTask?.status || 'not_started')}`}>
+                          <div className={`text-sm font-medium text-white`}>
                             {userTask?.status === 'completed' && <CheckCircle size={16} />}
                             {userTask?.status === 'in_progress' && <Clock size={16} />}
                           </div>
                         </div>
 
                         {/* Task Description */}
-                        <p className="text-gray-700 text-sm leading-relaxed font-inter">
+                        <p className="text-white text-sm leading-relaxed font-inter">
                           {task.description}
                         </p>
 
@@ -351,7 +351,7 @@ export const Tasks = () => {
                               href={task.referenceLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium transition-colors duration-200 font-inter"
+                              className="inline-flex items-center gap-2 text-white hover:text-white/80 text-sm font-medium transition-colors duration-200 font-inter"
                             >
                               <ExternalLink size={14} />
                               Go to Instructions
@@ -363,12 +363,12 @@ export const Tasks = () => {
                         {userTask?.status === 'in_progress' && isReferralTask && (
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-gray-600 text-sm font-inter">Progress</span>
-                              <span className="text-gray-800 text-sm font-inter">{userTask.progress}%</span>
+                              <span className="text-white/80 text-sm font-inter">Progress</span>
+                              <span className="text-white text-sm font-inter">{userTask.progress}%</span>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div className="w-full bg-white/20 rounded-full h-2">
                               <div
-                                className="h-2 rounded-full bg-gradient-to-r from-primary-500 to-primary-600 transition-all duration-300"
+                                className="h-2 rounded-full bg-white transition-all duration-300"
                                 style={{ width: `${userTask.progress}%` }}
                               />
                             </div>
@@ -377,8 +377,8 @@ export const Tasks = () => {
 
                         {/* Status indicator for pending claim */}
                         {userTask?.status === 'pending_claim' && (
-                          <div className="p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
-                            <div className="flex items-center gap-2 text-yellow-800 text-sm font-inter">
+                          <div className="p-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg">
+                            <div className="flex items-center gap-2 text-white text-sm font-inter">
                               <Clock size={16} />
                               <span>Ready to claim reward!</span>
                             </div>
@@ -388,12 +388,12 @@ export const Tasks = () => {
                         {/* Reward and Action */}
                         <div className="flex justify-between items-center pt-2">
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
+                            <div className="flex items-center gap-1 text-white font-inter font-bold">
                               <span>🍖</span>
                               +{task.rewardAmount} Food
                             </div>
                             {task.ticketReward && task.ticketReward > 0 && (
-                              <div className="flex items-center gap-1 text-purple-600 font-inter font-bold">
+                              <div className="flex items-center gap-1 text-white font-inter font-bold">
                                 <span>🎫</span>
                                 +{task.ticketReward} Tickets
                               </div>
@@ -403,7 +403,7 @@ export const Tasks = () => {
                           {!userTask && (
                             <Button
                               onClick={() => startTask(task.id!, task)}
-                              className="cute-button px-4 py-2"
+                              className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-2 rounded-lg font-inter font-bold"
                             >
                               Start
                             </Button>
@@ -412,7 +412,7 @@ export const Tasks = () => {
                           {canClaim && (
                             <Button
                               onClick={() => claimTask(task)}
-                              className="bg-success text-white px-4 py-2 rounded-lg font-inter font-bold hover:bg-green-600 flex items-center gap-2"
+                              className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
                             >
                               {task.requiresProof && task.proofType !== 'none' && (
                                 <>
@@ -424,14 +424,14 @@ export const Tasks = () => {
                           )}
 
                           {userTask?.status === 'in_progress' && isReferralTask && !canClaim && (
-                            <div className="flex items-center gap-1 text-gray-600 text-sm font-inter">
+                            <div className="flex items-center gap-1 text-white/80 text-sm font-inter">
                               <Clock size={16} />
                               In Progress
                             </div>
                           )}
 
                           {userTask?.status === 'completed' && (
-                            <div className="flex items-center gap-1 text-success font-medium font-inter">
+                            <div className="flex items-center gap-1 text-white font-medium font-inter">
                               <CheckCircle size={16} />
                               Completed
                             </div>
