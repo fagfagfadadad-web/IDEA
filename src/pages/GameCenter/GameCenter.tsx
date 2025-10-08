@@ -118,7 +118,7 @@ export const GameCenter = () => {
           </div>
 
           {/* Daily Tickets Banner */}
-          <div className="cute-card p-4 md:p-6 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300">
+          <div className="cute-card p-4 md:p-6 bg-gradient-to-r from-purple-600 to-purple-700 border-2 border-purple-500">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="text-4xl md:text-5xl">🎫</div>
