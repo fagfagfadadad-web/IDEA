@@ -98,7 +98,7 @@ export const Home = () => {
             {/* Logo and Title */}
             <div className="flex flex-col items-center space-y-2">
               <div className="w-full flex justify-center">
-                <div className="w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
+                <div className="w-48 h-48 md:w-64 md:h-64 flex items-center justify-center animate-float">
                   <img src='/pupfi new (1) (1).png' alt='PupFi' className='w-full h-auto object-contain' />
                 </div>
               </div>
