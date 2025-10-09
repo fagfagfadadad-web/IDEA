@@ -1,3 +1,4 @@
+// Header component with Firebase auth support
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';

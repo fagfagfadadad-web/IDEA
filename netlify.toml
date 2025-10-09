@@ -1,3 +1,4 @@
+# Updated: 2025-10-09 - Firebase Auth Fix
 [build]
   command = "yarn build-mainnet"
   publish = "build"

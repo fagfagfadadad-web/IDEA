@@ -1,0 +1,9 @@
+Deployment trigger file - Last update: 2025-10-09 10:45:00
+
+This file is used to force Bolt.new to redeploy the application.
+Edit this file in Bolt.new editor and save to trigger a new deployment.
+
+Changes in this deployment:
+- Fixed Firebase authentication flow in Header
+- Added auto-redirect after Google sign-in
+- Header now correctly shows user profile when authenticated
