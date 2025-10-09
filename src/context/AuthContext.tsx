@@ -66,6 +66,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🔄 AuthContext: Starting auth sync...');
       console.log('🔐 AuthContext: isLoggedIn:', isLoggedIn);
       console.log('📍 AuthContext: address:', address);
+      console.log('🔥 AuthContext: firebaseUser:', firebaseUser?.uid);
+
+      // Check if user is logged in via Firebase (Google/Guest)
+      if (firebaseUser && !isLoggedIn) {
+        console.log('✅ AuthContext: Firebase user detected, loading profile...');
+
+        // Load user profile from Firebase
+        const userProfile = await UserService.getUser(firebaseUser.uid);
+
+        if (userProfile) {
+          console.log('✅ AuthContext: Firebase profile loaded:', userProfile);
+          setUser({ ...userProfile, isProfileReady: true });
+          setIsProfileReady(true);
+          setAuthMessage('');
+          return;
+        } else {
+          console.log('❌ AuthContext: Firebase user exists but no profile found');
+          setUser(null);
+          setIsProfileReady(false);
+          setAuthMessage('Profile not found. Please try signing in again.');
+          await handleFirebaseSignOut();
+          return;
+        }
+      }
 
       // Clear Firebase session if MultiversX is logged out
       if (!isLoggedIn || !address) {
@@ -250,7 +274,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
   const value = {
-    isAuthenticated: isLoggedIn && !!user && isProfileReady,
+    isAuthenticated: (isLoggedIn || !!firebaseUser) && !!user && isProfileReady,
     user,
     firebaseUser,
     loading,

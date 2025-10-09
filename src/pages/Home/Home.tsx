@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'components';
-import { useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
@@ -15,8 +14,7 @@ import {
 
 export const Home = () => {
   const navigate = useNavigate();
-  const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { gameStats, ships, isLoading } = useGame();
   const [animatedStats, setAnimatedStats] = useState({ food: 0, love: 0 });
 
@@ -111,7 +109,7 @@ export const Home = () => {
             </div>
 
             {/* Stats Display for Logged In Users */}
-            {isLoggedIn && gameStats && (
+            {isAuthenticated && gameStats && (
               <div className="cute-card p-6 max-w-2xl mx-auto space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="stat-card">
@@ -195,7 +193,7 @@ export const Home = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-3 md:gap-4 justify-center items-center px-4">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.mining)}
@@ -268,7 +266,7 @@ export const Home = () => {
         </div>
 
         {/* Quick Actions for Logged In Users */}
-        {isLoggedIn && gameStats && (
+        {isAuthenticated && gameStats && (
           <div className="container mx-auto px-6 py-12">
             <div className="cute-card p-8">
               <h2 className="text-3xl font-inter font-bold text-gray-800 mb-8 text-center">

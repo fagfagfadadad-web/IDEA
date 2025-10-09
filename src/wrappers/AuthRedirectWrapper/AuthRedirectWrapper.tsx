@@ -1,16 +1,17 @@
 import { PropsWithChildren, useEffect } from 'react';
 import { matchPath, useLocation, useNavigate } from 'react-router-dom';
-import { useGetIsLoggedIn } from 'lib';
+import { useAuth } from '../../context/AuthContext';
 import { RouteNamesEnum } from 'localConstants';
 import { routes } from 'routes';
 
 export const AuthRedirectWrapper = ({ children }: PropsWithChildren) => {
-  const isLoggedIn = useGetIsLoggedIn();
+  const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   console.log('🔒 AuthRedirectWrapper: pathname:', pathname);
-  console.log('🔒 AuthRedirectWrapper: isLoggedIn:', isLoggedIn);
+  console.log('🔒 AuthRedirectWrapper: isAuthenticated:', isAuthenticated);
+  console.log('🔒 AuthRedirectWrapper: loading:', loading);
 
   const currentRoute = routes.find((route) => matchPath(route.path, pathname));
   console.log('🔒 AuthRedirectWrapper: currentRoute:', currentRoute);
@@ -19,20 +20,24 @@ export const AuthRedirectWrapper = ({ children }: PropsWithChildren) => {
   console.log('🔒 AuthRedirectWrapper: requireAuth:', requireAuth);
 
   useEffect(() => {
-    console.log('🔒 AuthRedirectWrapper: useEffect triggered');
-    console.log('🔒 AuthRedirectWrapper: isLoggedIn:', isLoggedIn, 'requireAuth:', requireAuth);
-    
-    if (isLoggedIn && !requireAuth) {
-      console.log('🔒 AuthRedirectWrapper: User is logged in but route does not require auth - NOT redirecting');
-      // Don't redirect logged in users away from public pages
+    if (loading) {
+      console.log('🔒 AuthRedirectWrapper: Still loading, waiting...');
       return;
     }
 
-    if (!isLoggedIn && requireAuth) {
-      console.log('🔒 AuthRedirectWrapper: User not logged in but route requires auth - redirecting to home');
+    console.log('🔒 AuthRedirectWrapper: useEffect triggered');
+    console.log('🔒 AuthRedirectWrapper: isAuthenticated:', isAuthenticated, 'requireAuth:', requireAuth);
+
+    if (isAuthenticated && !requireAuth) {
+      console.log('🔒 AuthRedirectWrapper: User is authenticated but route does not require auth - NOT redirecting');
+      return;
+    }
+
+    if (!isAuthenticated && requireAuth) {
+      console.log('🔒 AuthRedirectWrapper: User not authenticated but route requires auth - redirecting to home');
       navigate(RouteNamesEnum.home);
     }
-  }, [isLoggedIn, currentRoute]);
+  }, [isAuthenticated, loading, currentRoute]);
 
   return <>{children}</>;
 };
