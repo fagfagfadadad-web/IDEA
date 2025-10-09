@@ -156,8 +156,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           console.log('👤 AuthContext: Generated username:', uniqueUsername);
 
-          // Generate random avatar emoji
-          const emojis = ['🐶', '🐕', '🦴', '🐾', '🎾', '🦮', '🐕‍🦺', '🐩', '🌟', '⭐', '💎', '🏆', '🎮', '🎯', '🚀', '💫', '🔥', '⚡', '💪', '🎪'];
+          // Generate random avatar emoji (same list as Profile page)
+          const emojis = [
+            '🐶', '🐕', '🦴', '🐾', '🎾', '🦮', '🐕‍🦺', '🐩',
+            '🐱', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮',
+            '🌟', '⭐', '💎', '🏆', '🎮', '🎯', '🚀', '💫',
+            '🔥', '⚡', '💪', '🎪', '🎨', '🎭', '🎡', '🎢',
+            '👑', '💰', '🌈', '☀️', '🌙', '✨', '💝', '🎁',
+            '🍕', '🍔', '🍰', '🍦', '🍩', '🎂', '🧁', '🍪',
+            '🎸', '🎹', '🎤', '🎧', '🎵', '🎶', '🎺', '🥁'
+          ];
           const randomAvatar = emojis[Math.floor(Math.random() * emojis.length)];
           console.log('🎨 AuthContext: Generated random avatar emoji:', randomAvatar);
 

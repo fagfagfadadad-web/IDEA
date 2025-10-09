@@ -58,7 +58,15 @@ export const Profile = () => {
     setShowEmojiPicker(false);
   };
 
-  const availableEmojis = ['🐶', '🐕', '🦴', '🐾', '🎾', '🦮', '🐕‍🦺', '🐩', '🌟', '⭐', '💎', '🏆', '🎮', '🎯', '🚀', '💫', '🔥', '⚡', '💪', '🎪', '🎨', '🎭', '🎪', '🎡'];
+  const availableEmojis = [
+    '🐶', '🐕', '🦴', '🐾', '🎾', '🦮', '🐕‍🦺', '🐩',
+    '🐱', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮',
+    '🌟', '⭐', '💎', '🏆', '🎮', '🎯', '🚀', '💫',
+    '🔥', '⚡', '💪', '🎪', '🎨', '🎭', '🎡', '🎢',
+    '👑', '💰', '🌈', '☀️', '🌙', '✨', '💝', '🎁',
+    '🍕', '🍔', '🍰', '🍦', '🍩', '🎂', '🧁', '🍪',
+    '🎸', '🎹', '🎤', '🎧', '🎵', '🎶', '🎺', '🥁'
+  ];
 
   const handleEmojiSelect = async (emoji: string) => {
     if (!user?.id) return;
@@ -154,22 +162,10 @@ export const Profile = () => {
               {/* Avatar and Basic Info */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
-                  <div className="w-32 h-32 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600 border-4 border-white shadow-lg">
-                    {user?.avatarUrl ? (
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.username}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-6xl">👤</div>';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-6xl">
-                        👤
-                      </div>
-                    )}
+                  <div className="w-32 h-32 rounded-full overflow-hidden relative bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 border-4 border-white shadow-lg">
+                    <div className="w-full h-full flex items-center justify-center text-7xl">
+                      {user?.avatarUrl || '👤'}
+                    </div>
                   </div>
                   <button
                     onClick={() => setShowEmojiPicker(true)}
@@ -188,29 +184,32 @@ export const Profile = () => {
                       />
 
                       {/* Modal */}
-                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
+                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-2xl rounded-3xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-white/20">
                           <div>
-                            <h3 className="text-white font-bold text-xl font-inter">Choose Your Avatar</h3>
-                            <p className="text-white/80 text-sm font-inter mt-1">Pick an emoji that represents you!</p>
+                            <h3 className="text-white font-bold text-2xl font-inter">Choose Your Avatar</h3>
+                            <p className="text-white/90 text-sm font-inter mt-1">Pick an emoji that represents you! 56 options available</p>
                           </div>
                           <button
                             onClick={() => setShowEmojiPicker(false)}
-                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all hover:scale-110"
                           >
-                            <X size={20} className="text-white" />
+                            <X size={24} className="text-white" />
                           </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-6">
-                          <div className="grid grid-cols-6 gap-3">
+                        <div className="p-6 max-h-[60vh] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#ffffff40 transparent' }}>
+                          <div className="grid grid-cols-8 gap-3">
                             {availableEmojis.map((emoji, index) => (
                               <button
                                 key={index}
                                 onClick={() => handleEmojiSelect(emoji)}
-                                className="w-full aspect-square rounded-xl bg-white/10 hover:bg-white/20 hover:scale-110 flex items-center justify-center text-3xl transition-all duration-200 cursor-pointer"
+                                className={`w-full aspect-square rounded-2xl bg-white/10 hover:bg-white/25 hover:scale-110 flex items-center justify-center text-3xl transition-all duration-200 cursor-pointer ${
+                                  formData.avatarUrl === emoji ? 'ring-4 ring-white scale-110 bg-white/25' : ''
+                                }`}
+                                title={emoji}
                               >
                                 {emoji}
                               </button>
@@ -222,7 +221,7 @@ export const Profile = () => {
                         <div className="flex items-center gap-3 p-6 border-t border-white/20 bg-black/10">
                           <button
                             onClick={() => setShowEmojiPicker(false)}
-                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter"
+                            className="flex-1 py-4 px-6 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-semibold transition-all duration-200 font-inter hover:scale-105"
                           >
                             Close
                           </button>
