@@ -27,6 +27,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         sourcemap: false,
+        manualChunks: {
+          'mvx-sdk': [
+            '@multiversx/sdk-core',
+            '@multiversx/sdk-dapp',
+            '@multiversx/sdk-dapp-ui',
+            '@multiversx/sdk-dapp-utils'
+          ],
+          'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'vendor': ['react', 'react-dom', 'react-router-dom']
+        }
       },
       onwarn(warning, warn) {
         if (warning.code === 'SOURCEMAP_ERROR') return;
@@ -42,7 +52,15 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: [],
-    include: ['@multiversx/sdk-dapp-ui']
+    include: [
+      '@multiversx/sdk-dapp-ui',
+      '@multiversx/sdk-dapp',
+      '@multiversx/sdk-core',
+      '@multiversx/sdk-dapp-utils'
+    ],
+    esbuildOptions: {
+      target: 'esnext'
+    }
   },
   plugins: [
     react(),
