@@ -28,16 +28,19 @@ export const AuthRedirectWrapper = ({ children }: PropsWithChildren) => {
     console.log('🔒 AuthRedirectWrapper: useEffect triggered');
     console.log('🔒 AuthRedirectWrapper: isAuthenticated:', isAuthenticated, 'requireAuth:', requireAuth);
 
-    if (isAuthenticated && !requireAuth) {
-      console.log('🔒 AuthRedirectWrapper: User is authenticated but route does not require auth - NOT redirecting');
+    // If user is authenticated and on /unlock page, redirect to home
+    if (isAuthenticated && pathname === RouteNamesEnum.unlock) {
+      console.log('🔒 AuthRedirectWrapper: Authenticated user on unlock page - redirecting to home');
+      navigate(RouteNamesEnum.home);
       return;
     }
 
+    // If user is not authenticated and route requires auth, redirect to unlock
     if (!isAuthenticated && requireAuth) {
-      console.log('🔒 AuthRedirectWrapper: User not authenticated but route requires auth - redirecting to home');
-      navigate(RouteNamesEnum.home);
+      console.log('🔒 AuthRedirectWrapper: User not authenticated but route requires auth - redirecting to unlock');
+      navigate(RouteNamesEnum.unlock);
     }
-  }, [isAuthenticated, loading, currentRoute]);
+  }, [isAuthenticated, loading, pathname, requireAuth, navigate]);
 
   return <>{children}</>;
 };
