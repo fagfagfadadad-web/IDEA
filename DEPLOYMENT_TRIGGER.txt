@@ -1,14 +1,14 @@
-Deployment trigger file - Last update: 2025-10-09 11:32:00 UTC
+Deployment trigger file - Last update: 2025-10-09 11:40:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- FIXED: Switched from Firebase to Supabase Storage for avatars
-- Professional profile picture upload system working
+- FIXED: Using Firebase Storage with proper rules configuration
+- Created storage.rules file for Firebase Storage
+- Professional profile picture upload system
 - Upload photos (JPG, PNG, GIF, WebP) up to 5MB
 - Auto-generated random avatars for new users (DiceBear API)
-- Beautiful upload modal with proper error handling
-- Instant profile picture update after upload
-- See SUPABASE_STORAGE_SETUP.md for setup instructions
-- Build hash: index-a9a57c6a.js index-d84aac69.js
+- Better error handling in upload process
+- See FIREBASE_STORAGE_SETUP.md for deployment instructions
+- Build hash: index-e7c78720.js firebase-33679a94.js

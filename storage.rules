@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Avatar uploads - anyone can upload and read
+    match /avatars/{fileName} {
+      // Allow read access to all avatar images
+      allow read: if true;
+
+      // Allow write (upload) for authenticated users or anyone
+      allow write: if true;
+
+      // Validate file is an image and under 5MB
+      allow create: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow updates to existing files
+      allow update: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow delete
+      allow delete: if true;
+    }
+  }
+}
