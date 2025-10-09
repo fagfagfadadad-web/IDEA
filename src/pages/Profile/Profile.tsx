@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart } from 'lucide-react';
+import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { UserService } from '../../services/userService';
+import { AuthService } from '../../services/authService';
+import { UnlockPanelManager } from 'lib';
 
 // Dog avatar options
 const dogAvatars = [
@@ -18,6 +20,7 @@ export const Profile = () => {
   const { success, error } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [isLinkingWallet, setIsLinkingWallet] = useState(false);
   const [formData, setFormData] = useState({
     username: user?.username || '',
     fullName: user?.fullName || '',
@@ -67,7 +70,28 @@ export const Profile = () => {
 
   const selectAvatar = (avatar: string) => {
     setFormData({ ...formData, avatarUrl: avatar });
-    // Don't close picker immediately, let user see the selection
+  };
+
+  const handleLinkWallet = async () => {
+    setIsLinkingWallet(true);
+    try {
+      const unlockPanelManager = UnlockPanelManager.init({
+        loginHandler: async () => {
+          await refreshUser();
+          success('Wallet linked successfully!');
+          setIsLinkingWallet(false);
+        },
+        onClose: () => {
+          setIsLinkingWallet(false);
+        }
+      });
+
+      await unlockPanelManager.openUnlockPanel();
+    } catch (err: any) {
+      console.error('Error linking wallet:', err);
+      error(err.message || 'Failed to link wallet');
+      setIsLinkingWallet(false);
+    }
   };
 
   const achievements = [
@@ -248,16 +272,28 @@ export const Profile = () => {
                     </div>
                     
                     <div>
-                      <p className="text-gray-600 font-inter">Wallet Address</p>
-                      <p className="text-primary-600 font-mono text-sm">
-                        {user?.walletAddress ? (
+                      <p className="text-gray-600 font-inter mb-2">Wallet Address</p>
+                      {user?.walletAddress ? (
+                        <p className="text-primary-600 font-mono text-sm break-all">
                           <span title={user.walletAddress}>
                             {user.walletAddress.substring(0, 12)}...{user.walletAddress.substring(user.walletAddress.length - 8)}
                           </span>
-                        ) : (
-                          'Not connected'
-                        )}
-                      </p>
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-gray-500 font-inter text-sm mb-3">
+                            Link your MultiversX wallet to access blockchain features
+                          </p>
+                          <Button
+                            onClick={handleLinkWallet}
+                            disabled={isLinkingWallet}
+                            className="cute-button px-4 py-2 flex items-center gap-2"
+                          >
+                            <Wallet size={16} />
+                            {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
