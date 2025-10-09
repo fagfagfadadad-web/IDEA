@@ -8,11 +8,48 @@ import { UserService } from '../../services/userService';
 import { UnlockPanelManager } from 'lib';
 import { supabase } from '../../lib/supabase';
 
-// Dog avatar options
-const dogAvatars = [
-  '🐕', '🐶', '🦮', '🐕‍🦺', '🐩', '🐺', '🦊', '🐾',
-  '🐕‍🦺', '🦴', '🎾', '🥎', '🏆', '⭐', '💎', '👑'
-];
+// Avatar options organized by category
+const avatarCategories = {
+  dogs: [
+    '🐕', '🐶', '🦮', '🐕‍🦺', '🐩', '🐺', '🦊', '🦴',
+    '🐾', '🦴', '🐕‍🦺', '🌭'
+  ],
+  cats: [
+    '🐱', '🐈', '🐈‍⬛', '😺', '😸', '😹', '😻', '😼',
+    '😽', '🙀', '😿', '😾'
+  ],
+  animals: [
+    '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
+    '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊',
+    '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅',
+    '🦉', '🦇', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋'
+  ],
+  nature: [
+    '🌸', '🌺', '🌻', '🌷', '🌹', '🥀', '💐', '🌼',
+    '🌈', '⭐', '💫', '✨', '🔥', '💧', '❄️', '☀️',
+    '🌙', '⚡', '🍀', '🌿', '🌲', '🌳', '🌴', '🌵'
+  ],
+  food: [
+    '🍔', '🍕', '🌮', '🌯', '🥙', '🥗', '🍿', '🧂',
+    '🥚', '🍳', '🥞', '🧇', '🥓', '🍗', '🍖', '🦴',
+    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍒',
+    '🍑', '🥝', '🥥', '🥑', '🍆', '🥕', '🌽', '🌶️'
+  ],
+  objects: [
+    '🎮', '🎯', '🎲', '🎰', '🎪', '🎨', '🎭', '🎪',
+    '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '👑', '💎',
+    '💍', '📱', '💻', '⌚', '🎧', '🎤', '🎬', '📷',
+    '🚀', '🛸', '🎈', '🎁', '🎀', '🎊', '🎉', '🎄'
+  ],
+  symbols: [
+    '❤️', '💙', '💚', '💛', '🧡', '💜', '🖤', '🤍',
+    '💗', '💖', '💕', '💞', '💓', '💝', '💘', '♥️',
+    '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪',
+    '🟤', '💯', '🆒', '🆓', '🆕', '🆙', '🎯', '✅'
+  ]
+};
+
+const allAvatars = Object.values(avatarCategories).flat();
 
 export const Profile = () => {
   const { user, refreshUser } = useAuth();
@@ -70,6 +107,23 @@ export const Profile = () => {
 
   const selectAvatar = (avatar: string) => {
     setFormData({ ...formData, avatarUrl: avatar });
+  };
+
+  const handleSaveAvatar = async () => {
+    if (!user?.id) {
+      error('User not found. Please try logging in again.');
+      return;
+    }
+
+    try {
+      await UserService.updateUser(user.id, { avatarUrl: formData.avatarUrl });
+      await refreshUser();
+      success('Avatar updated successfully!');
+      setShowAvatarPicker(false);
+    } catch (err) {
+      console.error('Error updating avatar:', err);
+      error('Failed to update avatar');
+    }
   };
 
   const handleLinkWallet = async () => {
@@ -165,30 +219,81 @@ export const Profile = () => {
                     </button>
                   )}
                   
-                  {/* Avatar Picker */}
+                  {/* Avatar Picker Modal */}
                   {showAvatarPicker && (
-                    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
-                      <h3 className="text-gray-800 font-bold mb-4 text-center font-inter text-lg">Choose Your Avatar</h3>
-                      <div className="grid grid-cols-4 gap-2">
-                        {dogAvatars.map((avatar, index) => (
-                          <button
-                            key={index}
-                            onClick={() => selectAvatar(avatar)}
-                            className={`w-14 h-14 rounded-xl flex items-center justify-center text-3xl hover:bg-primary-100 transition-all duration-200 hover:scale-110 ${
-                              formData.avatarUrl === avatar ? 'bg-primary-200 border-2 border-primary-500' : 'border border-gray-300'
-                            }`}
-                          >
-                            {avatar}
-                          </button>
-                        ))}
-                      </div>
-                      <button
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-sm"
                         onClick={() => setShowAvatarPicker(false)}
-                        className="mt-4 w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors duration-200"
-                      >
-                        Close
-                      </button>
-                    </div>
+                      />
+
+                      {/* Modal */}
+                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-white/20">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl">
+                              {formData.avatarUrl}
+                            </div>
+                            <div>
+                              <h3 className="text-white font-bold text-xl font-inter">Choose Your Avatar</h3>
+                              <p className="text-white/80 text-sm font-inter">Select an emoji that represents you</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowAvatarPicker(false)}
+                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                          >
+                            <X size={20} className="text-white" />
+                          </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="overflow-y-auto max-h-[calc(85vh-180px)] p-6">
+                          {Object.entries(avatarCategories).map(([category, emojis]) => (
+                            <div key={category} className="mb-6">
+                              <h4 className="text-white font-semibold text-sm uppercase tracking-wide mb-3 font-inter">
+                                {category}
+                              </h4>
+                              <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
+                                {emojis.map((avatar, index) => (
+                                  <button
+                                    key={index}
+                                    onClick={() => selectAvatar(avatar)}
+                                    className={`aspect-square rounded-xl flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 hover:scale-110 ${
+                                      formData.avatarUrl === avatar
+                                        ? 'bg-white shadow-lg scale-105'
+                                        : 'bg-white/10 hover:bg-white/20'
+                                    }`}
+                                    title={avatar}
+                                  >
+                                    {avatar}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="flex items-center gap-3 p-6 border-t border-white/20 bg-black/10">
+                          <button
+                            onClick={() => setShowAvatarPicker(false)}
+                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSaveAvatar}
+                            className="flex-1 py-3 px-4 bg-white hover:bg-gray-100 text-primary-600 rounded-xl font-bold transition-colors duration-200 shadow-lg font-inter flex items-center justify-center gap-2"
+                          >
+                            <Save size={18} />
+                            Save Avatar
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
                 
