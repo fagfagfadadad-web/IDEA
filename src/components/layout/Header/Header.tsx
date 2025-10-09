@@ -18,6 +18,8 @@ export const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
+  console.log('🎯 Header render:', { isAuthenticated, hasUser: !!user, username: user?.username });
+
   const handleLogout = async () => {
     try {
       await authLogout();
