@@ -179,7 +179,7 @@ export const Header = () => {
                   className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-2 rounded-lg font-bold shadow-lg"
                 >
                   <Wallet size={16} />
-                  Connect Wallet
+                  Sign In
                 </Button>
               )}
             </div>
@@ -351,7 +351,7 @@ export const Header = () => {
                     className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-lg font-bold w-full mt-4"
                   >
                     <Wallet size={18} />
-                    Connect Wallet
+                    Sign In
                   </Button>
                 )}
               </div>
