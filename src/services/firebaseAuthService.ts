@@ -119,6 +119,10 @@ export class FirebaseAuthService {
       console.log('🐕 Creating starter dog...');
       await GameService.createStarterShip(firebaseUser.uid);
       console.log('✅ Starter dog created');
+
+      // Trigger auth state refresh by forcing a token refresh
+      await firebaseUser.reload();
+      console.log('✅ Auth state refreshed');
     }
 
     return userProfile;

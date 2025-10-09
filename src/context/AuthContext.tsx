@@ -72,8 +72,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (firebaseUser && !isLoggedIn) {
         console.log('✅ AuthContext: Firebase user detected, loading profile...');
 
-        // Load user profile from Firebase
-        const userProfile = await UserService.getUser(firebaseUser.uid);
+        // Load user profile from Firebase with retries
+        let userProfile = await UserService.getUser(firebaseUser.uid);
+        let retries = 0;
+        const maxRetries = 5;
+
+        // Retry if profile not found (might be creating)
+        while (!userProfile && retries < maxRetries) {
+          console.log(`⏳ AuthContext: Profile not found, retry ${retries + 1}/${maxRetries}...`);
+          await new Promise(resolve => setTimeout(resolve, 500));
+          userProfile = await UserService.getUser(firebaseUser.uid);
+          retries++;
+        }
 
         if (userProfile) {
           console.log('✅ AuthContext: Firebase profile loaded:', userProfile);
@@ -82,11 +92,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setAuthMessage('');
           return;
         } else {
-          console.log('❌ AuthContext: Firebase user exists but no profile found');
+          console.log('❌ AuthContext: Profile not found after retries');
           setUser(null);
           setIsProfileReady(false);
-          setAuthMessage('Profile not found. Please try signing in again.');
-          await handleFirebaseSignOut();
+          setAuthMessage('Failed to load profile. Please try again.');
           return;
         }
       }
