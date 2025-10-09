@@ -9,6 +9,7 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { auth } from '../lib/firebase';
 import { UserService, User } from '../services/userService';
 import { GameService } from '../services/gameService';
+import { StorageService } from '../services/storageService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -156,11 +157,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           console.log('👤 AuthContext: Generated username:', uniqueUsername);
 
+          // Generate random avatar URL
+          const randomAvatar = StorageService.generateRandomAvatar();
+          console.log('🎨 AuthContext: Generated random avatar:', randomAvatar);
+
           // Create user profile
           userProfile = await UserService.createUser(address, {
             username: uniqueUsername,
             walletAddress: address,
-            avatarUrl: '🐕',
+            avatarUrl: randomAvatar,
             emailNotificationsEnabled: false,
             isAdmin: false,
             isBanned: false

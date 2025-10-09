@@ -1,68 +1,27 @@
-import React, { useState } from 'react';
-import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet, Upload, Loader } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { UserService } from '../../services/userService';
+import { StorageService } from '../../services/storageService';
 import { UnlockPanelManager } from 'lib';
-import { supabase } from '../../lib/supabase';
-
-// Avatar options organized by category
-const avatarCategories = {
-  dogs: [
-    '🐕', '🐶', '🦮', '🐕‍🦺', '🐩', '🐺', '🦊', '🦴',
-    '🐾', '🦴', '🐕‍🦺', '🌭'
-  ],
-  cats: [
-    '🐱', '🐈', '🐈‍⬛', '😺', '😸', '😹', '😻', '😼',
-    '😽', '🙀', '😿', '😾'
-  ],
-  animals: [
-    '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯',
-    '🦁', '🐮', '🐷', '🐸', '🐵', '🙈', '🙉', '🙊',
-    '🐔', '🐧', '🐦', '🐤', '🐣', '🐥', '🦆', '🦅',
-    '🦉', '🦇', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋'
-  ],
-  nature: [
-    '🌸', '🌺', '🌻', '🌷', '🌹', '🥀', '💐', '🌼',
-    '🌈', '⭐', '💫', '✨', '🔥', '💧', '❄️', '☀️',
-    '🌙', '⚡', '🍀', '🌿', '🌲', '🌳', '🌴', '🌵'
-  ],
-  food: [
-    '🍔', '🍕', '🌮', '🌯', '🥙', '🥗', '🍿', '🧂',
-    '🥚', '🍳', '🥞', '🧇', '🥓', '🍗', '🍖', '🦴',
-    '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🍒',
-    '🍑', '🥝', '🥥', '🥑', '🍆', '🥕', '🌽', '🌶️'
-  ],
-  objects: [
-    '🎮', '🎯', '🎲', '🎰', '🎪', '🎨', '🎭', '🎪',
-    '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '👑', '💎',
-    '💍', '📱', '💻', '⌚', '🎧', '🎤', '🎬', '📷',
-    '🚀', '🛸', '🎈', '🎁', '🎀', '🎊', '🎉', '🎄'
-  ],
-  symbols: [
-    '❤️', '💙', '💚', '💛', '🧡', '💜', '🖤', '🤍',
-    '💗', '💖', '💕', '💞', '💓', '💝', '💘', '♥️',
-    '🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪',
-    '🟤', '💯', '🆒', '🆓', '🆕', '🆙', '🎯', '✅'
-  ]
-};
-
-const allAvatars = Object.values(avatarCategories).flat();
 
 export const Profile = () => {
   const { user, refreshUser } = useAuth();
   const { gameStats, ships } = useGame();
   const { success, error } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
   const [isLinkingWallet, setIsLinkingWallet] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     username: user?.username || '',
     fullName: user?.fullName || '',
     bio: user?.bio || '',
-    avatarUrl: user?.avatarUrl || '🐕',
+    avatarUrl: user?.avatarUrl || '',
     twitterUrl: user?.twitterUrl || '',
     githubUrl: user?.githubUrl || '',
     linkedinUrl: user?.linkedinUrl || '',
@@ -77,13 +36,10 @@ export const Profile = () => {
 
     try {
       await UserService.updateUser(user?.id || '', formData);
-
-      // Refresh user data in context
       await refreshUser();
-      
+
       success('Profile updated successfully!');
       setIsEditing(false);
-      setShowAvatarPicker(false);
     } catch (err) {
       console.error('Error updating profile:', err);
       error('Failed to update profile');
@@ -95,35 +51,44 @@ export const Profile = () => {
       username: user?.username || '',
       fullName: user?.fullName || '',
       bio: user?.bio || '',
-      avatarUrl: user?.avatarUrl || '🐕',
+      avatarUrl: user?.avatarUrl || '',
       twitterUrl: user?.twitterUrl || '',
       githubUrl: user?.githubUrl || '',
       linkedinUrl: user?.linkedinUrl || '',
       websiteUrl: user?.websiteUrl || ''
     });
     setIsEditing(false);
-    setShowAvatarPicker(false);
+    setShowAvatarUpload(false);
   };
 
-  const selectAvatar = (avatar: string) => {
-    setFormData({ ...formData, avatarUrl: avatar });
-  };
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user?.id) return;
 
-  const handleSaveAvatar = async () => {
-    if (!user?.id) {
-      error('User not found. Please try logging in again.');
-      return;
-    }
+    setIsUploadingAvatar(true);
 
     try {
-      await UserService.updateUser(user.id, { avatarUrl: formData.avatarUrl });
+      const downloadURL = await StorageService.uploadAvatar(user.id, file);
+
+      await UserService.updateUser(user.id, { avatarUrl: downloadURL });
       await refreshUser();
-      success('Avatar updated successfully!');
-      setShowAvatarPicker(false);
-    } catch (err) {
-      console.error('Error updating avatar:', err);
-      error('Failed to update avatar');
+
+      setFormData({ ...formData, avatarUrl: downloadURL });
+      success('Profile picture updated successfully!');
+      setShowAvatarUpload(false);
+    } catch (err: any) {
+      console.error('Error uploading avatar:', err);
+      error(err.message || 'Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const handleLinkWallet = async () => {
@@ -138,7 +103,6 @@ export const Profile = () => {
         loginHandler: async () => {
           console.log('🔗 Profile: Wallet connection initiated');
 
-          // Wait a bit for AuthContext to process the linking
           setTimeout(async () => {
             await refreshUser();
             success('Wallet linked successfully!');
@@ -159,26 +123,26 @@ export const Profile = () => {
   };
 
   const achievements = [
-    { 
-      title: 'First Feeding', 
+    {
+      title: 'First Feeding',
       description: 'Feed your first dog',
       unlocked: (gameStats?.totalMined || 0) > 0,
       icon: '🍖'
     },
-    { 
-      title: 'Dog Lover', 
+    {
+      title: 'Dog Lover',
       description: 'Own 3 or more dogs',
       unlocked: ships.length >= 3,
       icon: '🐕'
     },
-    { 
-      title: 'Food Collector', 
+    {
+      title: 'Food Collector',
       description: 'Collect 1,000,000 food points',
       unlocked: (gameStats?.totalMined || 0) >= 1000000,
       icon: '🏆'
     },
-    { 
-      title: 'Friend Maker', 
+    {
+      title: 'Friend Maker',
       description: 'Invite 10 friends to play',
       unlocked: (gameStats?.totalReferrals || 0) >= 10,
       icon: '👥'
@@ -206,97 +170,105 @@ export const Profile = () => {
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full overflow-hidden relative bg-gradient-to-r from-primary-400 to-primary-600 border-4 border-white shadow-lg">
-                    <div className="w-full h-full flex items-center justify-center text-6xl">
-                      {user?.avatarUrl || '🐕'}
-                    </div>
+                    {user?.avatarUrl ? (
+                      <img
+                        src={user.avatarUrl}
+                        alt={user.username}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-6xl">👤</div>';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-6xl">
+                        👤
+                      </div>
+                    )}
                   </div>
-                  {isEditing && (
-                    <button
-                      onClick={() => setShowAvatarPicker(!showAvatarPicker)}
-                      className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors"
-                    >
-                      <Camera size={16} />
-                    </button>
-                  )}
-                  
-                  {/* Avatar Picker Modal */}
-                  {showAvatarPicker && (
+                  <button
+                    onClick={() => setShowAvatarUpload(true)}
+                    className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors"
+                  >
+                    <Camera size={16} />
+                  </button>
+
+                  {/* Avatar Upload Modal */}
+                  {showAvatarUpload && (
                     <>
                       {/* Backdrop */}
                       <div
                         className="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-sm"
-                        onClick={() => setShowAvatarPicker(false)}
+                        onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
                       />
 
                       {/* Modal */}
-                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
+                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-white/20">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-2xl">
-                              {formData.avatarUrl}
-                            </div>
-                            <div>
-                              <h3 className="text-white font-bold text-xl font-inter">Choose Your Avatar</h3>
-                              <p className="text-white/80 text-sm font-inter">Select an emoji that represents you</p>
-                            </div>
+                          <div>
+                            <h3 className="text-white font-bold text-xl font-inter">Change Profile Picture</h3>
+                            <p className="text-white/80 text-sm font-inter mt-1">Upload a photo (JPG, PNG, GIF, WebP)</p>
                           </div>
                           <button
-                            onClick={() => setShowAvatarPicker(false)}
-                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                            onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
+                            disabled={isUploadingAvatar}
+                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-50"
                           >
                             <X size={20} className="text-white" />
                           </button>
                         </div>
 
                         {/* Content */}
-                        <div className="overflow-y-auto max-h-[calc(85vh-180px)] p-6">
-                          {Object.entries(avatarCategories).map(([category, emojis]) => (
-                            <div key={category} className="mb-6">
-                              <h4 className="text-white font-semibold text-sm uppercase tracking-wide mb-3 font-inter">
-                                {category}
-                              </h4>
-                              <div className="grid grid-cols-6 sm:grid-cols-8 gap-2">
-                                {emojis.map((avatar, index) => (
-                                  <button
-                                    key={index}
-                                    onClick={() => selectAvatar(avatar)}
-                                    className={`aspect-square rounded-xl flex items-center justify-center text-2xl sm:text-3xl transition-all duration-200 hover:scale-110 ${
-                                      formData.avatarUrl === avatar
-                                        ? 'bg-white shadow-lg scale-105'
-                                        : 'bg-white/10 hover:bg-white/20'
-                                    }`}
-                                    title={avatar}
-                                  >
-                                    {avatar}
-                                  </button>
-                                ))}
+                        <div className="p-6 space-y-4">
+                          <div
+                            onClick={triggerFileInput}
+                            className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center cursor-pointer hover:border-white/50 hover:bg-white/5 transition-all"
+                          >
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
+                                {isUploadingAvatar ? (
+                                  <Loader size={32} className="text-white animate-spin" />
+                                ) : (
+                                  <Upload size={32} className="text-white" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-white font-semibold font-inter mb-1">
+                                  {isUploadingAvatar ? 'Uploading...' : 'Click to upload photo'}
+                                </p>
+                                <p className="text-white/70 text-sm font-inter">
+                                  Maximum file size: 5MB
+                                </p>
                               </div>
                             </div>
-                          ))}
+                          </div>
+
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                            onChange={handleFileSelect}
+                            className="hidden"
+                            disabled={isUploadingAvatar}
+                          />
                         </div>
 
                         {/* Footer */}
                         <div className="flex items-center gap-3 p-6 border-t border-white/20 bg-black/10">
                           <button
-                            onClick={() => setShowAvatarPicker(false)}
-                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter"
+                            onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
+                            disabled={isUploadingAvatar}
+                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter disabled:opacity-50"
                           >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleSaveAvatar}
-                            className="flex-1 py-3 px-4 bg-white hover:bg-gray-100 text-primary-600 rounded-xl font-bold transition-colors duration-200 shadow-lg font-inter flex items-center justify-center gap-2"
-                          >
-                            <Save size={18} />
-                            Save Avatar
+                            Close
                           </button>
                         </div>
                       </div>
                     </>
                   )}
                 </div>
-                
+
                 <div className="text-center">
                   <h2 className="text-2xl font-inter font-bold text-gray-800">
                     {user?.username}
@@ -322,7 +294,7 @@ export const Profile = () => {
                         className="cute-input"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
                         Full Name
@@ -334,7 +306,7 @@ export const Profile = () => {
                         className="cute-input"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-gray-800 text-sm font-medium mb-2 font-inter">
                         Bio
@@ -380,12 +352,12 @@ export const Profile = () => {
                         Edit Profile
                       </Button>
                     </div>
-                    
+
                     <div>
                       <p className="text-gray-600 font-inter">Bio</p>
                       <p className="text-gray-800 font-inter">{user?.bio || 'Pet lover and caretaker 🐕'}</p>
                     </div>
-                    
+
                     <div>
                       <p className="text-gray-600 font-inter mb-2">Wallet Address</p>
                       {user?.walletAddress ? (

@@ -1,12 +1,13 @@
-Deployment trigger file - Last update: 2025-10-09 11:18:30 UTC
+Deployment trigger file - Last update: 2025-10-09 11:25:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- NEW: Beautiful avatar picker modal with 100+ emojis organized by category
-- NEW: Save button directly in avatar picker modal (no scrolling needed!)
-- Avatar categories: Dogs, Cats, Animals, Nature, Food, Objects, Symbols
-- Improved modal design with backdrop and smooth animations
-- Better UX: Select avatar and save instantly
-- Build hash: index-78f6618b.js index-125436ac.js
+- NEW: Professional profile picture upload system (Firebase Storage)
+- Upload photos (JPG, PNG, GIF, WebP) up to 5MB
+- Auto-generated random avatars for new users (DiceBear API)
+- Beautiful upload modal with drag & drop UI
+- Loading spinner during upload
+- Instant profile picture update after upload
+- Build hash: index-02ffc5e8.js index-25bc4990.js
