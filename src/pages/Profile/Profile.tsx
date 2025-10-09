@@ -291,25 +291,17 @@ export const Profile = () => {
                         </p>
                       ) : (
                         <div className="space-y-2">
-                          {supabase ? (
-                            <>
-                              <p className="text-gray-500 font-inter text-sm mb-3">
-                                Link your MultiversX wallet to access blockchain features
-                              </p>
-                              <Button
-                                onClick={handleLinkWallet}
-                                disabled={isLinkingWallet}
-                                className="cute-button px-4 py-2 flex items-center gap-2"
-                              >
-                                <Wallet size={16} />
-                                {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
-                              </Button>
-                            </>
-                          ) : (
-                            <p className="text-gray-500 font-inter text-sm">
-                              Not connected
-                            </p>
-                          )}
+                          <p className="text-gray-500 font-inter text-sm mb-3">
+                            Link your MultiversX wallet to access blockchain features
+                          </p>
+                          <Button
+                            onClick={handleLinkWallet}
+                            disabled={isLinkingWallet}
+                            className="cute-button px-4 py-2 flex items-center gap-2"
+                          >
+                            <Wallet size={16} />
+                            {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
+                          </Button>
                         </div>
                       )}
                     </div>
