@@ -99,7 +99,7 @@ export const Home = () => {
             <div className="flex flex-col items-center space-y-2">
               <div className="w-full flex justify-center">
                 <div className="w-48 h-48 md:w-64 md:h-64 flex items-center justify-center animate-float">
-                  <img src='/pupfi-logo.png' alt='PupFi' className='w-full h-auto object-contain' />
+                  <img src='/pupfi new .png' alt='PupFi' className='w-full h-auto object-contain' />
                 </div>
               </div>
               <h1 className="title-responsive font-fredoka font-bold gradient-text">
@@ -226,7 +226,7 @@ export const Home = () => {
                   className="cute-button w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                 >
                   <span className="text-xl">🐕</span>
-                  Začni sa starať o psíka
+                  Start Taking Care of Your Pup
                   <ArrowRight size={20} />
                 </Button>
               )}
