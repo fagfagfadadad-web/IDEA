@@ -73,13 +73,23 @@ export const Profile = () => {
   };
 
   const handleLinkWallet = async () => {
+    if (!user?.id) {
+      error('User not found. Please try logging in again.');
+      return;
+    }
+
     setIsLinkingWallet(true);
     try {
       const unlockPanelManager = UnlockPanelManager.init({
         loginHandler: async () => {
-          await refreshUser();
-          success('Wallet linked successfully!');
-          setIsLinkingWallet(false);
+          console.log('🔗 Profile: Wallet connection initiated');
+
+          // Wait a bit for AuthContext to process the linking
+          setTimeout(async () => {
+            await refreshUser();
+            success('Wallet linked successfully!');
+            setIsLinkingWallet(false);
+          }, 1500);
         },
         onClose: () => {
           setIsLinkingWallet(false);

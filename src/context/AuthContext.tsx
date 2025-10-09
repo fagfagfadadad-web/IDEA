@@ -112,61 +112,79 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Create or get user profile
       setAuthMessage('Setting up profile...');
-      
+
       console.log('🔍 AuthContext: Looking for user with address:', address);
       let userProfile = await UserService.getUserByWalletAddress(address);
-      
+
       if (!userProfile) {
-        console.log('🆕 AuthContext: Creating new user profile...');
+        // Check if this is a Firebase user trying to link wallet
+        if (firebaseUser) {
+          console.log('🔗 AuthContext: Linking wallet to existing Firebase account:', firebaseUser.uid);
 
-        // Check for referral code in localStorage (stored by App.tsx)
-        const referralCode = localStorage.getItem('pendingReferralCode');
-        console.log('🔗 AuthContext: Referral code from localStorage:', referralCode);
+          // Update the existing Firebase user profile with wallet address
+          await UserService.updateUser(firebaseUser.uid, {
+            walletAddress: address
+          });
 
-        // Clear the referral code after reading it
-        if (referralCode) {
-          localStorage.removeItem('pendingReferralCode');
-        }
+          // Reload the user profile
+          userProfile = await UserService.getUser(firebaseUser.uid);
+          console.log('✅ AuthContext: Wallet linked to Firebase account:', userProfile);
+        } else {
+          console.log('🆕 AuthContext: Creating new user profile...');
 
-        // Generate unique username
-        const baseUsername = address.substring(0, 8);
-        const uniqueUsername = await UserService.generateUniqueUsername(baseUsername);
+          // Check for referral code in localStorage (stored by App.tsx)
+          const referralCode = localStorage.getItem('pendingReferralCode');
+          console.log('🔗 AuthContext: Referral code from localStorage:', referralCode);
 
-        console.log('👤 AuthContext: Generated username:', uniqueUsername);
-
-        // Create user profile
-        userProfile = await UserService.createUser(address, {
-          username: uniqueUsername,
-          walletAddress: address,
-          avatarUrl: '🐕', // Set default avatar
-          emailNotificationsEnabled: false,
-          isAdmin: false,
-          isBanned: false
-        });
-
-        console.log('✅ AuthContext: User profile created:', userProfile);
-
-        // Create game stats with referral code
-        console.log('🎮 AuthContext: Creating game stats...');
-        await GameService.createGameStats(userProfile.id!, referralCode || undefined);
-
-        // If referral code was used, increment referrer's count
-        if (referralCode) {
-          console.log('🔗 AuthContext: Processing referral for code:', referralCode);
-          try {
-            await GameService.processReferral(referralCode, userProfile.id!);
-            console.log('✅ AuthContext: Referral processed successfully');
-          } catch (refError: any) {
-            console.error('❌ AuthContext: Failed to process referral:', refError.message);
+          // Clear the referral code after reading it
+          if (referralCode) {
+            localStorage.removeItem('pendingReferralCode');
           }
-        }
 
-        // Create starter dog
-        console.log('🐕 AuthContext: Creating starter dog...');
-        await GameService.createStarterShip(userProfile.id!);
-        console.log('✅ AuthContext: Starter dog created');
+          // Generate unique username
+          const baseUsername = address.substring(0, 8);
+          const uniqueUsername = await UserService.generateUniqueUsername(baseUsername);
+
+          console.log('👤 AuthContext: Generated username:', uniqueUsername);
+
+          // Create user profile
+          userProfile = await UserService.createUser(address, {
+            username: uniqueUsername,
+            walletAddress: address,
+            avatarUrl: '🐕',
+            emailNotificationsEnabled: false,
+            isAdmin: false,
+            isBanned: false
+          });
+
+          console.log('✅ AuthContext: User profile created:', userProfile);
+
+          // Create game stats with referral code
+          console.log('🎮 AuthContext: Creating game stats...');
+          await GameService.createGameStats(userProfile.id!, referralCode || undefined);
+
+          // If referral code was used, increment referrer's count
+          if (referralCode) {
+            console.log('🔗 AuthContext: Processing referral for code:', referralCode);
+            try {
+              await GameService.processReferral(referralCode, userProfile.id!);
+              console.log('✅ AuthContext: Referral processed successfully');
+            } catch (refError: any) {
+              console.error('❌ AuthContext: Failed to process referral:', refError.message);
+            }
+          }
+
+          // Create starter dog
+          console.log('🐕 AuthContext: Creating starter dog...');
+          await GameService.createStarterShip(userProfile.id!);
+          console.log('✅ AuthContext: Starter dog created');
+        }
       } else {
         console.log('👤 AuthContext: Found existing user profile:', userProfile);
+      }
+
+      if (!userProfile) {
+        throw new Error('Failed to load user profile');
       }
 
       // Sign in to Firebase with custom token (simulate with wallet address)
@@ -180,14 +198,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       console.log('✅ AuthContext: Profile setup complete');
+
       setUser(userProfile);
       setAuthMessage('');
-      
+
       // Mark profile as ready
-      const userWithProfileReady = { ...userProfile, isProfileReady: true };
+      const userWithProfileReady = {
+        ...userProfile,
+        isProfileReady: true,
+        username: userProfile.username || 'User',
+        avatarUrl: userProfile.avatarUrl || '🐕'
+      };
       setUser(userWithProfileReady);
       setIsProfileReady(true);
-      
+
       console.log('🎮 AuthContext: Profile ready, user data:', {
         id: userWithProfileReady.id,
         username: userWithProfileReady.username,
