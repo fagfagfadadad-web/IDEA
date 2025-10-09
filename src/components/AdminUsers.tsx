@@ -205,7 +205,7 @@ export const AdminUsers: React.FC = () => {
                                 className="fixed inset-0 z-10"
                                 onClick={() => setShowMenu(null)}
                               />
-                              <div className="absolute right-0 top-8 bg-white border border-gray-300 rounded-lg shadow-lg z-20 min-w-48">
+                              <div className="absolute right-0 top-8 border border-gray-300 rounded-lg shadow-lg z-20 min-w-48" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
                                 <button
                                   onClick={() => {
                                     handleAwardZen(userData.id!, 1000);

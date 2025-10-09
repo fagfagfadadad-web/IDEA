@@ -182,7 +182,7 @@ export const Mining = () => {
             </div>
 
             {ships.length === 0 ? (
-              <div className="bg-white/70 backdrop-blur-lg rounded-xl p-8 border border-primary-300/40 text-center shadow-lg">
+              <div className="backdrop-blur-lg rounded-xl p-8 border border-primary-300/40 text-center shadow-lg" style={{ background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.7) 0%, rgba(124, 58, 237, 0.7) 100%)' }}>
                 <span className="text-6xl mb-4 block">🐕</span>
                 <h3 className="text-xl font-bold text-gray-700 mb-2">
                   No Pet Dogs Available

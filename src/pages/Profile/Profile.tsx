@@ -157,7 +157,7 @@ export const Profile = () => {
                   
                   {/* Avatar Picker */}
                   {showAvatarPicker && (
-                    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]">
+                    <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-2xl border-2 border-primary-500 p-6 z-50 min-w-[280px]" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
                       <h3 className="text-gray-800 font-bold mb-4 text-center font-inter text-lg">Choose Your Avatar</h3>
                       <div className="grid grid-cols-4 gap-2">
                         {dogAvatars.map((avatar, index) => (

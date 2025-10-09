@@ -18,11 +18,11 @@ export const Card = (props: CardType) => {
 
   return (
     <div
-      className='flex flex-col flex-1 rounded-xl bg-white p-6 justify-center'
+      className='flex flex-col flex-1 rounded-xl p-6 justify-center'
       data-testid={props['data-testid']}
       id={anchor}
       onClick={onClick}
-      style={style}
+      style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)', ...style }}
     >
       {title && (
         <h2 className='flex text-xl font-medium group'>

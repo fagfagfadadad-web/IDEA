@@ -364,7 +364,8 @@ export const AdminSettings: React.FC = () => {
             <textarea
               value={maintenanceMode.message}
               onChange={(e) => setMaintenanceMode({ ...maintenanceMode, message: e.target.value })}
-              className="w-full p-3 border-2 border-red-300 rounded-lg font-inter text-gray-900 bg-white"
+              className="w-full p-3 border-2 border-red-300 rounded-lg font-inter text-white"
+              style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}
               rows={3}
             />
           </div>

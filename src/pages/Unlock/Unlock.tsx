@@ -81,7 +81,7 @@ export const Unlock = () => {
       <div className="flex flex-grow items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-400 p-1 rounded-3xl shadow-2xl">
-            <div className="bg-white rounded-3xl p-8">
+            <div className="rounded-3xl p-8" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
               <div className="text-center mb-8">
                 <div className="mb-6 relative">
                   <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center shadow-lg">
@@ -122,7 +122,7 @@ export const Unlock = () => {
                 <div className="w-full border-t border-orange-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500 font-semibold">Or sign in to save progress</span>
+                <span className="px-4 text-white font-semibold" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>Or sign in to save progress</span>
               </div>
             </div>
 
