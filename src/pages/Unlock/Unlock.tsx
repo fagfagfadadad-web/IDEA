@@ -129,11 +129,12 @@ export const Unlock = () => {
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full bg-white hover:bg-gray-50 text-gray-800 px-6 py-4 rounded-2xl font-bold text-lg border-2 border-orange-200 shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:border-orange-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              className="w-full text-white px-6 py-4 rounded-2xl font-bold text-lg border-2 border-purple-300 shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:border-purple-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}
             >
               {loadingType === 'google' ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   <span>Connecting...</span>
                 </>
               ) : (
@@ -169,13 +170,13 @@ export const Unlock = () => {
           </div>
 
           <div className="mt-8 text-center">
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-4 shadow-lg">
-              <p className="text-orange-700 font-bold mb-2 flex items-center justify-center gap-2">
+            <div className="border-2 border-purple-300 rounded-2xl p-4 shadow-lg" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
+              <p className="text-white font-bold mb-2 flex items-center justify-center gap-2">
                 <span className="text-2xl">🎁</span>
                 <span>Welcome Bonus!</span>
               </p>
-              <p className="text-orange-600 font-semibold">Start with 1000 PupFi tokens and 5 game tickets!</p>
-              <p className="text-gray-600 text-sm mt-2">You can link your wallet later to access blockchain features</p>
+              <p className="text-white font-semibold">Start with 1000 PupFi tokens and 5 game tickets!</p>
+              <p className="text-white/90 text-sm mt-2">You can link your wallet later to access blockchain features</p>
             </div>
           </div>
             </div>
