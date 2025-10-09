@@ -9,7 +9,7 @@ export default defineConfig({
     port: Number(process.env.PORT) || 3000,
     strictPort: true,
     host: true,
-    https: false, // Vypni HTTPS
+    https: false, // Vypni HTTP
     watch: {
       usePolling: false,
       useFsEvents: false,
