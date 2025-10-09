@@ -1,6 +1,6 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { useEffect, Suspense, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
 import { BatchTransactionsContextProvider } from 'wrappers';
@@ -14,13 +14,18 @@ import { FirebaseAuthService } from './services/firebaseAuthService';
 
 const AppContent = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [redirectHandled, setRedirectHandled] = useState(false);
 
   // Handle Google redirect result on app load
   useEffect(() => {
     const handleRedirect = async () => {
       try {
-        await FirebaseAuthService.handleRedirectResult();
+        const result = await FirebaseAuthService.handleRedirectResult();
+        if (result && result.user) {
+          console.log('✅ Redirect sign-in completed, navigating to home...');
+          navigate('/');
+        }
         setRedirectHandled(true);
       } catch (error) {
         console.error('Failed to handle redirect:', error);
@@ -29,7 +34,7 @@ const AppContent = () => {
     };
 
     handleRedirect();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     console.log('🔄 App: Route changed to:', location.pathname);
