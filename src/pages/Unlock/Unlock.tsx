@@ -77,20 +77,19 @@ export const Unlock = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-100 via-black-50 to-yellow-100">
-      <div className="flex flex-grow items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <div className="bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-400 p-1 rounded-3xl shadow-2xl">
-            <div className="rounded-3xl p-8" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
-              <div className="text-center mb-8">
-                <div className="mb-6 relative">
-                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center shadow-lg">
-                    <img src='/pupfi new .png' alt='PupFi' className='w-24 h-24 object-contain' />
-                  </div>
+    <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+      <div className="w-full max-w-2xl">
+        <div className="bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-400 p-1 rounded-3xl shadow-2xl">
+          <div className="rounded-3xl p-6 sm:p-8 md:p-10" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
+            <div className="text-center mb-8">
+              <div className="mb-6 relative">
+                <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center shadow-lg">
+                  <img src='/pupfi new .png' alt='PupFi' className='w-24 h-24 object-contain' />
                 </div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-3">Welcome to PupFi</h1>
-                <p className="text-gray-600 text-lg">Choose how you want to get started</p>
               </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-3">Welcome to PupFi</h1>
+              <p className="text-gray-600 text-lg">Choose how you want to get started</p>
+            </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -179,7 +178,6 @@ export const Unlock = () => {
               <p className="text-white/90 text-sm mt-2">You can link your wallet later to access blockchain features</p>
             </div>
           </div>
-            </div>
           </div>
         </div>
       </div>
