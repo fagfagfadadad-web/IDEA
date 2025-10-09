@@ -2,6 +2,14 @@
 
 A virtual pet care experience built on MultiversX blockchain with Firebase backend, where players feed and care for their dogs, upgrade their pack, and build a thriving community.
 
+## 🚀 Deployment Status
+
+**Status:** ✅ Production Ready
+**Latest Build:** October 9, 2025
+**Hosting:** Bolt.new Auto-Deploy
+
+📖 **See [DEPLOY.md](./DEPLOY.md) for full deployment instructions**
+
 ## 🎮 Game Features
 
 ### Core Gameplay
