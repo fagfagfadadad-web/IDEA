@@ -77,7 +77,7 @@ export const Unlock = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-900 via-amber-800 to-yellow-700">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-100 via-amber-50 to-yellow-100">
       <div className="flex flex-grow items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-400 p-1 rounded-3xl shadow-2xl">
