@@ -77,14 +77,20 @@ export const Unlock = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-orange-100 via-amber-50 to-yellow-100">
       <div className="flex flex-grow items-center justify-center p-6">
-        <Card className="w-full max-w-md p-8 shadow-xl">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🐕</div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to PupFi</h1>
-            <p className="text-gray-600">Choose how you want to get started</p>
-          </div>
+        <div className="w-full max-w-md">
+          <div className="bg-gradient-to-br from-orange-400 via-amber-500 to-yellow-400 p-1 rounded-3xl shadow-2xl">
+            <div className="bg-white rounded-3xl p-8">
+              <div className="text-center mb-8">
+                <div className="mb-6 relative">
+                  <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-200 to-amber-200 rounded-full flex items-center justify-center shadow-lg">
+                    <img src='/pupfi new .png' alt='PupFi' className='w-24 h-24 object-contain' />
+                  </div>
+                </div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-3">Welcome to PupFi</h1>
+                <p className="text-gray-600 text-lg">Choose how you want to get started</p>
+              </div>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -96,7 +102,7 @@ export const Unlock = () => {
             <button
               onClick={handleGuestPlay}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
             >
               {loadingType === 'guest' ? (
                 <>
@@ -113,17 +119,17 @@ export const Unlock = () => {
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-orange-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Or sign in to save progress</span>
+                <span className="px-4 bg-white text-gray-500 font-semibold">Or sign in to save progress</span>
               </div>
             </div>
 
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full bg-white hover:bg-gray-50 text-gray-800 px-6 py-4 rounded-xl font-semibold text-lg border-2 border-gray-200 shadow-md transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              className="w-full bg-white hover:bg-gray-50 text-gray-800 px-6 py-4 rounded-2xl font-bold text-lg border-2 border-orange-200 shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl hover:border-orange-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
             >
               {loadingType === 'google' ? (
                 <>
@@ -146,7 +152,7 @@ export const Unlock = () => {
             <button
               onClick={handleConnectWallet}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
             >
               {loadingType === 'wallet' ? (
                 <>
@@ -162,11 +168,19 @@ export const Unlock = () => {
             </button>
           </div>
 
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p className="mb-2">🎁 Start with 1000 PupFi tokens and 5 game tickets!</p>
-            <p>You can link your wallet later to access blockchain features</p>
+          <div className="mt-8 text-center">
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 rounded-2xl p-4 shadow-lg">
+              <p className="text-orange-700 font-bold mb-2 flex items-center justify-center gap-2">
+                <span className="text-2xl">🎁</span>
+                <span>Welcome Bonus!</span>
+              </p>
+              <p className="text-orange-600 font-semibold">Start with 1000 PupFi tokens and 5 game tickets!</p>
+              <p className="text-gray-600 text-sm mt-2">You can link your wallet later to access blockchain features</p>
+            </div>
           </div>
-        </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
