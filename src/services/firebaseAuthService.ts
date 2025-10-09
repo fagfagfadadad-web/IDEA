@@ -25,25 +25,15 @@ export class FirebaseAuthService {
     });
 
     try {
-      // Use popup for local development (WebContainer)
-      const isLocal = window.location.hostname.includes('webcontainer') ||
-                      window.location.hostname === 'localhost';
+      console.log('🔐 Starting Google sign-in with popup...');
+      const result = await signInWithPopup(auth, provider);
 
-      if (isLocal) {
-        console.log('🔐 Starting Google sign-in with popup (local dev)...');
-        const result = await signInWithPopup(auth, provider);
-
-        if (result && result.user) {
-          console.log('✅ Popup sign-in successful:', result.user.email);
-          await this.createProfileIfNotExists(result.user, 'google');
-        }
-
-        return result;
-      } else {
-        console.log('🔐 Starting Google sign-in with redirect (production)...');
-        await signInWithRedirect(auth, provider);
-        return null;
+      if (result && result.user) {
+        console.log('✅ Popup sign-in successful:', result.user.email);
+        await this.createProfileIfNotExists(result.user, 'google');
       }
+
+      return result;
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       throw error;
