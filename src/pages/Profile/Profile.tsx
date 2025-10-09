@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { UserService } from '../../services/userService';
-import { AuthService } from '../../services/authService';
 import { UnlockPanelManager } from 'lib';
+import { supabase } from '../../lib/supabase';
 
 // Dog avatar options
 const dogAvatars = [
@@ -281,17 +281,25 @@ export const Profile = () => {
                         </p>
                       ) : (
                         <div className="space-y-2">
-                          <p className="text-gray-500 font-inter text-sm mb-3">
-                            Link your MultiversX wallet to access blockchain features
-                          </p>
-                          <Button
-                            onClick={handleLinkWallet}
-                            disabled={isLinkingWallet}
-                            className="cute-button px-4 py-2 flex items-center gap-2"
-                          >
-                            <Wallet size={16} />
-                            {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
-                          </Button>
+                          {supabase ? (
+                            <>
+                              <p className="text-gray-500 font-inter text-sm mb-3">
+                                Link your MultiversX wallet to access blockchain features
+                              </p>
+                              <Button
+                                onClick={handleLinkWallet}
+                                disabled={isLinkingWallet}
+                                className="cute-button px-4 py-2 flex items-center gap-2"
+                              >
+                                <Wallet size={16} />
+                                {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
+                              </Button>
+                            </>
+                          ) : (
+                            <p className="text-gray-500 font-inter text-sm">
+                              Not connected
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>

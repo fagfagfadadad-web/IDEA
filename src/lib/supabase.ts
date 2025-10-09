@@ -1,19 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+type SupabaseClientType = SupabaseClient<any, 'public', any>;
+
+let supabaseClient: SupabaseClientType | null = null;
+
+function getSupabaseClient(): SupabaseClientType | null {
+  if (!supabaseClient) {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('⚠️ Supabase not configured. Multi-auth features disabled. Using Firebase only.');
+      return null;
+    }
+
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
+  }
+
+  return supabaseClient;
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  }
-});
+export const supabase = getSupabaseClient() as SupabaseClientType;
 
 // Database types
 export interface Profile {

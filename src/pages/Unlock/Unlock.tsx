@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from 'components';
 import { UnlockPanelManager, useGetLoginInfo, useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
-import { AuthService } from '../../services/authService';
+import { supabase } from '../../lib/supabase';
 
 export const Unlock = () => {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export const Unlock = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const isSupabaseEnabled = !!supabase;
 
   useEffect(() => {
     if (isLoggedIn || isUserLoggedIn) {
@@ -45,11 +46,17 @@ export const Unlock = () => {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!isSupabaseEnabled) {
+      setError('Google sign-in requires Supabase configuration. Please use wallet connect instead.');
+      return;
+    }
+
     setIsLoading(true);
     setLoadingType('google');
     setError('');
 
     try {
+      const { AuthService } = await import('../../services/authService');
       await AuthService.signInWithGoogle();
     } catch (error: any) {
       console.error('Error signing in with Google:', error);
@@ -60,11 +67,17 @@ export const Unlock = () => {
   };
 
   const handleGuestPlay = async () => {
+    if (!isSupabaseEnabled) {
+      setError('Guest mode requires Supabase configuration. Please use wallet connect instead.');
+      return;
+    }
+
     setIsLoading(true);
     setLoadingType('guest');
     setError('');
 
     try {
+      const { AuthService } = await import('../../services/authService');
       await AuthService.signInAsGuest();
       navigate(RouteNamesEnum.home);
     } catch (error: any) {
@@ -92,11 +105,12 @@ export const Unlock = () => {
           )}
 
           <div className="space-y-4">
-            <button
-              onClick={handleGuestPlay}
-              disabled={isLoading}
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
-            >
+            {isSupabaseEnabled && (
+              <button
+                onClick={handleGuestPlay}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+              >
               {loadingType === 'guest' ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -109,21 +123,24 @@ export const Unlock = () => {
                 </>
               )}
             </button>
+            )}
 
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Or sign in to save progress</span>
-              </div>
-            </div>
+            {isSupabaseEnabled && (
+              <>
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-4 bg-white text-gray-500">Or sign in to save progress</span>
+                  </div>
+                </div>
 
-            <button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full bg-white hover:bg-gray-50 text-gray-800 px-6 py-4 rounded-xl font-semibold text-lg border-2 border-gray-200 shadow-md transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
-            >
+                <button
+                  onClick={handleGoogleSignIn}
+                  disabled={isLoading}
+                  className="w-full bg-white hover:bg-gray-50 text-gray-800 px-6 py-4 rounded-xl font-semibold text-lg border-2 border-gray-200 shadow-md transform transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+                >
               {loadingType === 'google' ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
@@ -141,6 +158,8 @@ export const Unlock = () => {
                 </>
               )}
             </button>
+              </>
+            )}
 
             <button
               onClick={handleConnectWallet}
@@ -162,8 +181,14 @@ export const Unlock = () => {
           </div>
 
           <div className="mt-8 text-center text-sm text-gray-500">
-            <p className="mb-2">🎁 Start with 1000 PupFi tokens and 5 game tickets!</p>
-            <p>You can link your wallet later to access blockchain features</p>
+            {isSupabaseEnabled ? (
+              <>
+                <p className="mb-2">🎁 Start with 1000 PupFi tokens and 5 game tickets!</p>
+                <p>You can link your wallet later to access blockchain features</p>
+              </>
+            ) : (
+              <p>Connect your MultiversX wallet to start playing!</p>
+            )}
           </div>
         </Card>
       </div>

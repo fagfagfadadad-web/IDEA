@@ -3,11 +3,19 @@ import { supabase, Profile, GameStats } from '../lib/supabase';
 export type AuthMethod = 'google' | 'wallet' | 'guest';
 
 export class AuthService {
+  private static getSupabase() {
+    if (!supabase) {
+      throw new Error('Supabase is not configured. Please check your environment variables.');
+    }
+    return supabase;
+  }
+
   /**
    * Sign in with Google OAuth
    */
   static async signInWithGoogle() {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const sb = this.getSupabase();
+    const { data, error } = await sb.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`,
@@ -26,7 +34,8 @@ export class AuthService {
    * Sign in as guest (anonymous user)
    */
   static async signInAsGuest() {
-    const { data, error } = await supabase.auth.signInAnonymously();
+    const sb = this.getSupabase();
+    const { data, error } = await sb.auth.signInAnonymously();
 
     if (error) throw error;
 
@@ -46,7 +55,7 @@ export class AuthService {
    */
   static async signInWithWallet(walletAddress: string) {
     // Check if profile with this wallet exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile } = await this.getSupabase()
       .from('profiles')
       .select('*')
       .eq('wallet_address', walletAddress)
@@ -55,7 +64,7 @@ export class AuthService {
     if (existingProfile) {
       // Sign in existing user with email/password or custom token
       // For now, we'll create an anonymous session and link it
-      const { data, error } = await supabase.auth.signInAnonymously();
+      const { data, error } = await this.getSupabase().auth.signInAnonymously();
 
       if (error) throw error;
 
@@ -67,7 +76,7 @@ export class AuthService {
       return data;
     } else {
       // Create new anonymous user and link wallet
-      const { data, error } = await supabase.auth.signInAnonymously();
+      const { data, error } = await this.getSupabase().auth.signInAnonymously();
 
       if (error) throw error;
 
@@ -88,7 +97,7 @@ export class AuthService {
    */
   static async linkWalletToProfile(userId: string, walletAddress: string) {
     // Check if wallet is already linked to another account
-    const { data: existingWallet } = await supabase
+    const { data: existingWallet } = await this.getSupabase()
       .from('profiles')
       .select('id')
       .eq('wallet_address', walletAddress)
@@ -99,7 +108,7 @@ export class AuthService {
       throw new Error('This wallet is already linked to another account');
     }
 
-    const { error } = await supabase
+    const { error } = await this.getSupabase()
       .from('profiles')
       .update({
         wallet_address: walletAddress,
@@ -126,7 +135,7 @@ export class AuthService {
     }
   ) {
     // Check if profile exists
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile } = await this.getSupabase()
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -144,7 +153,7 @@ export class AuthService {
     );
 
     // Create profile
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await this.getSupabase()
       .from('profiles')
       .insert({
         id: userId,
@@ -181,7 +190,7 @@ export class AuthService {
     let counter = 1;
 
     while (counter < 100) {
-      const { data } = await supabase
+      const { data } = await this.getSupabase()
         .from('profiles')
         .select('username')
         .eq('username', username)
@@ -202,7 +211,7 @@ export class AuthService {
    * Create game stats for new user
    */
   static async createGameStats(userId: string, referredBy?: string) {
-    const { error } = await supabase
+    const { error } = await this.getSupabase()
       .from('game_stats')
       .insert({
         user_id: userId,
@@ -223,7 +232,7 @@ export class AuthService {
    * Create starter ship for new user
    */
   static async createStarterShip(userId: string) {
-    const { error } = await supabase
+    const { error } = await this.getSupabase()
       .from('ships')
       .insert({
         user_id: userId,
@@ -243,11 +252,11 @@ export class AuthService {
    * Get current user profile
    */
   static async getCurrentProfile(): Promise<Profile | null> {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await this.getSupabase().auth.getUser();
 
     if (!user) return null;
 
-    const { data: profile } = await supabase
+    const { data: profile } = await this.getSupabase()
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -260,7 +269,7 @@ export class AuthService {
    * Get user by wallet address
    */
   static async getUserByWallet(walletAddress: string): Promise<Profile | null> {
-    const { data } = await supabase
+    const { data } = await this.getSupabase()
       .from('profiles')
       .select('*')
       .eq('wallet_address', walletAddress)
@@ -273,7 +282,7 @@ export class AuthService {
    * Update profile
    */
   static async updateProfile(userId: string, updates: Partial<Profile>) {
-    const { error } = await supabase
+    const { error } = await this.getSupabase()
       .from('profiles')
       .update({
         ...updates,
@@ -288,7 +297,7 @@ export class AuthService {
    * Sign out
    */
   static async signOut() {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await this.getSupabase().auth.signOut();
     if (error) throw error;
   }
 
@@ -296,7 +305,7 @@ export class AuthService {
    * Check if user is authenticated
    */
   static async isAuthenticated(): Promise<boolean> {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await this.getSupabase().auth.getSession();
     return !!session;
   }
 
@@ -304,7 +313,7 @@ export class AuthService {
    * Get current session
    */
   static async getSession() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await this.getSupabase().auth.getSession();
     return session;
   }
 
@@ -312,6 +321,6 @@ export class AuthService {
    * Subscribe to auth state changes
    */
   static onAuthStateChange(callback: (event: string, session: any) => void) {
-    return supabase.auth.onAuthStateChange(callback);
+    return this.getSupabase().auth.onAuthStateChange(callback);
   }
 }
