@@ -1,5 +1,4 @@
-import { storage } from '../lib/firebase';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { supabase } from '../lib/supabase';
 
 export class StorageService {
   static async uploadAvatar(userId: string, file: File): Promise<string> {
@@ -16,26 +15,48 @@ export class StorageService {
 
     const fileExtension = file.name.split('.').pop();
     const fileName = `${userId}_${Date.now()}.${fileExtension}`;
-    const storageRef = ref(storage, `avatars/${fileName}`);
+    const filePath = `avatars/${fileName}`;
 
-    console.log('📤 StorageService: Uploading avatar:', fileName);
+    console.log('📤 StorageService: Uploading avatar to Supabase:', fileName);
 
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
+    const { data, error } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
-    console.log('✅ StorageService: Avatar uploaded successfully:', downloadURL);
+    if (error) {
+      console.error('❌ StorageService: Upload error:', error);
+      throw new Error(`Failed to upload avatar: ${error.message}`);
+    }
 
-    return downloadURL;
+    const { data: urlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath);
+
+    const publicURL = urlData.publicUrl;
+    console.log('✅ StorageService: Avatar uploaded successfully:', publicURL);
+
+    return publicURL;
   }
 
   static async deleteAvatar(avatarUrl: string): Promise<void> {
-    if (!avatarUrl || !avatarUrl.includes('firebase')) {
+    if (!avatarUrl || !avatarUrl.includes('supabase')) {
       return;
     }
 
     try {
-      const avatarRef = ref(storage, avatarUrl);
-      await deleteObject(avatarRef);
+      const urlParts = avatarUrl.split('/avatars/');
+      if (urlParts.length < 2) return;
+
+      const fileName = urlParts[1].split('?')[0];
+      const filePath = `avatars/${fileName}`;
+
+      await supabase.storage
+        .from('avatars')
+        .remove([filePath]);
+
       console.log('🗑️ StorageService: Old avatar deleted');
     } catch (err) {
       console.log('⚠️ StorageService: Could not delete old avatar:', err);
