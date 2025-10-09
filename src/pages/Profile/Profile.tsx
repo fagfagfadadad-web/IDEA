@@ -200,14 +200,14 @@ export const Profile = () => {
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 max-h-[60vh] overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: '#ffffff40 transparent' }}>
-                          <div className="grid grid-cols-8 gap-3">
+                        <div className="p-4">
+                          <div className="grid grid-cols-10 gap-2">
                             {availableEmojis.map((emoji, index) => (
                               <button
                                 key={index}
                                 onClick={() => handleEmojiSelect(emoji)}
-                                className={`w-full aspect-square rounded-2xl bg-white/10 hover:bg-white/25 hover:scale-110 flex items-center justify-center text-3xl transition-all duration-200 cursor-pointer ${
-                                  formData.avatarUrl === emoji ? 'ring-4 ring-white scale-110 bg-white/25' : ''
+                                className={`w-10 h-10 rounded-lg bg-white/10 hover:bg-white/25 hover:scale-110 flex items-center justify-center text-xl transition-all duration-150 cursor-pointer ${
+                                  formData.avatarUrl === emoji ? 'ring-2 ring-white scale-110 bg-white/30' : ''
                                 }`}
                                 title={emoji}
                               >
