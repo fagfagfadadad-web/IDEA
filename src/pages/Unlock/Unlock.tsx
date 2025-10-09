@@ -4,20 +4,22 @@ import { Card } from 'components';
 import { UnlockPanelManager, useGetLoginInfo, useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { FirebaseAuthService } from '../../services/firebaseAuthService';
+import { useAuth } from '../../context/AuthContext';
 
 export const Unlock = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useGetLoginInfo();
   const isUserLoggedIn = useGetIsLoggedIn();
+  const { isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    if (isLoggedIn || isUserLoggedIn) {
+    if (isLoggedIn || isUserLoggedIn || isAuthenticated) {
       navigate(RouteNamesEnum.home);
     }
-  }, [isLoggedIn, isUserLoggedIn, navigate]);
+  }, [isLoggedIn, isUserLoggedIn, isAuthenticated, navigate]);
 
   const handleConnectWallet = async () => {
     setIsLoading(true);
