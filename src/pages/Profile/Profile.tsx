@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet, Upload, Loader } from 'lucide-react';
+import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { UserService } from '../../services/userService';
-import { StorageService } from '../../services/storageService';
 import { UnlockPanelManager } from 'lib';
 
 export const Profile = () => {
@@ -13,10 +12,8 @@ export const Profile = () => {
   const { gameStats, ships } = useGame();
   const { success, error } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLinkingWallet, setIsLinkingWallet] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     username: user?.username || '',
     fullName: user?.fullName || '',
@@ -58,37 +55,25 @@ export const Profile = () => {
       websiteUrl: user?.websiteUrl || ''
     });
     setIsEditing(false);
-    setShowAvatarUpload(false);
+    setShowEmojiPicker(false);
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !user?.id) return;
+  const availableEmojis = ['🐶', '🐕', '🦴', '🐾', '🎾', '🦮', '🐕‍🦺', '🐩', '🌟', '⭐', '💎', '🏆', '🎮', '🎯', '🚀', '💫', '🔥', '⚡', '💪', '🎪', '🎨', '🎭', '🎪', '🎡'];
 
-    setIsUploadingAvatar(true);
+  const handleEmojiSelect = async (emoji: string) => {
+    if (!user?.id) return;
 
     try {
-      const downloadURL = await StorageService.uploadAvatar(user.id, file);
-
-      await UserService.updateUser(user.id, { avatarUrl: downloadURL });
+      await UserService.updateUser(user.id, { avatarUrl: emoji });
       await refreshUser();
 
-      setFormData({ ...formData, avatarUrl: downloadURL });
-      success('Profile picture updated successfully!');
-      setShowAvatarUpload(false);
+      setFormData({ ...formData, avatarUrl: emoji });
+      success('Avatar updated successfully!');
+      setShowEmojiPicker(false);
     } catch (err: any) {
-      console.error('Error uploading avatar:', err);
-      error(err.message || 'Failed to upload profile picture');
-    } finally {
-      setIsUploadingAvatar(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      console.error('Error updating avatar:', err);
+      error('Failed to update avatar');
     }
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
   };
 
   const handleLinkWallet = async () => {
@@ -187,79 +172,57 @@ export const Profile = () => {
                     )}
                   </div>
                   <button
-                    onClick={() => setShowAvatarUpload(true)}
+                    onClick={() => setShowEmojiPicker(true)}
                     className="absolute -bottom-2 -right-2 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-600 transition-colors"
                   >
                     <Camera size={16} />
                   </button>
 
                   {/* Avatar Upload Modal */}
-                  {showAvatarUpload && (
+                  {showEmojiPicker && (
                     <>
                       {/* Backdrop */}
                       <div
                         className="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-sm"
-                        onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
+                        onClick={() => setShowEmojiPicker(false)}
                       />
 
                       {/* Modal */}
-                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>
+                      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-md rounded-2xl shadow-2xl z-50 overflow-hidden" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 border-b border-white/20">
                           <div>
-                            <h3 className="text-white font-bold text-xl font-inter">Change Profile Picture</h3>
-                            <p className="text-white/80 text-sm font-inter mt-1">Upload a photo (JPG, PNG, GIF, WebP)</p>
+                            <h3 className="text-white font-bold text-xl font-inter">Choose Your Avatar</h3>
+                            <p className="text-white/80 text-sm font-inter mt-1">Pick an emoji that represents you!</p>
                           </div>
                           <button
-                            onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
-                            disabled={isUploadingAvatar}
-                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-50"
+                            onClick={() => setShowEmojiPicker(false)}
+                            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
                           >
                             <X size={20} className="text-white" />
                           </button>
                         </div>
 
                         {/* Content */}
-                        <div className="p-6 space-y-4">
-                          <div
-                            onClick={triggerFileInput}
-                            className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center cursor-pointer hover:border-white/50 hover:bg-white/5 transition-all"
-                          >
-                            <div className="flex flex-col items-center gap-3">
-                              <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
-                                {isUploadingAvatar ? (
-                                  <Loader size={32} className="text-white animate-spin" />
-                                ) : (
-                                  <Upload size={32} className="text-white" />
-                                )}
-                              </div>
-                              <div>
-                                <p className="text-white font-semibold font-inter mb-1">
-                                  {isUploadingAvatar ? 'Uploading...' : 'Click to upload photo'}
-                                </p>
-                                <p className="text-white/70 text-sm font-inter">
-                                  Maximum file size: 5MB
-                                </p>
-                              </div>
-                            </div>
+                        <div className="p-6">
+                          <div className="grid grid-cols-6 gap-3">
+                            {availableEmojis.map((emoji, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleEmojiSelect(emoji)}
+                                className="w-full aspect-square rounded-xl bg-white/10 hover:bg-white/20 hover:scale-110 flex items-center justify-center text-3xl transition-all duration-200 cursor-pointer"
+                              >
+                                {emoji}
+                              </button>
+                            ))}
                           </div>
-
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                            onChange={handleFileSelect}
-                            className="hidden"
-                            disabled={isUploadingAvatar}
-                          />
                         </div>
 
                         {/* Footer */}
                         <div className="flex items-center gap-3 p-6 border-t border-white/20 bg-black/10">
                           <button
-                            onClick={() => !isUploadingAvatar && setShowAvatarUpload(false)}
-                            disabled={isUploadingAvatar}
-                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter disabled:opacity-50"
+                            onClick={() => setShowEmojiPicker(false)}
+                            className="flex-1 py-3 px-4 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors duration-200 font-inter"
                           >
                             Close
                           </button>

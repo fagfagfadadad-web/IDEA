@@ -1,13 +1,13 @@
-Deployment trigger file - Last update: 2025-10-09 11:55:00 UTC
+Deployment trigger file - Last update: 2025-10-09 12:10:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- CRITICAL FIX: Corrected Firebase Storage rules (removed conflict)
-- Fixed allow write vs allow create conflict in storage.rules
-- Enhanced debug logging for troubleshooting
-- 30-second timeout protection
-- Better error messages with Firebase error codes
-- Upload photos (JPG, PNG, GIF, WebP) up to 5MB
-- Build hash: index-b31a334e.js firebase-09a8997d.js
+- REVERTED: Removed Firebase Storage upload (requires paid plan)
+- RESTORED: Simple emoji avatar picker system
+- Users can choose from 24 fun emoji avatars
+- Random emoji assigned to new users automatically
+- No storage costs, instant updates, works perfectly
+- Clean and simple profile customization
+- Build hash: index-560fecf2.js firebase-9aa44e44.js
