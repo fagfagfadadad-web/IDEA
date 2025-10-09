@@ -16,7 +16,7 @@ export type AuthMethod = 'google' | 'wallet' | 'guest';
 export class FirebaseAuthService {
   /**
    * Sign in with Google OAuth using Firebase
-   * Uses redirect flow to avoid COOP issues
+   * Uses popup flow for development, redirect for production
    */
   static async signInWithGoogle() {
     const provider = new GoogleAuthProvider();
@@ -25,9 +25,25 @@ export class FirebaseAuthService {
     });
 
     try {
-      console.log('🔐 Starting Google sign-in with redirect...');
-      await signInWithRedirect(auth, provider);
-      return null;
+      // Use popup for local development (WebContainer)
+      const isLocal = window.location.hostname.includes('webcontainer') ||
+                      window.location.hostname === 'localhost';
+
+      if (isLocal) {
+        console.log('🔐 Starting Google sign-in with popup (local dev)...');
+        const result = await signInWithPopup(auth, provider);
+
+        if (result && result.user) {
+          console.log('✅ Popup sign-in successful:', result.user.email);
+          await this.createProfileIfNotExists(result.user, 'google');
+        }
+
+        return result;
+      } else {
+        console.log('🔐 Starting Google sign-in with redirect (production)...');
+        await signInWithRedirect(auth, provider);
+        return null;
+      }
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       throw error;

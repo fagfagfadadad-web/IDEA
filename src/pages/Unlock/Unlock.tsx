@@ -50,9 +50,13 @@ export const Unlock = () => {
     setError('');
 
     try {
-      await FirebaseAuthService.signInWithGoogle();
-      // Redirect flow - user will be redirected away and back
-      // Navigation will happen after redirect completes
+      const result = await FirebaseAuthService.signInWithGoogle();
+
+      // If popup flow (local dev), navigate immediately
+      if (result) {
+        navigate(RouteNamesEnum.home);
+      }
+      // If redirect flow (production), navigation will happen after redirect completes
     } catch (error: any) {
       console.error('Error signing in with Google:', error);
       setError(error.message || 'Failed to sign in with Google');
