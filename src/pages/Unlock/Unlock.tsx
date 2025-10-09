@@ -161,7 +161,7 @@ export const Unlock = () => {
                 </>
               ) : (
                 <>
-                  <span className="text-2xl">🔐</span>
+                  <img src="/6892.png" alt="MultiversX" className="w-6 h-6" />
                   <span>Connect MultiversX Wallet</span>
                 </>
               )}
