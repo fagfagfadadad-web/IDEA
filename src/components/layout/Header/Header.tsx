@@ -10,8 +10,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useGame } from '../../../context/GameContext';
 
 export const Header = () => {
-  const isLoggedIn = useGetIsLoggedIn();
-  const { user } = useAuth();
+  const { isAuthenticated, user, logout: authLogout } = useAuth();
   const { gameStats } = useGame();
   const navigate = useNavigate();
   const { width } = useWindowSize();
@@ -21,12 +20,11 @@ export const Header = () => {
 
   const handleLogout = async () => {
     try {
-      const provider = getAccountProvider();
-      await provider.logout();
-      navigate(RouteNamesEnum.home);
+      await authLogout();
+      navigate(RouteNamesEnum.unlock);
     } catch (error) {
       console.error('Logout error:', error);
-      navigate(RouteNamesEnum.home);
+      navigate(RouteNamesEnum.unlock);
     }
     setIsProfileMenuOpen(false);
   };
@@ -77,7 +75,7 @@ export const Header = () => {
 
           <div className="flex items-center space-x-2 md:space-x-4">
             {/* Food Balance */}
-            {isLoggedIn && gameStats && (
+            {isAuthenticated && gameStats && (
               <div className="hidden md:flex food-points">
                 <span className="text-primary-500">🍖</span>
                 <span className="font-inter font-bold">
@@ -89,7 +87,7 @@ export const Header = () => {
 
             {/* Desktop Actions */}
             <div className="hidden lg:flex items-center space-x-3">
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <div className="flex items-center space-x-3">
                   {/* Profile Menu */}
                   <div className="relative">
@@ -219,7 +217,7 @@ export const Header = () => {
 
               <div className="p-4 space-y-2 pb-24">
                 {/* Food Balance */}
-                {isLoggedIn && gameStats && (
+                {isAuthenticated && gameStats && (
                   <div className="p-4 rounded-lg mb-4" style={{ background: '#FFA724' }}>
                     <div className="flex items-center gap-2 justify-center">
                       <span className="text-white text-xl">🍖</span>
@@ -288,7 +286,7 @@ export const Header = () => {
                   Leaderboard
                 </Link>
 
-                {isLoggedIn ? (
+                {isAuthenticated ? (
                   <>
                     <Link
                       to="/profile"
