@@ -1,13 +1,13 @@
-Deployment trigger file - Last update: 2025-10-09 11:48:00 UTC
+Deployment trigger file - Last update: 2025-10-09 11:55:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- ENHANCED: Detailed debug logging for upload troubleshooting
-- Added 30-second timeout protection for uploads
-- Better error messages with specific Firebase error codes
-- Step-by-step console logging to identify upload issues
+- CRITICAL FIX: Corrected Firebase Storage rules (removed conflict)
+- Fixed allow write vs allow create conflict in storage.rules
+- Enhanced debug logging for troubleshooting
+- 30-second timeout protection
+- Better error messages with Firebase error codes
 - Upload photos (JPG, PNG, GIF, WebP) up to 5MB
-- Auto-generated random avatars for new users
-- Build hash: index-756b6fb9.js index-1427dc05.js
+- Build hash: index-b31a334e.js firebase-09a8997d.js
