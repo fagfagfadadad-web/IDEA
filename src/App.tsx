@@ -1,5 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { useEffect, Suspense } from 'react';
+import { useEffect, Suspense, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { PageNotFound } from 'pages/PageNotFound/PageNotFound';
 import { routes } from 'routes';
@@ -10,9 +10,26 @@ import { GameProvider } from './context/GameContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { Layout } from './components';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
+import { FirebaseAuthService } from './services/firebaseAuthService';
 
 const AppContent = () => {
   const location = useLocation();
+  const [redirectHandled, setRedirectHandled] = useState(false);
+
+  // Handle Google redirect result on app load
+  useEffect(() => {
+    const handleRedirect = async () => {
+      try {
+        await FirebaseAuthService.handleRedirectResult();
+        setRedirectHandled(true);
+      } catch (error) {
+        console.error('Failed to handle redirect:', error);
+        setRedirectHandled(true);
+      }
+    };
+
+    handleRedirect();
+  }, []);
 
   useEffect(() => {
     console.log('🔄 App: Route changed to:', location.pathname);

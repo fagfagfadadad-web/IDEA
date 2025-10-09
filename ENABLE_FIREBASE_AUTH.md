@@ -64,11 +64,15 @@ VITE_FIREBASE_AUTH_DOMAIN=...
 VITE_FIREBASE_PROJECT_ID=...
 ```
 
-### Google popup sa neotvorí
+### Google popup sa neotvorí (auth/popup-blocked)
 
-1. Skontroluj či máš povolené popups v prehliadači
-2. Skús použiť incognito mode
-3. Skontroluj Firebase Google Auth nastavenia
+**Automatické riešenie:** Aplikácia prepne na redirect flow!
+
+- Prvý pokus: Popup (rýchlejšie na desktop)
+- Ak blokovaný: Automaticky redirect flow
+- Mobile: Vždy používa redirect (lepší UX)
+
+Nie je potrebné manuálne povoľovať popups - všetko funguje automaticky!
 
 ### Anonymous prihlásenie nefunguje
 

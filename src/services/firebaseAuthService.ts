@@ -1,6 +1,8 @@
 import {
   signInAnonymously,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User as FirebaseUser
@@ -14,6 +16,7 @@ export type AuthMethod = 'google' | 'wallet' | 'guest';
 export class FirebaseAuthService {
   /**
    * Sign in with Google OAuth using Firebase
+   * Uses redirect on mobile, popup on desktop
    */
   static async signInWithGoogle() {
     const provider = new GoogleAuthProvider();
@@ -22,6 +25,7 @@ export class FirebaseAuthService {
     });
 
     try {
+      // Try popup first (better UX on desktop)
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
@@ -30,7 +34,35 @@ export class FirebaseAuthService {
 
       return { user, credential: result };
     } catch (error: any) {
+      // If popup blocked, use redirect instead
+      if (error.code === 'auth/popup-blocked') {
+        console.log('Popup blocked, using redirect flow...');
+        await signInWithRedirect(auth, provider);
+        return null;
+      }
+
       console.error('Google sign-in error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle redirect result after Google sign-in
+   * Call this on app initialization
+   */
+  static async handleRedirectResult() {
+    try {
+      const result = await getRedirectResult(auth);
+
+      if (result && result.user) {
+        console.log('✅ Redirect sign-in successful:', result.user.email);
+        await this.createProfileIfNotExists(result.user, 'google');
+        return result;
+      }
+
+      return null;
+    } catch (error: any) {
+      console.error('Redirect result error:', error);
       throw error;
     }
   }
