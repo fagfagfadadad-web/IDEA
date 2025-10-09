@@ -1,14 +1,14 @@
-Deployment trigger file - Last update: 2025-10-09 12:25:00 UTC
+Deployment trigger file - Last update: 2025-10-09 12:40:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- PERFECT: Compact emoji picker - all 56 emojis visible!
-- 10x6 grid layout (10 columns, 6 rows)
-- Smaller buttons (w-10 h-10) for better overview
-- Text-xl emoji size (readable but compact)
-- No scrolling needed - everything visible at once
-- Selected emoji has ring-2 white highlight
-- Purple gradient modal looks gorgeous
-- Build hash: index-8655f9f4.js firebase-5bbc355c.js
+- MAJOR UPGRADE: Auto-Feeder & Happiness Booster now time-based (24h)!
+- Auto-Feeder automatically collects food even when app is closed
+- Offline rewards shown on login with time elapsed
+- Shop UI shows active status and time remaining for boosts
+- Green ring highlight for active items
+- Changed from permanent upgrades to 24-hour boosts
+- Much more affordable: Auto-Feeder 100 food, Booster 150 food
+- Build hash: index-f3ed356c.js firebase-09a8997d.js

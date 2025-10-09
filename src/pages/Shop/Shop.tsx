@@ -49,22 +49,22 @@ const shopItems = [
   },
   {
     id: 'auto_miner',
-    name: 'Auto-Feeder',
-    description: 'Automatically feed dogs when they are hungry',
-    cost: 500,
-    type: 'upgrade',
+    name: 'Auto-Feeder (24h)',
+    description: 'Automatically collect food even when app is closed for 24 hours',
+    cost: 100,
+    type: 'boost',
     icon: <TrendingUp size={24} className="text-orange-400" />,
-    effect: { auto_mine: true },
+    effect: { auto_mine: true, duration: 86400 },
     emoji: '🤖'
   },
   {
     id: 'energy_regenerator',
-    name: 'Happiness Booster',
-    description: 'Increase happiness regeneration rate by 50%',
-    cost: 800,
-    type: 'upgrade',
+    name: 'Happiness Booster (24h)',
+    description: 'Increase happiness regeneration rate by 50% for 24 hours',
+    cost: 150,
+    type: 'boost',
     icon: <Battery size={24} className="text-blue-400" />,
-    effect: { energy_regen_boost: 1.5 },
+    effect: { energy_regen_boost: 1.5, duration: 86400 },
     emoji: '⚡'
   }
 ];
@@ -122,25 +122,33 @@ export const Shop = () => {
     } else if (item.type === 'boost') {
       try {
         setIsProcessing(true);
-        const boostType = item.id === 'mining_boost' ? 'mining' : 'experience';
-        await GameService.activateBoost(user.id, boostType, item.effect.mining_multiplier || item.effect.exp_multiplier, item.effect.duration, item.cost);
-        success(`${item.name} activated! Enjoy ${item.effect.mining_multiplier || item.effect.exp_multiplier}x boost for 1 hour!`);
+        let boostType: 'mining' | 'experience' | 'autoFeeder' | 'happinessBooster';
+        let multiplier: number;
+        let durationText: string;
+
+        if (item.id === 'mining_boost') {
+          boostType = 'mining';
+          multiplier = item.effect.mining_multiplier;
+          durationText = '1 hour';
+        } else if (item.id === 'experience_boost') {
+          boostType = 'experience';
+          multiplier = item.effect.exp_multiplier;
+          durationText = '1 hour';
+        } else if (item.id === 'auto_miner') {
+          boostType = 'autoFeeder';
+          multiplier = 1;
+          durationText = '24 hours';
+        } else {
+          boostType = 'happinessBooster';
+          multiplier = item.effect.energy_regen_boost;
+          durationText = '24 hours';
+        }
+
+        await GameService.activateBoost(user.id, boostType, multiplier, item.effect.duration, item.cost);
+        success(`${item.name} activated! Active for ${durationText}!`);
         await refetch();
       } catch (err: any) {
         error(err.message || 'Failed to activate boost');
-      } finally {
-        setIsProcessing(false);
-      }
-    } else if (item.type === 'upgrade') {
-      try {
-        setIsProcessing(true);
-        const upgradeType = item.id === 'auto_miner' ? 'autoFeeder' : 'happinessBooster';
-        const value = item.id === 'auto_miner' ? true : 1.5;
-        await GameService.purchasePermanentUpgrade(user.id, upgradeType, value, item.cost);
-        success(`${item.name} purchased successfully! Upgrade is now active!`);
-        await refetch();
-      } catch (err: any) {
-        error(err.message || 'Failed to purchase upgrade');
       } finally {
         setIsProcessing(false);
       }
@@ -213,21 +221,35 @@ export const Shop = () => {
             {filteredItems.map((item) => {
               const affordable = canAfford(item.cost);
 
-              // Check if upgrade is already purchased
-              const isUpgradePurchased = item.type === 'upgrade' && (() => {
-                if (item.id === 'auto_miner') {
-                  return gameStats?.permanentUpgrades?.autoFeeder === true;
-                } else if (item.id === 'energy_regenerator') {
-                  return (gameStats?.permanentUpgrades?.happinessBooster || 1) > 1;
-                }
+              // Check if boost is currently active
+              const activeBoost = item.type === 'boost' && gameStats?.activeBoosts?.find(boost => {
+                if (item.id === 'auto_miner') return boost.type === 'autoFeeder';
+                if (item.id === 'energy_regenerator') return boost.type === 'happinessBooster';
+                if (item.id === 'mining_boost') return boost.type === 'mining';
+                if (item.id === 'experience_boost') return boost.type === 'experience';
                 return false;
+              });
+
+              const isBoostActive = activeBoost && (() => {
+                const now = new Date();
+                const expiresAt = activeBoost.expiresAt?.toDate?.() || new Date(activeBoost.expiresAt);
+                return expiresAt > now;
               })();
+
+              const timeRemaining = isBoostActive && activeBoost ? (() => {
+                const now = new Date();
+                const expiresAt = activeBoost.expiresAt?.toDate?.() || new Date(activeBoost.expiresAt);
+                const diff = Math.max(0, expiresAt.getTime() - now.getTime());
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                return `${hours}h ${minutes}m`;
+              })() : null;
 
               return (
                 <div
                   key={item.id}
                   className={`cute-card p-6 hover:transform hover:scale-105 ${
-                    isUpgradePurchased ? 'opacity-60' : ''
+                    isBoostActive ? 'ring-2 ring-green-400' : ''
                   }`}
                 >
                   <div className="space-y-4">
@@ -235,13 +257,13 @@ export const Shop = () => {
                       <div className="w-12 h-12 bg-primary-200 rounded-full flex items-center justify-center">
                         <span className="text-2xl">{item.emoji}</span>
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <h3 className="text-lg font-inter font-bold text-gray-800">
                           {item.name}
                         </h3>
                         <p className="text-gray-600 text-sm capitalize">
                           {item.type}
-                          {isUpgradePurchased && ' • Owned'}
+                          {isBoostActive && ' • Active'}
                         </p>
                       </div>
                     </div>
@@ -250,6 +272,14 @@ export const Shop = () => {
                       {item.description}
                     </p>
 
+                    {isBoostActive && timeRemaining && (
+                      <div className="bg-green-100 border border-green-300 rounded-lg p-2">
+                        <p className="text-green-700 text-sm font-medium text-center">
+                          ⏱️ Active: {timeRemaining} remaining
+                        </p>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center pt-2">
                       <div className="flex items-center gap-1 text-primary-600 font-inter font-bold">
                         <span>🍖</span>
@@ -257,15 +287,15 @@ export const Shop = () => {
                       </div>
                       <Button
                         onClick={() => handlePurchase(item)}
-                        disabled={!affordable || (item.type === 'consumable' && !selectedShip) || isProcessing || isUpgradePurchased}
+                        disabled={!affordable || (item.type === 'consumable' && !selectedShip) || isProcessing || isBoostActive}
                         className={`px-4 py-2 rounded-lg font-inter font-bold transition-all duration-200 ${
-                          affordable && (item.type !== 'consumable' || selectedShip) && !isProcessing && !isUpgradePurchased
+                          affordable && (item.type !== 'consumable' || selectedShip) && !isProcessing && !isBoostActive
                             ? 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white'
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
                       >
                         <ShoppingCart size={16} />
-                        {isProcessing ? 'Processing...' : isUpgradePurchased ? 'Owned' : 'Buy'}
+                        {isProcessing ? 'Processing...' : isBoostActive ? 'Active' : 'Buy'}
                       </Button>
                     </div>
                   </div>

@@ -159,23 +159,41 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         await GameService.createStarterShip(user.id);
         console.log('✅ GameContext: Game stats and starter dog created');
       }
-      
+
+      // Claim offline mining if auto-feeder is active
+      if (stats) {
+        try {
+          const offlineRewards = await GameService.claimOfflineMining(user.id);
+          if (offlineRewards.foodCollected > 0) {
+            const hours = Math.floor(offlineRewards.timeElapsed / 3600);
+            const minutes = Math.floor((offlineRewards.timeElapsed % 3600) / 60);
+            success(`Auto-Feeder collected ${offlineRewards.foodCollected} food while you were away! (${hours}h ${minutes}m)`);
+            // Refresh stats to get updated balance
+            stats = await GameService.getGameStats(user.id);
+          }
+        } catch (err) {
+          console.log('ℹ️ GameContext: No offline mining to claim');
+        }
+      }
+
       // Map field names to match component expectations
-      const mappedStats = {
-        ...stats,
-        zen_balance: stats.zenBalance || 0,
-        total_mined: stats.totalMined || 0,
-        mining_level: stats.miningLevel || 1,
-        // Keep both naming conventions for compatibility
-        zenBalance: stats.zenBalance || 0,
-        totalMined: stats.totalMined || 0,
-        miningLevel: stats.miningLevel || 1
-      };
-      
-      setGameStats(mappedStats);
-      dataCache.current.gameStats = mappedStats;
-      console.log('📊 GameContext: Game stats loaded:', stats);
-      console.log('🗺️ GameContext: Mapped stats:', mappedStats);
+      if (stats) {
+        const mappedStats = {
+          ...stats,
+          zen_balance: stats.zenBalance || 0,
+          total_mined: stats.totalMined || 0,
+          mining_level: stats.miningLevel || 1,
+          // Keep both naming conventions for compatibility
+          zenBalance: stats.zenBalance || 0,
+          totalMined: stats.totalMined || 0,
+          miningLevel: stats.miningLevel || 1
+        };
+
+        setGameStats(mappedStats);
+        dataCache.current.gameStats = mappedStats;
+        console.log('📊 GameContext: Game stats loaded:', stats);
+        console.log('🗺️ GameContext: Mapped stats:', mappedStats);
+      }
 
       // Fetch ships
       const userShips = await GameService.getUserShips(user.id);

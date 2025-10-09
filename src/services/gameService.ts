@@ -17,7 +17,7 @@ import {
 import { db } from '../lib/firebase';
 
 export interface ActiveBoost {
-  type: 'mining' | 'experience';
+  type: 'mining' | 'experience' | 'autoFeeder' | 'happinessBooster';
   multiplier: number;
   expiresAt: any;
 }
@@ -602,7 +602,7 @@ export class GameService {
     await batch.commit();
   }
 
-  static async activateBoost(userId: string, boostType: 'mining' | 'experience', multiplier: number, duration: number, cost: number): Promise<void> {
+  static async activateBoost(userId: string, boostType: 'mining' | 'experience' | 'autoFeeder' | 'happinessBooster', multiplier: number, duration: number, cost: number): Promise<void> {
     const statsRef = doc(db, 'gameStats', userId);
     const statsSnap = await getDoc(statsRef);
 
@@ -691,6 +691,81 @@ export class GameService {
         updatedAt: serverTimestamp()
       });
     }
+  }
+
+  static async claimOfflineMining(userId: string): Promise<{ foodCollected: number; timeElapsed: number }> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+
+    // Check if auto-feeder boost is active
+    const now = new Date();
+    const hasAutoFeeder = stats.activeBoosts?.some(boost => {
+      if (boost.type !== 'autoFeeder') return false;
+      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return expiresAt > now;
+    });
+
+    if (!hasAutoFeeder) {
+      return { foodCollected: 0, timeElapsed: 0 };
+    }
+
+    // Get user's ships
+    const shipsQuery = query(
+      collection(db, 'ships'),
+      where('userId', '==', userId)
+    );
+    const shipsSnapshot = await getDocs(shipsQuery);
+
+    if (shipsSnapshot.empty) {
+      return { foodCollected: 0, timeElapsed: 0 };
+    }
+
+    const ships = shipsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ship));
+
+    // Calculate offline earnings
+    let totalFoodCollected = 0;
+    const batch = writeBatch(db);
+
+    for (const ship of ships) {
+      const lastMining = ship.lastMining?.toDate?.() || new Date(0);
+      const timeSinceLastMining = Math.floor((now.getTime() - lastMining.getTime()) / 1000); // seconds
+
+      // Calculate how much food can be collected (based on mining power and time)
+      // Auto-feeder collects at 50% rate compared to manual mining
+      const miningRate = ship.miningPower * stats.miningLevel * 0.5; // food per hour
+      const hoursElapsed = Math.min(timeSinceLastMining / 3600, 24); // max 24 hours
+      const foodFromShip = Math.floor(miningRate * hoursElapsed);
+
+      totalFoodCollected += foodFromShip;
+
+      // Update ship's lastMining timestamp
+      if (ship.id) {
+        const shipRef = doc(db, 'ships', ship.id);
+        batch.update(shipRef, {
+          lastMining: serverTimestamp()
+        });
+      }
+    }
+
+    // Update user's zen balance
+    if (totalFoodCollected > 0) {
+      batch.update(statsRef, {
+        zenBalance: increment(totalFoodCollected),
+        totalMined: increment(totalFoodCollected),
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    await batch.commit();
+
+    const timeElapsed = Math.floor((now.getTime() - (ships[0]?.lastMining?.toDate?.() || now).getTime()) / 1000);
+    return { foodCollected: totalFoodCollected, timeElapsed };
   }
 
   // Game rewards function
