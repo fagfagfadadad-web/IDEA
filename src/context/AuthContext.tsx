@@ -211,26 +211,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  // Listen to Firebase auth state changes
   useEffect(() => {
     let isMounted = true;
 
-    syncAuth();
-
-    // Listen to Firebase auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
       if (isMounted) {
-        setFirebaseUser(firebaseUser);
+        console.log('🔥 Firebase auth state changed:', fbUser?.uid || 'null');
+        setFirebaseUser(fbUser);
       }
     });
-    
-    // Force GameContext to refetch data for new users
-    console.log('🔄 AuthContext: Triggering GameContext data fetch...');
 
     return () => {
       isMounted = false;
       unsubscribe();
     };
-  }, [isLoggedIn, address]);
+  }, []);
+
+  // Sync auth when login state or address changes, or when Firebase user changes
+  useEffect(() => {
+    console.log('🔄 AuthContext: Triggering GameContext data fetch...');
+    syncAuth();
+  }, [isLoggedIn, address, firebaseUser]);
 
   const logout = async () => {
     try {
