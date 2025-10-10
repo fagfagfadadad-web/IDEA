@@ -153,15 +153,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user?.id || !gameStats) return;
 
     try {
-      // Check if auto-feeder boost is active
-      const now = new Date();
-      const autoFeederBoost = gameStats.activeBoosts?.find(boost => {
-        if (boost.type !== 'autoFeeder') return false;
-        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
-        return expiresAt > now;
-      });
+      // Check if auto-feeder permanent upgrade is enabled
+      const autoFeederEnabled = gameStats.permanentUpgrades?.autoFeeder || false;
 
-      if (!autoFeederBoost) return;
+      if (!autoFeederEnabled) {
+        console.log('🚫 Auto-Feeder: Not enabled');
+        return;
+      }
+
+      console.log('🤖 Auto-Feeder: Checking dogs for automatic feeding...');
+      const now = new Date();
 
       // Check each dog if ready to feed
       for (const ship of ships) {
@@ -170,20 +171,41 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const timeDiff = now.getTime() - lastFeeding.getTime();
         const minutesPassed = Math.floor(timeDiff / (1000 * 60));
+        const secondsPassed = Math.floor(timeDiff / 1000);
 
-        // Check if cooldown passed (1 minute) and dog has energy to feed
-        const canFeed = minutesPassed >= 1 && (ship.currentEnergy || 0) >= 10;
+        // Check if cooldown passed (60 seconds) and dog can be fed (has energy to consume)
+        const cooldownPassed = secondsPassed >= 60;
+        const hasHunger = (ship.currentEnergy || 0) >= 10;
+        const canFeed = cooldownPassed && hasHunger;
 
         if (canFeed && !isMining) {
-          console.log(`🤖 Auto-Feeder: Automatically feeding ${ship.name}`);
+          console.log(`🤖 Auto-Feeder: Automatically feeding ${ship.name}`, {
+            lastFeeding: lastFeeding.toISOString(),
+            secondsPassed,
+            currentEnergy: ship.currentEnergy,
+            canFeed
+          });
 
           // Perform feeding without showing toast
           try {
             const result = await GameService.performMining(user.id, ship.id);
             console.log(`✅ Auto-Feeder: Fed ${ship.name}, earned ${result.zenMined} food`);
 
-            // Refresh data silently
-            await fetchGameData();
+            // Refresh data silently (only the specific ship to avoid full refetch)
+            const updatedStats = await GameService.getGameStats(user.id);
+            if (updatedStats) {
+              const mappedStats = {
+                ...updatedStats,
+                zen_balance: updatedStats.zenBalance || 0,
+                total_mined: updatedStats.totalMined || 0,
+                mining_level: updatedStats.miningLevel || 1,
+                zenBalance: updatedStats.zenBalance || 0,
+                totalMined: updatedStats.totalMined || 0,
+                miningLevel: updatedStats.miningLevel || 1
+              };
+              setGameStats(mappedStats);
+              dataCache.current.gameStats = mappedStats;
+            }
           } catch (error) {
             console.error(`❌ Auto-Feeder: Failed to feed ${ship.name}:`, error);
           }

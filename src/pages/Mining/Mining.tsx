@@ -11,7 +11,6 @@ export const Mining = () => {
   const { gameStats, ships, mineZen, isMining, isLoading } = useGame();
   const [selectedShip, setSelectedShip] = useState<string | null>(null);
   const [feedingProgress, setFeedingProgress] = useState<{ [key: string]: number }>({});
-  const [autoFeeding, setAutoFeeding] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (ships.length > 0 && !selectedShip) {
@@ -19,36 +18,25 @@ export const Mining = () => {
     }
   }, [ships, selectedShip]);
 
-  // Update feeding progress for dogs + Auto-Feeder
+  // Update feeding progress for dogs
   useEffect(() => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
-      const newAutoFeeding: { [key: string]: boolean } = {};
-      const autoFeederEnabled = gameStats?.permanentUpgrades?.autoFeeder || false;
 
-      ships.forEach(async (ship) => {
+      ships.forEach((ship) => {
        if (!ship.id) return;
        const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastFeeding.getTime();
         const progress = Math.min(100, (timeDiff / (60 * 1000)) * 100); // 1 minute = 100%
        newProgress[ship.id] = progress;
-
-        // Auto-Feeder: Automatically feed if cooldown passed and dog has enough energy
-        if (autoFeederEnabled && canFeed(ship) && !isMining) {
-          console.log('🤖 Auto-Feeder: Automatically feeding', ship.name);
-          newAutoFeeding[ship.id] = true;
-          await handleFeed(ship.id);
-        } else {
-          newAutoFeeding[ship.id] = false;
-        }
       });
+
       setFeedingProgress(newProgress);
-      setAutoFeeding(newAutoFeeding);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [ships, gameStats, isMining]);
+  }, [ships]);
 
   const handleFeed = async (shipId: string) => {
     await mineZen(shipId);
@@ -288,10 +276,10 @@ export const Mining = () => {
                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
-                          {isMining || autoFeeding[ship.id || ''] ? (
+                          {isMining ? (
                             <div className="flex items-center justify-center gap-2">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              {autoFeeding[ship.id || ''] ? 'Auto-Feeding...' : 'Feeding...'}
+                              Feeding...
                             </div>
                           ) : canFeedNow ? (
                             <div className="flex items-center justify-center gap-2">
