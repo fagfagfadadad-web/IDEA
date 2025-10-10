@@ -706,14 +706,10 @@ export class GameService {
     const stats = statsSnap.data() as GameStats;
     const now = new Date();
 
-    // Check if auto-feeder boost is active
-    const autoFeederBoost = stats.activeBoosts?.find(boost => {
-      if (boost.type !== 'autoFeeder') return false;
-      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
-      return expiresAt > now;
-    });
+    // Check if permanent auto-feeder upgrade is active
+    const hasAutoFeeder = stats.permanentUpgrades?.autoFeeder || false;
 
-    if (!autoFeederBoost) {
+    if (!hasAutoFeeder) {
       return { foodCollected: 0, timeElapsed: 0 };
     }
 
@@ -730,44 +726,22 @@ export class GameService {
 
     const ships = shipsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ship));
 
-    // Calculate offline earnings based on activation time and boost duration
-    const boostActivatedAt = autoFeederBoost.activatedAt?.toDate?.() || new Date(autoFeederBoost.activatedAt || now);
-    const boostExpiresAt = autoFeederBoost.expiresAt?.toDate?.() || new Date(autoFeederBoost.expiresAt);
-
-    // Find the earliest lastMining time among all ships
-    const earliestLastMining = ships.reduce((earliest, ship) => {
-      const shipLastMining = ship.lastMining?.toDate?.() || boostActivatedAt;
-      return shipLastMining < earliest ? shipLastMining : earliest;
-    }, boostActivatedAt);
-
-    // Calculate collection period: from last mining to now, but not before boost activation and not after expiration
-    const collectionStart = new Date(Math.max(earliestLastMining.getTime(), boostActivatedAt.getTime()));
-    const collectionEnd = new Date(Math.min(now.getTime(), boostExpiresAt.getTime()));
-
-    // If collection end is before collection start, nothing to collect
-    if (collectionEnd <= collectionStart) {
-      return { foodCollected: 0, timeElapsed: 0 };
-    }
-
-    const timeElapsedSeconds = Math.floor((collectionEnd.getTime() - collectionStart.getTime()) / 1000);
-    const hoursElapsed = timeElapsedSeconds / 3600;
-
-    console.log('🤖 Auto-Feeder Offline Mining:', {
-      boostActivatedAt: boostActivatedAt.toISOString(),
-      boostExpiresAt: boostExpiresAt.toISOString(),
-      collectionStart: collectionStart.toISOString(),
-      collectionEnd: collectionEnd.toISOString(),
-      hoursElapsed: hoursElapsed.toFixed(2),
-      shipsCount: ships.length
-    });
-
-    // Calculate offline earnings
+    // Calculate offline earnings from last activity
     let totalFoodCollected = 0;
     const batch = writeBatch(db);
 
     for (const ship of ships) {
+      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || now);
+      const timeDiff = now.getTime() - lastMining.getTime();
+
+      // Only collect if more than 1 minute has passed
+      if (timeDiff < 60000) continue;
+
+      const timeElapsedSeconds = Math.floor(timeDiff / 1000);
+      const hoursElapsed = timeElapsedSeconds / 3600;
+
       // Auto-feeder collects at 50% rate compared to manual mining
-      // Base mining rate per hour: miningPower * miningLevel * 0.5
+      // Every hour: miningPower * miningLevel * 0.5
       const miningRatePerHour = ship.miningPower * stats.miningLevel * 0.5;
       const foodFromShip = Math.floor(miningRatePerHour * hoursElapsed);
 
@@ -793,11 +767,19 @@ export class GameService {
       });
 
       console.log(`✅ Total offline food collected: ${totalFoodCollected}`);
+
+      await batch.commit();
+
+      // Calculate total time for display
+      const maxTimeDiff = Math.max(...ships.map(ship => {
+        const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || now);
+        return now.getTime() - lastMining.getTime();
+      }));
+
+      return { foodCollected: totalFoodCollected, timeElapsed: Math.floor(maxTimeDiff / 1000) };
     }
 
-    await batch.commit();
-
-    return { foodCollected: totalFoodCollected, timeElapsed: timeElapsedSeconds };
+    return { foodCollected: 0, timeElapsed: 0 };
   }
 
   // Game rewards function
