@@ -122,7 +122,7 @@ export const PupRacing = () => {
   useEffect(() => {
     // Load player image (car with dog)
     const img = new Image();
-    img.src = '/42f0ae4a-0733-4b97-ba17-21474eeb069f (1) copy.png';
+    img.src = '/car_50x75.png';
     img.onload = () => {
       playerImageRef.current = img;
       drawInitialCanvas();
