@@ -273,7 +273,7 @@ export const Shop = () => {
                     </p>
 
                     {isBoostActive && timeRemaining && (
-                      <div className="bg-green-100 border border-green-300 rounded-lg p-2">
+                      <div className="bg-black border border-green-300 rounded-lg p-2">
                         <p className="text-black text-sm font-medium text-center">
                           ⏱️ Active: {timeRemaining} remaining
                         </p>
