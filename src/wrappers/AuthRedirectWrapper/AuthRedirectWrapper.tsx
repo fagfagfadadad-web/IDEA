@@ -13,17 +13,14 @@ export const AuthRedirectWrapper = ({ children }: PropsWithChildren) => {
   console.log('🔒 AuthRedirectWrapper: isAuthenticated:', isAuthenticated);
   console.log('🔒 AuthRedirectWrapper: loading:', loading);
 
-  const currentRoute = routes.find((route) => matchPath(route.path, pathname));
-  console.log('🔒 AuthRedirectWrapper: currentRoute:', currentRoute);
-
-  const requireAuth = Boolean(currentRoute?.authenticatedRoute);
-  console.log('🔒 AuthRedirectWrapper: requireAuth:', requireAuth);
-
   useEffect(() => {
     if (loading) {
       console.log('🔒 AuthRedirectWrapper: Still loading, waiting...');
       return;
     }
+
+    const currentRoute = routes.find((route) => matchPath(route.path, pathname));
+    const requireAuth = Boolean(currentRoute?.authenticatedRoute);
 
     console.log('🔒 AuthRedirectWrapper: useEffect triggered');
     console.log('🔒 AuthRedirectWrapper: isAuthenticated:', isAuthenticated, 'requireAuth:', requireAuth);
@@ -40,7 +37,7 @@ export const AuthRedirectWrapper = ({ children }: PropsWithChildren) => {
       console.log('🔒 AuthRedirectWrapper: User not authenticated but route requires auth - redirecting to unlock');
       navigate(RouteNamesEnum.unlock);
     }
-  }, [isAuthenticated, loading, pathname, requireAuth, navigate]);
+  }, [isAuthenticated, loading, pathname, navigate]);
 
   return <>{children}</>;
 };

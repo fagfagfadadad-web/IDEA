@@ -291,7 +291,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('🔄 AuthContext: Triggering auth sync...', { isLoggedIn, address: address?.substring(0, 10), firebaseUserId: firebaseUser?.uid });
     syncAuth();
-  }, [isLoggedIn, address, firebaseUser]);
+  }, [isLoggedIn, address, firebaseUser?.uid]);
 
   const logout = async () => {
     try {

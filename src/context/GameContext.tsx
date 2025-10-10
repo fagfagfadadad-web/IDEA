@@ -38,6 +38,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const miningInterval = useRef<NodeJS.Timeout | null>(null);
   const dataCache = useRef<{ gameStats: GameStats | null; ships: Ship[] }>({ gameStats: null, ships: [] });
 
+  // Fetch game data when user becomes authenticated
   useEffect(() => {
     console.log('🎮 GameContext: useEffect triggered with:', {
       userId: user?.id,
@@ -77,14 +78,18 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('🎮 GameContext: Fetching game data for:', user.id);
       fetchGameData();
     }
+  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
 
-    // Start mining loop (restart when gameStats or ships change)
-    startMiningLoop();
-
-    return () => {
-      stopMiningLoop();
-    };
-  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady, gameStats, ships]);
+  // Separate effect for mining loop that depends on gameStats and ships
+  useEffect(() => {
+    if (isAuthenticated && user?.id && gameStats && ships.length > 0) {
+      console.log('🎮 GameContext: Starting mining loop');
+      startMiningLoop();
+      return () => {
+        stopMiningLoop();
+      };
+    }
+  }, [isAuthenticated, user?.id]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) {
