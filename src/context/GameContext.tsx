@@ -44,40 +44,47 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticated,
       authLoading,
       isProfileReady: user?.isProfileReady,
-      userObject: user
+      hasGameStats: !!gameStats
     });
-    
-    if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true && !gameStats) {
-      console.log('🎮 GameContext: User authenticated, fetching data for:', user.id);
-      fetchGameData();
-      startMiningLoop();
-    } else if (!authLoading && (!user?.id || !isAuthenticated)) {
-      console.log('🎮 GameContext: User definitely logged out, clearing data');
-      // Only clear if we actually have data and auth is definitely done
-      if ((gameStats || ships.length > 0) && !authLoading) {
+
+    // Wait for auth to complete
+    if (authLoading) {
+      console.log('🎮 GameContext: Auth loading, waiting...');
+      return;
+    }
+
+    // User logged out - clear data
+    if (!user?.id || !isAuthenticated) {
+      console.log('🎮 GameContext: User logged out, clearing data');
+      if (gameStats || ships.length > 0) {
         setGameStats(null);
         setShips([]);
         dataCache.current = { gameStats: null, ships: [] };
         stopMiningLoop();
       }
       setIsLoading(false);
-    } else if (user?.id && isAuthenticated && !authLoading && user?.isProfileReady === true && gameStats) {
-      console.log('🎮 GameContext: User authenticated and data already loaded, starting mining loop only');
-      startMiningLoop();
-    } else {
-      console.log('🎮 GameContext: Waiting for auth to complete...', {
-        hasUserId: !!user?.id,
-        isAuthenticated,
-        authLoading,
-        isProfileReady: user?.isProfileReady,
-        userIsProfileReady: user?.isProfileReady === true
-      });
+      return;
     }
+
+    // User authenticated but profile not ready
+    if (!user?.isProfileReady) {
+      console.log('🎮 GameContext: Profile not ready yet, waiting...');
+      return;
+    }
+
+    // User authenticated with ready profile - fetch data if needed
+    if (!gameStats) {
+      console.log('🎮 GameContext: Fetching game data for:', user.id);
+      fetchGameData();
+    }
+
+    // Start mining loop
+    startMiningLoop();
 
     return () => {
       stopMiningLoop();
     };
-  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady, gameStats]);
+  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;

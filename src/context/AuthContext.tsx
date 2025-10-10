@@ -276,9 +276,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Sync auth when login state or address changes, or when Firebase user changes
   useEffect(() => {
-    console.log('🔄 AuthContext: Triggering GameContext data fetch...');
+    console.log('🔄 AuthContext: Triggering auth sync...', { isLoggedIn, address: address?.substring(0, 10), firebaseUserId: firebaseUser?.uid });
     syncAuth();
-  }, [isLoggedIn, address, firebaseUser]);
+  }, [isLoggedIn, address]);
 
   const logout = async () => {
     try {
