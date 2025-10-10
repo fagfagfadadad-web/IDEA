@@ -1,15 +1,22 @@
-Deployment trigger file - Last update: 2025-10-10 09:38:46 UTC
+Deployment trigger file - Last update: 2025-10-10 09:43:30 UTC
 
-This file is used to force Bolt.new to redeploy the application.
-Edit this file in Bolt.new editor and save to trigger a new deployment.
+🚀 FORCE DEPLOY - NEW BUILD IDENTIFIER 🚀
 
 Changes in this deployment:
-- FRESH BUILD: Complete cache clearing and rebuild from scratch
-- All Vite cache cleared for clean compilation
-- NPM cache cleared to eliminate stale dependencies
-- TypeScript compilation verified with zero errors
-- Production mainnet build completed successfully
-- Version 5.0 - Clean slate deployment
-- Build hash: mvx-sdk-f833bed8.js, firebase-f331fdf9.js, vendor-0ccb8b3a.js, index-dbc98529.js
-- Total bundle size: ~5.5 MB (1.5 MB gzipped)
-- All previous fixes preserved and included
+- VERSION 5.0.0 - FRESH BUILD OCTOBER 10
+- Complete rebuild with new unique bundle hashes
+- Source HTML updated with new version identifier
+- Console log updated to show "FRESH BUILD OCT 10"
+- All caches cleared (Vite + NPM)
+- TypeScript compilation: PASSED ✓
+- Production mainnet build: COMPLETED ✓
+
+NEW BUILD HASHES (force browser cache refresh):
+- mvx-sdk-501013ea.js (3.8 MB) - NEW HASH
+- firebase-63ada02d.js (460 KB) - NEW HASH
+- vendor-62378a60.js (157 KB) - NEW HASH
+- index-f3971ff7.js (733 KB) - NEW HASH
+- index-fb2de522.js (210 KB) - NEW HASH
+
+Total bundle size: 5.5 MB (1.5 MB gzipped)
+All previous features and fixes included
