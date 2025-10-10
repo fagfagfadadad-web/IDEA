@@ -706,10 +706,14 @@ export class GameService {
     const stats = statsSnap.data() as GameStats;
     const now = new Date();
 
-    // Check if permanent auto-feeder upgrade is active
-    const hasAutoFeeder = stats.permanentUpgrades?.autoFeeder || false;
+    // Check if auto-feeder boost is active
+    const autoFeederBoost = stats.activeBoosts?.find(boost => {
+      if (boost.type !== 'autoFeeder') return false;
+      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return expiresAt > now;
+    });
 
-    if (!hasAutoFeeder) {
+    if (!autoFeederBoost) {
       return { foodCollected: 0, timeElapsed: 0 };
     }
 
@@ -726,15 +730,22 @@ export class GameService {
 
     const ships = shipsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ship));
 
-    // Calculate offline earnings from last activity
+    // Calculate offline earnings based on boost activation time
+    const boostActivatedAt = autoFeederBoost.activatedAt?.toDate?.() || new Date(autoFeederBoost.activatedAt || now);
+    const boostExpiresAt = autoFeederBoost.expiresAt?.toDate?.() || new Date(autoFeederBoost.expiresAt);
+
     let totalFoodCollected = 0;
     const batch = writeBatch(db);
 
     for (const ship of ships) {
-      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || now);
-      const timeDiff = now.getTime() - lastMining.getTime();
+      const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || boostActivatedAt);
 
-      // Only collect if more than 1 minute has passed
+      // Calculate collection period: from last mining or boost activation (whichever is later) to now or boost expiry (whichever is earlier)
+      const collectionStart = new Date(Math.max(lastMining.getTime(), boostActivatedAt.getTime()));
+      const collectionEnd = new Date(Math.min(now.getTime(), boostExpiresAt.getTime()));
+
+      // Only collect if collection period is valid and more than 1 minute
+      const timeDiff = collectionEnd.getTime() - collectionStart.getTime();
       if (timeDiff < 60000) continue;
 
       const timeElapsedSeconds = Math.floor(timeDiff / 1000);

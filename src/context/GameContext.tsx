@@ -146,16 +146,21 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user?.id || !gameStats) return;
 
     try {
-      // Check if auto-feeder is enabled
-      const hasAutoFeeder = gameStats.permanentUpgrades?.autoFeeder || false;
-      if (!hasAutoFeeder) return;
+      // Check if auto-feeder boost is active
+      const now = new Date();
+      const autoFeederBoost = gameStats.activeBoosts?.find(boost => {
+        if (boost.type !== 'autoFeeder') return false;
+        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+        return expiresAt > now;
+      });
+
+      if (!autoFeederBoost) return;
 
       // Check each dog if ready to feed
       for (const ship of ships) {
         if (!ship.id) continue;
 
         const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
-        const now = new Date();
         const timeDiff = now.getTime() - lastFeeding.getTime();
         const minutesPassed = Math.floor(timeDiff / (1000 * 60));
 
