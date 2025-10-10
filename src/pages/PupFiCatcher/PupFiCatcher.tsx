@@ -337,18 +337,23 @@ export const PupFiCatcher = () => {
     gradient.addColorStop(1, '#3b82f6');
     ctx.fillStyle = gradient;
 
-    // Draw trapezoid bowl shape
+    // Draw rounded bowl shape (ellipse)
+    const radius = bowlHeight / 2;
     ctx.beginPath();
-    ctx.moveTo(bowlX + bowlWidth * 0.2, bowlY);
-    ctx.lineTo(bowlX + bowlWidth * 0.8, bowlY);
-    ctx.lineTo(bowlX + bowlWidth, bowlY + bowlHeight);
-    ctx.lineTo(bowlX, bowlY + bowlHeight);
-    ctx.closePath();
+    ctx.ellipse(
+      bowlX + bowlWidth / 2,
+      bowlY + bowlHeight / 2,
+      bowlWidth / 2,
+      bowlHeight / 2,
+      0,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
 
     // Draw bowl rim (darker blue)
     ctx.strokeStyle = '#2563eb';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 3;
     ctx.stroke();
 
     // Draw white paw print on bowl
@@ -496,11 +501,18 @@ export const PupFiCatcher = () => {
       }
     });
 
-    ctx.fillStyle = '#1f2937';
-    ctx.font = 'bold 16px Arial';
+    // Draw score and time with better visibility
+    ctx.font = 'bold 20px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
-    ctx.fillText(`Time: ${remaining}s`, 10, 50);
+
+    // Draw white background for text for better readability
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(5, 5, 140, 60);
+
+    // Draw text in dark color
+    ctx.fillStyle = '#1f2937';
+    ctx.fillText(`Score: ${scoreRef.current}`, 15, 30);
+    ctx.fillText(`Time: ${remaining}s`, 15, 55);
 
     spawnObject(timestamp);
 
@@ -626,7 +638,7 @@ export const PupFiCatcher = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none touch-none rounded-3xl border-4 border-primary-300"
-                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: '#1a1a1a' }}
+                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: 'linear-gradient(to bottom, #e0f2fe, #bae6fd, #7dd3fc)' }}
                 />
 
                 {!gameStarted && !gameOver && (
