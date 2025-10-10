@@ -171,7 +171,8 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      console.log('🤖 Auto-Feeder: Active! Checking dogs for automatic feeding...');
+      console.log('🤖 Auto-Feeder v4.1.1: Active! Checking dogs for automatic feeding...');
+      console.log('✨ Auto-Feeder Fix: Now properly refreshes both stats AND ship data after feeding!');
 
       // Check each dog if ready to feed
       for (const ship of ships) {
