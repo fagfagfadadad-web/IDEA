@@ -1,16 +1,16 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useGetLoginInfo } from '../../lib';
 import { RouteNamesEnum } from '../../localConstants';
 import { useGame } from '../../context/GameContext';
+import { useAuth } from '../../context/AuthContext';
 
 export const MobileBottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isLoggedIn } = useGetLoginInfo();
+  const { isAuthenticated } = useAuth();
   const { gameStats, ships } = useGame();
 
-  if (!isLoggedIn) return null;
+  if (!isAuthenticated) return null;
 
   const navItems = [
     {
