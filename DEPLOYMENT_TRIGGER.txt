@@ -1,14 +1,12 @@
-Deployment trigger file - Last update: 2025-10-10 08:15:00 UTC
+Deployment trigger file - Last update: 2025-10-10 12:30:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- FIXED: PupFi Catcher game now has correct visual updates!
-- Dark background (#1a1a1a) for better contrast
-- Beautiful blue dog bowl with paw print (canvas-drawn)
-- Bowl has gradient shading and realistic trapezoid shape
-- White paw print decoration on the bowl
-- Drop shadow under bowl for depth
-- Much better visual appeal and game aesthetics
-- Version 3.0 with correct file (PupFiCatcher.tsx)
+- FIXED: Auto-Feeder now properly updates dog happiness levels!
+- Dogs' currentEnergy now decreases correctly after feeding
+- Fixed ship data not refreshing after auto-feeding
+- Auto-Feeder now fetches both game stats AND ship data after each feed
+- Prevents infinite feeding loop by properly tracking energy levels
+- Version 4.0 - Auto-Feeder energy tracking fix
