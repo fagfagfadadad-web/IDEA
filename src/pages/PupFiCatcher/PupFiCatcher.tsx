@@ -496,7 +496,7 @@ export const PupFiCatcher = () => {
       }
     });
 
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
@@ -626,7 +626,7 @@ export const PupFiCatcher = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none touch-none rounded-3xl border-4 border-primary-300"
-                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: '#1a1a1a' }}
+                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: '#a67c52' }}
                 />
 
                 {!gameStarted && !gameOver && (
