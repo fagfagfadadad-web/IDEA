@@ -200,8 +200,12 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
             const result = await GameService.performMining(user.id, ship.id);
             console.log(`✅ Auto-Feeder: Fed ${ship.name}, earned ${result.zenMined} food`);
 
-            // Refresh data silently (only the specific ship to avoid full refetch)
-            const updatedStats = await GameService.getGameStats(user.id);
+            // Refresh both stats AND ships data
+            const [updatedStats, updatedShips] = await Promise.all([
+              GameService.getGameStats(user.id),
+              GameService.getUserShips(user.id)
+            ]);
+
             if (updatedStats) {
               const mappedStats = {
                 ...updatedStats,
@@ -214,6 +218,20 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
               };
               setGameStats(mappedStats);
               dataCache.current.gameStats = mappedStats;
+            }
+
+            if (updatedShips) {
+              const mappedShips = updatedShips.map(s => ({
+                ...s,
+                current_energy: s.currentEnergy || s.energyCapacity || 100,
+                energy_capacity: s.energyCapacity || 100,
+                mining_power: s.miningPower || 10,
+                last_mining: s.lastMining || new Date(),
+                ship_type: s.shipType || 'basic'
+              }));
+              setShips(mappedShips);
+              dataCache.current.ships = mappedShips;
+              console.log(`🔄 Auto-Feeder: Updated ship data for ${ship.name}, new energy:`, mappedShips.find(s => s.id === ship.id)?.currentEnergy);
             }
           } catch (error) {
             console.error(`❌ Auto-Feeder: Failed to feed ${ship.name}:`, error);
