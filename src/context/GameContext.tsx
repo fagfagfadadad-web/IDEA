@@ -150,19 +150,26 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const autoFeedDogs = async () => {
-    if (!user?.id || !gameStats) return;
+    if (!user?.id || !gameStats) {
+      console.log('🚫 Auto-Feeder: Missing user or gameStats', { hasUser: !!user?.id, hasGameStats: !!gameStats });
+      return;
+    }
 
     try {
-      // Check if auto-feeder permanent upgrade is enabled
-      const autoFeederEnabled = gameStats.permanentUpgrades?.autoFeeder || false;
+      // Check if auto-feeder boost is active (24-hour boost from shop)
+      const now = new Date();
+      const autoFeederBoost = gameStats.activeBoosts?.find(boost => {
+        if (boost.type !== 'autoFeeder') return false;
+        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+        return expiresAt > now;
+      });
 
-      if (!autoFeederEnabled) {
-        console.log('🚫 Auto-Feeder: Not enabled');
+      if (!autoFeederBoost) {
+        console.log('🚫 Auto-Feeder: Not active or expired');
         return;
       }
 
-      console.log('🤖 Auto-Feeder: Checking dogs for automatic feeding...');
-      const now = new Date();
+      console.log('🤖 Auto-Feeder: Active! Checking dogs for automatic feeding...');
 
       // Check each dog if ready to feed
       for (const ship of ships) {

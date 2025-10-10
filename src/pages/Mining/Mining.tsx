@@ -284,7 +284,7 @@ export const Mining = () => {
                           ) : canFeedNow ? (
                             <div className="flex items-center justify-center gap-2">
                               <span>🍖</span>
-                              {gameStats?.permanentUpgrades?.autoFeeder ? 'Auto-Feed Ready' : 'Feed Dog'}
+                              Feed Dog
                             </div>
                          ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
