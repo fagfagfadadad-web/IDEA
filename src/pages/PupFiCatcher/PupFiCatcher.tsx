@@ -320,11 +320,59 @@ export const PupFiCatcher = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const centerX = platform.current.x + platform.current.width / 2;
-    const centerY = platform.current.y + platform.current.height / 2;
-    ctx.font = '40px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🥣', centerX, centerY + 8);
+    // Draw platform (dog bowl) with beautiful blue design
+    console.log('🎨 Drawing blue bowl - Version 3.0');
+    const bowlX = platform.current.x;
+    const bowlY = platform.current.y;
+    const bowlWidth = platform.current.width;
+    const bowlHeight = platform.current.height;
+
+    // Draw bowl shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(bowlX + 2, bowlY + bowlHeight, bowlWidth - 4, 3);
+
+    // Draw bowl body (blue gradient)
+    const gradient = ctx.createLinearGradient(bowlX, bowlY, bowlX, bowlY + bowlHeight);
+    gradient.addColorStop(0, '#60a5fa');
+    gradient.addColorStop(1, '#3b82f6');
+    ctx.fillStyle = gradient;
+
+    // Draw trapezoid bowl shape
+    ctx.beginPath();
+    ctx.moveTo(bowlX + bowlWidth * 0.2, bowlY);
+    ctx.lineTo(bowlX + bowlWidth * 0.8, bowlY);
+    ctx.lineTo(bowlX + bowlWidth, bowlY + bowlHeight);
+    ctx.lineTo(bowlX, bowlY + bowlHeight);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw bowl rim (darker blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw white paw print on bowl
+    const pawX = bowlX + bowlWidth / 2;
+    const pawY = bowlY + bowlHeight / 2;
+
+    // Main pad
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.beginPath();
+    ctx.ellipse(pawX, pawY + 2, 4, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Toes
+    const toePositions = [
+      { x: pawX - 4, y: pawY - 3 },
+      { x: pawX, y: pawY - 4 },
+      { x: pawX + 4, y: pawY - 3 }
+    ];
+
+    toePositions.forEach(pos => {
+      ctx.beginPath();
+      ctx.arc(pos.x, pos.y, 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
 
     fallingObjects.current.forEach((obj, index) => {
       obj.y += obj.speed;
@@ -578,7 +626,7 @@ export const PupFiCatcher = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none touch-none rounded-3xl border-4 border-primary-300"
-                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
+                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: '#1a1a1a' }}
                 />
 
                 {!gameStarted && !gameOver && (
