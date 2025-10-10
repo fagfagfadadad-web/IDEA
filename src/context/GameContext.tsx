@@ -78,16 +78,18 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       fetchGameData();
     }
 
-    // Start mining loop
+    // Start mining loop (restart when gameStats or ships change)
     startMiningLoop();
 
     return () => {
       stopMiningLoop();
     };
-  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
+  }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady, gameStats, ships]);
 
   const startMiningLoop = () => {
-    if (miningInterval.current) return;
+    if (miningInterval.current) {
+      clearInterval(miningInterval.current);
+    }
 
     miningInterval.current = setInterval(() => {
       if (isAuthenticated && user?.id) {
