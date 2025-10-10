@@ -327,6 +327,7 @@ export const Game = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw platform (dog bowl)
+    console.log('🎨 Drawing blue bowl - Version 2.0');
     // Draw a cute blue dog bowl
     const bowlX = platform.current.x;
     const bowlY = platform.current.y;

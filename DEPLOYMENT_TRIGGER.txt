@@ -1,14 +1,14 @@
-Deployment trigger file - Last update: 2025-10-09 12:40:00 UTC
+Deployment trigger file - Last update: 2025-10-10 07:45:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- MAJOR UPGRADE: Auto-Feeder & Happiness Booster now time-based (24h)!
-- Auto-Feeder automatically collects food even when app is closed
-- Offline rewards shown on login with time elapsed
-- Shop UI shows active status and time remaining for boosts
-- Green ring highlight for active items
-- Changed from permanent upgrades to 24-hour boosts
-- Much more affordable: Auto-Feeder 100 food, Booster 150 food
-- Build hash: index-f3ed356c.js firebase-09a8997d.js
+- NEW: PupFi Catcher game redesign!
+- Dark background (#1a1a1a) for better contrast
+- Beautiful blue dog bowl with paw print (canvas-drawn)
+- Bowl has gradient shading and realistic trapezoid shape
+- White paw print decoration on the bowl
+- Drop shadow under bowl for depth
+- Much better visual appeal and game aesthetics
+- Build hash: index-01dc353b.js
