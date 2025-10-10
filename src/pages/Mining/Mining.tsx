@@ -11,6 +11,7 @@ export const Mining = () => {
   const { gameStats, ships, mineZen, isMining, isLoading } = useGame();
   const [selectedShip, setSelectedShip] = useState<string | null>(null);
   const [feedingProgress, setFeedingProgress] = useState<{ [key: string]: number }>({});
+  const [autoFeeding, setAutoFeeding] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (ships.length > 0 && !selectedShip) {
@@ -22,6 +23,7 @@ export const Mining = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       const newProgress: { [key: string]: number } = {};
+      const newAutoFeeding: { [key: string]: boolean } = {};
       const autoFeederEnabled = gameStats?.permanentUpgrades?.autoFeeder || false;
 
       ships.forEach(async (ship) => {
@@ -35,10 +37,14 @@ export const Mining = () => {
         // Auto-Feeder: Automatically feed if cooldown passed and dog has enough energy
         if (autoFeederEnabled && canFeed(ship) && !isMining) {
           console.log('🤖 Auto-Feeder: Automatically feeding', ship.name);
+          newAutoFeeding[ship.id] = true;
           await handleFeed(ship.id);
+        } else {
+          newAutoFeeding[ship.id] = false;
         }
       });
       setFeedingProgress(newProgress);
+      setAutoFeeding(newAutoFeeding);
     }, 1000);
 
     return () => clearInterval(interval);
@@ -282,15 +288,15 @@ export const Mining = () => {
                               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                           }`}
                         >
-                          {isMining ? (
+                          {isMining || autoFeeding[ship.id || ''] ? (
                             <div className="flex items-center justify-center gap-2">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                              Feeding...
+                              {autoFeeding[ship.id || ''] ? 'Auto-Feeding...' : 'Feeding...'}
                             </div>
                           ) : canFeedNow ? (
                             <div className="flex items-center justify-center gap-2">
                               <span>🍖</span>
-                              Feed Dog
+                              {gameStats?.permanentUpgrades?.autoFeeder ? 'Auto-Feed Ready' : 'Feed Dog'}
                             </div>
                          ) : (ship.currentEnergy || 0) < 10 ? (
                             <div className="flex items-center justify-center gap-2">
