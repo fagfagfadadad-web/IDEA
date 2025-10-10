@@ -90,40 +90,53 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser({ ...userProfile, isProfileReady: true });
           setIsProfileReady(true);
           setAuthMessage('');
+          setLoading(false);
           return;
         } else {
           console.log('❌ AuthContext: Profile not found after retries');
           setUser(null);
           setIsProfileReady(false);
           setAuthMessage('Failed to load profile. Please try again.');
+          setLoading(false);
           return;
         }
       }
 
-      // Clear Firebase session if MultiversX is logged out
-      if (!isLoggedIn || !address) {
-        console.log('❌ AuthContext: Not logged in or no address');
+      // If no Firebase user and no MultiversX wallet, clear everything
+      if (!firebaseUser && (!isLoggedIn || !address)) {
+        console.log('❌ AuthContext: No Firebase user and no wallet');
         setUser(null);
         setIsProfileReady(false);
-        setAuthMessage('Please log in using your MultiversX wallet.');
-        if (firebaseUser) {
-          await handleFirebaseSignOut();
-        }
+        setAuthMessage('');
+        setLoading(false);
         return;
       }
 
-      // Check for address change
-      if (lastAddress && lastAddress !== address) {
-        console.log('🔄 AuthContext: Address changed, clearing session');
-        await handleFirebaseSignOut();
+      // If we only have MultiversX wallet (no Firebase), continue with wallet-based auth
+      if (!firebaseUser && isLoggedIn && address) {
+        console.log('🔗 AuthContext: Wallet-only login detected');
+        // Continue to wallet-based profile creation below
       }
-      setLastAddress(address);
+
+      // Check for address change (only if we have an address)
+      if (address) {
+        if (lastAddress && lastAddress !== address) {
+          console.log('🔄 AuthContext: Address changed, clearing session');
+          await handleFirebaseSignOut();
+        }
+        setLastAddress(address);
+      }
 
       // Create or get user profile
       setAuthMessage('Setting up profile...');
 
-      console.log('🔍 AuthContext: Looking for user with address:', address);
-      let userProfile = await UserService.getUserByWalletAddress(address);
+      let userProfile: User | null = null;
+
+      // If we have wallet address, look up by wallet
+      if (address) {
+        console.log('🔍 AuthContext: Looking for user with address:', address);
+        userProfile = await UserService.getUserByWalletAddress(address);
+      }
 
       if (!userProfile) {
         // Check if this is a Firebase user trying to link wallet
@@ -278,20 +291,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('🔄 AuthContext: Triggering auth sync...', { isLoggedIn, address: address?.substring(0, 10), firebaseUserId: firebaseUser?.uid });
     syncAuth();
-  }, [isLoggedIn, address]);
+  }, [isLoggedIn, address, firebaseUser]);
 
   const logout = async () => {
     try {
       console.log('👋 AuthContext: Logging out...');
       isAuthenticating.current = true;
-      
+
       await handleFirebaseSignOut();
-      
-      // Also logout from MultiversX
-      const { getAccountProvider } = await import('lib');
-      const provider = getAccountProvider();
-      await provider.logout();
-      
+
+      // Also logout from MultiversX if logged in
+      if (isLoggedIn) {
+        console.log('👋 AuthContext: Logging out from MultiversX wallet...');
+        const { getAccountProvider } = await import('lib');
+        const provider = getAccountProvider();
+        await provider.logout();
+      }
+
       setUser(null);
       setFirebaseUser(null);
       setIsProfileReady(false);

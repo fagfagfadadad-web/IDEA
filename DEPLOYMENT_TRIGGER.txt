@@ -1,37 +1,56 @@
-DEPLOYMENT TRIGGER - TIMESTAMP: 1760090737
+DEPLOYMENT TRIGGER - TIMESTAMP: 1760091823
 
 ============================================
-🚀 VERSION 5.0.0 - BUILD ID: OCT10-1760090737
+🚀 VERSION 5.1.0 - BUILD ID: OCT10-1760091823
 ============================================
 
-FORCE DEPLOYMENT - NEW BUILD REQUIRED
+CRITICAL FIX: Firebase Authentication Without Wallet
 
-This is a completely fresh build with new bundle identifiers.
-If you see this file, the deployment MUST be updated.
+This update allows users to log in with:
+✅ Google Account (without MultiversX wallet)
+✅ Guest/Anonymous (without MultiversX wallet)
+✅ MultiversX Wallet (optional - can be linked later)
+
+CHANGES IN THIS VERSION:
+✓ AuthContext updated to support Firebase-only authentication
+✓ Users can now access the app without connecting a wallet
+✓ Wallet connection is now optional
+✓ Fixed authentication loop that was logging out Firebase users
+✓ Improved auth state synchronization
 
 BUILD VERIFICATION:
-✓ Source code updated with v5.0.0 markers
-✓ Package.json version: 5.0.0
+✓ Source code updated with v5.1.0 markers
+✓ Package.json version: 5.1.0
 ✓ App.tsx updated with version identifier
 ✓ HTML template updated with new version
-✓ Console logs updated to show v5.0.0
-✓ All caches cleared before build
+✓ Console logs updated to show v5.1.0
 ✓ TypeScript compilation: SUCCESS
 ✓ Production build: SUCCESS
 
 NEW BUNDLE HASHES (COMPLETELY NEW):
-- mvx-sdk-c82fd178.js (NEW - 3.88 MB)
-- firebase-e4aa1930.js (NEW - 470 KB)
-- vendor-f7ea5e10.js (NEW - 160 KB)
-- index-452ed932.js (NEW - 748 KB)
-- index-dd2fea88.js (NEW - 213 KB)
+- index-ca893efc.js (NEW - 748 KB) ← Main app with auth fix
+- mvx-sdk-c82fd178.js (3.88 MB)
+- firebase-e4aa1930.js (470 KB)
+- vendor-f7ea5e10.js (160 KB)
+- index-448c12fd.js (NEW - 213 KB)
 
 VERIFICATION STEPS:
 1. Open browser DevTools console (F12)
 2. Hard refresh: Ctrl+Shift+R or Cmd+Shift+R
-3. Look for: "🚀 PupFi v5.0.0 - OCTOBER 10 2025 - FRESH BUILD"
-4. Check Network tab for file: mvx-sdk-c82fd178.js
-5. If still showing old version, clear ALL browser data
+3. Look for: "🚀 PupFi v5.1.0 - Firebase Auth Without Wallet Support"
+4. Test Google login - should work WITHOUT wallet prompt
+5. Test Guest login - should work WITHOUT wallet prompt
+6. Check Network tab for file: index-ca893efc.js
 
-Last updated: 2025-10-10 09:45:37 UTC
-Unique Build ID: 1760090737
+TESTING CHECKLIST:
+[ ] Can log in with Google without wallet
+[ ] Can log in as Guest without wallet
+[ ] Profile is created automatically
+[ ] Game stats are initialized (1000 PupFi starting balance)
+[ ] Starter dog is created
+[ ] Can navigate to all pages after login
+[ ] Optional: Can connect wallet later if needed
+
+Last updated: 2025-10-10 10:03:43 UTC
+Unique Build ID: 1760091823
+Previous Build: 1760090737 (v5.0.0)
