@@ -464,7 +464,7 @@ export const Game = () => {
     });
 
     // Draw UI
-    ctx.fillStyle = '#1f2937';
+    ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 16px Arial';
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${scoreRef.current}`, 10, 25);
@@ -586,7 +586,7 @@ export const Game = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none w-full max-w-full touch-none"
-                  style={{ background: 'linear-gradient(to bottom, #fef7ff, #fdeeff, #fcdcff)' }}
+                  style={{ background: 'linear-gradient(to bottom, #4a5568, #2d3748, #1a202c)' }}
                 />
                 
                 {/* Game Overlays */}
