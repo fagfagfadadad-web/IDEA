@@ -86,6 +86,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       if (isAuthenticated && user?.id) {
         updateEnergyRegeneration();
         checkOfflineMining();
+        autoFeedDogs(); // Auto-feed dogs if auto-feeder is active
       }
     }, 30000); // Update every 30 seconds
   };
@@ -138,6 +139,46 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       console.log('ℹ️ GameContext: No offline mining available');
+    }
+  };
+
+  const autoFeedDogs = async () => {
+    if (!user?.id || !gameStats) return;
+
+    try {
+      // Check if auto-feeder is enabled
+      const hasAutoFeeder = gameStats.permanentUpgrades?.autoFeeder || false;
+      if (!hasAutoFeeder) return;
+
+      // Check each dog if ready to feed
+      for (const ship of ships) {
+        if (!ship.id) continue;
+
+        const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
+        const now = new Date();
+        const timeDiff = now.getTime() - lastFeeding.getTime();
+        const minutesPassed = Math.floor(timeDiff / (1000 * 60));
+
+        // Check if cooldown passed (1 minute) and dog has energy to feed
+        const canFeed = minutesPassed >= 1 && (ship.currentEnergy || 0) >= 10;
+
+        if (canFeed && !isMining) {
+          console.log(`🤖 Auto-Feeder: Automatically feeding ${ship.name}`);
+
+          // Perform feeding without showing toast
+          try {
+            const result = await GameService.performMining(user.id, ship.id);
+            console.log(`✅ Auto-Feeder: Fed ${ship.name}, earned ${result.zenMined} food`);
+
+            // Refresh data silently
+            await fetchGameData();
+          } catch (error) {
+            console.error(`❌ Auto-Feeder: Failed to feed ${ship.name}:`, error);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error in auto-feed:', error);
     }
   };
 
