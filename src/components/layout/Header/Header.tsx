@@ -95,7 +95,7 @@ export const Header = () => {
                   const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
                   return expiresAt > now;
                 }) && (
-                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 border border-green-300 rounded-lg animate-pulse">
+                  <div className="flex items-center gap-1 px-2 py-1 bg-purple border border-green-300 rounded-lg animate-pulse">
                     <span className="text-base">🤖</span>
                     <span className="text-xs font-bold text-green-700 font-inter">Auto-Feeder Active</span>
                   </div>
