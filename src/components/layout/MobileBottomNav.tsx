@@ -117,8 +117,8 @@ export const MobileBottomNav = () => {
         </div>
 
         {/* Paw Prints Decoration */}
-        <div className="absolute top-1 left-4 text-xs" style={{ filter: 'grayscale(100%) brightness(2)' }}>🐾</div>
-        <div className="absolute top-1 right-4 text-xs" style={{ filter: 'grayscale(100%) brightness(2)' }}>🐾</div>
+        <div className="absolute top-1 left-4 text-xs drop-shadow-md" style={{ filter: 'brightness(0) invert(1)' }}>🐾</div>
+        <div className="absolute top-1 right-4 text-xs drop-shadow-md" style={{ filter: 'brightness(0) invert(1)' }}>🐾</div>
       </div>
 
       {/* Safe Area for iPhone */}
