@@ -20,6 +20,7 @@ export interface ActiveBoost {
   type: 'mining' | 'experience' | 'autoFeeder' | 'happinessBooster';
   multiplier: number;
   expiresAt: any;
+  activatedAt?: any;
 }
 
 export interface PermanentUpgrade {
@@ -636,7 +637,8 @@ export class GameService {
     updatedBoosts.push({
       type: boostType,
       multiplier,
-      expiresAt
+      expiresAt,
+      activatedAt: now
     });
 
     await updateDoc(statsRef, {
@@ -702,16 +704,16 @@ export class GameService {
     }
 
     const stats = statsSnap.data() as GameStats;
+    const now = new Date();
 
     // Check if auto-feeder boost is active
-    const now = new Date();
-    const hasAutoFeeder = stats.activeBoosts?.some(boost => {
+    const autoFeederBoost = stats.activeBoosts?.find(boost => {
       if (boost.type !== 'autoFeeder') return false;
       const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
       return expiresAt > now;
     });
 
-    if (!hasAutoFeeder) {
+    if (!autoFeederBoost) {
       return { foodCollected: 0, timeElapsed: 0 };
     }
 
@@ -728,23 +730,52 @@ export class GameService {
 
     const ships = shipsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ship));
 
+    // Calculate offline earnings based on activation time and boost duration
+    const boostActivatedAt = autoFeederBoost.activatedAt?.toDate?.() || new Date(autoFeederBoost.activatedAt || now);
+    const boostExpiresAt = autoFeederBoost.expiresAt?.toDate?.() || new Date(autoFeederBoost.expiresAt);
+
+    // Find the earliest lastMining time among all ships
+    const earliestLastMining = ships.reduce((earliest, ship) => {
+      const shipLastMining = ship.lastMining?.toDate?.() || boostActivatedAt;
+      return shipLastMining < earliest ? shipLastMining : earliest;
+    }, boostActivatedAt);
+
+    // Calculate collection period: from last mining to now, but not before boost activation and not after expiration
+    const collectionStart = new Date(Math.max(earliestLastMining.getTime(), boostActivatedAt.getTime()));
+    const collectionEnd = new Date(Math.min(now.getTime(), boostExpiresAt.getTime()));
+
+    // If collection end is before collection start, nothing to collect
+    if (collectionEnd <= collectionStart) {
+      return { foodCollected: 0, timeElapsed: 0 };
+    }
+
+    const timeElapsedSeconds = Math.floor((collectionEnd.getTime() - collectionStart.getTime()) / 1000);
+    const hoursElapsed = timeElapsedSeconds / 3600;
+
+    console.log('🤖 Auto-Feeder Offline Mining:', {
+      boostActivatedAt: boostActivatedAt.toISOString(),
+      boostExpiresAt: boostExpiresAt.toISOString(),
+      collectionStart: collectionStart.toISOString(),
+      collectionEnd: collectionEnd.toISOString(),
+      hoursElapsed: hoursElapsed.toFixed(2),
+      shipsCount: ships.length
+    });
+
     // Calculate offline earnings
     let totalFoodCollected = 0;
     const batch = writeBatch(db);
 
     for (const ship of ships) {
-      const lastMining = ship.lastMining?.toDate?.() || new Date(0);
-      const timeSinceLastMining = Math.floor((now.getTime() - lastMining.getTime()) / 1000); // seconds
-
-      // Calculate how much food can be collected (based on mining power and time)
       // Auto-feeder collects at 50% rate compared to manual mining
-      const miningRate = ship.miningPower * stats.miningLevel * 0.5; // food per hour
-      const hoursElapsed = Math.min(timeSinceLastMining / 3600, 24); // max 24 hours
-      const foodFromShip = Math.floor(miningRate * hoursElapsed);
+      // Base mining rate per hour: miningPower * miningLevel * 0.5
+      const miningRatePerHour = ship.miningPower * stats.miningLevel * 0.5;
+      const foodFromShip = Math.floor(miningRatePerHour * hoursElapsed);
 
       totalFoodCollected += foodFromShip;
 
-      // Update ship's lastMining timestamp
+      console.log(`🐕 ${ship.name}: Collected ${foodFromShip} food (${miningRatePerHour.toFixed(1)}/hr × ${hoursElapsed.toFixed(2)}h)`);
+
+      // Update ship's lastMining timestamp to now
       if (ship.id) {
         const shipRef = doc(db, 'ships', ship.id);
         batch.update(shipRef, {
@@ -760,12 +791,13 @@ export class GameService {
         totalMined: increment(totalFoodCollected),
         updatedAt: serverTimestamp()
       });
+
+      console.log(`✅ Total offline food collected: ${totalFoodCollected}`);
     }
 
     await batch.commit();
 
-    const timeElapsed = Math.floor((now.getTime() - (ships[0]?.lastMining?.toDate?.() || now).getTime()) / 1000);
-    return { foodCollected: totalFoodCollected, timeElapsed };
+    return { foodCollected: totalFoodCollected, timeElapsed: timeElapsedSeconds };
   }
 
   // Game rewards function

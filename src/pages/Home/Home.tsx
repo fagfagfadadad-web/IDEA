@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Heart,
   Star,
-  Gift
+  Gift,
+  Clock
 } from "lucide-react";
 
 export const Home = () => {
@@ -17,6 +18,7 @@ export const Home = () => {
   const { user, isAuthenticated } = useAuth();
   const { gameStats, ships, isLoading } = useGame();
   const [animatedStats, setAnimatedStats] = useState({ food: 0, love: 0 });
+  const [autoFeederTimeRemaining, setAutoFeederTimeRemaining] = useState<string | null>(null);
 
   // Animate numbers
   useEffect(() => {
@@ -24,14 +26,14 @@ export const Home = () => {
     if (gameStats) {
       const foodTarget = gameStats.zenBalance || 0;
       const loveTarget = gameStats.totalMined || 0;
-      
+
       console.log('🏠 Home: Animation targets - Food:', foodTarget, 'Love:', loveTarget);
-      
+
       const duration = 1000;
       const steps = 60;
       const foodStep = foodTarget / steps;
       const loveStep = loveTarget / steps;
-      
+
       let currentStep = 0;
       const interval = setInterval(() => {
         currentStep++;
@@ -39,16 +41,54 @@ export const Home = () => {
           food: Math.floor(foodStep * currentStep),
           love: Math.floor(loveStep * currentStep)
         });
-        
+
         if (currentStep >= steps) {
           clearInterval(interval);
           setAnimatedStats({ food: foodTarget, love: loveTarget });
         }
       }, duration / steps);
-      
+
       return () => clearInterval(interval);
     }
   }, [gameStats]);
+
+  // Auto-Feeder countdown timer
+  useEffect(() => {
+    if (!gameStats?.activeBoosts) return;
+
+    const autoFeederBoost = gameStats.activeBoosts.find(boost => {
+      if (boost.type !== 'autoFeeder') return false;
+      const now = new Date();
+      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+      return expiresAt > now;
+    });
+
+    if (!autoFeederBoost) {
+      setAutoFeederTimeRemaining(null);
+      return;
+    }
+
+    const updateTimer = () => {
+      const now = new Date();
+      const expiresAt = autoFeederBoost.expiresAt?.toDate?.() || new Date(autoFeederBoost.expiresAt);
+      const diff = Math.max(0, expiresAt.getTime() - now.getTime());
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (diff <= 0) {
+        setAutoFeederTimeRemaining(null);
+      } else {
+        setAutoFeederTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameStats?.activeBoosts]);
 
   // Show loading state while data is being fetched
   if (isLoading) {
@@ -138,6 +178,29 @@ export const Home = () => {
                   </div>
                 </div>
 
+                {/* Auto-Feeder Status */}
+                {autoFeederTimeRemaining && (
+                  <div className="pt-4 border-t border-primary-200/30">
+                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl px-4 py-3 border border-green-400/30">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-green-500/30 rounded-full flex items-center justify-center animate-pulse">
+                            <span className="text-xl">🤖</span>
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold text-green-700">Auto-Feeder Active</div>
+                            <div className="text-xs text-green-600">Collecting food automatically</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-lg">
+                          <Clock size={14} className="text-green-700" />
+                          <span className="text-sm font-bold text-green-700">{autoFeederTimeRemaining}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Active Boosts */}
                 {gameStats.activeBoosts && gameStats.activeBoosts.length > 0 && (
                   <div className="pt-4 border-t border-white/20">
@@ -152,10 +215,13 @@ export const Home = () => {
 
                         if (timeLeft <= 0) return null;
 
+                        // Skip auto-feeder in this list since it has its own section
+                        if (boost.type === 'autoFeeder') return null;
+
                         return (
                           <div key={index} className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
                             <div className="flex items-center gap-2">
-                              <span>{boost.type === 'mining' ? '🍖' : '💖'}</span>
+                              <span>{boost.type === 'mining' ? '🍖' : boost.type === 'experience' ? '💖' : boost.type === 'happinessBooster' ? '⚡' : '🎁'}</span>
                               <span className="text-sm font-medium text-white">
                                 {boost.multiplier}x {boost.type === 'mining' ? 'Food' : 'Experience'}
                               </span>

@@ -81,10 +81,11 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
   const startMiningLoop = () => {
     if (miningInterval.current) return;
-    
+
     miningInterval.current = setInterval(() => {
       if (isAuthenticated && user?.id) {
         updateEnergyRegeneration();
+        checkOfflineMining();
       }
     }, 30000); // Update every 30 seconds
   };
@@ -93,6 +94,50 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     if (miningInterval.current) {
       clearInterval(miningInterval.current);
       miningInterval.current = null;
+    }
+  };
+
+  const checkOfflineMining = async () => {
+    if (!user?.id) return;
+
+    try {
+      const offlineRewards = await GameService.claimOfflineMining(user.id);
+      if (offlineRewards.foodCollected > 0) {
+        const hours = Math.floor(offlineRewards.timeElapsed / 3600);
+        const minutes = Math.floor((offlineRewards.timeElapsed % 3600) / 60);
+        success(`Auto-Feeder collected ${offlineRewards.foodCollected} food! (${hours}h ${minutes}m)`);
+
+        // Refresh data to show updated balance
+        const updatedStats = await GameService.getGameStats(user.id);
+        if (updatedStats) {
+          const mappedStats = {
+            ...updatedStats,
+            zen_balance: updatedStats.zenBalance || 0,
+            total_mined: updatedStats.totalMined || 0,
+            mining_level: updatedStats.miningLevel || 1,
+            zenBalance: updatedStats.zenBalance || 0,
+            totalMined: updatedStats.totalMined || 0,
+            miningLevel: updatedStats.miningLevel || 1
+          };
+          setGameStats(mappedStats);
+          dataCache.current.gameStats = mappedStats;
+        }
+
+        // Refresh ships to update lastMining timestamps
+        const userShips = await GameService.getUserShips(user.id);
+        const mappedShips = userShips.map(ship => ({
+          ...ship,
+          current_energy: ship.currentEnergy || ship.energyCapacity || 100,
+          energy_capacity: ship.energyCapacity || 100,
+          mining_power: ship.miningPower || 10,
+          last_mining: ship.lastMining || new Date(),
+          ship_type: ship.shipType || 'basic'
+        }));
+        setShips(mappedShips);
+        dataCache.current.ships = mappedShips;
+      }
+    } catch (error) {
+      console.log('ℹ️ GameContext: No offline mining available');
     }
   };
 

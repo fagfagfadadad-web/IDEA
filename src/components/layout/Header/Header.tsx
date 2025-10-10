@@ -79,12 +79,27 @@ export const Header = () => {
           <div className="flex items-center space-x-2 md:space-x-4">
             {/* Food Balance */}
             {isAuthenticated && gameStats && (
-              <div className="hidden md:flex food-points">
-                <span className="text-primary-500">🍖</span>
-                <span className="font-inter font-bold">
-                  {gameStats.zenBalance?.toLocaleString() || '0'}
-                </span>
-                <span className="text-gray-600 text-sm font-inter">Food</span>
+              <div className="hidden md:flex items-center gap-3">
+                <div className="food-points">
+                  <span className="text-primary-500">🍖</span>
+                  <span className="font-inter font-bold">
+                    {gameStats.zenBalance?.toLocaleString() || '0'}
+                  </span>
+                  <span className="text-gray-600 text-sm font-inter">Food</span>
+                </div>
+
+                {/* Auto-Feeder Active Indicator */}
+                {gameStats.activeBoosts?.some(boost => {
+                  if (boost.type !== 'autoFeeder') return false;
+                  const now = new Date();
+                  const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+                  return expiresAt > now;
+                }) && (
+                  <div className="flex items-center gap-1 px-2 py-1 bg-green-100 border border-green-300 rounded-lg animate-pulse">
+                    <span className="text-base">🤖</span>
+                    <span className="text-xs font-bold text-green-700 font-inter">Auto-Feeder Active</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -221,15 +236,32 @@ export const Header = () => {
               <div className="p-4 space-y-2 pb-24">
                 {/* Food Balance */}
                 {isAuthenticated && gameStats && (
-                  <div className="p-4 rounded-lg mb-4" style={{ background: '#FFA724' }}>
-                    <div className="flex items-center gap-2 justify-center">
-                      <span className="text-white text-xl">🍖</span>
-                      <span className="text-white font-bold text-lg">
-                        {gameStats.zenBalance?.toLocaleString() || '0'}
-                      </span>
-                      <span className="text-white">Food</span>
+                  <>
+                    <div className="p-4 rounded-lg mb-4" style={{ background: '#FFA724' }}>
+                      <div className="flex items-center gap-2 justify-center">
+                        <span className="text-white text-xl">🍖</span>
+                        <span className="text-white font-bold text-lg">
+                          {gameStats.zenBalance?.toLocaleString() || '0'}
+                        </span>
+                        <span className="text-white">Food</span>
+                      </div>
                     </div>
-                  </div>
+
+                    {/* Auto-Feeder Active Indicator Mobile */}
+                    {gameStats.activeBoosts?.some(boost => {
+                      if (boost.type !== 'autoFeeder') return false;
+                      const now = new Date();
+                      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+                      return expiresAt > now;
+                    }) && (
+                      <div className="p-3 rounded-lg mb-4 bg-green-500/20 border border-green-400">
+                        <div className="flex items-center gap-2 justify-center">
+                          <span className="text-xl">🤖</span>
+                          <span className="text-white font-bold text-sm">Auto-Feeder Collecting Food!</span>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <Link
