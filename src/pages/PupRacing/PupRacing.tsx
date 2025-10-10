@@ -174,10 +174,11 @@ export const PupRacing = () => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw grass
+    // Draw grass with sky gradient
     const grassGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGradient.addColorStop(0, '#c9a87c');
-    grassGradient.addColorStop(1, '#a67c52');
+    grassGradient.addColorStop(0, '#87CEEB');
+    grassGradient.addColorStop(0.4, '#98D8C8');
+    grassGradient.addColorStop(1, '#90EE90');
     ctx.fillStyle = grassGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -528,8 +529,9 @@ export const PupRacing = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const grassGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grassGradient.addColorStop(0, '#c9a87c');
-    grassGradient.addColorStop(1, '#a67c52');
+    grassGradient.addColorStop(0, '#87CEEB');
+    grassGradient.addColorStop(0.4, '#98D8C8');
+    grassGradient.addColorStop(1, '#90EE90');
     ctx.fillStyle = grassGradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 

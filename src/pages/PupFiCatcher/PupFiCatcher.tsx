@@ -626,7 +626,7 @@ export const PupFiCatcher = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none touch-none rounded-3xl border-4 border-primary-300"
-                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: '#a67c52' }}
+                  style={{ width: '100%', height: '520px', maxWidth: '800px', background: 'linear-gradient(180deg, #87CEEB 0%, #98D8C8 40%, #90EE90 100%)' }}
                 />
 
                 {!gameStarted && !gameOver && (
