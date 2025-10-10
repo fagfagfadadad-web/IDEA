@@ -117,8 +117,8 @@ export const MobileBottomNav = () => {
         </div>
 
         {/* Paw Prints Decoration */}
-        <div className="absolute top-1 left-4 text-purple-300 text-xs opacity-50">🐾</div>
-        <div className="absolute top-1 right-4 text-purple-300 text-xs opacity-50">🐾</div>
+        <div className="absolute top-1 left-4 text-white text-xs opacity-50">🐾</div>
+        <div className="absolute top-1 right-4 text-white text-xs opacity-50">🐾</div>
       </div>
 
       {/* Safe Area for iPhone */}
