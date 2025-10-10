@@ -41,20 +41,26 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const shipsRef = useRef<Ship[]>([]);
   const userRef = useRef(user);
   const isAuthenticatedRef = useRef(isAuthenticated);
+  const hasDataLoadedRef = useRef(false);
 
   // Keep refs in sync with state
   useEffect(() => {
     gameStatsRef.current = gameStats;
-  }, [gameStats]);
-
-  useEffect(() => {
     shipsRef.current = ships;
-  }, [ships]);
+  }, [gameStats, ships]);
 
   useEffect(() => {
     userRef.current = user;
     isAuthenticatedRef.current = isAuthenticated;
   }, [user, isAuthenticated]);
+
+  // Trigger mining loop start when data becomes available
+  useEffect(() => {
+    if (gameStats && ships.length > 0 && isAuthenticated && user?.id && !miningInterval.current) {
+      console.log('🚨 GameContext: Data just loaded, starting mining loop!');
+      startMiningLoop();
+    }
+  }, [gameStats, ships, isAuthenticated, user?.id]);
 
   // Fetch game data when user becomes authenticated
   useEffect(() => {
@@ -98,17 +104,45 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
 
+  // Track when data is loaded
+  useEffect(() => {
+    const hasData = gameStats !== null && ships.length > 0;
+    if (hasData && !hasDataLoadedRef.current) {
+      console.log('📊 GameContext: Data loaded, marking as ready');
+      hasDataLoadedRef.current = true;
+    } else if (!hasData && hasDataLoadedRef.current) {
+      console.log('📊 GameContext: Data cleared, marking as not ready');
+      hasDataLoadedRef.current = false;
+    }
+  }, [gameStats, ships.length]);
+
   // Start mining loop when user authenticates and data is loaded
   useEffect(() => {
-    if (isAuthenticated && user?.id && gameStats && ships.length > 0) {
-      console.log('🎮 GameContext: Starting mining loop with data');
+    const hasData = gameStats !== null && ships.length > 0;
+
+    if (isAuthenticated && user?.id && hasData) {
+      console.log('🎮 GameContext: Starting mining loop with data', {
+        hasGameStats: !!gameStats,
+        shipsCount: ships.length
+      });
       startMiningLoop();
       return () => {
         console.log('🎮 GameContext: Cleaning up mining loop');
         stopMiningLoop();
       };
+    } else if (!isAuthenticated || !user?.id) {
+      console.log('🎮 GameContext: User not authenticated, ensuring loop is stopped');
+      stopMiningLoop();
+      hasDataLoadedRef.current = false;
+    } else {
+      console.log('🎮 GameContext: Waiting for data...', {
+        isAuthenticated,
+        hasUser: !!user?.id,
+        hasGameStats: !!gameStats,
+        shipsCount: ships.length
+      });
     }
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, hasDataLoadedRef.current]);
 
   const startMiningLoop = () => {
     if (miningInterval.current) {
