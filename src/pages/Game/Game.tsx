@@ -586,7 +586,7 @@ export const Game = () => {
                 <canvas
                   ref={canvasRef}
                   className="block mx-auto cursor-none w-full max-w-full touch-none"
-                  style={{ background: 'linear-gradient(to bottom, #1e293b, #0f172a, #020617)' }}
+                  style={{ background: '#1a1a1a' }}
                 />
                 
                 {/* Game Overlays */}
