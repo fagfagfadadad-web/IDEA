@@ -1,13 +1,15 @@
-Deployment trigger file - Last update: 2025-10-10 16:15:00 UTC
+Deployment trigger file - Last update: 2025-10-10 09:38:46 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
 
 Changes in this deployment:
-- FIXED: Auto-Feeder now properly updates dog happiness levels!
-- Dogs' currentEnergy now decreases correctly after feeding
-- Fixed ship data not refreshing after auto-feeding
-- Auto-Feeder now fetches both game stats AND ship data after each feed
-- Prevents infinite feeding loop by properly tracking energy levels
-- Version 4.1 - Fresh build with all fixes applied
-- Build hash: mvx-sdk-55716527.js, index-7a0134b6.js
+- FRESH BUILD: Complete cache clearing and rebuild from scratch
+- All Vite cache cleared for clean compilation
+- NPM cache cleared to eliminate stale dependencies
+- TypeScript compilation verified with zero errors
+- Production mainnet build completed successfully
+- Version 5.0 - Clean slate deployment
+- Build hash: mvx-sdk-f833bed8.js, firebase-f331fdf9.js, vendor-0ccb8b3a.js, index-dbc98529.js
+- Total bundle size: ~5.5 MB (1.5 MB gzipped)
+- All previous fixes preserved and included
