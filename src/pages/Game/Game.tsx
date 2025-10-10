@@ -184,16 +184,6 @@ export const Game = () => {
   const collectionEffects = useRef<CollectionEffect[]>([]);
   const bubbles = useRef<Bubble[]>([]);
   const lastSpawnTime = useRef(0);
-  const bowlImageRef = useRef<HTMLImageElement | null>(null);
-
-  // Load bowl image
-  useEffect(() => {
-    const img = new Image();
-    img.src = '/7588c366-0651-47b7-9079-ed5cafad9caf.png';
-    img.onload = () => {
-      bowlImageRef.current = img;
-    };
-  }, []);
 
   // Initialize canvas and platform
   useEffect(() => {
@@ -337,22 +327,65 @@ export const Game = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw platform (dog bowl)
-    if (bowlImageRef.current) {
-      ctx.drawImage(
-        bowlImageRef.current,
-        platform.current.x,
-        platform.current.y,
-        platform.current.width,
-        platform.current.height
+    // Draw a cute blue dog bowl
+    const bowlX = platform.current.x;
+    const bowlY = platform.current.y;
+    const bowlWidth = platform.current.width;
+    const bowlHeight = platform.current.height;
+
+    // Draw bowl shadow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillRect(bowlX + 2, bowlY + bowlHeight, bowlWidth - 4, 3);
+
+    // Draw bowl body (blue gradient)
+    const gradient = ctx.createLinearGradient(bowlX, bowlY, bowlX, bowlY + bowlHeight);
+    gradient.addColorStop(0, '#60a5fa');
+    gradient.addColorStop(1, '#3b82f6');
+    ctx.fillStyle = gradient;
+
+    // Draw trapezoid bowl shape
+    ctx.beginPath();
+    ctx.moveTo(bowlX + bowlWidth * 0.2, bowlY);
+    ctx.lineTo(bowlX + bowlWidth * 0.8, bowlY);
+    ctx.lineTo(bowlX + bowlWidth, bowlY + bowlHeight);
+    ctx.lineTo(bowlX, bowlY + bowlHeight);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw bowl rim (lighter blue)
+    ctx.fillStyle = '#93c5fd';
+    ctx.fillRect(bowlX + bowlWidth * 0.15, bowlY - 2, bowlWidth * 0.7, 3);
+
+    // Draw paw print on bowl
+    const pawCenterX = bowlX + bowlWidth / 2;
+    const pawCenterY = bowlY + bowlHeight / 2;
+    const pawSize = Math.min(bowlWidth, bowlHeight) * 0.3;
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    // Main pad
+    ctx.beginPath();
+    ctx.ellipse(pawCenterX, pawCenterY + pawSize * 0.2, pawSize * 0.35, pawSize * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Toe pads
+    const toePositions = [
+      { x: -0.35, y: -0.3, size: 0.2 },
+      { x: -0.1, y: -0.5, size: 0.2 },
+      { x: 0.15, y: -0.5, size: 0.2 },
+      { x: 0.4, y: -0.3, size: 0.2 }
+    ];
+
+    toePositions.forEach(toe => {
+      ctx.beginPath();
+      ctx.arc(
+        pawCenterX + toe.x * pawSize,
+        pawCenterY + toe.y * pawSize,
+        toe.size * pawSize,
+        0,
+        Math.PI * 2
       );
-    } else {
-      // Fallback to emoji if image not loaded
-      const centerX = platform.current.x + platform.current.width / 2;
-      const centerY = platform.current.y + platform.current.height / 2;
-      ctx.font = '40px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('🥣', centerX, centerY + 8);
-    }
+      ctx.fill();
+    });
 
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
