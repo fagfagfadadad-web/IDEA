@@ -293,6 +293,7 @@ export const PupRacing = () => {
 
     let touchStartX = 0;
     let touchStartTime = 0;
+    let lastTapTime = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
       if (!gameStarted || countdown > 0) return;
@@ -329,19 +330,27 @@ export const PupRacing = () => {
       const touchEndTime = Date.now();
       const touchDuration = touchEndTime - touchStartTime;
 
-      // Quick tap (less than 200ms) = boost
-      if (touchDuration < 200 && boostsRef.current > 0 && !isBoosting.current) {
-        e.preventDefault();
-        isBoosting.current = true;
-        boostsRef.current--;
-        setBoosts(boostsRef.current);
-        playBoostSound();
-        speedRef.current *= 3;
+      // Double tap (two quick taps within 300ms) = boost
+      if (touchDuration < 200) {
+        const timeSinceLastTap = touchEndTime - lastTapTime;
 
-        setTimeout(() => {
-          isBoosting.current = false;
-          speedRef.current = 5;
-        }, 2000);
+        if (timeSinceLastTap < 300 && timeSinceLastTap > 0 && boostsRef.current > 0 && !isBoosting.current) {
+          e.preventDefault();
+          isBoosting.current = true;
+          boostsRef.current--;
+          setBoosts(boostsRef.current);
+          playBoostSound();
+          speedRef.current *= 3;
+
+          setTimeout(() => {
+            isBoosting.current = false;
+            speedRef.current = 5;
+          }, 2000);
+
+          lastTapTime = 0; // Reset after boost
+        } else {
+          lastTapTime = touchEndTime;
+        }
       }
     };
 
@@ -853,7 +862,7 @@ export const PupRacing = () => {
                 <h3 className="font-inter font-bold text-gray-800 mb-2">Controls:</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700 font-inter">
                   <div>• Arrow Keys or A/D: Move left/right</div>
-                  <div>• Spacebar: Speed boost (3x)</div>
+                  <div>• Spacebar or Double Tap: Speed boost (3x)</div>
                   <div>• Avoid obstacles to keep racing</div>
                   <div>• Collect 🍖 for bonus points</div>
                   <div>• Reach 500m to win!</div>
