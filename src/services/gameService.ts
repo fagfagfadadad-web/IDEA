@@ -566,9 +566,18 @@ export class GameService {
   static getShipConfig(shipType: string) {
     const configs = {
       basic: { name: 'Playful Puppy', miningPower: 10, energyCapacity: 100, cost: 0 },
+      beagle: { name: 'Curious Beagle', miningPower: 15, energyCapacity: 150, cost: 500 },
       advanced: { name: 'Golden Retriever', miningPower: 25, energyCapacity: 200, cost: 1000 },
+      poodle: { name: 'Smart Poodle', miningPower: 30, energyCapacity: 220, cost: 1500 },
+      bulldog: { name: 'Tough Bulldog', miningPower: 35, energyCapacity: 250, cost: 2500 },
+      shepherd: { name: 'German Shepherd', miningPower: 45, energyCapacity: 280, cost: 4000 },
       elite: { name: 'Husky Explorer', miningPower: 50, energyCapacity: 300, cost: 5000 },
-      legendary: { name: 'Royal Corgi', miningPower: 100, energyCapacity: 500, cost: 20000 }
+      dalmatian: { name: 'Spotted Dalmatian', miningPower: 60, energyCapacity: 350, cost: 7500 },
+      akita: { name: 'Noble Akita', miningPower: 70, energyCapacity: 400, cost: 10000 },
+      doberman: { name: 'Elite Doberman', miningPower: 85, energyCapacity: 450, cost: 15000 },
+      legendary: { name: 'Royal Corgi', miningPower: 100, energyCapacity: 500, cost: 20000 },
+      mythic: { name: 'Mystical Wolf', miningPower: 150, energyCapacity: 700, cost: 50000 },
+      divine: { name: 'Celestial Hound', miningPower: 250, energyCapacity: 1000, cost: 100000 }
     };
     return configs[shipType as keyof typeof configs] || configs.basic;
   }
@@ -751,9 +760,9 @@ export class GameService {
       const timeElapsedSeconds = Math.floor(timeDiff / 1000);
       const hoursElapsed = timeElapsedSeconds / 3600;
 
-      // Auto-feeder collects at 50% rate compared to manual mining
-      // Every hour: miningPower * miningLevel * 0.5
-      const miningRatePerHour = ship.miningPower * stats.miningLevel * 0.5;
+      // Auto-feeder collects at 100% rate (same as manual feeding)
+      // Every hour: miningPower * miningLevel
+      const miningRatePerHour = ship.miningPower * stats.miningLevel;
       const foodFromShip = Math.floor(miningRatePerHour * hoursElapsed);
 
       totalFoodCollected += foodFromShip;
