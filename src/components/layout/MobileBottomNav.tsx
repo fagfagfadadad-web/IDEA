@@ -70,7 +70,7 @@ export const MobileBottomNav = () => {
               >
                 {/* Button Background */}
                 <div className={`
-                  ${isCenter ? 'w-16 h-16' : 'w-12 h-12'} 
+                  ${isCenter ? 'w-16 h-16' : 'w-12 h-12'}
                   rounded-full flex items-center justify-center relative
                   ${isActive
                     ? `bg-gradient-to-br ${item.color} shadow-lg`
@@ -79,9 +79,17 @@ export const MobileBottomNav = () => {
                   border-2 border-white shadow-md
                 `}>
                   {/* Icon */}
-                  <span className={`${isCenter ? 'text-2xl' : 'text-xl'}`}>
-                    {item.icon}
-                  </span>
+                  {isCenter ? (
+                    <img
+                      src="/PupFi.png"
+                      alt="PupFi Logo"
+                      className="w-12 h-12 object-contain"
+                    />
+                  ) : (
+                    <span className="text-xl">
+                      {item.icon}
+                    </span>
+                  )}
 
 
                   {/* Active Indicator */}
