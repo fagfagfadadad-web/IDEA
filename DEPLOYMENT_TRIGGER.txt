@@ -1,4 +1,4 @@
-Deployment trigger file - Last update: 2025-10-10 12:30:00 UTC
+Deployment trigger file - Last update: 2025-10-10 13:15:00 UTC
 
 This file is used to force Bolt.new to redeploy the application.
 Edit this file in Bolt.new editor and save to trigger a new deployment.
@@ -9,4 +9,5 @@ Changes in this deployment:
 - Fixed ship data not refreshing after auto-feeding
 - Auto-Feeder now fetches both game stats AND ship data after each feed
 - Prevents infinite feeding loop by properly tracking energy levels
-- Version 4.0 - Auto-Feeder energy tracking fix
+- Version 4.1 - Fresh build with all fixes applied
+- Build hash: mvx-sdk-55716527.js, index-7a0134b6.js

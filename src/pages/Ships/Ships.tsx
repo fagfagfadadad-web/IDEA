@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Heart, Battery, TrendingUp, ShoppingCart, Wrench } from 'lucide-react';
 import { Button } from 'components';
 import { useGame } from '../../context/GameContext';
+// Version 4.1 - Auto-Feeder fix deployed
 
 const dogTypes = [
   {
