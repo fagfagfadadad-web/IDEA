@@ -1,5 +1,5 @@
 // PupFi App with Firebase Authentication
-// Version 4.1.1 - Auto-Feeder Fix Deployment
+// Version 5.0.0 - FRESH BUILD OCTOBER 10 2025 - CACHE CLEARED
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { useEffect, Suspense, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -39,6 +39,7 @@ const AppContent = () => {
   }, [navigate]);
 
   useEffect(() => {
+    console.log('🚀 PupFi v5.0.0 - OCTOBER 10 2025 - FRESH BUILD');
     console.log('🔄 App: Route changed to:', location.pathname);
     console.log('🔄 App: Available routes:', routes.map(r => r.path));
 
@@ -61,7 +62,7 @@ const AppContent = () => {
           <div className="flex items-center justify-center min-h-screen bg-slate-900">
             <div className="text-center space-y-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto"></div>
-              <div className="text-lg text-cyan-400 font-orbitron">Loading PupFi...</div>
+              <div className="text-lg text-cyan-400 font-orbitron">Loading PupFi v5.0.0...</div>
             </div>
           </div>
         }>

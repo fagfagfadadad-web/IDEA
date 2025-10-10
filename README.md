@@ -4,8 +4,9 @@ A virtual pet care experience built on MultiversX blockchain with Firebase backe
 
 ## 🚀 Deployment Status
 
-**Status:** ✅ Production Ready
-**Latest Build:** October 9, 2025
+**Status:** ✅ Production Ready - VERSION 5.0.0
+**Latest Build:** October 10, 2025 09:45 UTC
+**Build ID:** 1760090737
 **Hosting:** Bolt.new Auto-Deploy
 
 📖 **See [DEPLOY.md](./DEPLOY.md) for full deployment instructions**

@@ -1,22 +1,37 @@
-Deployment trigger file - Last update: 2025-10-10 09:43:30 UTC
+DEPLOYMENT TRIGGER - TIMESTAMP: 1760090737
 
-🚀 FORCE DEPLOY - NEW BUILD IDENTIFIER 🚀
+============================================
+🚀 VERSION 5.0.0 - BUILD ID: OCT10-1760090737
+============================================
 
-Changes in this deployment:
-- VERSION 5.0.0 - FRESH BUILD OCTOBER 10
-- Complete rebuild with new unique bundle hashes
-- Source HTML updated with new version identifier
-- Console log updated to show "FRESH BUILD OCT 10"
-- All caches cleared (Vite + NPM)
-- TypeScript compilation: PASSED ✓
-- Production mainnet build: COMPLETED ✓
+FORCE DEPLOYMENT - NEW BUILD REQUIRED
 
-NEW BUILD HASHES (force browser cache refresh):
-- mvx-sdk-501013ea.js (3.8 MB) - NEW HASH
-- firebase-63ada02d.js (460 KB) - NEW HASH
-- vendor-62378a60.js (157 KB) - NEW HASH
-- index-f3971ff7.js (733 KB) - NEW HASH
-- index-fb2de522.js (210 KB) - NEW HASH
+This is a completely fresh build with new bundle identifiers.
+If you see this file, the deployment MUST be updated.
 
-Total bundle size: 5.5 MB (1.5 MB gzipped)
-All previous features and fixes included
+BUILD VERIFICATION:
+✓ Source code updated with v5.0.0 markers
+✓ Package.json version: 5.0.0
+✓ App.tsx updated with version identifier
+✓ HTML template updated with new version
+✓ Console logs updated to show v5.0.0
+✓ All caches cleared before build
+✓ TypeScript compilation: SUCCESS
+✓ Production build: SUCCESS
+
+NEW BUNDLE HASHES (COMPLETELY NEW):
+- mvx-sdk-c82fd178.js (NEW - 3.88 MB)
+- firebase-e4aa1930.js (NEW - 470 KB)
+- vendor-f7ea5e10.js (NEW - 160 KB)
+- index-452ed932.js (NEW - 748 KB)
+- index-dd2fea88.js (NEW - 213 KB)
+
+VERIFICATION STEPS:
+1. Open browser DevTools console (F12)
+2. Hard refresh: Ctrl+Shift+R or Cmd+Shift+R
+3. Look for: "🚀 PupFi v5.0.0 - OCTOBER 10 2025 - FRESH BUILD"
+4. Check Network tab for file: mvx-sdk-c82fd178.js
+5. If still showing old version, clear ALL browser data
+
+Last updated: 2025-10-10 09:45:37 UTC
+Unique Build ID: 1760090737
