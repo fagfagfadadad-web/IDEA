@@ -165,13 +165,13 @@ export const Game = () => {
   const { user } = useAuth();
   const { gameStats, refetch } = useGame();
   const { success, error } = useToast();
-  
+
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(60);
   const [currentSpeed, setCurrentSpeed] = useState(1);
-  
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number | null>(null);
   const scoreRef = useRef(0);
@@ -184,6 +184,16 @@ export const Game = () => {
   const collectionEffects = useRef<CollectionEffect[]>([]);
   const bubbles = useRef<Bubble[]>([]);
   const lastSpawnTime = useRef(0);
+  const bowlImageRef = useRef<HTMLImageElement | null>(null);
+
+  // Load bowl image
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/7588c366-0651-47b7-9079-ed5cafad9caf.png';
+    img.onload = () => {
+      bowlImageRef.current = img;
+    };
+  }, []);
 
   // Initialize canvas and platform
   useEffect(() => {
@@ -327,12 +337,22 @@ export const Game = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw platform (dog bowl)
-    // Draw platform (dog bowl image)
-    const centerX = platform.current.x + platform.current.width / 2;
-    const centerY = platform.current.y + platform.current.height / 2;
-    ctx.font = '40px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🥣', centerX, centerY + 8);
+    if (bowlImageRef.current) {
+      ctx.drawImage(
+        bowlImageRef.current,
+        platform.current.x,
+        platform.current.y,
+        platform.current.width,
+        platform.current.height
+      );
+    } else {
+      // Fallback to emoji if image not loaded
+      const centerX = platform.current.x + platform.current.width / 2;
+      const centerY = platform.current.y + platform.current.height / 2;
+      ctx.font = '40px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('🥣', centerX, centerY + 8);
+    }
 
     // Update and draw falling objects
     fallingObjects.current.forEach((obj, index) => {
