@@ -192,7 +192,7 @@ export const Home = () => {
                             <div className="text-xs text-green-600">Collecting food automatically</div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-white/50 px-3 py-1 rounded-lg">
+                        <div className="flex items-center gap-2 bg-purple px-3 py-1 rounded-lg">
                           <Clock size={14} className="text-green-700" />
                           <span className="text-sm font-bold text-green-700">{autoFeederTimeRemaining}</span>
                         </div>
