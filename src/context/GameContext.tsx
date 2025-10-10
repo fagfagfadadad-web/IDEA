@@ -37,6 +37,24 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   const [isMining, setIsMining] = useState(false);
   const miningInterval = useRef<NodeJS.Timeout | null>(null);
   const dataCache = useRef<{ gameStats: GameStats | null; ships: Ship[] }>({ gameStats: null, ships: [] });
+  const gameStatsRef = useRef<GameStats | null>(null);
+  const shipsRef = useRef<Ship[]>([]);
+  const userRef = useRef(user);
+  const isAuthenticatedRef = useRef(isAuthenticated);
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    gameStatsRef.current = gameStats;
+  }, [gameStats]);
+
+  useEffect(() => {
+    shipsRef.current = ships;
+  }, [ships]);
+
+  useEffect(() => {
+    userRef.current = user;
+    isAuthenticatedRef.current = isAuthenticated;
+  }, [user, isAuthenticated]);
 
   // Fetch game data when user becomes authenticated
   useEffect(() => {
@@ -80,12 +98,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user?.id, isAuthenticated, authLoading, user?.isProfileReady]);
 
-  // Separate effect for mining loop that depends on gameStats and ships
+  // Start mining loop when user authenticates and data is loaded
   useEffect(() => {
     if (isAuthenticated && user?.id && gameStats && ships.length > 0) {
-      console.log('🎮 GameContext: Starting mining loop');
+      console.log('🎮 GameContext: Starting mining loop with data');
       startMiningLoop();
       return () => {
+        console.log('🎮 GameContext: Cleaning up mining loop');
         stopMiningLoop();
       };
     }
@@ -96,11 +115,16 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       clearInterval(miningInterval.current);
     }
 
+    console.log('⏰ Mining loop: Starting interval');
     miningInterval.current = setInterval(() => {
-      if (isAuthenticated && user?.id) {
+      console.log('⏰ Mining loop: Tick - checking conditions');
+      if (isAuthenticatedRef.current && userRef.current?.id) {
+        console.log('⏰ Mining loop: User authenticated, running tasks');
         updateEnergyRegeneration();
         checkOfflineMining();
         autoFeedDogs(); // Auto-feed dogs if auto-feeder is active
+      } else {
+        console.log('⏰ Mining loop: User not authenticated, skipping tasks');
       }
     }, 30000); // Update every 30 seconds
   };
@@ -113,17 +137,18 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const checkOfflineMining = async () => {
-    if (!user?.id) return;
+    const currentUser = userRef.current;
+    if (!currentUser?.id) return;
 
     try {
-      const offlineRewards = await GameService.claimOfflineMining(user.id);
+      const offlineRewards = await GameService.claimOfflineMining(currentUser.id);
       if (offlineRewards.foodCollected > 0) {
         const hours = Math.floor(offlineRewards.timeElapsed / 3600);
         const minutes = Math.floor((offlineRewards.timeElapsed % 3600) / 60);
         success(`Auto-Feeder collected ${offlineRewards.foodCollected} food! (${hours}h ${minutes}m)`);
 
         // Refresh data to show updated balance
-        const updatedStats = await GameService.getGameStats(user.id);
+        const updatedStats = await GameService.getGameStats(currentUser.id);
         if (updatedStats) {
           const mappedStats = {
             ...updatedStats,
@@ -139,7 +164,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         // Refresh ships to update lastMining timestamps
-        const userShips = await GameService.getUserShips(user.id);
+        const userShips = await GameService.getUserShips(currentUser.id);
         const mappedShips = userShips.map(ship => ({
           ...ship,
           current_energy: ship.currentEnergy || ship.energyCapacity || 100,
@@ -157,15 +182,19 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const autoFeedDogs = async () => {
-    if (!user?.id || !gameStats) {
-      console.log('🚫 Auto-Feeder: Missing user or gameStats', { hasUser: !!user?.id, hasGameStats: !!gameStats });
+    const currentUser = userRef.current;
+    const currentGameStats = gameStatsRef.current;
+    const currentShips = shipsRef.current;
+
+    if (!currentUser?.id || !currentGameStats) {
+      console.log('🚫 Auto-Feeder: Missing user or gameStats', { hasUser: !!currentUser?.id, hasGameStats: !!currentGameStats });
       return;
     }
 
     try {
       // Check if auto-feeder boost is active (24-hour boost from shop)
       const now = new Date();
-      const autoFeederBoost = gameStats.activeBoosts?.find(boost => {
+      const autoFeederBoost = currentGameStats.activeBoosts?.find(boost => {
         if (boost.type !== 'autoFeeder') return false;
         const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
         return expiresAt > now;
@@ -180,7 +209,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('✨ Auto-Feeder Fix: Now properly refreshes both stats AND ship data after feeding!');
 
       // Check each dog if ready to feed
-      for (const ship of ships) {
+      for (const ship of currentShips) {
         if (!ship.id) continue;
 
         const lastFeeding = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
@@ -203,13 +232,13 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
           // Perform feeding without showing toast
           try {
-            const result = await GameService.performMining(user.id, ship.id);
+            const result = await GameService.performMining(currentUser.id, ship.id);
             console.log(`✅ Auto-Feeder: Fed ${ship.name}, earned ${result.zenMined} food`);
 
             // Refresh both stats AND ships data
             const [updatedStats, updatedShips] = await Promise.all([
-              GameService.getGameStats(user.id),
-              GameService.getUserShips(user.id)
+              GameService.getGameStats(currentUser.id),
+              GameService.getUserShips(currentUser.id)
             ]);
 
             if (updatedStats) {
@@ -250,12 +279,15 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateEnergyRegeneration = async () => {
+    const currentGameStats = gameStatsRef.current;
+    const currentShips = shipsRef.current;
+
     try {
       // Get Happiness Booster multiplier (1.5x if purchased, 1x otherwise)
-      const happinessBooster = gameStats?.permanentUpgrades?.happinessBooster || 1;
+      const happinessBooster = currentGameStats?.permanentUpgrades?.happinessBooster || 1;
 
       // Regenerate energy for ships
-      const updatedShips = ships.map(ship => {
+      const updatedShips = currentShips.map(ship => {
         const lastMining = ship.lastMining?.toDate?.() || new Date(ship.lastMining || new Date());
         const now = new Date();
         const timeDiff = now.getTime() - lastMining.getTime();
