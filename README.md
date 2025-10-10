@@ -19,7 +19,7 @@ A virtual pet care experience built on MultiversX blockchain with Firebase backe
 - **Pack Management** - Adopt and upgrade different types of dogs
 
 ### Dog Types
-1. **Zen Puppy** - Starter dog (1000 PupFi starting balance)
+1. **Zen Puppy** - Starter do g (1000 PupFi starting balance)
    - Mining Power: 10
    - Energy Capacity: 100
 
