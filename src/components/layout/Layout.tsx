@@ -4,10 +4,10 @@ import { Footer } from './Footer';
 import { Header } from './Header';
 import { Background } from './Background';
 import { Chat } from '../Chat';
-import { useGetIsLoggedIn } from 'lib';
+import { useAuth } from '../../context/AuthContext';
 
 export const Layout = ({ children }: PropsWithChildren) => {
-  const isLoggedIn = useGetIsLoggedIn();
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden">
@@ -19,7 +19,7 @@ export const Layout = ({ children }: PropsWithChildren) => {
         </main>
         <Footer />
       </div>
-      {isLoggedIn && <Chat />}
+      {isAuthenticated && <Chat />}
     </div>
   );
 };
