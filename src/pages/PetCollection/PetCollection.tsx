@@ -91,14 +91,14 @@ export const PetCollection = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-200 via-amber-300 to-yellow-200 pb-24 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 pb-24 md:pb-8">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           <div className="text-center space-y-4">
             <h1 className="title-responsive font-inter font-bold gradient-text">
               My Pet Collection
             </h1>
-            <p className="text-gray-800 text-lg font-inter font-semibold">
+            <p className="text-white text-lg font-inter font-semibold">
               Train, evolve, and care for your pets
             </p>
           </div>
