@@ -389,10 +389,9 @@ export class PetService {
     evolutionStage?: EvolutionStage;
   }): Promise<MarketListing[]> {
     try {
-      let q = query(
+      const q = query(
         collection(db, 'marketListings'),
-        where('status', '==', 'active'),
-        orderBy('listedAt', 'desc')
+        where('status', '==', 'active')
       );
 
       const snapshot = await getDocs(q);
@@ -400,6 +399,12 @@ export class PetService {
         id: doc.id,
         ...doc.data()
       } as MarketListing));
+
+      listings.sort((a, b) => {
+        const aTime = a.listedAt as any;
+        const bTime = b.listedAt as any;
+        return (bTime?.seconds || 0) - (aTime?.seconds || 0);
+      });
 
       if (filters) {
         if (filters.breedType) {

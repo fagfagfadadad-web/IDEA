@@ -58,9 +58,6 @@ export const Header = () => {
               <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 NFT Market
               </Link>
-              <Link to="/mining" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Feed Dogs
-              </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Pet Store
               </Link>
@@ -72,6 +69,9 @@ export const Header = () => {
               </Link>
               <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Friends
+              </Link>
+              <Link to="/leaderboard" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Leaderboard
               </Link>
             </div>
           </div>
