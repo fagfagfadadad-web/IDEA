@@ -1150,7 +1150,7 @@ export class GameService {
       inventory.push({
         itemId,
         quantity,
-        acquiredAt: serverTimestamp()
+        acquiredAt: new Date()
       });
     }
 
