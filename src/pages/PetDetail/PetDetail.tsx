@@ -178,7 +178,7 @@ export const PetDetail = () => {
       <div className="container mx-auto px-6 py-8">
         <Button
           onClick={() => navigate('/pets')}
-          className="mb-6 bg-white/90 hover:bg-white text-purple-800 px-4 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
+          className="mb-6 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
         >
           <ArrowLeft size={20} />
           Back to Collection
