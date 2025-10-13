@@ -233,10 +233,13 @@ export class PetService {
 
   static async trainPet(
     petDocId: string,
-    trainingType: TrainingType
+    userId: string,
+    trainingType: TrainingType,
+    trainingCost: number = 20
   ): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage }> {
     try {
       const petRef = doc(db, 'pets', petDocId);
+      const statsRef = doc(db, 'gameStats', userId);
       const petDoc = await getDoc(petRef);
 
       if (!petDoc.exists()) {
@@ -245,17 +248,26 @@ export class PetService {
 
       const pet = petDoc.data() as Pet;
       const currentValue = pet.training[trainingType];
-      const increment = Math.min(5, 100 - currentValue);
+      const trainingIncrement = Math.min(5, 100 - currentValue);
 
-      await updateDoc(petRef, {
-        [`training.${trainingType}`]: currentValue + increment,
+      const batch = writeBatch(db);
+
+      batch.update(petRef, {
+        [`training.${trainingType}`]: currentValue + trainingIncrement,
         'stats.totalTrainingSessions': pet.stats.totalTrainingSessions + 1,
         updatedAt: serverTimestamp()
       });
 
+      batch.update(statsRef, {
+        zenBalance: increment(-trainingCost),
+        updatedAt: serverTimestamp()
+      });
+
+      await batch.commit();
+
       const result = await this.addXP(petDocId, XP_SOURCES.training, `${trainingType} training`);
 
-      console.log(`💪 Pet trained in ${trainingType}. New value: ${currentValue + increment}`);
+      console.log(`💪 Pet trained in ${trainingType}. New value: ${currentValue + trainingIncrement}. Cost: ${trainingCost} Food`);
       return result;
     } catch (error) {
       console.error('❌ Error training pet:', error);
@@ -263,18 +275,27 @@ export class PetService {
     }
   }
 
-  static async feedPet(petDocId: string): Promise<void> {
+  static async feedPet(petDocId: string, userId: string, foodCost: number = 10): Promise<void> {
     try {
       const petRef = doc(db, 'pets', petDocId);
+      const statsRef = doc(db, 'gameStats', userId);
 
-      await updateDoc(petRef, {
+      const batch = writeBatch(db);
+
+      batch.update(petRef, {
         'stats.totalFeedings': increment(1),
         updatedAt: serverTimestamp()
       });
 
+      batch.update(statsRef, {
+        zenBalance: increment(-foodCost),
+        updatedAt: serverTimestamp()
+      });
+
+      await batch.commit();
       await this.addXP(petDocId, XP_SOURCES.feeding, 'feeding');
 
-      console.log('🍖 Pet fed successfully');
+      console.log(`🍖 Pet fed successfully. Food cost: ${foodCost}`);
     } catch (error) {
       console.error('❌ Error feeding pet:', error);
       throw error;

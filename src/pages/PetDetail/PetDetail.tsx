@@ -49,7 +49,7 @@ export const PetDetail = () => {
   };
 
   const handleFeed = async () => {
-    if (!pet?.id) return;
+    if (!pet?.id || !user?.id) return;
 
     const foodCost = 10;
     if ((gameStats?.zenBalance || 0) < foodCost) {
@@ -59,8 +59,8 @@ export const PetDetail = () => {
 
     try {
       setIsFeeding(true);
-      await PetService.feedPet(pet.id);
-      success('Pet fed successfully! +10 XP');
+      await PetService.feedPet(pet.id, user.id, foodCost);
+      success('Pet fed successfully! -10 Food, +10 XP');
       await fetchPet();
       refetch();
     } catch (err) {
@@ -72,7 +72,7 @@ export const PetDetail = () => {
   };
 
   const handleTrain = async (trainingType: TrainingType) => {
-    if (!pet?.id) return;
+    if (!pet?.id || !user?.id) return;
 
     const trainingCost = 20;
     if ((gameStats?.zenBalance || 0) < trainingCost) {
@@ -82,7 +82,7 @@ export const PetDetail = () => {
 
     try {
       setIsTraining(true);
-      const result = await PetService.trainPet(pet.id, trainingType);
+      const result = await PetService.trainPet(pet.id, user.id, trainingType, trainingCost);
 
       if (result.evolved) {
         setShowEvolutionAnimation(true);
@@ -91,9 +91,9 @@ export const PetDetail = () => {
           success(`🌟 ${pet.name} evolved to ${result.newStage}!`);
         }, 3000);
       } else if (result.leveled) {
-        success(`Level up! ${pet.name} is now level ${result.newLevel}!`);
+        success(`Level up! ${pet.name} is now level ${result.newLevel}! -20 Food`);
       } else {
-        success(`Training completed! +30 XP`);
+        success(`Training completed! -20 Food, +30 XP`);
       }
 
       await fetchPet();
