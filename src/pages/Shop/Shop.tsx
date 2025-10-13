@@ -293,9 +293,9 @@ export const Shop = () => {
                       disabled={!affordable || isProcessing}
                       className={`w-full ${
                         affordable && !isProcessing
-                          ? 'bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316]'
-                          : 'bg-gray-300 cursor-not-allowed'
-                      } text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
+                          ? 'bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white'
+                          : 'bg-gray-600 cursor-not-allowed text-gray-300'
+                      } px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
                     >
                       <ShoppingCart size={20} />
                       {affordable ? 'Buy Now' : 'Insufficient Balance'}
