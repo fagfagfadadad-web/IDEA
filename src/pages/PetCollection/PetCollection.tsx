@@ -329,14 +329,14 @@ export const PetCollection = () => {
               <div className="flex gap-3">
                 <Button
                   onClick={() => setShowAdoptModal(false)}
-                  className="flex-1 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-inter font-bold border border-white/30"
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold border border-white/30 text-sm"
                   disabled={isAdopting}
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleAdoptPet}
-                  className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-6 py-3 rounded-xl font-inter font-bold shadow-lg"
+                  className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm"
                   disabled={isAdopting}
                 >
                   {isAdopting ? 'Adopting...' : `Adopt for 🍖 ${BREED_INFO[selectedBreed].basePrice}`}

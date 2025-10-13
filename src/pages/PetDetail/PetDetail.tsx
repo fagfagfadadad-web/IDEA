@@ -499,13 +499,13 @@ export const PetDetail = () => {
             <div className="flex gap-3">
               <Button
                 onClick={() => setShowListModal(false)}
-                className="flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/40 px-4 py-2 rounded-lg font-inter font-bold"
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/40 px-4 py-2 rounded-lg font-inter font-bold text-sm"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleListOnMarket}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-inter font-bold"
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-inter font-bold text-sm"
               >
                 List Pet
               </Button>

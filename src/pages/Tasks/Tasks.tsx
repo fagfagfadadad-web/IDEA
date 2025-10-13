@@ -577,13 +577,13 @@ export const Tasks = () => {
                     setProofUrl('');
                     setCurrentClaimTask(null);
                   }}
-                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-3 rounded-lg font-inter font-bold flex-1"
+                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-2 rounded-lg font-inter font-bold flex-1 text-sm"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleProofSubmit}
-                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-3 rounded-lg font-inter font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-[#7C3AED] hover:bg-[#6b21a8] text-white px-4 py-2 rounded-lg font-inter font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   disabled={!proofUrl.trim()}
                 >
                   Submit & Claim

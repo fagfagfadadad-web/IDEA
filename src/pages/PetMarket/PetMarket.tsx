@@ -424,14 +424,14 @@ export const PetMarket = () => {
               <Button
                 onClick={() => setSelectedListing(null)}
                 disabled={isPurchasing}
-                className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-3 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30"
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30 text-sm"
               >
                 Cancel
               </Button>
               <Button
                 onClick={confirmPurchase}
                 disabled={isPurchasing}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold shadow-lg"
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm"
               >
                 {isPurchasing ? 'Processing...' : 'Confirm Purchase'}
               </Button>
