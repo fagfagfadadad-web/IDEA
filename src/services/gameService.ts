@@ -26,6 +26,9 @@ export interface ActiveBoost {
 export interface PermanentUpgrade {
   autoFeeder: boolean;
   happinessBooster: number;
+  foodMultiplier: number;
+  xpMultiplier: number;
+  cooldownMultiplier: number;
 }
 
 export interface GameStats {
@@ -145,7 +148,25 @@ export class GameService {
         rawData.gameTickets = 5;
         console.log('✅ GameService: gameTickets initialized to 5');
       }
-      
+
+      // Initialize permanentUpgrades if missing
+      if (!rawData.permanentUpgrades) {
+        console.log('🔧 GameService: Initializing permanentUpgrades...');
+        const defaultUpgrades = {
+          autoFeeder: false,
+          happinessBooster: 1,
+          foodMultiplier: 1,
+          xpMultiplier: 1,
+          cooldownMultiplier: 1
+        };
+        await updateDoc(docRef, {
+          permanentUpgrades: defaultUpgrades,
+          updatedAt: serverTimestamp()
+        });
+        rawData.permanentUpgrades = defaultUpgrades;
+        console.log('✅ GameService: permanentUpgrades initialized');
+      }
+
       const gameStats = { id: docSnap.id, ...rawData } as GameStats;
       console.log('🔍 GameService: Processed GameStats:', gameStats);
       return gameStats;
@@ -168,6 +189,13 @@ export class GameService {
       referralCode,
       totalReferrals: 0,
       referralEarnings: 0,
+      permanentUpgrades: {
+        autoFeeder: false,
+        happinessBooster: 1,
+        foodMultiplier: 1,
+        xpMultiplier: 1,
+        cooldownMultiplier: 1
+      },
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -657,7 +685,7 @@ export class GameService {
     });
   }
 
-  static async purchasePermanentUpgrade(userId: string, upgradeType: 'autoFeeder' | 'happinessBooster', value: boolean | number, cost: number): Promise<void> {
+  static async purchasePermanentUpgrade(userId: string, upgradeType: 'autoFeeder' | 'happinessBooster' | 'foodMultiplier' | 'xpMultiplier' | 'cooldownMultiplier', value: boolean | number, cost: number): Promise<void> {
     const statsRef = doc(db, 'gameStats', userId);
     const statsSnap = await getDoc(statsRef);
 
@@ -666,12 +694,24 @@ export class GameService {
     }
 
     const stats = statsSnap.data() as GameStats;
-    const permanentUpgrades = stats.permanentUpgrades || { autoFeeder: false, happinessBooster: 1 };
+    const permanentUpgrades = stats.permanentUpgrades || {
+      autoFeeder: false,
+      happinessBooster: 1,
+      foodMultiplier: 1,
+      xpMultiplier: 1,
+      cooldownMultiplier: 1
+    };
 
     if (upgradeType === 'autoFeeder') {
       permanentUpgrades.autoFeeder = value as boolean;
     } else if (upgradeType === 'happinessBooster') {
       permanentUpgrades.happinessBooster = value as number;
+    } else if (upgradeType === 'foodMultiplier') {
+      permanentUpgrades.foodMultiplier = value as number;
+    } else if (upgradeType === 'xpMultiplier') {
+      permanentUpgrades.xpMultiplier = value as number;
+    } else if (upgradeType === 'cooldownMultiplier') {
+      permanentUpgrades.cooldownMultiplier = value as number;
     }
 
     await updateDoc(statsRef, {

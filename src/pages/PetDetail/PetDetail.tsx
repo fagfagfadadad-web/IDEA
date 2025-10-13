@@ -171,7 +171,15 @@ export const PetDetail = () => {
   const breedInfo = BREED_INFO[pet.breedType];
   const xpNeeded = Math.floor(100 * Math.pow(1.5, pet.level - 1));
   const xpPercentage = Math.floor((pet.currentXP / xpNeeded) * 100);
-  const multipliers = EVOLUTION_MULTIPLIERS[pet.evolutionStage];
+
+  const evolutionMultipliers = EVOLUTION_MULTIPLIERS[pet.evolutionStage];
+  const shopMultipliers = gameStats?.permanentUpgrades || { foodMultiplier: 1, xpMultiplier: 1, cooldownMultiplier: 1 };
+
+  const totalMultipliers = {
+    food: evolutionMultipliers.food * shopMultipliers.foodMultiplier,
+    xp: evolutionMultipliers.xp * shopMultipliers.xpMultiplier,
+    cooldown: evolutionMultipliers.cooldown * shopMultipliers.cooldownMultiplier
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 pb-24 md:pb-8">
@@ -443,15 +451,15 @@ export const PetDetail = () => {
               <div className="space-y-2 text-sm font-inter">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Food Bonus:</span>
-                  <span className="font-bold text-gray-800">+{Math.floor((multipliers.food - 1) * 100)}%</span>
+                  <span className="font-bold text-gray-800">+{Math.floor((totalMultipliers.food - 1) * 100)}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">XP Bonus:</span>
-                  <span className="font-bold text-gray-800">+{Math.floor((multipliers.xp - 1) * 100)}%</span>
+                  <span className="font-bold text-gray-800">+{Math.floor((totalMultipliers.xp - 1) * 100)}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Cooldown:</span>
-                  <span className="font-bold text-gray-800">-{Math.floor((1 - multipliers.cooldown) * 100)}%</span>
+                  <span className="font-bold text-gray-800">-{Math.floor((1 - totalMultipliers.cooldown) * 100)}%</span>
                 </div>
               </div>
             </div>

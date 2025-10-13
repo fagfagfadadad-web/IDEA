@@ -105,6 +105,36 @@ const shopItems = [
     icon: <ShoppingCart size={24} className="text-indigo-500" />,
     effect: { no_fees: true, duration: 2592000 },
     emoji: '👑'
+  },
+  {
+    id: 'food_multiplier',
+    name: 'Food Multiplier Upgrade',
+    description: 'Permanently increase food rewards by +10% (stackable)',
+    cost: 2000,
+    type: 'permanent',
+    icon: <TrendingUp size={24} className="text-green-500" />,
+    effect: { multiplier: 'food', increase: 0.1 },
+    emoji: '🍖'
+  },
+  {
+    id: 'xp_multiplier',
+    name: 'XP Multiplier Upgrade',
+    description: 'Permanently increase XP gains by +10% (stackable)',
+    cost: 2500,
+    type: 'permanent',
+    icon: <Star size={24} className="text-yellow-500" />,
+    effect: { multiplier: 'xp', increase: 0.1 },
+    emoji: '⭐'
+  },
+  {
+    id: 'cooldown_reducer',
+    name: 'Cooldown Reducer Upgrade',
+    description: 'Permanently reduce training cooldowns by 5% (stackable)',
+    cost: 3000,
+    type: 'permanent',
+    icon: <Zap size={24} className="text-blue-500" />,
+    effect: { multiplier: 'cooldown', decrease: 0.05 },
+    emoji: '⚡'
   }
 ];
 
@@ -119,6 +149,7 @@ export const Shop = () => {
     { id: 'all', name: 'All Items', icon: <Package size={16} />, emoji: '📦' },
     { id: 'consumable', name: 'Consumables', icon: <Star size={16} />, emoji: '✨' },
     { id: 'boost', name: 'Boosts', icon: <Zap size={16} />, emoji: '⚡' },
+    { id: 'permanent', name: 'Permanent', icon: <TrendingUp size={16} />, emoji: '💎' },
     { id: 'special', name: 'Special', icon: <Sparkles size={16} />, emoji: '🌟' }
   ];
 
@@ -143,7 +174,28 @@ export const Shop = () => {
 
     setIsProcessing(true);
     try {
-      success(`${item.name} purchased! Feature coming soon - items will be usable from inventory.`);
+      if (item.type === 'permanent') {
+        const { GameService } = await import('../../services/gameService');
+
+        if (item.effect.multiplier === 'food') {
+          const currentMultiplier = gameStats?.permanentUpgrades?.foodMultiplier || 1;
+          const newMultiplier = currentMultiplier + item.effect.increase;
+          await GameService.purchasePermanentUpgrade(user.id, 'foodMultiplier', newMultiplier, item.cost);
+          success(`${item.name} purchased! Food rewards increased by ${Math.floor(item.effect.increase * 100)}%`);
+        } else if (item.effect.multiplier === 'xp') {
+          const currentMultiplier = gameStats?.permanentUpgrades?.xpMultiplier || 1;
+          const newMultiplier = currentMultiplier + item.effect.increase;
+          await GameService.purchasePermanentUpgrade(user.id, 'xpMultiplier', newMultiplier, item.cost);
+          success(`${item.name} purchased! XP gains increased by ${Math.floor(item.effect.increase * 100)}%`);
+        } else if (item.effect.multiplier === 'cooldown') {
+          const currentMultiplier = gameStats?.permanentUpgrades?.cooldownMultiplier || 1;
+          const newMultiplier = currentMultiplier - item.effect.decrease;
+          await GameService.purchasePermanentUpgrade(user.id, 'cooldownMultiplier', newMultiplier, item.cost);
+          success(`${item.name} purchased! Training cooldowns reduced by ${Math.floor(item.effect.decrease * 100)}%`);
+        }
+      } else {
+        success(`${item.name} purchased! Feature coming soon - items will be usable from inventory.`);
+      }
       await refetch();
     } catch (err) {
       console.error('Purchase error:', err);
