@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Sparkles, Clock, Trash2, Gift, Star, Zap } from 'lucide-react';
+import { Package, Sparkles, Clock, Trash2, Gift, Star, Zap, DollarSign, X } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { InventoryService, InventoryItem, DailyDeal, RareItem } from '../../services/inventoryService';
 import { useGame } from '../../context/GameContext';
 import { GameService } from '../../services/gameService';
+import { MarketplaceService } from '../../services/marketplaceService';
 
 export const Inventory: React.FC = () => {
   const { user } = useAuth();
@@ -17,7 +18,10 @@ export const Inventory: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'inventory' | 'deals' | 'rare'>('inventory');
   const [showUseModal, setShowUseModal] = useState(false);
+  const [showSellModal, setShowSellModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [sellPrice, setSellPrice] = useState<number>(0);
+  const [sellQuantity, setSellQuantity] = useState<number>(1);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -109,6 +113,54 @@ export const Inventory: React.FC = () => {
     } catch (err) {
       console.error('Error deleting item:', err);
       error('Failed to delete item');
+    }
+  };
+
+  const handleSellItem = async (item: InventoryItem) => {
+    setSelectedItem(item);
+    setSellPrice(0);
+    setSellQuantity(1);
+    setShowSellModal(true);
+  };
+
+  const confirmSellItem = async () => {
+    if (!selectedItem || !selectedItem.id || !user?.id) return;
+
+    if (sellPrice <= 0) {
+      error('Please enter a valid price');
+      return;
+    }
+
+    if (sellQuantity <= 0 || sellQuantity > selectedItem.quantity) {
+      error('Please enter a valid quantity');
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      await MarketplaceService.createListing(
+        user.id,
+        selectedItem.id,
+        selectedItem.itemId,
+        selectedItem.itemName,
+        selectedItem.itemType,
+        sellQuantity,
+        sellPrice,
+        selectedItem.effect,
+        selectedItem.metadata
+      );
+
+      success(`${selectedItem.itemName} listed on marketplace for ${sellPrice} Food!`);
+      setShowSellModal(false);
+      setSelectedItem(null);
+      setSellPrice(0);
+      setSellQuantity(1);
+      await loadData();
+    } catch (err: any) {
+      console.error('Error listing item:', err);
+      error(err?.message || 'Failed to list item on marketplace');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -322,23 +374,31 @@ export const Inventory: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-4">
+                    <div className="p-6 space-y-3">
                       <div className="flex gap-2">
                         <Button
                           onClick={() => handleUseItem(item)}
-                          className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-4 py-3 rounded-lg font-inter font-bold"
+                          className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-4 py-2 rounded-lg font-inter font-bold text-sm"
                           disabled={isProcessing}
                         >
-                          <Zap size={18} className="inline mr-2" />
-                          Use Item
+                          <Zap size={16} className="inline mr-1" />
+                          Use
+                        </Button>
+                        <Button
+                          onClick={() => handleSellItem(item)}
+                          className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg font-inter font-bold text-sm"
+                          disabled={isProcessing}
+                        >
+                          <DollarSign size={16} className="inline mr-1" />
+                          Sell
                         </Button>
                         {item.id && (
                           <Button
                             onClick={() => handleDeleteItem(item.id!)}
-                            className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg"
+                            className="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg"
                             disabled={isProcessing}
                           >
-                            <Trash2 size={18} />
+                            <Trash2 size={16} />
                           </Button>
                         )}
                       </div>
@@ -494,6 +554,110 @@ export const Inventory: React.FC = () => {
                   disabled={isProcessing}
                 >
                   {isProcessing ? 'Using...' : 'Use Item'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showSellModal && selectedItem && (
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-purple-500 rounded-2xl max-w-md w-full shadow-2xl my-4 md:my-0 mb-24 md:mb-0">
+            <div className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-inter font-bold text-white">
+                  Sell on Marketplace
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowSellModal(false);
+                    setSelectedItem(null);
+                    setSellPrice(0);
+                    setSellQuantity(1);
+                  }}
+                  className="text-white hover:text-white/80"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="text-center">
+                <div className="text-6xl mb-4">{selectedItem.metadata?.emoji || '📦'}</div>
+                <h3 className="text-xl font-inter font-bold text-white mb-2">
+                  {selectedItem.itemName}
+                </h3>
+                <p className="text-white/90 font-inter text-sm">
+                  Available: {selectedItem.quantity}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                {selectedItem.quantity > 1 && (
+                  <div>
+                    <label className="block text-white font-inter font-bold mb-2">
+                      Quantity to Sell
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max={selectedItem.quantity}
+                      value={sellQuantity}
+                      onChange={(e) => setSellQuantity(parseInt(e.target.value) || 1)}
+                      className="w-full px-4 py-2 rounded-lg font-inter font-bold text-gray-800"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-white font-inter font-bold mb-2">
+                    Price (Food per item)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={sellPrice}
+                    onChange={(e) => setSellPrice(parseInt(e.target.value) || 0)}
+                    className="w-full px-4 py-2 rounded-lg font-inter font-bold text-gray-800"
+                    placeholder="Enter price..."
+                  />
+                </div>
+
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4">
+                  <div className="flex justify-between text-white font-inter mb-2">
+                    <span>Total Sale:</span>
+                    <span className="font-bold">🍖 {sellPrice * sellQuantity}</span>
+                  </div>
+                  <div className="flex justify-between text-white font-inter mb-2">
+                    <span>Marketplace Fee (10%):</span>
+                    <span className="font-bold">🍖 {Math.floor(sellPrice * sellQuantity * 0.1)}</span>
+                  </div>
+                  <div className="border-t border-white/30 pt-2 flex justify-between text-white font-inter">
+                    <span className="font-bold">You will receive:</span>
+                    <span className="font-bold text-yellow-300">🍖 {Math.floor(sellPrice * sellQuantity * 0.9)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => {
+                    setShowSellModal(false);
+                    setSelectedItem(null);
+                    setSellPrice(0);
+                    setSellQuantity(1);
+                  }}
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold border border-white/30 text-sm"
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmSellItem}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm"
+                  disabled={isProcessing || sellPrice <= 0}
+                >
+                  {isProcessing ? 'Listing...' : 'List on Market'}
                 </Button>
               </div>
             </div>
