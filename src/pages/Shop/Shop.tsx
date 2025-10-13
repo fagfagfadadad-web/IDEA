@@ -175,7 +175,6 @@ export const Shop = () => {
     setIsProcessing(true);
     try {
       const { GameService } = await import('../../services/gameService');
-      const { InventoryService } = await import('../../services/inventoryService');
 
       if (item.type === 'permanent') {
         if (item.effect.multiplier === 'food') {
@@ -196,15 +195,6 @@ export const Shop = () => {
         }
       } else if (item.type === 'consumable' || item.type === 'boost' || item.type === 'special') {
         await GameService.purchaseShopItem(user.id, item.id, item.type, item.cost, item.effect);
-
-        await InventoryService.addItemToInventory(
-          user.id,
-          item.id,
-          item.name,
-          item.type,
-          item.effect,
-          { emoji: item.emoji }
-        );
 
         if (item.type === 'consumable' || item.type === 'special') {
           success(`${item.name} purchased! Check your inventory to use it.`);
