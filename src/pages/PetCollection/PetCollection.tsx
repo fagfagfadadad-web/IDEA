@@ -195,21 +195,21 @@ export const PetCollection = () => {
                       </div>
 
                       <div className="grid grid-cols-3 gap-2 text-center">
-                        <div className="bg-gray-100 rounded-lg p-2">
-                          <div className="text-xs text-gray-600 font-inter">Agility</div>
-                          <div className="text-sm font-inter font-bold text-gray-800">
+                        <div className="bg-purple-500 rounded-lg p-2">
+                          <div className="text-xs text-white/80 font-inter">Agility</div>
+                          <div className="text-sm font-inter font-bold text-white">
                             {pet.training.agility}%
                           </div>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-2">
-                          <div className="text-xs text-gray-600 font-inter">Obedience</div>
-                          <div className="text-sm font-inter font-bold text-gray-800">
+                        <div className="bg-purple-500 rounded-lg p-2">
+                          <div className="text-xs text-white/80 font-inter">Obedience</div>
+                          <div className="text-sm font-inter font-bold text-white">
                             {pet.training.obedience}%
                           </div>
                         </div>
-                        <div className="bg-gray-100 rounded-lg p-2">
-                          <div className="text-xs text-gray-600 font-inter">Intelligence</div>
-                          <div className="text-sm font-inter font-bold text-gray-800">
+                        <div className="bg-purple-500 rounded-lg p-2">
+                          <div className="text-xs text-white/80 font-inter">Intelligence</div>
+                          <div className="text-sm font-inter font-bold text-white">
                             {pet.training.intelligence}%
                           </div>
                         </div>
