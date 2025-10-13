@@ -24,6 +24,12 @@ export const PetDetail = () => {
   const [listingPrice, setListingPrice] = useState('');
   const [isUnlisting, setIsUnlisting] = useState(false);
 
+  const getTrainingCost = (currentValue: number): number => {
+    const baseCost = 20;
+    const scalingFactor = 1 + (currentValue / 100) * 3;
+    return Math.floor(baseCost * scalingFactor);
+  };
+
   useEffect(() => {
     if (petId) {
       fetchPet();
@@ -74,7 +80,7 @@ export const PetDetail = () => {
   const handleTrain = async (trainingType: TrainingType) => {
     if (!pet?.id || !user?.id) return;
 
-    const trainingCost = 20;
+    const trainingCost = getTrainingCost(pet.training[trainingType]);
     if ((gameStats?.zenBalance || 0) < trainingCost) {
       error('Not enough Food for training!');
       return;
@@ -91,9 +97,9 @@ export const PetDetail = () => {
           success(`🌟 ${pet.name} evolved to ${result.newStage}!`);
         }, 3000);
       } else if (result.leveled) {
-        success(`Level up! ${pet.name} is now level ${result.newLevel}! -20 Food`);
+        success(`Level up! ${pet.name} is now level ${result.newLevel}! -${trainingCost} Food`);
       } else {
-        success(`Training completed! -20 Food, +30 XP`);
+        success(`Training completed! -${trainingCost} Food, +30 XP`);
       }
 
       await fetchPet();
@@ -318,7 +324,7 @@ export const PetDetail = () => {
                         disabled={isTraining || pet.training.agility >= 100}
                         className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
                       >
-                        Train (20 Food)
+                        Train ({getTrainingCost(pet.training.agility)} Food)
                       </Button>
                     </div>
                   </div>
@@ -343,7 +349,7 @@ export const PetDetail = () => {
                         disabled={isTraining || pet.training.obedience >= 100}
                         className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
                       >
-                        Train (20 Food)
+                        Train ({getTrainingCost(pet.training.obedience)} Food)
                       </Button>
                     </div>
                   </div>
@@ -368,7 +374,7 @@ export const PetDetail = () => {
                         disabled={isTraining || pet.training.intelligence >= 100}
                         className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
                       >
-                        Train (20 Food)
+                        Train ({getTrainingCost(pet.training.intelligence)} Food)
                       </Button>
                     </div>
                   </div>

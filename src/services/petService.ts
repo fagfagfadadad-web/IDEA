@@ -176,7 +176,7 @@ export class PetService {
         currentXP: newCurrentXP,
         totalXP: newTotalXP,
         evolutionStage: newStage,
-        marketValue: this.calculateMarketValue(pet.breedType, newLevel, newStage, pet.isShiny),
+        marketValue: this.calculateMarketValue(pet.breedType, newLevel, newStage, pet.isShiny, pet.training),
         updatedAt: serverTimestamp()
       });
 
@@ -252,18 +252,35 @@ export class PetService {
 
       const pet = petDoc.data() as Pet;
       const currentValue = pet.training[trainingType];
+      const actualCost = this.calculateTrainingCost(currentValue);
       const trainingIncrement = Math.min(5, 100 - currentValue);
+
+      const newTraining = {
+        agility: pet.training.agility,
+        obedience: pet.training.obedience,
+        intelligence: pet.training.intelligence
+      };
+      newTraining[trainingType] = currentValue + trainingIncrement;
+
+      const newMarketValue = this.calculateMarketValue(
+        pet.breedType,
+        pet.level,
+        pet.evolutionStage,
+        pet.isShiny,
+        newTraining
+      );
 
       const batch = writeBatch(db);
 
       batch.update(petRef, {
         [`training.${trainingType}`]: currentValue + trainingIncrement,
         'stats.totalTrainingSessions': pet.stats.totalTrainingSessions + 1,
+        marketValue: newMarketValue,
         updatedAt: serverTimestamp()
       });
 
       batch.update(statsRef, {
-        zenBalance: increment(-trainingCost),
+        zenBalance: increment(-actualCost),
         updatedAt: serverTimestamp()
       });
 
@@ -271,7 +288,7 @@ export class PetService {
 
       const result = await this.addXP(petDocId, XP_SOURCES.training, `${trainingType} training`);
 
-      console.log(`💪 Pet trained in ${trainingType}. New value: ${currentValue + trainingIncrement}. Cost: ${trainingCost} Food`);
+      console.log(`💪 Pet trained in ${trainingType}. New value: ${currentValue + trainingIncrement}. Cost: ${actualCost} Food. New market value: ${newMarketValue}`);
       return result;
     } catch (error) {
       console.error('❌ Error training pet:', error);
@@ -348,14 +365,27 @@ export class PetService {
     breedType: BreedType,
     level: number,
     stage: EvolutionStage,
-    isShiny: boolean
+    isShiny: boolean,
+    training?: { agility: number; obedience: number; intelligence: number }
   ): number {
     const basePrice = BREED_INFO[breedType].basePrice;
     const levelMultiplier = 1 + (level * 0.1);
     const stageMultiplier = stage === 'base' ? 1 : stage === 'evolved' ? 3 : 10;
     const shinyMultiplier = isShiny ? 5 : 1;
 
-    return Math.floor(basePrice * levelMultiplier * stageMultiplier * shinyMultiplier);
+    let trainingMultiplier = 1;
+    if (training) {
+      const avgTraining = (training.agility + training.obedience + training.intelligence) / 3;
+      trainingMultiplier = 1 + (avgTraining / 100) * 2;
+    }
+
+    return Math.floor(basePrice * levelMultiplier * stageMultiplier * shinyMultiplier * trainingMultiplier);
+  }
+
+  static calculateTrainingCost(currentStatValue: number): number {
+    const baseCost = 20;
+    const scalingFactor = 1 + (currentStatValue / 100) * 3;
+    return Math.floor(baseCost * scalingFactor);
   }
 
   static async listPetOnMarket(
