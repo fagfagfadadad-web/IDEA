@@ -51,15 +51,20 @@ export const MarketplaceService = {
     try {
       const q = query(
         collection(db, 'marketplaceListings'),
-        where('status', '==', 'active'),
-        orderBy('createdAt', 'desc')
+        where('status', '==', 'active')
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      const listings = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as MarketplaceListing[];
+
+      return listings.sort((a, b) => {
+        const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return bTime.getTime() - aTime.getTime();
+      });
     } catch (error) {
       console.error('Error getting marketplace listings:', error);
       return [];
@@ -70,17 +75,22 @@ export const MarketplaceService = {
     try {
       const q = query(
         collection(db, 'marketplaceListings'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
+        where('userId', '==', userId)
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs
+      const listings = querySnapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         }) as MarketplaceListing)
         .filter(listing => listing.status === 'active' || listing.status === 'sold');
+
+      return listings.sort((a, b) => {
+        const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return bTime.getTime() - aTime.getTime();
+      });
     } catch (error) {
       console.error('Error getting user listings:', error);
       return [];
@@ -281,17 +291,22 @@ export const MarketplaceService = {
   async getUserTransactions(userId: string): Promise<MarketplaceTransaction[]> {
     try {
       const q = query(
-        collection(db, 'marketplaceTransactions'),
-        orderBy('createdAt', 'desc')
+        collection(db, 'marketplaceTransactions')
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs
+      const transactions = querySnapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
         }) as MarketplaceTransaction)
         .filter(tx => tx.sellerId === userId || tx.buyerId === userId);
+
+      return transactions.sort((a, b) => {
+        const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return bTime.getTime() - aTime.getTime();
+      });
     } catch (error) {
       console.error('Error getting user transactions:', error);
       return [];

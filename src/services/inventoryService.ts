@@ -60,15 +60,20 @@ export const InventoryService = {
       const q = query(
         collection(db, 'inventoryItems'),
         where('userId', '==', userId),
-        where('isUsed', '==', false),
-        orderBy('createdAt', 'desc')
+        where('isUsed', '==', false)
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      const items = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       })) as InventoryItem[];
+
+      return items.sort((a, b) => {
+        const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return bTime.getTime() - aTime.getTime();
+      });
     } catch (error) {
       console.error('Error getting inventory:', error);
       return [];
@@ -164,14 +169,13 @@ export const InventoryService = {
     try {
       const q = query(
         collection(db, 'dailyDeals'),
-        where('isActive', '==', true),
-        orderBy('discountPercentage', 'desc')
+        where('isActive', '==', true)
       );
 
       const querySnapshot = await getDocs(q);
       const now = new Date();
 
-      return querySnapshot.docs
+      const deals = querySnapshot.docs
         .map(doc => ({
           id: doc.id,
           ...doc.data()
@@ -180,6 +184,8 @@ export const InventoryService = {
           const availableUntil = deal.availableUntil?.toDate?.() || new Date(deal.availableUntil);
           return availableUntil > now;
         });
+
+      return deals.sort((a, b) => b.discountPercentage - a.discountPercentage);
     } catch (error) {
       console.error('Error getting daily deals:', error);
       return [];
