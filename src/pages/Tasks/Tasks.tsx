@@ -339,8 +339,16 @@ export const Tasks = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tasks.map((task) => {
                   const userTask = task.userTask;
-                  const canClaim = userTask?.status === 'pending_claim' || (userTask?.status === 'in_progress' && userTask.progress >= 100);
                   const isReferralTask = task.taskType === 'referral';
+
+                  let canClaim = userTask?.status === 'pending_claim' || (userTask?.status === 'in_progress' && userTask.progress >= 100);
+
+                  // Extra validation for referral tasks
+                  if (canClaim && isReferralTask) {
+                    const referralCountRequired = task.requirements?.referralCount || task.referralCountRequired || 0;
+                    const currentTotalReferrals = gameStats?.totalReferrals || 0;
+                    canClaim = currentTotalReferrals >= referralCountRequired;
+                  }
                   
                   return (
                     <div
