@@ -52,11 +52,14 @@ export const Header = () => {
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+              <Link to="/pets" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                My Pets
+              </Link>
+              <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                NFT Market
+              </Link>
               <Link to="/mining" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Feed Dogs
-              </Link>
-              <Link to="/ships" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Dogs
               </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Pet Store
@@ -69,9 +72,6 @@ export const Header = () => {
               </Link>
               <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Friends
-              </Link>
-              <Link to="/leaderboard" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Leaderboard
               </Link>
             </div>
           </div>

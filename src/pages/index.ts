@@ -15,3 +15,6 @@ export * from './PupFiCatcher';
 export * from './MemoryMatch';
 export * from './PupPuzzle';
 export * from './PupRacing';
+export * from './PetCollection';
+export * from './PetDetail';
+export * from './PetMarket';

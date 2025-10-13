@@ -19,6 +19,9 @@ const PupFiCatcher = lazy(() => import('pages').then(module => ({ default: modul
 const MemoryMatch = lazy(() => import('pages').then(module => ({ default: module.MemoryMatch })));
 const PupPuzzle = lazy(() => import('pages').then(module => ({ default: module.PupPuzzle })));
 const PupRacing = lazy(() => import('pages').then(module => ({ default: module.PupRacing })));
+const PetCollection = lazy(() => import('pages').then(module => ({ default: module.PetCollection })));
+const PetDetail = lazy(() => import('pages').then(module => ({ default: module.PetDetail })));
+const PetMarket = lazy(() => import('pages').then(module => ({ default: module.PetMarket })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -113,6 +116,24 @@ export const routes: RouteWithTitleType[] = [
     path: RouteNamesEnum.pupRacing,
     title: 'Pup Racing',
     component: PupRacing,
+    authenticatedRoute: true
+  },
+  {
+    path: '/pets',
+    title: 'My Pets',
+    component: PetCollection,
+    authenticatedRoute: true
+  },
+  {
+    path: '/pets/:petId',
+    title: 'Pet Details',
+    component: PetDetail,
+    authenticatedRoute: true
+  },
+  {
+    path: '/market',
+    title: 'NFT Market',
+    component: PetMarket,
     authenticatedRoute: true
   }
 ];

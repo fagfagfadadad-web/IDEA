@@ -1,0 +1,1 @@
+export { PetDetail } from './PetDetail';
