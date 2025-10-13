@@ -1,19 +1,26 @@
-import React, { useState, useRef } from 'react';
-import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { User, Edit, Save, X, Zap, Trophy, Star, Users, Camera, Heart, Wallet, Store, XCircle } from 'lucide-react';
 import { Button } from 'components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { UserService } from '../../services/userService';
 import { UnlockPanelManager } from 'lib';
+import { PetService } from '../../services/petService';
+import { Pet } from '../../types/pet.types';
 
 export const Profile = () => {
   const { user, refreshUser } = useAuth();
-  const { gameStats, ships } = useGame();
+  const { gameStats } = useGame();
   const { success, error } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLinkingWallet, setIsLinkingWallet] = useState(false);
+  const [listingPet, setListingPet] = useState<string | null>(null);
+  const [listingPrice, setListingPrice] = useState<string>('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [petsLoading, setPetsLoading] = useState(true);
   const [formData, setFormData] = useState({
     username: user?.username || '',
     fullName: user?.fullName || '',
@@ -115,23 +122,66 @@ export const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    if (user?.id) {
+      loadPets();
+    }
+  }, [user?.id]);
+
+  const loadPets = async () => {
+    if (!user?.id) return;
+    try {
+      setPetsLoading(true);
+      const userPets = await PetService.getUserPets(user.id);
+      setPets(userPets);
+    } catch (err) {
+      console.error('Error loading pets:', err);
+    } finally {
+      setPetsLoading(false);
+    }
+  };
+
+  const handleListPet = async (petDocId: string) => {
+    if (!user?.id || !petDocId) return;
+
+    const price = parseFloat(listingPrice);
+    if (isNaN(price) || price <= 0) {
+      error('Please enter a valid price');
+      return;
+    }
+
+    setActionLoading(petDocId);
+    try {
+      await PetService.listPetOnMarket(petDocId, user.id, user.username || 'Unknown', price);
+      await loadPets();
+      success('Pet listed on marketplace!');
+      setListingPet(null);
+      setListingPrice('');
+    } catch (err: any) {
+      console.error('Error listing pet:', err);
+      error(err.message || 'Failed to list pet');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const achievements = [
     {
       title: 'First Pet',
       description: 'Adopt your first pet',
-      unlocked: ships.length > 0,
+      unlocked: pets.length > 0,
       icon: '🐕'
     },
     {
       title: 'Pet Lover',
       description: 'Own 3 or more pets',
-      unlocked: ships.length >= 3,
+      unlocked: pets.length >= 3,
       icon: '🐾'
     },
     {
       title: 'Pet Collector',
       description: 'Own 10 or more pets',
-      unlocked: ships.length >= 10,
+      unlocked: pets.length >= 10,
       icon: '🏆'
     },
     {
@@ -360,7 +410,7 @@ export const Profile = () => {
                   <span className="text-gray-600 font-medium font-inter">Total Pets</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-inter font-bold text-primary-600">
-                  {ships.length}
+                  {pets.length}
                 </div>
               </div>
               <div className="text-center">
@@ -415,7 +465,12 @@ export const Profile = () => {
           {/* My Pets Overview */}
           <div className="cute-card p-6">
             <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">My Pets</h2>
-            {ships.length === 0 ? (
+            {petsLoading ? (
+              <div className="text-center py-8">
+                <div className="text-gray-400 text-4xl mb-2">⏳</div>
+                <p className="text-gray-500 font-inter">Loading pets...</p>
+              </div>
+            ) : pets.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-gray-500 text-6xl mb-4">🐕</div>
                 <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">No Pets Yet</h3>
@@ -423,29 +478,73 @@ export const Profile = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {ships.map((ship) => (
+                {pets.map((pet) => (
                   <div
-                    key={ship.id}
+                    key={pet.id}
                     className="rounded-lg p-4 border-2 border-primary-400"
                     style={{ background: '#7C3AED' }}
                   >
-                    <h3 className="text-white font-inter font-bold mb-2">{ship.name}</h3>
-                    <div className="space-y-2 text-sm">
+                    <h3 className="text-white font-inter font-bold mb-2">{pet.name}</h3>
+                    <div className="space-y-2 text-sm mb-3">
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Rarity:</span>
-                        <span className="text-white font-bold font-inter">Level {ship.level}</span>
+                        <span className="text-white/90 font-inter">Level:</span>
+                        <span className="text-white font-bold font-inter">{pet.level}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Power:</span>
-                        <span className="text-secondary-400 font-bold font-inter">{ship.miningPower}</span>
+                        <span className="text-white/90 font-inter">Breed:</span>
+                        <span className="text-secondary-400 font-bold font-inter">{pet.breedType}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Status:</span>
+                        <span className="text-white/90 font-inter">Stage:</span>
                         <span className="text-secondary-400 font-bold font-inter">
-                          {ship.currentEnergy}/{ship.energyCapacity} Energy
+                          {pet.evolutionStage}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/90 font-inter">Value:</span>
+                        <span className="text-yellow-400 font-bold font-inter">
+                          {pet.marketValue?.toLocaleString() || 0}
                         </span>
                       </div>
                     </div>
+
+                    {listingPet === pet.id ? (
+                      <div className="space-y-2">
+                        <input
+                          type="number"
+                          value={listingPrice}
+                          onChange={(e) => setListingPrice(e.target.value)}
+                          placeholder="Enter price"
+                          className="w-full px-3 py-2 rounded-lg text-gray-800 text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => pet.id && handleListPet(pet.id)}
+                            disabled={actionLoading === pet.id}
+                            className="flex-1 py-2 px-3 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                          >
+                            {actionLoading === pet.id ? 'Listing...' : 'Confirm'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setListingPet(null);
+                              setListingPrice('');
+                            }}
+                            className="flex-1 py-2 px-3 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => pet.id && setListingPet(pet.id)}
+                        className="w-full py-2 px-3 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Store size={16} />
+                        List on Market
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

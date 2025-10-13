@@ -12,6 +12,7 @@ interface GameContextType {
   upgradeShip: (shipId: string, upgradeType: string) => Promise<void>;
   buyShip: (shipType: string) => Promise<void>;
   refetch: () => Promise<void>;
+  refreshShips: () => Promise<void>;
   isMining: boolean;
 }
 
@@ -24,6 +25,7 @@ const GameContext = createContext<GameContextType>({
   upgradeShip: async () => {},
   buyShip: async () => {},
   refetch: async () => {},
+  refreshShips: async () => {},
   isMining: false,
 });
 
@@ -618,6 +620,25 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refetch = fetchGameData;
 
+  const refreshShips = async () => {
+    if (!user?.id) return;
+    try {
+      const userShips = await GameService.getUserShips(user.id);
+      const mappedShips = userShips.map(ship => ({
+        ...ship,
+        current_energy: ship.currentEnergy || ship.energyCapacity || 100,
+        energy_capacity: ship.energyCapacity || 100,
+        mining_power: ship.miningPower || 10,
+        last_mining: ship.lastMining || new Date(),
+        ship_type: ship.shipType || 'basic'
+      }));
+      setShips(mappedShips);
+      dataCache.current.ships = mappedShips;
+    } catch (error) {
+      console.error('Error refreshing ships:', error);
+    }
+  };
+
   const value = {
     gameStats,
     ships,
@@ -627,6 +648,7 @@ export const GameProvider = ({ children }: { children: React.ReactNode }) => {
     upgradeShip,
     buyShip,
     refetch,
+    refreshShips,
     isMining
   };
 
