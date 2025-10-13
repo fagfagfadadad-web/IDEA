@@ -37,7 +37,7 @@ export class PetService {
       const personalities = ['playful', 'calm', 'energetic', 'loyal'];
       const randomPersonality = personalities[Math.floor(Math.random() * personalities.length)];
 
-      const petData: Omit<Pet, 'id'> = {
+      const petData: any = {
         userId,
         petId: `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         breedType,
@@ -59,14 +59,17 @@ export class PetService {
           totalTrainingSessions: 0
         },
         isShiny,
-        shinyVariant: isShiny ? (Math.random() > 0.5 ? 'golden' : 'silver') : undefined,
-        personality: randomPersonality as any,
+        personality: randomPersonality,
         marketValue: BREED_INFO[breedType].basePrice,
         isListed: false,
-        adoptedAt: serverTimestamp() as Timestamp,
-        createdAt: serverTimestamp() as Timestamp,
-        updatedAt: serverTimestamp() as Timestamp
+        adoptedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       };
+
+      if (isShiny) {
+        petData.shinyVariant = Math.random() > 0.5 ? 'golden' : 'silver';
+      }
 
       const docRef = await addDoc(collection(db, 'pets'), petData);
 
@@ -91,15 +94,16 @@ export class PetService {
       const q = query(
         collection(db, 'pets'),
         where('userId', '==', userId),
-        where('isListed', '==', false),
-        orderBy('level', 'desc')
+        where('isListed', '==', false)
       );
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      const pets = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       } as Pet));
+
+      return pets.sort((a, b) => b.level - a.level);
     } catch (error) {
       console.error('❌ Error fetching user pets:', error);
       return [];
