@@ -174,11 +174,11 @@ export const PetDetail = () => {
   const multipliers = EVOLUTION_MULTIPLIERS[pet.evolutionStage];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 pb-24 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 pb-24 md:pb-8">
       <div className="container mx-auto px-6 py-8">
         <Button
           onClick={() => navigate('/pets')}
-          className="mb-6 bg-white hover:bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
+          className="mb-6 bg-white/90 hover:bg-white text-purple-800 px-4 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
         >
           <ArrowLeft size={20} />
           Back to Collection
@@ -187,7 +187,7 @@ export const PetDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="cute-card overflow-hidden">
-              <div className="bg-gradient-to-br from-[#f97316] to-[#fb923c] p-8 relative">
+              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-8 relative">
                 {showEvolutionAnimation && (
                   <div className="absolute inset-0 bg-yellow-400 animate-pulse flex items-center justify-center z-10">
                     <div className="text-center text-white">
@@ -292,7 +292,7 @@ export const PetDetail = () => {
 
             <div className="cute-card p-6">
               <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6 flex items-center gap-2">
-                <Dumbbell size={24} className="text-orange-500" />
+                <Dumbbell size={24} className="text-purple-500" />
                 Training Stats
               </h2>
 
@@ -300,7 +300,7 @@ export const PetDetail = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Target size={20} className="text-blue-500" />
+                      <Target size={20} className="text-purple-500" />
                       <span className="font-inter font-bold text-gray-700">Agility</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export const PetDetail = () => {
                       <Button
                         onClick={() => handleTrain('agility')}
                         disabled={isTraining || pet.training.agility >= 100}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
+                        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
                       >
                         Train (20 Food)
                       </Button>
@@ -316,7 +316,7 @@ export const PetDetail = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-blue-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-purple-500 transition-all duration-300"
                       style={{ width: `${pet.training.agility}%` }}
                     />
                   </div>
@@ -325,7 +325,7 @@ export const PetDetail = () => {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <Star size={20} className="text-green-500" />
+                      <Star size={20} className="text-purple-500" />
                       <span className="font-inter font-bold text-gray-700">Obedience</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -333,7 +333,7 @@ export const PetDetail = () => {
                       <Button
                         onClick={() => handleTrain('obedience')}
                         disabled={isTraining || pet.training.obedience >= 100}
-                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
+                        className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-1 rounded-lg text-sm font-inter font-bold disabled:opacity-50"
                       >
                         Train (20 Food)
                       </Button>
@@ -341,7 +341,7 @@ export const PetDetail = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-green-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-purple-500 transition-all duration-300"
                       style={{ width: `${pet.training.obedience}%` }}
                     />
                   </div>
@@ -384,7 +384,7 @@ export const PetDetail = () => {
                 <Button
                   onClick={handleFeed}
                   disabled={isFeeding}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
                 >
                   <Utensils size={20} />
                   Feed (10 Food)
@@ -401,7 +401,7 @@ export const PetDetail = () => {
                 ) : (
                   <Button
                     onClick={() => setShowListModal(true)}
-                    className="w-full bg-gradient-to-r from-[#7C3AED] to-[#6b21a8] hover:from-[#6b21a8] hover:to-[#581c87] text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={20} />
                     Sell on Market
@@ -437,7 +437,7 @@ export const PetDetail = () => {
 
             <div className="cute-card p-6">
               <h2 className="text-xl font-inter font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <TrendingUp size={20} className="text-orange-500" />
+                <TrendingUp size={20} className="text-purple-500" />
                 Multipliers
               </h2>
               <div className="space-y-2 text-sm font-inter">
@@ -460,7 +460,7 @@ export const PetDetail = () => {
               <h2 className="text-xl font-inter font-bold text-gray-800 mb-2">
                 Market Value
               </h2>
-              <div className="text-3xl font-inter font-bold text-orange-600">
+              <div className="text-3xl font-inter font-bold text-purple-600">
                 🍖 {pet.marketValue.toLocaleString()}
               </div>
               <p className="text-xs text-gray-500 font-inter mt-2">
@@ -505,7 +505,7 @@ export const PetDetail = () => {
               </Button>
               <Button
                 onClick={handleListOnMarket}
-                className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-4 py-2 rounded-lg font-inter font-bold"
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold"
               >
                 List Pet
               </Button>
