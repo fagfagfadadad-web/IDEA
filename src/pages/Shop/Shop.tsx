@@ -175,6 +175,7 @@ export const Shop = () => {
     setIsProcessing(true);
     try {
       const { GameService } = await import('../../services/gameService');
+      const { InventoryService } = await import('../../services/inventoryService');
 
       if (item.type === 'permanent') {
         if (item.effect.multiplier === 'food') {
@@ -195,6 +196,15 @@ export const Shop = () => {
         }
       } else if (item.type === 'consumable' || item.type === 'boost' || item.type === 'special') {
         await GameService.purchaseShopItem(user.id, item.id, item.type, item.cost, item.effect);
+
+        await InventoryService.addItemToInventory(
+          user.id,
+          item.id,
+          item.name,
+          item.type,
+          item.effect,
+          { emoji: item.emoji }
+        );
 
         if (item.type === 'consumable' || item.type === 'special') {
           success(`${item.name} purchased! Check your inventory to use it.`);
@@ -304,31 +314,6 @@ export const Shop = () => {
                 </div>
               );
             })}
-          </div>
-
-          <div className="cute-card p-6">
-            <h3 className="text-xl font-inter font-bold text-gray-800 mb-4 flex items-center gap-2">
-              <Sparkles className="text-purple-500" size={24} />
-              Coming Soon
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700 font-inter">
-              <div className="bg-purple-50 rounded-lg p-4">
-                <div className="font-bold text-purple-800 mb-2">🎒 Inventory System</div>
-                <div className="text-sm">Store and manage your purchased items</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-4">
-                <div className="font-bold text-blue-800 mb-2">🎯 Item Application</div>
-                <div className="text-sm">Use items directly on your pets from inventory</div>
-              </div>
-              <div className="bg-green-50 rounded-lg p-4">
-                <div className="font-bold text-green-800 mb-2">🎁 Daily Deals</div>
-                <div className="text-sm">Special discounted items that refresh daily</div>
-              </div>
-              <div className="bg-pink-50 rounded-lg p-4">
-                <div className="font-bold text-pink-800 mb-2">🌟 Rare Items</div>
-                <div className="text-sm">Limited edition items with unique effects</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
