@@ -196,27 +196,30 @@ export const Shop = () => {
         }
       } else if (item.type === 'consumable' || item.type === 'boost' || item.type === 'special') {
         await GameService.purchaseShopItem(user.id, item.id, item.type, item.cost, item.effect);
-
-        if (item.type === 'consumable' || item.type === 'special') {
-          await InventoryService.addItemToInventory(
-            user.id,
-            item.id,
-            item.name,
-            item.type,
-            item.effect,
-            { emoji: item.emoji }
-          );
-          success(`${item.name} purchased! Check your inventory to use it.`);
-        } else if (item.type === 'boost') {
-          success(`${item.name} activated! Boost is now active.`);
-        }
+        await InventoryService.addItemToInventory(
+          user.id,
+          item.id,
+          item.name,
+          item.type,
+          item.effect,
+          { emoji: item.emoji }
+        );
+        success(`${item.name} added to inventory! Go to Inventory to activate it.`);
       } else {
         success(`${item.name} purchased!`);
       }
       await refetch();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Purchase error:', err);
-      error('Purchase failed. Please try again.');
+      const errorMessage = err?.message || 'Purchase failed. Please try again.';
+
+      if (errorMessage.includes('Insufficient')) {
+        error('Not enough Food! Earn more by feeding and playing with your pets.');
+      } else if (errorMessage.includes('active')) {
+        error(errorMessage);
+      } else {
+        error('Purchase failed. Please try again.');
+      }
     } finally {
       setIsProcessing(false);
     }

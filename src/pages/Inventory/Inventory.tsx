@@ -46,6 +46,19 @@ export const Inventory: React.FC = () => {
   };
 
   const handleUseItem = async (item: InventoryItem) => {
+    if (item.itemType === 'boost') {
+      const activeBoosts = gameStats?.activeBoosts || [];
+      const hasActiveBoost = activeBoosts.some(boost => {
+        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+        return expiresAt > new Date();
+      });
+
+      if (hasActiveBoost) {
+        error('You already have an active boost! Please wait for it to expire before activating another one.');
+        return;
+      }
+    }
+
     setSelectedItem(item);
     setShowUseModal(true);
   };
@@ -57,10 +70,18 @@ export const Inventory: React.FC = () => {
     try {
       await InventoryService.useInventoryItem(selectedItem.id, user.id);
 
-      if (selectedItem.effect?.xp) {
-        success(`Used ${selectedItem.itemName}! XP boost applied.`);
-      } else if (selectedItem.effect?.xp_multiplier) {
+      if (selectedItem.itemType === 'boost') {
+        const expiresAt = new Date(Date.now() + selectedItem.effect.duration * 1000);
+        await GameService.activateBoost(
+          user.id,
+          selectedItem.effect.type || 'experience',
+          selectedItem.effect.xp_multiplier || selectedItem.effect.training_boost || selectedItem.effect.food_per_hour || 2,
+          selectedItem.effect.duration,
+          0
+        );
         success(`Activated ${selectedItem.itemName}! Boost is now active.`);
+      } else if (selectedItem.effect?.xp) {
+        success(`Used ${selectedItem.itemName}! You can now apply ${selectedItem.effect.xp} XP to a pet.`);
       } else {
         success(`Used ${selectedItem.itemName}!`);
       }
@@ -69,9 +90,10 @@ export const Inventory: React.FC = () => {
       setSelectedItem(null);
       await loadData();
       await refetch();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error using item:', err);
-      error('Failed to use item');
+      const errorMessage = err?.message || 'Failed to use item';
+      error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -234,8 +256,42 @@ export const Inventory: React.FC = () => {
           </div>
 
           {selectedTab === 'inventory' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {inventory.length === 0 ? (
+            <>
+              {gameStats?.activeBoosts && gameStats.activeBoosts.length > 0 && (
+                <div className="cute-card p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Zap size={24} className="text-orange-500" />
+                    <h2 className="text-xl font-inter font-bold text-gray-800">Active Boosts</h2>
+                  </div>
+                  <div className="space-y-3">
+                    {gameStats.activeBoosts.filter(boost => {
+                      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+                      return expiresAt > new Date();
+                    }).map((boost, idx) => {
+                      const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
+                      const timeLeft = Math.max(0, expiresAt.getTime() - new Date().getTime());
+                      const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+                      const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+                      return (
+                        <div key={idx} className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-lg p-4 flex items-center justify-between">
+                          <div>
+                            <div className="font-inter font-bold text-gray-800 capitalize">{boost.type} Boost</div>
+                            <div className="text-sm text-gray-600 font-inter">{boost.multiplier}x multiplier</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-orange-600 font-inter font-bold">{hoursLeft}h {minutesLeft}m</div>
+                            <div className="text-xs text-gray-500 font-inter">remaining</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {inventory.length === 0 ? (
                 <div className="col-span-full cute-card p-12 text-center">
                   <Package size={64} className="mx-auto text-gray-400 mb-4" />
                   <h3 className="text-xl font-inter font-bold text-gray-800 mb-2">
@@ -290,7 +346,8 @@ export const Inventory: React.FC = () => {
                   </div>
                 ))
               )}
-            </div>
+              </div>
+            </>
           )}
 
           {selectedTab === 'deals' && (

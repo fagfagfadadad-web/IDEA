@@ -686,7 +686,7 @@ export class GameService {
     });
 
     if (hasActiveBoostOfType) {
-      throw new Error(`You already have an active ${boostType} boost! Wait for it to expire before purchasing another.`);
+      throw new Error(`You already have an active ${boostType} boost! Please wait for it to expire before activating another one.`);
     }
 
     const expiresAt = new Date(now.getTime() + duration * 1000);
@@ -1216,14 +1216,7 @@ export class GameService {
       updatedAt: serverTimestamp()
     });
 
-    if (itemType === 'consumable' || itemType === 'special') {
-      await this.addToInventory(userId, itemId);
-    } else if (itemType === 'boost') {
-      const expiresAt = new Date(Date.now() + effect.duration * 1000);
-      await this.activateBoost(userId, effect.type || 'experience', effect.xp_multiplier || effect.training_boost || 2, effect.duration, 0);
-    }
-
-    console.log(`🛒 Purchased ${itemId} for ${cost} Food`);
+    console.log(`🛒 Purchased ${itemId} for ${cost} Food - Item will be added to inventory`);
   }
 
   static async awardRandomLevelUpItem(userId: string, level: number): Promise<{ itemId: string; itemName: string; rarity: string } | null> {
