@@ -23,6 +23,7 @@ const PetCollection = lazy(() => import('pages').then(module => ({ default: modu
 const PetDetail = lazy(() => import('pages').then(module => ({ default: module.PetDetail })));
 const PetMarket = lazy(() => import('pages').then(module => ({ default: module.PetMarket })));
 const Inventory = lazy(() => import('pages').then(module => ({ default: module.Inventory })));
+const Marketplace = lazy(() => import('pages').then(module => ({ default: module.Marketplace })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -141,6 +142,12 @@ export const routes: RouteWithTitleType[] = [
     path: '/inventory',
     title: 'Inventory',
     component: Inventory,
+    authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.marketplace,
+    title: 'Marketplace',
+    component: Marketplace,
     authenticatedRoute: true
   }
 ];

@@ -32,9 +32,9 @@ export const MobileBottomNav = () => {
       color: 'from-purple-400 to-purple-600'
     },
     {
-      path: RouteNamesEnum.tasks,
-      icon: '🎯',
-      label: 'Tasks',
+      path: RouteNamesEnum.marketplace,
+      icon: '🛒',
+      label: 'Market',
       color: 'from-green-400 to-green-600'
     },
     {

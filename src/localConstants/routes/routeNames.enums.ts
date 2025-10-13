@@ -13,5 +13,6 @@ export enum RouteNamesEnum {
   pupfiCatcher = '/game/pupfi-catcher',
   memoryMatch = '/game/memory-match',
   pupPuzzle = '/game/puzzle',
-  pupRacing = '/game/racing'
+  pupRacing = '/game/racing',
+  marketplace = '/marketplace'
 }

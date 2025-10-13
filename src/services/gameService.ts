@@ -317,7 +317,7 @@ export class GameService {
   }
 
   // Mining
-  static async performMining(userId: string, shipId: string): Promise<{ zenMined: number; newLevel?: number }> {
+  static async performMining(userId: string, shipId: string): Promise<{ zenMined: number; newLevel?: number; levelUpReward?: any }> {
     const batch = writeBatch(db);
     
     // Get ship and game stats
@@ -412,7 +412,7 @@ export class GameService {
         where('referralCode', '==', stats.referredBy),
         limit(1)
       );
-      
+
       const referrerSnap = await getDocs(referrerQuery);
       if (!referrerSnap.empty) {
         const referrerDoc = referrerSnap.docs[0];
@@ -436,7 +436,12 @@ export class GameService {
 
     await batch.commit();
 
-    return { zenMined, newLevel: leveledUp ? newLevel : undefined };
+    let levelUpReward: any = undefined;
+    if (leveledUp) {
+      levelUpReward = await this.awardRandomLevelUpItem(userId, newLevel);
+    }
+
+    return { zenMined, newLevel: leveledUp ? newLevel : undefined, levelUpReward };
   }
 
   // Tasks
@@ -1219,6 +1224,79 @@ export class GameService {
     }
 
     console.log(`🛒 Purchased ${itemId} for ${cost} Food`);
+  }
+
+  static async awardRandomLevelUpItem(userId: string, level: number): Promise<{ itemId: string; itemName: string; rarity: string } | null> {
+    const randomChance = Math.random();
+
+    const levelUpItemPool = [
+      { id: 'level_up_food_small', name: '🍖 Food Treat (50)', rarity: 'common', chance: 0.4, reward: { type: 'food', amount: 50 } },
+      { id: 'level_up_food_medium', name: '🍖 Food Pack (150)', rarity: 'uncommon', chance: 0.25, reward: { type: 'food', amount: 150 } },
+      { id: 'level_up_xp_boost', name: '✨ XP Boost', rarity: 'rare', chance: 0.15, reward: { type: 'item', itemId: 'xp_boost_small' } },
+      { id: 'level_up_ticket', name: '🎫 Bonus Tickets (3)', rarity: 'rare', chance: 0.1, reward: { type: 'tickets', amount: 3 } },
+      { id: 'level_up_training_manual', name: '📚 Training Manual', rarity: 'epic', chance: 0.07, reward: { type: 'item', itemId: 'training_boost' } },
+      { id: 'level_up_shiny_charm', name: '🍀 Shiny Charm', rarity: 'legendary', chance: 0.03, reward: { type: 'item', itemId: 'shiny_charm' } }
+    ];
+
+    let cumulativeChance = 0;
+    let selectedReward = null;
+
+    for (const item of levelUpItemPool) {
+      cumulativeChance += item.chance;
+      if (randomChance <= cumulativeChance) {
+        selectedReward = item;
+        break;
+      }
+    }
+
+    if (!selectedReward) {
+      selectedReward = levelUpItemPool[0];
+    }
+
+    const statsRef = doc(db, 'gameStats', userId);
+
+    if (selectedReward.reward.type === 'food') {
+      await updateDoc(statsRef, {
+        zenBalance: increment(selectedReward.reward.amount || 0),
+        updatedAt: serverTimestamp()
+      });
+      console.log(`🎁 Level up reward: ${selectedReward.name} (+${selectedReward.reward.amount} Food)`);
+    } else if (selectedReward.reward.type === 'tickets') {
+      await updateDoc(statsRef, {
+        gameTickets: increment(selectedReward.reward.amount || 0),
+        updatedAt: serverTimestamp()
+      });
+      console.log(`🎁 Level up reward: ${selectedReward.name} (+${selectedReward.reward.amount} tickets)`);
+    } else if (selectedReward.reward.type === 'item') {
+      const { supabase } = await import('../lib/supabase');
+      if (supabase && selectedReward.reward.itemId) {
+        const itemData: Record<string, any> = {
+          xp_boost_small: { name: 'XP Treat', effect: { xp: 100 }, emoji: '✨' },
+          training_boost: { name: 'Training Manual', effect: { training: 10 }, emoji: '📚' },
+          shiny_charm: { name: 'Shiny Charm', effect: { shiny_chance: 0.1 }, emoji: '🍀' }
+        };
+
+        const itemInfo = itemData[selectedReward.reward.itemId];
+        if (itemInfo) {
+          await supabase.from('inventory_items').insert({
+            user_id: userId,
+            item_id: selectedReward.reward.itemId,
+            item_name: itemInfo.name,
+            item_type: 'consumable',
+            quantity: 1,
+            effect: itemInfo.effect,
+            metadata: { emoji: itemInfo.emoji, source: 'level_up' }
+          });
+          console.log(`🎁 Level up reward: ${selectedReward.name} (added to inventory)`);
+        }
+      }
+    }
+
+    return {
+      itemId: selectedReward.id,
+      itemName: selectedReward.name,
+      rarity: selectedReward.rarity
+    };
   }
 }
 
