@@ -154,14 +154,14 @@ export const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 pb-24 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-teal-300 to-green-300 pb-24 md:pb-8">
       <div className="container mx-auto px-6 py-8">
         <div className="space-y-8">
           <div className="text-center space-y-4">
             <h1 className="title-responsive font-inter font-bold gradient-text">
               Pet Evolution Store
             </h1>
-            <p className="text-gray-700 text-lg font-inter">
+            <p className="text-gray-800 text-lg font-inter font-semibold">
               Boost your pets with XP items, training tools, and special evolution items
             </p>
             <div className="flex items-center justify-center gap-2 text-primary-600 font-inter font-bold text-xl">
