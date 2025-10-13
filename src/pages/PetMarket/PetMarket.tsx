@@ -182,18 +182,18 @@ export const PetMarket = () => {
           <div className="cute-card p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white" size={20} />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by breed or seller..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-inter"
+                  className="w-full pl-10 pr-4 py-2 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-inter placeholder:text-white"
                 />
               </div>
               <Button
                 onClick={() => setShowFilters(!showFilters)}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
+                className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-inter font-bold flex items-center gap-2"
               >
                 <Filter size={20} />
                 Filters
