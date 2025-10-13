@@ -811,6 +811,79 @@ export class GameService {
     });
   }
 
+  // Sync referral task progress based on current totalReferrals count
+  static async syncReferralTasksProgress(userId: string, totalReferrals: number): Promise<void> {
+    try {
+      console.log('🔄 GameService: Syncing referral tasks progress for user:', userId, 'totalReferrals:', totalReferrals);
+
+      // Get all in_progress user tasks for this user
+      const userTasksQuery = query(
+        collection(db, 'userTasks'),
+        where('userId', '==', userId),
+        where('status', '==', 'in_progress')
+      );
+
+      const userTasksSnapshot = await getDocs(userTasksQuery);
+
+      if (userTasksSnapshot.empty) {
+        console.log('ℹ️ GameService: No in_progress tasks found for user');
+        return;
+      }
+
+      const batch = writeBatch(db);
+      let updatedCount = 0;
+
+      // Process each user task
+      for (const userTaskDoc of userTasksSnapshot.docs) {
+        const userTask = userTaskDoc.data();
+        const taskId = userTask.taskId;
+
+        // Get the task details
+        const taskDoc = await getDoc(doc(db, 'tasks', taskId));
+        if (!taskDoc.exists()) continue;
+
+        const task = taskDoc.data() as Task;
+
+        // Only process referral tasks
+        if (task.taskType !== 'referral') continue;
+
+        // Get referral requirement from task
+        const referralCountRequired = task.requirements?.referralCount || task.referralCountRequired || 0;
+
+        if (referralCountRequired === 0) continue;
+
+        // Calculate progress percentage
+        const progressPercentage = Math.min(Math.floor((totalReferrals / referralCountRequired) * 100), 100);
+
+        // Check if task should be marked as ready to claim
+        const shouldBePendingClaim = totalReferrals >= referralCountRequired;
+
+        const updateData: any = {
+          progress: progressPercentage
+        };
+
+        if (shouldBePendingClaim && userTask.status !== 'pending_claim') {
+          updateData.status = 'pending_claim';
+          console.log(`✅ GameService: Task "${task.title}" is now ready to claim! (${totalReferrals}/${referralCountRequired} friends)`);
+        }
+
+        batch.update(doc(db, 'userTasks', userTaskDoc.id), updateData);
+        updatedCount++;
+
+        console.log(`📊 GameService: Updated task "${task.title}" progress: ${progressPercentage}% (${totalReferrals}/${referralCountRequired} friends)`);
+      }
+
+      if (updatedCount > 0) {
+        await batch.commit();
+        console.log(`✅ GameService: Successfully synced ${updatedCount} referral task(s)`);
+      } else {
+        console.log('ℹ️ GameService: No referral tasks to sync');
+      }
+    } catch (error) {
+      console.error('❌ GameService: Error syncing referral tasks:', error);
+    }
+  }
+
   // Referral functions
   static async processReferral(referralCode: string, newUserId: string): Promise<void> {
     // Find the referrer by referral code
@@ -857,6 +930,14 @@ export class GameService {
     });
 
     console.log('✅ GameService: Referral bonus awarded:', referralBonus, 'Food to both users');
+
+    // Get updated referrer stats to sync referral tasks
+    const updatedReferrerDoc = await getDoc(doc(db, 'gameStats', referrerId));
+    if (updatedReferrerDoc.exists()) {
+      const updatedStats = updatedReferrerDoc.data() as GameStats;
+      // Sync referral task progress with new totalReferrals count
+      await this.syncReferralTasksProgress(referrerId, updatedStats.totalReferrals);
+    }
   }
 
   // Game Tickets Management

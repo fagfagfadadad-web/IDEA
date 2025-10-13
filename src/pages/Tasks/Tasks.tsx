@@ -49,10 +49,15 @@ export const Tasks = () => {
   const fetchTasks = async () => {
     try {
       setIsLoading(true);
-      
+
+      // Sync referral task progress before fetching
+      if (user?.id && gameStats?.totalReferrals !== undefined) {
+        await GameService.syncReferralTasksProgress(user.id, gameStats.totalReferrals);
+      }
+
       // Get all active tasks
       const activeTasks = await GameService.getTasks();
-      
+
       // Get user task progress
       const userTasksQuery = query(
         collection(db, 'userTasks'),
@@ -90,15 +95,42 @@ export const Tasks = () => {
     try {
       const isReferralTask = task.taskType === 'referral';
 
+      let initialProgress = isReferralTask ? 0 : 100;
+      let initialStatus = isReferralTask ? 'in_progress' : 'pending_claim';
+
+      if (isReferralTask) {
+        const referralCountRequired = task.requirements?.referralCount || task.referralCountRequired || 0;
+        const currentTotalReferrals = gameStats?.totalReferrals || 0;
+
+        if (referralCountRequired > 0) {
+          initialProgress = Math.min(Math.floor((currentTotalReferrals / referralCountRequired) * 100), 100);
+
+          if (currentTotalReferrals >= referralCountRequired) {
+            initialStatus = 'pending_claim';
+            initialProgress = 100;
+            console.log(`✅ Task already completed! User has ${currentTotalReferrals}/${referralCountRequired} friends`);
+          } else {
+            console.log(`📊 Task started with progress: ${currentTotalReferrals}/${referralCountRequired} friends (${initialProgress}%)`);
+          }
+        }
+      }
+
       await addDoc(collection(db, 'userTasks'), {
         taskId,
         userId: user?.id,
-        status: isReferralTask ? 'in_progress' : 'pending_claim',
-        progress: isReferralTask ? 0 : 100,
+        status: initialStatus,
+        progress: initialProgress,
         createdAt: serverTimestamp()
       });
 
-      success(isReferralTask ? 'Task started!' : 'Task ready to claim!');
+      if (isReferralTask && initialStatus === 'pending_claim') {
+        success('Task completed! You can claim your reward now!');
+      } else if (isReferralTask) {
+        success('Task started! Invite friends to earn rewards!');
+      } else {
+        success('Task ready to claim!');
+      }
+
       fetchTasks();
     } catch (err) {
       console.error('Error starting task:', err);
@@ -106,7 +138,7 @@ export const Tasks = () => {
     }
   };
 
-  const completeTask = async (userTaskId: string, rewardAmount: number, ticketReward?: number, proofUrl?: string) => {
+  const completeTask = async (userTaskId: string, rewardAmount: number, ticketReward?: number, proofUrl?: string, taskToValidate?: TaskWithProgress) => {
     try {
       if (!user?.id) {
         console.error('❌ No user ID found');
@@ -120,6 +152,21 @@ export const Tasks = () => {
         userId: user.id,
         proofUrl
       });
+
+      // Validate referral task requirements before claiming
+      if (taskToValidate && taskToValidate.taskType === 'referral') {
+        const referralCountRequired = taskToValidate.requirements?.referralCount || taskToValidate.referralCountRequired || 0;
+        const currentTotalReferrals = gameStats?.totalReferrals || 0;
+
+        if (currentTotalReferrals < referralCountRequired) {
+          const remaining = referralCountRequired - currentTotalReferrals;
+          error(`You need ${remaining} more friend${remaining > 1 ? 's' : ''}! Currently ${currentTotalReferrals}/${referralCountRequired} friends invited.`);
+          console.error(`❌ Validation failed: ${currentTotalReferrals}/${referralCountRequired} friends`);
+          return;
+        }
+
+        console.log(`✅ Validation passed: ${currentTotalReferrals}/${referralCountRequired} friends`);
+      }
 
       // Mark task as completed
       const userTaskRef = doc(db, 'userTasks', userTaskId);
@@ -198,7 +245,7 @@ export const Tasks = () => {
 
     // If task doesn't require proof, claim immediately
     if (!task.requiresProof || task.proofType === 'none' || task.taskType === 'referral') {
-      await completeTask(userTask.id, task.rewardAmount, task.ticketReward);
+      await completeTask(userTask.id, task.rewardAmount, task.ticketReward, undefined, task);
       return;
     }
 
@@ -217,7 +264,7 @@ export const Tasks = () => {
     const userTask = currentClaimTask.userTask;
     if (!userTask) return;
 
-    await completeTask(userTask.id, currentClaimTask.rewardAmount, currentClaimTask.ticketReward, proofUrl);
+    await completeTask(userTask.id, currentClaimTask.rewardAmount, currentClaimTask.ticketReward, proofUrl, currentClaimTask);
     setShowProofModal(false);
     setProofUrl('');
     setCurrentClaimTask(null);
@@ -358,8 +405,10 @@ export const Tasks = () => {
                         {userTask?.status === 'in_progress' && isReferralTask && (
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-white/80 text-sm font-inter">Progress</span>
-                              <span className="text-white text-sm font-inter">{userTask.progress}%</span>
+                              <span className="text-white/80 text-sm font-inter">Friends Invited</span>
+                              <span className="text-white text-sm font-inter font-bold">
+                                {Math.floor((userTask.progress / 100) * (task.requirements?.referralCount || task.referralCountRequired || 0))}/{task.requirements?.referralCount || task.referralCountRequired || 0} ({userTask.progress}%)
+                              </span>
                             </div>
                             <div className="w-full bg-white/20 rounded-full h-2">
                               <div
