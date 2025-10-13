@@ -110,6 +110,26 @@ export class PetService {
     }
   }
 
+  static async getAllUserPets(userId: string): Promise<Pet[]> {
+    try {
+      const q = query(
+        collection(db, 'pets'),
+        where('userId', '==', userId)
+      );
+
+      const snapshot = await getDocs(q);
+      const pets = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      } as Pet));
+
+      return pets.sort((a, b) => b.level - a.level);
+    } catch (error) {
+      console.error('❌ Error fetching all user pets:', error);
+      return [];
+    }
+  }
+
   static async getPetById(petId: string): Promise<Pet | null> {
     try {
       const petDoc = await getDoc(doc(db, 'pets', petId));

@@ -8,6 +8,8 @@ import { UserService } from '../../services/userService';
 import { UnlockPanelManager } from 'lib';
 import { PetService } from '../../services/petService';
 import { Pet } from '../../types/pet.types';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 export const Profile = () => {
   const { user, refreshUser } = useAuth();
@@ -132,7 +134,7 @@ export const Profile = () => {
     if (!user?.id) return;
     try {
       setPetsLoading(true);
-      const userPets = await PetService.getUserPets(user.id);
+      const userPets = await PetService.getAllUserPets(user.id);
       setPets(userPets);
     } catch (err) {
       console.error('Error loading pets:', err);
@@ -160,6 +162,35 @@ export const Profile = () => {
     } catch (err: any) {
       console.error('Error listing pet:', err);
       error(err.message || 'Failed to list pet');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleUnlistPet = async (petId: string) => {
+    if (!user?.id || !petId) return;
+
+    setActionLoading(petId);
+    try {
+      const listingsQuery = query(
+        collection(db, 'marketListings'),
+        where('petId', '==', petId),
+        where('status', '==', 'active')
+      );
+      const listingsSnapshot = await getDocs(listingsQuery);
+
+      if (listingsSnapshot.empty) {
+        error('Listing not found');
+        return;
+      }
+
+      const listingId = listingsSnapshot.docs[0].id;
+      await PetService.cancelListing(listingId, user.id);
+      await loadPets();
+      success('Pet unlisted from marketplace!');
+    } catch (err: any) {
+      console.error('Error unlisting pet:', err);
+      error(err.message || 'Failed to unlist pet');
     } finally {
       setActionLoading(null);
     }
@@ -508,7 +539,21 @@ export const Profile = () => {
                       </div>
                     </div>
 
-                    {listingPet === pet.id ? (
+                    {pet.isListed ? (
+                      <div className="space-y-2">
+                        <div className="bg-yellow-500/20 border border-yellow-400/30 rounded-lg px-3 py-2 text-center">
+                          <span className="text-yellow-300 text-xs font-medium">Listed on Market</span>
+                        </div>
+                        <button
+                          onClick={() => pet.petId && handleUnlistPet(pet.petId)}
+                          disabled={actionLoading === pet.id}
+                          className="w-full py-2 px-3 bg-red-500/80 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                          <XCircle size={16} />
+                          {actionLoading === pet.id ? 'Unlisting...' : 'Unlist'}
+                        </button>
+                      </div>
+                    ) : listingPet === pet.id ? (
                       <div className="space-y-2">
                         <input
                           type="number"
