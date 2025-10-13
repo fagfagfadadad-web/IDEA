@@ -22,6 +22,7 @@ const PupRacing = lazy(() => import('pages').then(module => ({ default: module.P
 const PetCollection = lazy(() => import('pages').then(module => ({ default: module.PetCollection })));
 const PetDetail = lazy(() => import('pages').then(module => ({ default: module.PetDetail })));
 const PetMarket = lazy(() => import('pages').then(module => ({ default: module.PetMarket })));
+const Inventory = lazy(() => import('pages').then(module => ({ default: module.Inventory })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -134,6 +135,12 @@ export const routes: RouteWithTitleType[] = [
     path: '/market',
     title: 'NFT Market',
     component: PetMarket,
+    authenticatedRoute: true
+  },
+  {
+    path: '/inventory',
+    title: 'Inventory',
+    component: Inventory,
     authenticatedRoute: true
   }
 ];

@@ -123,6 +123,10 @@ export class PetService {
     }
   }
 
+  static async addXPDirect(petDocId: string, xpAmount: number): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage }> {
+    return this.addXP(petDocId, xpAmount, 'direct');
+  }
+
   static async addXP(
     petDocId: string,
     xpAmount: number,

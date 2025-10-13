@@ -174,9 +174,9 @@ export const Shop = () => {
 
     setIsProcessing(true);
     try {
-      if (item.type === 'permanent') {
-        const { GameService } = await import('../../services/gameService');
+      const { GameService } = await import('../../services/gameService');
 
+      if (item.type === 'permanent') {
         if (item.effect.multiplier === 'food') {
           const currentMultiplier = gameStats?.permanentUpgrades?.foodMultiplier || 1;
           const newMultiplier = currentMultiplier + item.effect.increase;
@@ -193,8 +193,16 @@ export const Shop = () => {
           await GameService.purchasePermanentUpgrade(user.id, 'cooldownMultiplier', newMultiplier, item.cost);
           success(`${item.name} purchased! Training cooldowns reduced by ${Math.floor(item.effect.decrease * 100)}%`);
         }
+      } else if (item.type === 'consumable' || item.type === 'boost' || item.type === 'special') {
+        await GameService.purchaseShopItem(user.id, item.id, item.type, item.cost, item.effect);
+
+        if (item.type === 'consumable' || item.type === 'special') {
+          success(`${item.name} purchased! Check your inventory to use it.`);
+        } else if (item.type === 'boost') {
+          success(`${item.name} activated! Boost is now active.`);
+        }
       } else {
-        success(`${item.name} purchased! Feature coming soon - items will be usable from inventory.`);
+        success(`${item.name} purchased!`);
       }
       await refetch();
     } catch (err) {

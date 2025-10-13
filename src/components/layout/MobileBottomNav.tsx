@@ -20,16 +20,16 @@ export const MobileBottomNav = () => {
       color: 'from-blue-400 to-blue-600'
     },
     {
-      path: RouteNamesEnum.mining,
-      icon: '🍖',
-      label: 'Feed',
-      color: 'from-orange-400 to-orange-600'
+      path: '/pets',
+      icon: '🐕',
+      label: 'Pets',
+      color: 'from-amber-400 to-amber-600'
     },
     {
-      path: RouteNamesEnum.ships,
-      icon: '🐕',
-      label: 'Dogs',
-      color: 'from-amber-400 to-amber-600'
+      path: '/inventory',
+      icon: '🎒',
+      label: 'Items',
+      color: 'from-purple-400 to-purple-600'
     },
     {
       path: RouteNamesEnum.tasks,

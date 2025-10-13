@@ -18,3 +18,4 @@ export * from './PupRacing';
 export * from './PetCollection';
 export * from './PetDetail';
 export * from './PetMarket';
+export * from './Inventory';

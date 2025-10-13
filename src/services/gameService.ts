@@ -29,6 +29,14 @@ export interface PermanentUpgrade {
   foodMultiplier: number;
   xpMultiplier: number;
   cooldownMultiplier: number;
+  marketVIPPassExpiresAt?: any;
+  shinyCharmCount: number;
+}
+
+export interface InventoryItem {
+  itemId: string;
+  quantity: number;
+  acquiredAt: any;
 }
 
 export interface GameStats {
@@ -46,6 +54,7 @@ export interface GameStats {
   lastDailyTicketClaim?: any;
   activeBoosts?: ActiveBoost[];
   permanentUpgrades?: PermanentUpgrade;
+  inventory?: InventoryItem[];
   createdAt: any;
   updatedAt: any;
 }
@@ -157,7 +166,8 @@ export class GameService {
           happinessBooster: 1,
           foodMultiplier: 1,
           xpMultiplier: 1,
-          cooldownMultiplier: 1
+          cooldownMultiplier: 1,
+          shinyCharmCount: 0
         };
         await updateDoc(docRef, {
           permanentUpgrades: defaultUpgrades,
@@ -165,6 +175,15 @@ export class GameService {
         });
         rawData.permanentUpgrades = defaultUpgrades;
         console.log('✅ GameService: permanentUpgrades initialized');
+      }
+
+      // Initialize inventory if missing
+      if (!rawData.inventory) {
+        await updateDoc(docRef, {
+          inventory: [],
+          updatedAt: serverTimestamp()
+        });
+        rawData.inventory = [];
       }
 
       const gameStats = { id: docSnap.id, ...rawData } as GameStats;
@@ -194,8 +213,10 @@ export class GameService {
         happinessBooster: 1,
         foodMultiplier: 1,
         xpMultiplier: 1,
-        cooldownMultiplier: 1
+        cooldownMultiplier: 1,
+        shinyCharmCount: 0
       },
+      inventory: [],
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
@@ -1110,7 +1131,133 @@ export class GameService {
     console.log(`🎫 GameService: Awarded ${ticketsToAward} level-up tickets to user ${userId} for reaching level ${newLevel}`);
     return ticketsToAward;
   }
+
+  static async addToInventory(userId: string, itemId: string, quantity: number = 1): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+    const inventory = stats.inventory || [];
+
+    const existingItem = inventory.find(item => item.itemId === itemId);
+    if (existingItem) {
+      existingItem.quantity += quantity;
+    } else {
+      inventory.push({
+        itemId,
+        quantity,
+        acquiredAt: serverTimestamp()
+      });
+    }
+
+    await updateDoc(statsRef, {
+      inventory,
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`📦 Added ${quantity}x ${itemId} to inventory`);
+  }
+
+  static async useInventoryItem(userId: string, itemId: string): Promise<boolean> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+    const inventory = stats.inventory || [];
+
+    const itemIndex = inventory.findIndex(item => item.itemId === itemId);
+    if (itemIndex === -1 || inventory[itemIndex].quantity <= 0) {
+      return false;
+    }
+
+    inventory[itemIndex].quantity -= 1;
+    if (inventory[itemIndex].quantity === 0) {
+      inventory.splice(itemIndex, 1);
+    }
+
+    await updateDoc(statsRef, {
+      inventory,
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`✅ Used 1x ${itemId} from inventory`);
+    return true;
+  }
+
+  static async purchaseShopItem(userId: string, itemId: string, itemType: string, cost: number, effect: any): Promise<void> {
+    const statsRef = doc(db, 'gameStats', userId);
+    const statsSnap = await getDoc(statsRef);
+
+    if (!statsSnap.exists()) {
+      throw new Error('User stats not found');
+    }
+
+    const stats = statsSnap.data() as GameStats;
+
+    if (stats.zenBalance < cost) {
+      throw new Error('Insufficient balance');
+    }
+
+    await updateDoc(statsRef, {
+      zenBalance: increment(-cost),
+      updatedAt: serverTimestamp()
+    });
+
+    if (itemType === 'consumable' || itemType === 'special') {
+      await this.addToInventory(userId, itemId);
+    } else if (itemType === 'boost') {
+      const expiresAt = new Date(Date.now() + effect.duration * 1000);
+      await this.activateBoost(userId, effect.type || 'experience', effect.xp_multiplier || effect.training_boost || 2, effect.duration, 0);
+    }
+
+    console.log(`🛒 Purchased ${itemId} for ${cost} Food`);
+  }
 }
+
+export const PetInventoryService = {
+  async useXPItem(userId: string, petDocId: string, itemId: string, xpAmount: number): Promise<void> {
+    const used = await GameService.useInventoryItem(userId, itemId);
+    if (!used) {
+      throw new Error('Item not found in inventory');
+    }
+
+    const { PetService } = await import('./petService');
+    await PetService.addXPDirect(petDocId, xpAmount);
+    console.log(`✨ Applied ${xpAmount} XP to pet from ${itemId}`);
+  },
+
+  async useTrainingManual(userId: string, petDocId: string, itemId: string): Promise<void> {
+    const used = await GameService.useInventoryItem(userId, itemId);
+    if (!used) {
+      throw new Error('Item not found in inventory');
+    }
+
+    const petRef = doc(db, 'pets', petDocId);
+    const petDoc = await getDoc(petRef);
+
+    if (!petDoc.exists()) {
+      throw new Error('Pet not found');
+    }
+
+    const pet = petDoc.data();
+    await updateDoc(petRef, {
+      'training.agility': Math.min(100, pet.training.agility * 1.1),
+      'training.obedience': Math.min(100, pet.training.obedience * 1.1),
+      'training.intelligence': Math.min(100, pet.training.intelligence * 1.1),
+      updatedAt: serverTimestamp()
+    });
+
+    console.log(`📚 Applied Training Manual to pet`);
+  }
+};
 
 // Export helper function for convenience
 export const awardFoodPoints = GameService.awardFoodPoints.bind(GameService);
