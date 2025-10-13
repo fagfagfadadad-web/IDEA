@@ -499,7 +499,7 @@ export const PetDetail = () => {
             <div className="flex gap-3">
               <Button
                 onClick={() => setShowListModal(false)}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-inter font-bold"
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/40 px-4 py-2 rounded-lg font-inter font-bold"
               >
                 Cancel
               </Button>
