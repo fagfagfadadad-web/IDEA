@@ -280,7 +280,7 @@ export const PetMarket = () => {
                     key={listing.id}
                     className="cute-card overflow-hidden hover:transform hover:scale-105 transition-all duration-300"
                   >
-                    <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-6 relative">
+                    <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 p-6 relative">
                       <div className="absolute top-4 right-4">
                         {getEvolutionBadge(listing.evolutionStage)}
                       </div>
@@ -363,7 +363,7 @@ export const PetMarket = () => {
                           disabled={!canAfford}
                           className={`w-full ${
                             canAfford
-                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                              ? 'bg-purple-600 hover:bg-purple-700'
                               : 'bg-gray-300 cursor-not-allowed'
                           } text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
                         >

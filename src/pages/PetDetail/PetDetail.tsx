@@ -187,7 +187,7 @@ export const PetDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="cute-card overflow-hidden">
-              <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-8 relative">
+              <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 p-8 relative">
                 {showEvolutionAnimation && (
                   <div className="absolute inset-0 bg-yellow-400 animate-pulse flex items-center justify-center z-10">
                     <div className="text-center text-white">
@@ -384,7 +384,7 @@ export const PetDetail = () => {
                 <Button
                   onClick={handleFeed}
                   disabled={isFeeding}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
                 >
                   <Utensils size={20} />
                   Feed (10 Food)
@@ -401,7 +401,7 @@ export const PetDetail = () => {
                 ) : (
                   <Button
                     onClick={() => setShowListModal(true)}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={20} />
                     Sell on Market
@@ -505,7 +505,7 @@ export const PetDetail = () => {
               </Button>
               <Button
                 onClick={handleListOnMarket}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold"
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-inter font-bold"
               >
                 List Pet
               </Button>
