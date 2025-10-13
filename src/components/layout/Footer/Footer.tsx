@@ -19,13 +19,13 @@ export const Footer = () => {
             <h3 className='text-white font-semibold mb-4'>Game</h3>
             <ul className='space-y-2'>
               <li>
-                <a href='/game' className='text-white/80 hover:text-white transition-colors text-sm'>
-                  Feed Dogs
+                <a href='/pets' className='text-white/80 hover:text-white transition-colors text-sm'>
+                  My Pets
                 </a>
               </li>
               <li>
-                <a href='/ships' className='text-white/80 hover:text-white transition-colors text-sm'>
-                  Dogs
+                <a href='/market' className='text-white/80 hover:text-white transition-colors text-sm'>
+                  NFT Market
                 </a>
               </li>
               <li>

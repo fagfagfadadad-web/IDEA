@@ -262,19 +262,19 @@ export const Home = () => {
               {isAuthenticated ? (
                 <>
                   <Button
-                    onClick={() => navigate(RouteNamesEnum.mining)}
+                    onClick={() => navigate('/pets')}
                     className="cute-button w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
-                    <span className="text-xl">🍖</span>
-                    Feed Your Dogs
+                    <span className="text-xl">🐕</span>
+                    My Pets
                     <ArrowRight size={20} />
                   </Button>
                   <Button
-                    onClick={() => navigate(RouteNamesEnum.ships)}
+                    onClick={() => navigate('/market')}
                     className="cute-button-outline w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
-                    <span className="text-xl">🐕</span>
-                    My Dogs
+                    <span className="text-xl">🛒</span>
+                    NFT Market
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.game)}
@@ -340,24 +340,22 @@ export const Home = () => {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Button
-                  onClick={() => navigate(RouteNamesEnum.mining)}
+                  onClick={() => navigate('/pets')}
                   className="cute-button p-4 flex flex-col items-center gap-2"
                 >
-                  <span className="text-2xl">🍖</span>
-                  <span className="font-inter font-bold">Feed</span>
-                  <div className="text-white/80 text-sm font-inter">
-                    {gameStats.zenBalance?.toLocaleString() || '0'} 🍖
-                  </div>
-                  <div className="text-white/80 text-sm font-inter">Food</div>
+                  <span className="text-2xl">🐕</span>
+                  <span className="font-inter font-bold">My Pets</span>
+                  <div className="text-white/80 text-sm font-inter">{ships.length} 🐕</div>
+                  <div className="text-white/80 text-sm font-inter">Pets</div>
                 </Button>
                 <Button
-                  onClick={() => navigate(RouteNamesEnum.ships)}
+                  onClick={() => navigate('/market')}
                   className="cute-button-secondary p-4 flex flex-col items-center gap-2"
                 >
-                  <span className="text-2xl">🐕</span>
-                  <span className="font-inter font-bold">Dogs</span>
-                  <div className="text-white/80 text-sm font-inter">{ships.length} 🐕</div>
-                  <div className="text-white/80 text-sm font-inter">Dogs</div>
+                  <span className="text-2xl">🛒</span>
+                  <span className="font-inter font-bold">NFT Market</span>
+                  <div className="text-white/80 text-sm font-inter">Buy & Sell</div>
+                  <div className="text-white/80 text-sm font-inter">NFTs</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}

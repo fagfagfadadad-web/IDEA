@@ -140,20 +140,12 @@ export const Header = () => {
                             Profile
                           </Link>
                           <Link
-                            to="/mining"
-                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
-                            onClick={() => setIsProfileMenuOpen(false)}
-                          >
-                            <span>🍖</span>
-                            Feed Dogs
-                          </Link>
-                          <Link
-                            to="/ships"
+                            to="/pets"
                             className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🐕</span>
-                            My Dogs
+                            My Pets
                           </Link>
                           <Link
                             to="/tasks"
@@ -265,20 +257,20 @@ export const Header = () => {
                 )}
 
                 <Link
-                  to="/mining"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <span className="text-xl">🍖</span>
-                  Feed Dogs
-                </Link>
-                <Link
-                  to="/ships"
+                  to="/pets"
                   className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🐕</span>
-                  Dogs
+                  My Pets
+                </Link>
+                <Link
+                  to="/market"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🛒</span>
+                  NFT Market
                 </Link>
                 <Link
                   to="/shop"
