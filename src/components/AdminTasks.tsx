@@ -254,9 +254,39 @@ export const AdminTasks: React.FC = () => {
                           {task.ticketReward} Tickets
                         </div>
                       )}
-                      <div className="text-xs md:text-sm text-gray-600 font-inter">
-                        Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
+                    </div>
+
+                    {/* Task Requirements Display */}
+                    {(task.referralCountRequired || task.miningOperationsRequired || task.dailyMiningCountRequired || task.shipCountRequired) && (
+                      <div className="mt-3 p-2 bg-gray-800 rounded-lg">
+                        <div className="text-xs text-gray-400 font-inter mb-1 font-bold">Requirements:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {task.referralCountRequired && (
+                            <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-inter font-medium">
+                              👥 Invite {task.referralCountRequired} friend{task.referralCountRequired > 1 ? 's' : ''}
+                            </span>
+                          )}
+                          {task.miningOperationsRequired && (
+                            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-inter font-medium">
+                              🍖 {task.miningOperationsRequired} pet care ops
+                            </span>
+                          )}
+                          {task.dailyMiningCountRequired && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-inter font-medium">
+                              📅 {task.dailyMiningCountRequired} daily care
+                            </span>
+                          )}
+                          {task.shipCountRequired && (
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-inter font-medium">
+                              🐕 Own {task.shipCountRequired} dog{task.shipCountRequired > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                    )}
+
+                    <div className="text-xs md:text-sm text-gray-500 font-inter mt-2">
+                      Created {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Unknown'}
                     </div>
                   </div>
                 </div>
@@ -441,18 +471,21 @@ export const AdminTasks: React.FC = () => {
 
                   <div>
                     <label className="block text-gray-300 text-xs font-medium mb-1 font-inter">
-                      Friends
+                      Invite Friends 👥
                     </label>
                     <input
                       type="number"
                       value={formData.referralCountRequired}
                       onChange={(e) => setFormData({...formData, referralCountRequired: e.target.value})}
                       className="w-full px-2 py-1 text-xs bg-gray-700 text-white border border-gray-600 rounded focus:ring-1 focus:ring-[#f97316]"
-                      placeholder="5"
+                      placeholder="e.g. 5 friends"
                       min="0"
                     />
                   </div>
                 </div>
+                <p className="text-xs text-gray-400 mt-2 font-inter">
+                  <strong>Invite Friends:</strong> Set the number of friends a user must invite to complete this task (e.g., 1 for "Invite a friend", 5 for "Invite 5 friends", 10 for "Invite 10 friends")
+                </p>
               </div>
 
               <div>
