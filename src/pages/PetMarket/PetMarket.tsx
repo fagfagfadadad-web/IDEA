@@ -382,40 +382,40 @@ export const PetMarket = () => {
 
       {selectedListing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-4">
+          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+            <h2 className="text-2xl font-inter font-bold text-white mb-4">
               Confirm Purchase
             </h2>
             <div className="space-y-4 mb-6">
-              <div className="bg-gray-50 rounded-lg p-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="text-center mb-4">
                   <div className="text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
-                  <div className="font-inter font-bold text-gray-800">
+                  <div className="font-inter font-bold text-white">
                     {BREED_INFO[selectedListing.breedType].name}
                   </div>
-                  <div className="text-sm text-gray-600 font-inter">
+                  <div className="text-sm text-white/90 font-inter">
                     Level {selectedListing.level} • {selectedListing.evolutionStage}
                   </div>
                 </div>
                 <div className="space-y-2 text-sm font-inter">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Price:</span>
-                    <span className="font-bold">🍖 {selectedListing.price.toLocaleString()}</span>
+                    <span className="text-white/90">Price:</span>
+                    <span className="font-bold text-white">🍖 {selectedListing.price.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Marketplace fee:</span>
-                    <span className="font-bold">🍖 {Math.floor(selectedListing.price * 0.05).toLocaleString()}</span>
+                    <span className="text-white/90">Marketplace fee:</span>
+                    <span className="font-bold text-white">🍖 {Math.floor(selectedListing.price * 0.05).toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between border-t pt-2">
-                    <span className="text-gray-700 font-bold">Total:</span>
-                    <span className="font-bold text-purple-600">
+                  <div className="flex justify-between border-t border-white/30 pt-2">
+                    <span className="text-white font-bold">Total:</span>
+                    <span className="font-bold text-yellow-300">
                       🍖 {(selectedListing.price + Math.floor(selectedListing.price * 0.05)).toLocaleString()}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-3 text-sm text-blue-800 font-inter">
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-sm text-white font-inter border border-white/30">
                 <strong>Note:</strong> This purchase is final. The pet will be transferred to your collection immediately.
               </div>
             </div>
@@ -424,14 +424,14 @@ export const PetMarket = () => {
               <Button
                 onClick={() => setSelectedListing(null)}
                 disabled={isPurchasing}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-3 rounded-lg font-inter font-bold"
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-3 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30"
               >
                 Cancel
               </Button>
               <Button
                 onClick={confirmPurchase}
                 disabled={isPurchasing}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold"
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-3 rounded-lg font-inter font-bold shadow-lg"
               >
                 {isPurchasing ? 'Processing...' : 'Confirm Purchase'}
               </Button>
