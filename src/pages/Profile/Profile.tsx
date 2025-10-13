@@ -412,14 +412,14 @@ export const Profile = () => {
             </div>
           </div>
 
-          {/* Dog Pack Overview */}
+          {/* My Pets Overview */}
           <div className="cute-card p-6">
-            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">My Dog Pack</h2>
+            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">My Pets</h2>
             {ships.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-gray-500 text-6xl mb-4">🐕</div>
-                <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">No Dogs Yet</h3>
-                <p className="text-gray-500 font-inter">You don't have any dogs yet. Adopt your first dog to start the pet care journey!</p>
+                <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">No Pets Yet</h3>
+                <p className="text-gray-500 font-inter">You don't have any pets yet. Visit the NFT Market to adopt your first pet!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -432,17 +432,17 @@ export const Profile = () => {
                     <h3 className="text-white font-inter font-bold mb-2">{ship.name}</h3>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Level:</span>
-                        <span className="text-white font-bold font-inter">{ship.level}</span>
+                        <span className="text-white/90 font-inter">Rarity:</span>
+                        <span className="text-white font-bold font-inter">Level {ship.level}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Appetite:</span>
+                        <span className="text-white/90 font-inter">Power:</span>
                         <span className="text-secondary-400 font-bold font-inter">{ship.miningPower}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/90 font-inter">Happiness:</span>
+                        <span className="text-white/90 font-inter">Status:</span>
                         <span className="text-secondary-400 font-bold font-inter">
-                          {ship.currentEnergy}/{ship.energyCapacity}
+                          {ship.currentEnergy}/{ship.energyCapacity} Energy
                         </span>
                       </div>
                     </div>
