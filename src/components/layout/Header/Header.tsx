@@ -51,9 +51,12 @@ export const Header = () => {
             </Link>
             
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
+            <div className="hidden lg:flex items-center space-x-3 xl:space-x-5">
               <Link to="/pets" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 My Pets
+              </Link>
+              <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Pet Market
               </Link>
               <Link to="/inventory" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Inventory
@@ -263,6 +266,14 @@ export const Header = () => {
                 >
                   <span className="text-xl">🐕</span>
                   My Pets
+                </Link>
+                <Link
+                  to="/market"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🏪</span>
+                  Pet Market
                 </Link>
                 <Link
                   to="/inventory"
