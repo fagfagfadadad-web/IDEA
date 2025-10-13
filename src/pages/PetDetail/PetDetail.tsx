@@ -472,8 +472,8 @@ export const PetDetail = () => {
       </div>
 
       {showListModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-[#f97316] to-[#fb923c] rounded-2xl max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-gradient-to-br from-[#f97316] to-[#fb923c] rounded-2xl max-w-md w-full p-6 my-4 md:my-0 mb-24 md:mb-0">
             <h2 className="text-2xl font-inter font-bold text-white mb-4">
               List {pet.name} on Market
             </h2>

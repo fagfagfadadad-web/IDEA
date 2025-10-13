@@ -246,8 +246,8 @@ export const PetCollection = () => {
       </div>
 
       {showAdoptModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-purple-500 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-purple-500 rounded-2xl max-w-2xl w-full max-h-[90vh] md:max-h-[85vh] overflow-y-auto shadow-2xl my-4 md:my-0 mb-24 md:mb-0">
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-inter font-bold text-white">

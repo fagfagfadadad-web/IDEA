@@ -407,8 +407,8 @@ export const Inventory: React.FC = () => {
       </div>
 
       {showUseModal && selectedItem && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-purple-500 rounded-2xl max-w-md w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-purple-500 rounded-2xl max-w-md w-full shadow-2xl my-4 md:my-0 mb-24 md:mb-0">
             <div className="p-6 space-y-6">
               <div className="text-center">
                 <div className="text-6xl mb-4">{selectedItem.metadata?.emoji || '📦'}</div>

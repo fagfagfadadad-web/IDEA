@@ -381,8 +381,8 @@ export const PetMarket = () => {
       </div>
 
       {selectedListing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-md w-full p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-md w-full p-6 shadow-2xl my-4 md:my-0 mb-24 md:mb-0">
             <h2 className="text-2xl font-inter font-bold text-white mb-4">
               Confirm Purchase
             </h2>

@@ -501,8 +501,8 @@ export const Tasks = () => {
 
       {/* Proof Modal */}
       {showProofModal && currentClaimTask && createPortal(
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="cute-card p-6 max-w-md w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="cute-card p-6 max-w-md w-full my-4 md:my-0 mb-24 md:mb-0">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-inter font-bold text-gray-800">
                 Submit Verification
