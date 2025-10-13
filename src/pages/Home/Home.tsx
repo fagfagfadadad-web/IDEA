@@ -178,7 +178,7 @@ export const Home = () => {
                     className="cute-button-outline w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🛒</span>
-                    NFT Market
+                    Market
                   </Button>
                   <Button
                     onClick={() => navigate(RouteNamesEnum.game)}

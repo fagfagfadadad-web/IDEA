@@ -25,7 +25,7 @@ export const Footer = () => {
               </li>
               <li>
                 <a href='/market' className='text-white/80 hover:text-white transition-colors text-sm'>
-                  NFT Market
+                  Market
                 </a>
               </li>
               <li>

@@ -505,7 +505,7 @@ export const Profile = () => {
               <div className="text-center py-8">
                 <div className="text-gray-500 text-6xl mb-4">🐕</div>
                 <h3 className="text-xl font-inter font-bold text-gray-600 mb-2">No Pets Yet</h3>
-                <p className="text-gray-500 font-inter">You don't have any pets yet. Visit the NFT Market to adopt your first pet!</p>
+                <p className="text-gray-500 font-inter">You don't have any pets yet. Visit the Market to adopt your first pet!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

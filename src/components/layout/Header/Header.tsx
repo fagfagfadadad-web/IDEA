@@ -56,7 +56,7 @@ export const Header = () => {
                 My Pets
               </Link>
               <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                NFT Market
+                Market
               </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Pet Store
@@ -270,7 +270,7 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🛒</span>
-                  NFT Market
+                  Market
                 </Link>
                 <Link
                   to="/shop"

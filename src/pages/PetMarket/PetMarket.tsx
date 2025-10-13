@@ -168,7 +168,7 @@ export const PetMarket = () => {
         <div className="space-y-8">
           <div className="text-center space-y-4">
             <h1 className="title-responsive font-inter font-bold gradient-text">
-              Pet NFT Market
+              Pet Market
             </h1>
             <p className="text-white text-lg font-inter font-semibold">
               Buy and sell evolved pets with unique abilities

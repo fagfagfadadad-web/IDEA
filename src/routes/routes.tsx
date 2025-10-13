@@ -133,7 +133,7 @@ export const routes: RouteWithTitleType[] = [
   },
   {
     path: '/market',
-    title: 'NFT Market',
+    title: 'Market',
     component: PetMarket,
     authenticatedRoute: true
   },
