@@ -20,7 +20,7 @@ export const MobileBottomNav = () => {
       color: 'from-blue-400 to-blue-600'
     },
     {
-      path: '/pets',
+      path: '/pet-collection',
       icon: '🐕',
       label: 'Pets',
       color: 'from-amber-400 to-amber-600'
@@ -32,16 +32,16 @@ export const MobileBottomNav = () => {
       color: 'from-purple-400 to-purple-600'
     },
     {
-      path: RouteNamesEnum.tasks,
-      icon: '🎯',
-      label: 'Tasks',
-      color: 'from-green-400 to-green-600'
-    },
-    {
-      path: RouteNamesEnum.game,
+      path: '/game-center',
       icon: '🎮',
       label: 'Games',
       color: 'from-cyan-400 to-cyan-600'
+    },
+    {
+      path: '/shop',
+      icon: '🛒',
+      label: 'Shop',
+      color: 'from-orange-400 to-orange-600'
     }
   ];
 

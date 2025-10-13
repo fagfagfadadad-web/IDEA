@@ -106,24 +106,24 @@ export const Home = () => {
 
   const features = [
     {
-      icon: <span className="text-3xl">🍖</span>,
-      title: "Feed Your Dogs",
-      description: "Give your dogs delicious food to keep them happy and healthy"
+      icon: <span className="text-3xl">🐕</span>,
+      title: "Adopt & Evolve Pets",
+      description: "Collect unique pets, train them, and watch them evolve into powerful companions"
     },
     {
-      icon: <span className="text-3xl">🎾</span>,
-      title: "Play & Exercise",
-      description: "Play games with your dogs to increase their happiness and earn rewards"
+      icon: <span className="text-3xl">🎮</span>,
+      title: "Play Mini Games",
+      description: "Enjoy PupFi Catcher, Memory Match, and more exciting games to earn rewards"
     },
     {
-      icon: <span className="text-3xl">👥</span>,
-      title: "Invite Friends",
-      description: "Invite friends to play and earn bonus food points from their activities"
+      icon: <span className="text-3xl">🛒</span>,
+      title: "Shop & Inventory",
+      description: "Buy items, daily deals, and rare collectibles to boost your pets"
     },
     {
       icon: <span className="text-3xl">🏆</span>,
-      title: "Complete Challenges",
-      description: "Finish daily care tasks and challenges to earn extra food and toys"
+      title: "Complete Tasks",
+      description: "Finish daily tasks and challenges to earn food and level up"
     }
   ];
 
@@ -266,22 +266,22 @@ export const Home = () => {
                     className="cute-button w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🍖</span>
-                    Feed Your Dogs
+                    Collect Food
                     <ArrowRight size={20} />
                   </Button>
                   <Button
-                    onClick={() => navigate(RouteNamesEnum.ships)}
+                    onClick={() => navigate('/pet-collection')}
                     className="cute-button-outline w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🐕</span>
-                    My Dogs
+                    My Pets
                   </Button>
                   <Button
-                    onClick={() => navigate(RouteNamesEnum.game)}
+                    onClick={() => navigate('/game-center')}
                     className="cute-button-secondary w-full md:w-auto px-6 md:px-8 py-3 md:py-4 text-base md:text-lg flex items-center justify-center gap-2 md:gap-3"
                   >
                     <span className="text-xl">🎮</span>
-                    Mini Game
+                    Play Games
                   </Button>
                 </>
               ) : (
@@ -344,20 +344,44 @@ export const Home = () => {
                   className="cute-button p-4 flex flex-col items-center gap-2"
                 >
                   <span className="text-2xl">🍖</span>
-                  <span className="font-inter font-bold">Feed</span>
+                  <span className="font-inter font-bold">Collect</span>
                   <div className="text-white/80 text-sm font-inter">
                     {gameStats.zenBalance?.toLocaleString() || '0'} 🍖
                   </div>
-                  <div className="text-white/80 text-sm font-inter">Food</div>
                 </Button>
                 <Button
-                  onClick={() => navigate(RouteNamesEnum.ships)}
+                  onClick={() => navigate('/pet-collection')}
                   className="cute-button-secondary p-4 flex flex-col items-center gap-2"
                 >
                   <span className="text-2xl">🐕</span>
-                  <span className="font-inter font-bold">Dogs</span>
-                  <div className="text-white/80 text-sm font-inter">{ships.length} 🐕</div>
-                  <div className="text-white/80 text-sm font-inter">Dogs</div>
+                  <span className="font-inter font-bold">Pets</span>
+                  <div className="text-white/80 text-sm font-inter">{ships.length} Pets</div>
+                </Button>
+                <Button
+                  onClick={() => navigate('/shop')}
+                  className="cute-button p-4 flex flex-col items-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+                >
+                  <span className="text-2xl">🛒</span>
+                  <span className="font-inter font-bold text-white">Shop</span>
+                  <div className="text-white text-sm font-inter">Buy Items</div>
+                </Button>
+                <Button
+                  onClick={() => navigate('/inventory')}
+                  className="cute-button-secondary p-4 flex flex-col items-center gap-2"
+                >
+                  <span className="text-2xl">🎒</span>
+                  <span className="font-inter font-bold">Inventory</span>
+                  <div className="text-white/80 text-sm font-inter">My Items</div>
+                </Button>
+                <Button
+                  onClick={() => navigate('/game-center')}
+                  className="cute-button p-4 flex flex-col items-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}
+                >
+                  <span className="text-2xl">🎮</span>
+                  <span className="font-inter font-bold text-white">Games</span>
+                  <div className="text-white text-sm font-inter">Play & Earn</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.tasks)}
@@ -366,31 +390,26 @@ export const Home = () => {
                 >
                   <span className="text-2xl">🎯</span>
                   <span className="font-inter font-bold text-white">Tasks</span>
-                  <div className="text-white text-sm font-inter">
-                    {gameStats.miningLevel || 1} 🌟
-                  </div>
-                  <div className="text-white text-sm font-inter">Level</div>
+                  <div className="text-white text-sm font-inter">Daily</div>
                 </Button>
                 <Button
                   onClick={() => navigate(RouteNamesEnum.referrals)}
-                  className="cute-button p-4 flex flex-col items-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-                >
-                  <span className="text-2xl">👥</span>
-                  <span className="font-inter font-bold text-white">Friends</span>
-                  <div className="text-white text-sm font-inter">
-                    {gameStats.totalReferrals || 0} 👥
-                  </div>
-                  <div className="text-white text-sm font-inter">Friends</div>
-                </Button>
-                <Button
-                  onClick={() => navigate(RouteNamesEnum.game)}
                   className="cute-button-secondary p-4 flex flex-col items-center gap-2"
                 >
-                  <span className="text-2xl">🎮</span>
-                  <span className="font-inter font-bold">Game</span>
-                  <div className="text-white/80 text-sm font-inter">Play & Earn</div>
-                  <div className="text-white/80 text-sm font-inter">Food</div>
+                  <span className="text-2xl">👥</span>
+                  <span className="font-inter font-bold">Friends</span>
+                  <div className="text-white/80 text-sm font-inter">
+                    {gameStats.totalReferrals || 0} Friends
+                  </div>
+                </Button>
+                <Button
+                  onClick={() => navigate('/leaderboard')}
+                  className="cute-button p-4 flex flex-col items-center gap-2"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #db2777)' }}
+                >
+                  <span className="text-2xl">🏆</span>
+                  <span className="font-inter font-bold text-white">Leaderboard</span>
+                  <div className="text-white text-sm font-inter">Rankings</div>
                 </Button>
               </div>
             </div>

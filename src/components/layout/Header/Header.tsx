@@ -52,23 +52,20 @@ export const Header = () => {
             
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-4 xl:space-x-6">
-              <Link to="/pets" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+              <Link to="/pet-collection" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 My Pets
               </Link>
-              <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                NFT Market
-              </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Pet Store
+                Shop
+              </Link>
+              <Link to="/inventory" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Inventory
+              </Link>
+              <Link to="/game-center" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Games
               </Link>
               <Link to="/tasks" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Tasks
-              </Link>
-              <Link to="/game" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Games
-              </Link>
-              <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Friends
               </Link>
               <Link to="/leaderboard" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Leaderboard
@@ -145,15 +142,23 @@ export const Header = () => {
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🍖</span>
-                            Feed Dogs
+                            Collect Food
                           </Link>
                           <Link
-                            to="/ships"
+                            to="/pet-collection"
                             className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
                             <span>🐕</span>
-                            My Dogs
+                            My Pets
+                          </Link>
+                          <Link
+                            to="/inventory"
+                            className="flex items-center gap-3 px-4 py-3 text-white hover:bg-primary-600 transition-all duration-200 font-medium"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
+                            <span>🎒</span>
+                            Inventory
                           </Link>
                           <Link
                             to="/tasks"
@@ -270,15 +275,15 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🍖</span>
-                  Feed Dogs
+                  Collect Food
                 </Link>
                 <Link
-                  to="/ships"
+                  to="/pet-collection"
                   className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🐕</span>
-                  Dogs
+                  My Pets
                 </Link>
                 <Link
                   to="/shop"
@@ -286,7 +291,23 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <ShoppingCart size={18} />
-                  Pet Store
+                  Shop
+                </Link>
+                <Link
+                  to="/inventory"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🎒</span>
+                  Inventory
+                </Link>
+                <Link
+                  to="/game-center"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🎮</span>
+                  Games
                 </Link>
                 <Link
                   to="/tasks"
@@ -295,14 +316,6 @@ export const Header = () => {
                 >
                   <Target size={18} />
                   Tasks
-                </Link>
-                <Link
-                  to="/game"
-                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <span className="text-xl">🎮</span>
-                  Games
                 </Link>
                 <Link
                   to="/referrals"
