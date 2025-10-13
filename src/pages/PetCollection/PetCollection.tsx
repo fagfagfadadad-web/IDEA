@@ -270,7 +270,7 @@ export const PetCollection = () => {
                   value={petName}
                   onChange={(e) => setPetName(e.target.value)}
                   placeholder="Enter a name..."
-                  className="w-full px-4 py-2 border-2 border-orange-400 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-inter bg-white"
+                  className="w-full px-4 py-2 border-2 border-orange-400 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-inter bg-white text-gray-900 placeholder:text-gray-500"
                   maxLength={20}
                 />
               </div>
