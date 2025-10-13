@@ -258,28 +258,28 @@ export const PetDetail = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                     <div className="text-2xl mb-2">🍖</div>
                     <div className="text-xs text-gray-600 font-inter">Fed</div>
                     <div className="text-lg font-inter font-bold text-gray-800">
                       {pet.stats.totalFeedings}x
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                     <div className="text-2xl mb-2">🎮</div>
                     <div className="text-xs text-gray-600 font-inter">Games</div>
                     <div className="text-lg font-inter font-bold text-gray-800">
                       {pet.stats.totalGamesPlayed}
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                     <div className="text-2xl mb-2">✅</div>
                     <div className="text-xs text-gray-600 font-inter">Tasks</div>
                     <div className="text-lg font-inter font-bold text-gray-800">
                       {pet.stats.totalTasksCompleted}
                     </div>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
+                  <div className="bg-white rounded-lg p-4 text-center shadow-sm">
                     <div className="text-2xl mb-2">💪</div>
                     <div className="text-xs text-gray-600 font-inter">Training</div>
                     <div className="text-lg font-inter font-bold text-gray-800">
