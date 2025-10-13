@@ -148,112 +148,16 @@ export const Home = () => {
               </p>
             </div>
 
-            {/* Stats Display for Logged In Users */}
-            {isAuthenticated && gameStats && (
-              <div className="cute-card p-6 max-w-2xl mx-auto space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      {gameStats.zenBalance?.toLocaleString() || '0'}
-                    </div>
-                    <div className="stat-label">🍖 Food</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      {gameStats.totalMined?.toLocaleString() || '0'}
-                    </div>
-                    <div className="stat-label">❤️ Love</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      {gameStats.miningLevel || 1}
-                    </div>
-                    <div className="stat-label">🏆 Level</div>
-                  </div>
-                  <div className="stat-card">
-                    <div className="stat-value">
-                      {ships.length}
-                    </div>
-                    <div className="stat-label">🐕 Dogs</div>
-                  </div>
+            {/* My Pets Overview */}
+            {isAuthenticated && (
+              <div className="cute-card p-6 max-w-2xl mx-auto">
+                <div className="text-center space-y-4">
+                  <div className="text-6xl">🐕</div>
+                  <h2 className="text-2xl font-inter font-bold text-gray-800">My Pet Collection</h2>
+                  <p className="text-gray-600 font-inter">
+                    You have <span className="font-bold text-primary-600">{ships.length}</span> {ships.length === 1 ? 'pet' : 'pets'} in your collection
+                  </p>
                 </div>
-
-                {/* Auto-Feeder Status */}
-                {autoFeederTimeRemaining && (
-                  <div className="pt-4 border-t border-primary-200/30">
-                    <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-sm rounded-xl px-4 py-3 border border-green-400/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-green-500/30 rounded-full flex items-center justify-center animate-pulse">
-                            <span className="text-xl">🤖</span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold text-green-700">Auto-Feeder Active</div>
-                            <div className="text-xs text-green-600">Collecting food automatically</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 bg-purple px-3 py-1 rounded-lg">
-                          <Clock size={14} className="text-green-700" />
-                          <span className="text-sm font-bold text-green-700">{autoFeederTimeRemaining}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Active Boosts */}
-                {gameStats.activeBoosts && gameStats.activeBoosts.length > 0 && (
-                  <div className="pt-4 border-t border-white/20">
-                    <h3 className="text-sm font-bold text-white mb-2">⚡ Active Boosts</h3>
-                    <div className="space-y-2">
-                      {gameStats.activeBoosts.map((boost, index) => {
-                        const expiresAt = boost.expiresAt?.toDate?.() || new Date(boost.expiresAt);
-                        const now = new Date();
-                        const timeLeft = Math.max(0, expiresAt.getTime() - now.getTime());
-                        const minutesLeft = Math.floor(timeLeft / 60000);
-                        const secondsLeft = Math.floor((timeLeft % 60000) / 1000);
-
-                        if (timeLeft <= 0) return null;
-
-                        // Skip auto-feeder in this list since it has its own section
-                        if (boost.type === 'autoFeeder') return null;
-
-                        return (
-                          <div key={index} className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20">
-                            <div className="flex items-center gap-2">
-                              <span>{boost.type === 'mining' ? '🍖' : boost.type === 'experience' ? '💖' : boost.type === 'happinessBooster' ? '⚡' : '🎁'}</span>
-                              <span className="text-sm font-medium text-white">
-                                {boost.multiplier}x {boost.type === 'mining' ? 'Food' : 'Experience'}
-                              </span>
-                            </div>
-                            <span className="text-xs text-white/80">
-                              {minutesLeft}:{secondsLeft.toString().padStart(2, '0')}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Permanent Upgrades */}
-                {gameStats.permanentUpgrades && (gameStats.permanentUpgrades.autoFeeder || gameStats.permanentUpgrades.happinessBooster > 1) && (
-                  <div className="pt-4 border-t border-white/20">
-                    <h3 className="text-sm font-bold text-white mb-2">🔧 Active Upgrades</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {gameStats.permanentUpgrades.autoFeeder && (
-                        <div className="bg-green-500/20 text-green-300 border border-green-400/30 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                          🤖 Auto-Feeder
-                        </div>
-                      )}
-                      {gameStats.permanentUpgrades.happinessBooster > 1 && (
-                        <div className="bg-blue-500/20 text-blue-300 border border-blue-400/30 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                          ⚡ Happiness Booster ({gameStats.permanentUpgrades.happinessBooster}x)
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             )}
 
@@ -331,69 +235,6 @@ export const Home = () => {
           </div>
         </div>
 
-        {/* Quick Actions for Logged In Users */}
-        {isAuthenticated && gameStats && (
-          <div className="container mx-auto px-6 py-12">
-            <div className="cute-card p-8">
-              <h2 className="text-3xl font-inter font-bold text-gray-800 mb-8 text-center">
-                Quick Actions
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button
-                  onClick={() => navigate('/pets')}
-                  className="cute-button p-4 flex flex-col items-center gap-2"
-                >
-                  <span className="text-2xl">🐕</span>
-                  <span className="font-inter font-bold">My Pets</span>
-                  <div className="text-white/80 text-sm font-inter">{ships.length} 🐕</div>
-                  <div className="text-white/80 text-sm font-inter">Pets</div>
-                </Button>
-                <Button
-                  onClick={() => navigate('/market')}
-                  className="cute-button-secondary p-4 flex flex-col items-center gap-2"
-                >
-                  <span className="text-2xl">🛒</span>
-                  <span className="font-inter font-bold">NFT Market</span>
-                  <div className="text-white/80 text-sm font-inter">Buy & Sell</div>
-                  <div className="text-white/80 text-sm font-inter">NFTs</div>
-                </Button>
-                <Button
-                  onClick={() => navigate(RouteNamesEnum.tasks)}
-                  className="cute-button p-4 flex flex-col items-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-                >
-                  <span className="text-2xl">🎯</span>
-                  <span className="font-inter font-bold text-white">Tasks</span>
-                  <div className="text-white text-sm font-inter">
-                    {gameStats.miningLevel || 1} 🌟
-                  </div>
-                  <div className="text-white text-sm font-inter">Level</div>
-                </Button>
-                <Button
-                  onClick={() => navigate(RouteNamesEnum.referrals)}
-                  className="cute-button p-4 flex flex-col items-center gap-2"
-                  style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-                >
-                  <span className="text-2xl">👥</span>
-                  <span className="font-inter font-bold text-white">Friends</span>
-                  <div className="text-white text-sm font-inter">
-                    {gameStats.totalReferrals || 0} 👥
-                  </div>
-                  <div className="text-white text-sm font-inter">Friends</div>
-                </Button>
-                <Button
-                  onClick={() => navigate(RouteNamesEnum.game)}
-                  className="cute-button-secondary p-4 flex flex-col items-center gap-2"
-                >
-                  <span className="text-2xl">🎮</span>
-                  <span className="font-inter font-bold">Game</span>
-                  <div className="text-white/80 text-sm font-inter">Play & Earn</div>
-                  <div className="text-white/80 text-sm font-inter">Food</div>
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Bottom padding for mobile navigation */}
         <div className="h-20 md:h-0"></div>

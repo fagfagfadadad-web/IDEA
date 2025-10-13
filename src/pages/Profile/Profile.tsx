@@ -117,21 +117,21 @@ export const Profile = () => {
 
   const achievements = [
     {
-      title: 'First Feeding',
-      description: 'Feed your first dog',
-      unlocked: (gameStats?.totalMined || 0) > 0,
-      icon: '🍖'
-    },
-    {
-      title: 'Dog Lover',
-      description: 'Own 3 or more dogs',
-      unlocked: ships.length >= 3,
+      title: 'First Pet',
+      description: 'Adopt your first pet',
+      unlocked: ships.length > 0,
       icon: '🐕'
     },
     {
-      title: 'Food Collector',
-      description: 'Collect 1,000,000 food points',
-      unlocked: (gameStats?.totalMined || 0) >= 1000000,
+      title: 'Pet Lover',
+      description: 'Own 3 or more pets',
+      unlocked: ships.length >= 3,
+      icon: '🐾'
+    },
+    {
+      title: 'Pet Collector',
+      description: 'Own 10 or more pets',
+      unlocked: ships.length >= 10,
       icon: '🏆'
     },
     {
@@ -236,7 +236,7 @@ export const Profile = () => {
                     {user?.username}
                   </h2>
                   <p className="text-gray-600 font-inter">
-                    Level {gameStats?.miningLevel || 1} Pet Caretaker
+                    Pet Collector
                   </p>
                 </div>
               </div>
@@ -350,35 +350,17 @@ export const Profile = () => {
             </div>
           </div>
 
-          {/* Pet Care Stats */}
+          {/* Pet Collection Stats */}
           <div className="cute-card p-6">
-            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">Pet Care Statistics</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <h2 className="text-2xl font-inter font-bold text-gray-800 mb-6">My Pet Collection</h2>
+            <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-primary-500 text-xl">🍖</span>
-                  <span className="text-gray-600 font-medium font-inter">Food Points</span>
+                  <span className="text-primary-500 text-xl">🐕</span>
+                  <span className="text-gray-600 font-medium font-inter">Total Pets</span>
                 </div>
                 <div className="text-2xl md:text-3xl font-inter font-bold text-primary-600">
-                  {gameStats?.zenBalance?.toLocaleString() || 0}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Heart className="text-accent-500" size={20} />
-                  <span className="text-gray-600 font-medium font-inter">Love Given</span>
-                </div>
-                <div className="text-2xl md:text-3xl font-inter font-bold text-accent-600">
-                  {gameStats?.totalMined?.toLocaleString() || 0}
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Star className="text-success" size={20} />
-                  <span className="text-gray-600 font-medium font-inter">Care Level</span>
-                </div>
-                <div className="text-2xl md:text-3xl font-inter font-bold text-success">
-                  {gameStats?.miningLevel || 1}
+                  {ships.length}
                 </div>
               </div>
               <div className="text-center">
