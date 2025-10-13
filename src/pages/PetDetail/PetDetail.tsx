@@ -22,6 +22,7 @@ export const PetDetail = () => {
   const [showEvolutionAnimation, setShowEvolutionAnimation] = useState(false);
   const [showListModal, setShowListModal] = useState(false);
   const [listingPrice, setListingPrice] = useState('');
+  const [isUnlisting, setIsUnlisting] = useState(false);
 
   useEffect(() => {
     if (petId) {
@@ -122,6 +123,33 @@ export const PetDetail = () => {
     } catch (err) {
       console.error('Error listing pet:', err);
       error('Failed to list pet on market');
+    }
+  };
+
+  const handleUnlistPet = async () => {
+    if (!pet?.petId || !user?.id) return;
+
+    try {
+      setIsUnlisting(true);
+
+      const listingsQuery = await PetService.getMarketListings();
+      const myListing = listingsQuery.find(l => l.petId === pet.petId && l.sellerId === user.id && l.status === 'active');
+
+      if (myListing?.id) {
+        const result = await PetService.cancelListing(myListing.id, user.id);
+        if (result) {
+          success('Pet unlisted successfully!');
+          await fetchPet();
+          refetch();
+        } else {
+          error('Failed to unlist pet');
+        }
+      }
+    } catch (err) {
+      console.error('Error unlisting pet:', err);
+      error('Failed to unlist pet');
+    } finally {
+      setIsUnlisting(false);
     }
   };
 
@@ -361,13 +389,24 @@ export const PetDetail = () => {
                   <Utensils size={20} />
                   Feed (10 Food)
                 </Button>
-                <Button
-                  onClick={() => setShowListModal(true)}
-                  className="w-full bg-gradient-to-r from-[#7C3AED] to-[#6b21a8] hover:from-[#6b21a8] hover:to-[#581c87] text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
-                >
-                  <ShoppingBag size={20} />
-                  Sell on Market
-                </Button>
+                {pet.isListed ? (
+                  <Button
+                    onClick={handleUnlistPet}
+                    disabled={isUnlisting}
+                    className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <ShoppingBag size={20} />
+                    {isUnlisting ? 'Unlisting...' : 'Unlist from Market'}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => setShowListModal(true)}
+                    className="w-full bg-gradient-to-r from-[#7C3AED] to-[#6b21a8] hover:from-[#6b21a8] hover:to-[#581c87] text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                  >
+                    <ShoppingBag size={20} />
+                    Sell on Market
+                  </Button>
+                )}
               </div>
             </div>
 

@@ -24,6 +24,7 @@ export const PetMarket = () => {
   const [priceSort, setPriceSort] = useState<'asc' | 'desc' | 'none'>('none');
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
+  const [isUnlisting, setIsUnlisting] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -114,6 +115,28 @@ export const PetMarket = () => {
       error('Failed to purchase pet');
     } finally {
       setIsPurchasing(false);
+    }
+  };
+
+  const handleUnlist = async (listing: MarketListing) => {
+    if (!user?.id || !listing.id) return;
+
+    try {
+      setIsUnlisting(true);
+      const result = await PetService.cancelListing(listing.id, user.id);
+
+      if (result) {
+        success('Pet unlisted successfully!');
+        fetchListings();
+        refetch();
+      } else {
+        error('Failed to unlist pet');
+      }
+    } catch (err) {
+      console.error('Error unlisting pet:', err);
+      error('Failed to unlist pet');
+    } finally {
+      setIsUnlisting(false);
     }
   };
 
@@ -325,22 +348,29 @@ export const PetMarket = () => {
                         </div>
                       </div>
 
-                      <Button
-                        onClick={() => handlePurchase(listing)}
-                        disabled={!canAfford || listing.sellerId === user?.id}
-                        className={`w-full ${
-                          canAfford && listing.sellerId !== user?.id
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
-                            : 'bg-gray-300 cursor-not-allowed'
-                        } text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
-                      >
-                        <ShoppingCart size={20} />
-                        {listing.sellerId === user?.id
-                          ? 'Your Listing'
-                          : canAfford
-                          ? 'Buy Now'
-                          : 'Insufficient Balance'}
-                      </Button>
+                      {listing.sellerId === user?.id ? (
+                        <Button
+                          onClick={() => handleUnlist(listing)}
+                          disabled={isUnlisting}
+                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <ShoppingCart size={20} />
+                          {isUnlisting ? 'Unlisting...' : 'Unlist Pet'}
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={() => handlePurchase(listing)}
+                          disabled={!canAfford}
+                          className={`w-full ${
+                            canAfford
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                              : 'bg-gray-300 cursor-not-allowed'
+                          } text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
+                        >
+                          <ShoppingCart size={20} />
+                          {canAfford ? 'Buy Now' : 'Insufficient Balance'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
