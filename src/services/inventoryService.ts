@@ -43,6 +43,11 @@ export interface RareItem {
 
 export const InventoryService = {
   async getUserInventory(userId: string): Promise<InventoryItem[]> {
+    if (!supabase) {
+      console.warn('Supabase not configured');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('inventory_items')
       .select('*')
@@ -62,6 +67,10 @@ export const InventoryService = {
     effect: any,
     metadata?: any
   ): Promise<InventoryItem> {
+    if (!supabase) {
+      throw new Error('Supabase not configured');
+    }
+
     const existingItem = await supabase
       .from('inventory_items')
       .select('*')
@@ -101,6 +110,10 @@ export const InventoryService = {
   },
 
   async useInventoryItem(itemId: string, userId: string): Promise<void> {
+    if (!supabase) {
+      throw new Error('Supabase not configured');
+    }
+
     const { data: item } = await supabase
       .from('inventory_items')
       .select('*')
@@ -128,6 +141,10 @@ export const InventoryService = {
   },
 
   async deleteInventoryItem(itemId: string, userId: string): Promise<void> {
+    if (!supabase) {
+      throw new Error('Supabase not configured');
+    }
+
     const { error } = await supabase
       .from('inventory_items')
       .delete()
@@ -138,6 +155,11 @@ export const InventoryService = {
   },
 
   async getDailyDeals(): Promise<DailyDeal[]> {
+    if (!supabase) {
+      console.warn('Supabase not configured');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('daily_deals')
       .select('*')
@@ -155,6 +177,10 @@ export const InventoryService = {
     discountPercentage: number,
     hoursAvailable: number = 24
   ): Promise<DailyDeal> {
+    if (!supabase) {
+      throw new Error('Supabase not configured');
+    }
+
     const availableUntil = new Date();
     availableUntil.setHours(availableUntil.getHours() + hoursAvailable);
 
@@ -178,6 +204,11 @@ export const InventoryService = {
   },
 
   async getRareItems(): Promise<RareItem[]> {
+    if (!supabase) {
+      console.warn('Supabase not configured');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('rare_items')
       .select('*')
