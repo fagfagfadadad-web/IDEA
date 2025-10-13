@@ -1,71 +1,90 @@
-import { supabase } from '../lib/supabase';
-import { doc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  writeBatch,
+  increment
+} from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 export interface MarketplaceListing {
-  id: string;
-  user_id: string;
-  inventory_item_id?: string;
-  item_id: string;
-  item_name: string;
-  item_type: 'consumable' | 'boost' | 'special';
+  id?: string;
+  userId: string;
+  inventoryItemId?: string;
+  itemId: string;
+  itemName: string;
+  itemType: 'consumable' | 'boost' | 'special';
   quantity: number;
   price: number;
   effect: any;
   metadata: any;
   status: 'active' | 'sold' | 'cancelled';
-  created_at: string;
-  updated_at: string;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface MarketplaceTransaction {
-  id: string;
-  listing_id: string;
-  seller_id: string;
-  buyer_id: string;
-  item_id: string;
-  item_name: string;
+  id?: string;
+  listingId: string;
+  sellerId: string;
+  buyerId: string;
+  itemId: string;
+  itemName: string;
   quantity: number;
   price: number;
-  transaction_fee: number;
-  seller_earnings: number;
-  created_at: string;
+  transactionFee: number;
+  sellerEarnings: number;
+  createdAt: any;
 }
 
 const MARKETPLACE_FEE_PERCENTAGE = 0.10;
 
 export const MarketplaceService = {
   async getActiveListings(): Promise<MarketplaceListing[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'marketplaceListings'),
+        where('status', '==', 'active'),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as MarketplaceListing[];
+    } catch (error) {
+      console.error('Error getting marketplace listings:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('marketplace_listings')
-      .select('*')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   },
 
   async getUserListings(userId: string): Promise<MarketplaceListing[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'marketplaceListings'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }) as MarketplaceListing)
+        .filter(listing => listing.status === 'active' || listing.status === 'sold');
+    } catch (error) {
+      console.error('Error getting user listings:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('marketplace_listings')
-      .select('*')
-      .eq('user_id', userId)
-      .in('status', ['active', 'sold'])
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   },
 
   async createListing(
@@ -79,20 +98,16 @@ export const MarketplaceService = {
     effect: any,
     metadata: any
   ): Promise<MarketplaceListing> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
+    const inventoryRef = doc(db, 'inventoryItems', inventoryItemId);
+    const inventorySnap = await getDoc(inventoryRef);
+
+    if (!inventorySnap.exists()) {
+      throw new Error('Item not found in inventory');
     }
 
-    const { data: inventoryItem } = await supabase
-      .from('inventory_items')
-      .select('*')
-      .eq('id', inventoryItemId)
-      .eq('user_id', userId)
-      .eq('is_used', false)
-      .maybeSingle();
-
-    if (!inventoryItem) {
-      throw new Error('Item not found in inventory');
+    const inventoryItem = inventorySnap.data();
+    if (inventoryItem.userId !== userId) {
+      throw new Error('Unauthorized');
     }
 
     if (inventoryItem.quantity < quantity) {
@@ -100,63 +115,56 @@ export const MarketplaceService = {
     }
 
     if (inventoryItem.quantity === quantity) {
-      await supabase
-        .from('inventory_items')
-        .update({ is_used: true })
-        .eq('id', inventoryItemId);
+      await updateDoc(inventoryRef, {
+        isUsed: true
+      });
     } else {
-      await supabase
-        .from('inventory_items')
-        .update({ quantity: inventoryItem.quantity - quantity })
-        .eq('id', inventoryItemId);
+      await updateDoc(inventoryRef, {
+        quantity: inventoryItem.quantity - quantity
+      });
     }
 
-    const { data, error } = await supabase
-      .from('marketplace_listings')
-      .insert({
-        user_id: userId,
-        inventory_item_id: inventoryItemId,
-        item_id: itemId,
-        item_name: itemName,
-        item_type: itemType,
-        quantity,
-        price,
-        effect,
-        metadata,
-        status: 'active'
-      })
-      .select()
-      .single();
+    const docRef = await addDoc(collection(db, 'marketplaceListings'), {
+      userId,
+      inventoryItemId,
+      itemId,
+      itemName,
+      itemType,
+      quantity,
+      price,
+      effect,
+      metadata,
+      status: 'active',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
 
-    if (error) throw error;
-    return data;
+    const newDoc = await getDoc(docRef);
+    return { id: docRef.id, ...newDoc.data() } as MarketplaceListing;
   },
 
   async purchaseListing(
     listingId: string,
     buyerId: string
   ): Promise<{ transaction: MarketplaceTransaction; item: any }> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
+    const listingRef = doc(db, 'marketplaceListings', listingId);
+    const listingSnap = await getDoc(listingRef);
+
+    if (!listingSnap.exists()) {
+      throw new Error('Listing not found');
     }
 
-    const { data: listing } = await supabase
-      .from('marketplace_listings')
-      .select('*')
-      .eq('id', listingId)
-      .eq('status', 'active')
-      .maybeSingle();
+    const listing = listingSnap.data() as MarketplaceListing;
 
-    if (!listing) {
-      throw new Error('Listing not found or already sold');
+    if (listing.status !== 'active') {
+      throw new Error('Listing is not active');
     }
 
-    if (listing.user_id === buyerId) {
+    if (listing.userId === buyerId) {
       throw new Error('Cannot buy your own listing');
     }
 
     const buyerRef = doc(db, 'gameStats', buyerId);
-    const { getDoc } = await import('firebase/firestore');
     const buyerSnap = await getDoc(buyerRef);
 
     if (!buyerSnap.exists()) {
@@ -171,118 +179,122 @@ export const MarketplaceService = {
     const transactionFee = Math.floor(listing.price * MARKETPLACE_FEE_PERCENTAGE);
     const sellerEarnings = listing.price - transactionFee;
 
-    await updateDoc(buyerRef, {
+    const batch = writeBatch(db);
+
+    batch.update(buyerRef, {
       zenBalance: increment(-listing.price),
       updatedAt: serverTimestamp()
     });
 
-    const sellerRef = doc(db, 'gameStats', listing.user_id);
-    await updateDoc(sellerRef, {
+    const sellerRef = doc(db, 'gameStats', listing.userId);
+    batch.update(sellerRef, {
       zenBalance: increment(sellerEarnings),
       updatedAt: serverTimestamp()
     });
 
-    await supabase
-      .from('marketplace_listings')
-      .update({ status: 'sold' })
-      .eq('id', listingId);
+    batch.update(listingRef, {
+      status: 'sold',
+      updatedAt: serverTimestamp()
+    });
 
-    const { data: transaction } = await supabase
-      .from('marketplace_transactions')
-      .insert({
-        listing_id: listingId,
-        seller_id: listing.user_id,
-        buyer_id: buyerId,
-        item_id: listing.item_id,
-        item_name: listing.item_name,
-        quantity: listing.quantity,
-        price: listing.price,
-        transaction_fee: transactionFee,
-        seller_earnings: sellerEarnings
-      })
-      .select()
-      .single();
+    await batch.commit();
 
-    const { data: newInventoryItem } = await supabase
-      .from('inventory_items')
-      .insert({
-        user_id: buyerId,
-        item_id: listing.item_id,
-        item_name: listing.item_name,
-        item_type: listing.item_type,
-        quantity: listing.quantity,
-        effect: listing.effect,
-        metadata: { ...listing.metadata, source: 'marketplace' }
-      })
-      .select()
-      .single();
+    const transactionRef = await addDoc(collection(db, 'marketplaceTransactions'), {
+      listingId,
+      sellerId: listing.userId,
+      buyerId,
+      itemId: listing.itemId,
+      itemName: listing.itemName,
+      quantity: listing.quantity,
+      price: listing.price,
+      transactionFee,
+      sellerEarnings,
+      createdAt: serverTimestamp()
+    });
 
-    return { transaction: transaction!, item: newInventoryItem };
+    const transactionSnap = await getDoc(transactionRef);
+    const transaction = { id: transactionRef.id, ...transactionSnap.data() } as MarketplaceTransaction;
+
+    const newInventoryRef = await addDoc(collection(db, 'inventoryItems'), {
+      userId: buyerId,
+      itemId: listing.itemId,
+      itemName: listing.itemName,
+      itemType: listing.itemType,
+      quantity: listing.quantity,
+      effect: listing.effect,
+      metadata: { ...listing.metadata, source: 'marketplace' },
+      isUsed: false,
+      purchasedAt: serverTimestamp(),
+      createdAt: serverTimestamp()
+    });
+
+    const newInventorySnap = await getDoc(newInventoryRef);
+    const item = { id: newInventoryRef.id, ...newInventorySnap.data() };
+
+    return { transaction, item };
   },
 
   async cancelListing(listingId: string, userId: string): Promise<void> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
-    }
+    const listingRef = doc(db, 'marketplaceListings', listingId);
+    const listingSnap = await getDoc(listingRef);
 
-    const { data: listing } = await supabase
-      .from('marketplace_listings')
-      .select('*')
-      .eq('id', listingId)
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .maybeSingle();
-
-    if (!listing) {
+    if (!listingSnap.exists()) {
       throw new Error('Listing not found');
     }
 
-    await supabase
-      .from('marketplace_listings')
-      .update({ status: 'cancelled' })
-      .eq('id', listingId);
+    const listing = listingSnap.data() as MarketplaceListing;
 
-    if (listing.inventory_item_id) {
-      const { data: inventoryItem } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .eq('id', listing.inventory_item_id)
-        .maybeSingle();
+    if (listing.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
 
-      if (inventoryItem) {
-        if (inventoryItem.is_used) {
-          await supabase
-            .from('inventory_items')
-            .update({
-              is_used: false,
-              quantity: listing.quantity
-            })
-            .eq('id', listing.inventory_item_id);
+    if (listing.status !== 'active') {
+      throw new Error('Listing is not active');
+    }
+
+    await updateDoc(listingRef, {
+      status: 'cancelled',
+      updatedAt: serverTimestamp()
+    });
+
+    if (listing.inventoryItemId) {
+      const inventoryRef = doc(db, 'inventoryItems', listing.inventoryItemId);
+      const inventorySnap = await getDoc(inventoryRef);
+
+      if (inventorySnap.exists()) {
+        const inventoryItem = inventorySnap.data();
+
+        if (inventoryItem.isUsed) {
+          await updateDoc(inventoryRef, {
+            isUsed: false,
+            quantity: listing.quantity
+          });
         } else {
-          await supabase
-            .from('inventory_items')
-            .update({
-              quantity: inventoryItem.quantity + listing.quantity
-            })
-            .eq('id', listing.inventory_item_id);
+          await updateDoc(inventoryRef, {
+            quantity: inventoryItem.quantity + listing.quantity
+          });
         }
       }
     }
   },
 
   async getUserTransactions(userId: string): Promise<MarketplaceTransaction[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'marketplaceTransactions'),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }) as MarketplaceTransaction)
+        .filter(tx => tx.sellerId === userId || tx.buyerId === userId);
+    } catch (error) {
+      console.error('Error getting user transactions:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('marketplace_transactions')
-      .select('*')
-      .or(`seller_id.eq.${userId},buyer_id.eq.${userId}`)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   }
 };

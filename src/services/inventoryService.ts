@@ -1,62 +1,78 @@
-import { supabase } from '../lib/supabase';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  serverTimestamp
+} from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export interface InventoryItem {
-  id: string;
-  user_id: string;
-  item_id: string;
-  item_name: string;
-  item_type: 'consumable' | 'boost' | 'special';
+  id?: string;
+  userId: string;
+  itemId: string;
+  itemName: string;
+  itemType: 'consumable' | 'boost' | 'special';
   quantity: number;
-  purchased_at: string;
-  used_at?: string;
-  is_used: boolean;
+  purchasedAt: any;
+  usedAt?: any;
+  isUsed: boolean;
   effect: any;
   metadata: any;
-  created_at: string;
+  createdAt: any;
 }
 
 export interface DailyDeal {
-  id: string;
-  item_id: string;
-  original_price: number;
-  discounted_price: number;
-  discount_percentage: number;
-  available_until: string;
-  is_active: boolean;
-  created_at: string;
+  id?: string;
+  itemId: string;
+  originalPrice: number;
+  discountedPrice: number;
+  discountPercentage: number;
+  availableUntil: any;
+  isActive: boolean;
+  createdAt: any;
 }
 
 export interface RareItem {
-  id: string;
-  item_id: string;
+  id?: string;
+  itemId: string;
   name: string;
   description: string;
   price: number;
   rarity: 'rare' | 'epic' | 'legendary';
   effect: any;
   emoji: string;
-  available_from: string;
-  available_until?: string;
-  is_active: boolean;
-  created_at: string;
+  availableFrom: any;
+  availableUntil?: any;
+  isActive: boolean;
+  createdAt: any;
 }
 
 export const InventoryService = {
   async getUserInventory(userId: string): Promise<InventoryItem[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'inventoryItems'),
+        where('userId', '==', userId),
+        where('isUsed', '==', false),
+        orderBy('createdAt', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as InventoryItem[];
+    } catch (error) {
+      console.error('Error getting inventory:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('inventory_items')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('is_used', false)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   },
 
   async addItemToInventory(
@@ -67,108 +83,107 @@ export const InventoryService = {
     effect: any,
     metadata?: any
   ): Promise<InventoryItem> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
+    const existingQuery = query(
+      collection(db, 'inventoryItems'),
+      where('userId', '==', userId),
+      where('itemId', '==', itemId),
+      where('isUsed', '==', false)
+    );
+
+    const existingDocs = await getDocs(existingQuery);
+
+    if (!existingDocs.empty && itemType === 'consumable') {
+      const existingDoc = existingDocs.docs[0];
+      const existingData = existingDoc.data();
+      await updateDoc(doc(db, 'inventoryItems', existingDoc.id), {
+        quantity: existingData.quantity + 1
+      });
+      return { id: existingDoc.id, ...existingData, quantity: existingData.quantity + 1 } as InventoryItem;
     }
 
-    const existingItem = await supabase
-      .from('inventory_items')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('item_id', itemId)
-      .eq('is_used', false)
-      .maybeSingle();
+    const docRef = await addDoc(collection(db, 'inventoryItems'), {
+      userId,
+      itemId,
+      itemName,
+      itemType,
+      quantity: 1,
+      effect,
+      metadata: metadata || {},
+      isUsed: false,
+      purchasedAt: serverTimestamp(),
+      createdAt: serverTimestamp()
+    });
 
-    if (existingItem.data && itemType === 'consumable') {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .update({ quantity: existingItem.data.quantity + 1 })
-        .eq('id', existingItem.data.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
-
-    const { data, error } = await supabase
-      .from('inventory_items')
-      .insert({
-        user_id: userId,
-        item_id: itemId,
-        item_name: itemName,
-        item_type: itemType,
-        quantity: 1,
-        effect,
-        metadata: metadata || {}
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    const newDoc = await getDoc(docRef);
+    return { id: docRef.id, ...newDoc.data() } as InventoryItem;
   },
 
   async useInventoryItem(itemId: string, userId: string): Promise<void> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
+    const itemRef = doc(db, 'inventoryItems', itemId);
+    const itemSnap = await getDoc(itemRef);
+
+    if (!itemSnap.exists()) {
+      throw new Error('Item not found');
     }
 
-    const { data: item } = await supabase
-      .from('inventory_items')
-      .select('*')
-      .eq('id', itemId)
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (!item) throw new Error('Item not found');
+    const item = itemSnap.data();
+    if (item.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
 
     if (item.quantity > 1) {
-      await supabase
-        .from('inventory_items')
-        .update({ quantity: item.quantity - 1 })
-        .eq('id', itemId);
+      await updateDoc(itemRef, {
+        quantity: item.quantity - 1
+      });
     } else {
-      await supabase
-        .from('inventory_items')
-        .update({
-          is_used: true,
-          used_at: new Date().toISOString(),
-          quantity: 0
-        })
-        .eq('id', itemId);
+      await updateDoc(itemRef, {
+        isUsed: true,
+        usedAt: serverTimestamp(),
+        quantity: 0
+      });
     }
   },
 
   async deleteInventoryItem(itemId: string, userId: string): Promise<void> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
+    const itemRef = doc(db, 'inventoryItems', itemId);
+    const itemSnap = await getDoc(itemRef);
+
+    if (!itemSnap.exists()) {
+      throw new Error('Item not found');
     }
 
-    const { error } = await supabase
-      .from('inventory_items')
-      .delete()
-      .eq('id', itemId)
-      .eq('user_id', userId);
+    const item = itemSnap.data();
+    if (item.userId !== userId) {
+      throw new Error('Unauthorized');
+    }
 
-    if (error) throw error;
+    await deleteDoc(itemRef);
   },
 
   async getDailyDeals(): Promise<DailyDeal[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'dailyDeals'),
+        where('isActive', '==', true),
+        orderBy('discountPercentage', 'desc')
+      );
+
+      const querySnapshot = await getDocs(q);
+      const now = new Date();
+
+      return querySnapshot.docs
+        .map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }) as DailyDeal)
+        .filter(deal => {
+          const availableUntil = deal.availableUntil?.toDate?.() || new Date(deal.availableUntil);
+          return availableUntil > now;
+        });
+    } catch (error) {
+      console.error('Error getting daily deals:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('daily_deals')
-      .select('*')
-      .eq('is_active', true)
-      .gt('available_until', new Date().toISOString())
-      .order('discount_percentage', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   },
 
   async createDailyDeal(
@@ -177,46 +192,41 @@ export const InventoryService = {
     discountPercentage: number,
     hoursAvailable: number = 24
   ): Promise<DailyDeal> {
-    if (!supabase) {
-      throw new Error('Supabase not configured');
-    }
-
     const availableUntil = new Date();
     availableUntil.setHours(availableUntil.getHours() + hoursAvailable);
 
     const discountedPrice = Math.floor(originalPrice * (1 - discountPercentage / 100));
 
-    const { data, error } = await supabase
-      .from('daily_deals')
-      .insert({
-        item_id: itemId,
-        original_price: originalPrice,
-        discounted_price: discountedPrice,
-        discount_percentage: discountPercentage,
-        available_until: availableUntil.toISOString(),
-        is_active: true
-      })
-      .select()
-      .single();
+    const docRef = await addDoc(collection(db, 'dailyDeals'), {
+      itemId,
+      originalPrice,
+      discountedPrice,
+      discountPercentage,
+      availableUntil,
+      isActive: true,
+      createdAt: serverTimestamp()
+    });
 
-    if (error) throw error;
-    return data;
+    const newDoc = await getDoc(docRef);
+    return { id: docRef.id, ...newDoc.data() } as DailyDeal;
   },
 
   async getRareItems(): Promise<RareItem[]> {
-    if (!supabase) {
-      console.warn('Supabase not configured');
+    try {
+      const q = query(
+        collection(db, 'rareItems'),
+        where('isActive', '==', true)
+      );
+
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as RareItem[];
+    } catch (error) {
+      console.error('Error getting rare items:', error);
       return [];
     }
-
-    const { data, error } = await supabase
-      .from('rare_items')
-      .select('*')
-      .eq('is_active', true)
-      .order('rarity', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
   },
 
   async purchaseRareItem(
@@ -225,7 +235,7 @@ export const InventoryService = {
   ): Promise<InventoryItem> {
     return await this.addItemToInventory(
       userId,
-      rareItem.item_id,
+      rareItem.itemId,
       rareItem.name,
       'special',
       rareItem.effect,

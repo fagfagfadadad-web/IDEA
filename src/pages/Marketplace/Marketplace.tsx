@@ -32,7 +32,7 @@ export const Marketplace: React.FC = () => {
     try {
       if (selectedTab === 'browse') {
         const allListings = await MarketplaceService.getActiveListings();
-        setListings(allListings.filter(l => l.user_id !== user.id));
+        setListings(allListings.filter(l => l.userId !== user.id));
       } else if (selectedTab === 'mylistings') {
         const userListings = await MarketplaceService.getUserListings(user.id);
         setMyListings(userListings);
@@ -49,7 +49,7 @@ export const Marketplace: React.FC = () => {
   };
 
   const handlePurchase = async (listing: MarketplaceListing) => {
-    if (!user?.id) return;
+    if (!user?.id || !listing.id) return;
 
     const canAfford = (gameStats?.zenBalance || 0) >= listing.price;
     if (!canAfford) {
@@ -57,12 +57,12 @@ export const Marketplace: React.FC = () => {
       return;
     }
 
-    if (!confirm(`Purchase ${listing.item_name} for 🍖 ${listing.price}?`)) return;
+    if (!confirm(`Purchase ${listing.itemName} for 🍖 ${listing.price}?`)) return;
 
     setIsProcessing(true);
     try {
       await MarketplaceService.purchaseListing(listing.id, user.id);
-      success(`Purchased ${listing.item_name}! Check your inventory.`);
+      success(`Purchased ${listing.itemName}! Check your inventory.`);
       await loadData();
       await refetch();
     } catch (err: any) {
@@ -74,7 +74,7 @@ export const Marketplace: React.FC = () => {
   };
 
   const handleCreateListing = async () => {
-    if (!selectedItem || !user?.id || !sellPrice) return;
+    if (!selectedItem || !selectedItem.id || !user?.id || !sellPrice) return;
 
     const price = parseInt(sellPrice);
     if (isNaN(price) || price <= 0) {
@@ -92,9 +92,9 @@ export const Marketplace: React.FC = () => {
       await MarketplaceService.createListing(
         user.id,
         selectedItem.id,
-        selectedItem.item_id,
-        selectedItem.item_name,
-        selectedItem.item_type,
+        selectedItem.itemId,
+        selectedItem.itemName,
+        selectedItem.itemType,
         sellQuantity,
         price,
         selectedItem.effect,
@@ -215,7 +215,7 @@ export const Marketplace: React.FC = () => {
                       <div className="text-center">
                         <div className="text-6xl mb-4">{listing.metadata?.emoji || '📦'}</div>
                         <h3 className="text-xl font-inter font-bold text-white mb-2">
-                          {listing.item_name}
+                          {listing.itemName}
                         </h3>
                         {listing.quantity > 1 && (
                           <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
@@ -274,7 +274,7 @@ export const Marketplace: React.FC = () => {
                       <div className="text-center">
                         <div className="text-6xl mb-4">{listing.metadata?.emoji || '📦'}</div>
                         <h3 className="text-xl font-inter font-bold text-white mb-2">
-                          {listing.item_name}
+                          {listing.itemName}
                         </h3>
                         <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
                           <span className="text-white font-inter font-bold uppercase text-xs">
@@ -292,9 +292,9 @@ export const Marketplace: React.FC = () => {
                         </span>
                       </div>
 
-                      {listing.status === 'active' && (
+                      {listing.status === 'active' && listing.id && (
                         <Button
-                          onClick={() => handleCancelListing(listing.id)}
+                          onClick={() => handleCancelListing(listing.id!)}
                           disabled={isProcessing}
                           className="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
                         >
@@ -336,7 +336,7 @@ export const Marketplace: React.FC = () => {
                       <div className="text-center">
                         <div className="text-6xl mb-4">{item.metadata?.emoji || '📦'}</div>
                         <h3 className="text-xl font-inter font-bold text-white mb-2">
-                          {item.item_name}
+                          {item.itemName}
                         </h3>
                         <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
                           <span className="text-white font-inter font-bold">x{item.quantity}</span>
@@ -362,7 +362,7 @@ export const Marketplace: React.FC = () => {
                   <div className="text-center">
                     <div className="text-6xl mb-4">{selectedItem.metadata?.emoji || '📦'}</div>
                     <h3 className="text-xl font-inter font-bold text-white mb-2">
-                      {selectedItem.item_name}
+                      {selectedItem.itemName}
                     </h3>
                   </div>
                 </div>

@@ -1267,28 +1267,28 @@ export class GameService {
         updatedAt: serverTimestamp()
       });
       console.log(`🎁 Level up reward: ${selectedReward.name} (+${selectedReward.reward.amount} tickets)`);
-    } else if (selectedReward.reward.type === 'item') {
-      const { supabase } = await import('../lib/supabase');
-      if (supabase && selectedReward.reward.itemId) {
-        const itemData: Record<string, any> = {
-          xp_boost_small: { name: 'XP Treat', effect: { xp: 100 }, emoji: '✨' },
-          training_boost: { name: 'Training Manual', effect: { training: 10 }, emoji: '📚' },
-          shiny_charm: { name: 'Shiny Charm', effect: { shiny_chance: 0.1 }, emoji: '🍀' }
-        };
+    } else if (selectedReward.reward.type === 'item' && selectedReward.reward.itemId) {
+      const itemData: Record<string, any> = {
+        xp_boost_small: { name: 'XP Treat', effect: { xp: 100 }, emoji: '✨' },
+        training_boost: { name: 'Training Manual', effect: { training: 10 }, emoji: '📚' },
+        shiny_charm: { name: 'Shiny Charm', effect: { shiny_chance: 0.1 }, emoji: '🍀' }
+      };
 
-        const itemInfo = itemData[selectedReward.reward.itemId];
-        if (itemInfo) {
-          await supabase.from('inventory_items').insert({
-            user_id: userId,
-            item_id: selectedReward.reward.itemId,
-            item_name: itemInfo.name,
-            item_type: 'consumable',
-            quantity: 1,
-            effect: itemInfo.effect,
-            metadata: { emoji: itemInfo.emoji, source: 'level_up' }
-          });
-          console.log(`🎁 Level up reward: ${selectedReward.name} (added to inventory)`);
-        }
+      const itemInfo = itemData[selectedReward.reward.itemId];
+      if (itemInfo) {
+        await addDoc(collection(db, 'inventoryItems'), {
+          userId,
+          itemId: selectedReward.reward.itemId,
+          itemName: itemInfo.name,
+          itemType: 'consumable',
+          quantity: 1,
+          effect: itemInfo.effect,
+          metadata: { emoji: itemInfo.emoji, source: 'level_up' },
+          isUsed: false,
+          purchasedAt: serverTimestamp(),
+          createdAt: serverTimestamp()
+        });
+        console.log(`🎁 Level up reward: ${selectedReward.name} (added to inventory)`);
       }
     }
 

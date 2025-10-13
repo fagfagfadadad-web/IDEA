@@ -51,18 +51,18 @@ export const Inventory: React.FC = () => {
   };
 
   const confirmUseItem = async () => {
-    if (!selectedItem || !user?.id) return;
+    if (!selectedItem || !selectedItem.id || !user?.id) return;
 
     setIsProcessing(true);
     try {
       await InventoryService.useInventoryItem(selectedItem.id, user.id);
 
       if (selectedItem.effect?.xp) {
-        success(`Used ${selectedItem.item_name}! XP boost applied.`);
+        success(`Used ${selectedItem.itemName}! XP boost applied.`);
       } else if (selectedItem.effect?.xp_multiplier) {
-        success(`Activated ${selectedItem.item_name}! Boost is now active.`);
+        success(`Activated ${selectedItem.itemName}! Boost is now active.`);
       } else {
-        success(`Used ${selectedItem.item_name}!`);
+        success(`Used ${selectedItem.itemName}!`);
       }
 
       setShowUseModal(false);
@@ -93,7 +93,7 @@ export const Inventory: React.FC = () => {
   const handlePurchaseDailyDeal = async (deal: DailyDeal, itemInfo: any) => {
     if (!user?.id) return;
 
-    const canAfford = (gameStats?.zenBalance || 0) >= deal.discounted_price;
+    const canAfford = (gameStats?.zenBalance || 0) >= deal.discountedPrice;
     if (!canAfford) {
       error('Insufficient Food balance!');
       return;
@@ -101,10 +101,10 @@ export const Inventory: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      await GameService.purchaseShopItem(user.id, deal.item_id, itemInfo.type, deal.discounted_price, itemInfo.effect);
+      await GameService.purchaseShopItem(user.id, deal.itemId, itemInfo.type, deal.discountedPrice, itemInfo.effect);
       await InventoryService.addItemToInventory(
         user.id,
-        deal.item_id,
+        deal.itemId,
         itemInfo.name,
         itemInfo.type,
         itemInfo.effect
@@ -131,7 +131,7 @@ export const Inventory: React.FC = () => {
 
     setIsProcessing(true);
     try {
-      await GameService.purchaseShopItem(user.id, rareItem.item_id, 'special', rareItem.price, rareItem.effect);
+      await GameService.purchaseShopItem(user.id, rareItem.itemId, 'special', rareItem.price, rareItem.effect);
       await InventoryService.purchaseRareItem(user.id, rareItem);
       success(`Purchased ${rareItem.name}!`);
       await loadData();
@@ -249,14 +249,14 @@ export const Inventory: React.FC = () => {
                 inventory.map((item) => (
                   <div key={item.id} className="cute-card overflow-hidden">
                     <div className={`p-6 bg-gradient-to-br ${
-                      item.item_type === 'consumable' ? 'from-yellow-400 to-orange-500' :
-                      item.item_type === 'boost' ? 'from-purple-500 to-pink-500' :
+                      item.itemType === 'consumable' ? 'from-yellow-400 to-orange-500' :
+                      item.itemType === 'boost' ? 'from-purple-500 to-pink-500' :
                       'from-indigo-500 to-purple-600'
                     }`}>
                       <div className="text-center">
                         <div className="text-6xl mb-4">{item.metadata?.emoji || '📦'}</div>
                         <h3 className="text-xl font-inter font-bold text-white mb-2">
-                          {item.item_name}
+                          {item.itemName}
                         </h3>
                         {item.quantity > 1 && (
                           <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
@@ -276,13 +276,15 @@ export const Inventory: React.FC = () => {
                           <Zap size={18} className="inline mr-2" />
                           Use Item
                         </Button>
-                        <Button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg"
-                          disabled={isProcessing}
-                        >
-                          <Trash2 size={18} />
-                        </Button>
+                        {item.id && (
+                          <Button
+                            onClick={() => handleDeleteItem(item.id!)}
+                            className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg"
+                            disabled={isProcessing}
+                          >
+                            <Trash2 size={18} />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -305,13 +307,13 @@ export const Inventory: React.FC = () => {
                 </div>
               ) : (
                 dailyDeals.map((deal) => {
-                  const itemInfo = dealItems[deal.item_id];
+                  const itemInfo = dealItems[deal.itemId];
                   if (!itemInfo) return null;
 
                   return (
                     <div key={deal.id} className="cute-card overflow-hidden relative">
                       <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-inter font-bold text-sm z-10">
-                        -{deal.discount_percentage}%
+                        -{deal.discountPercentage}%
                       </div>
                       <div className="p-6 bg-gradient-to-br from-green-400 to-emerald-500">
                         <div className="text-center">
@@ -321,7 +323,7 @@ export const Inventory: React.FC = () => {
                           </h3>
                           <div className="flex items-center justify-center gap-2 text-white font-inter">
                             <Clock size={16} />
-                            <span className="text-sm">{getTimeRemaining(deal.available_until)}</span>
+                            <span className="text-sm">{getTimeRemaining(deal.availableUntil)}</span>
                           </div>
                         </div>
                       </div>
@@ -329,23 +331,23 @@ export const Inventory: React.FC = () => {
                       <div className="p-6 space-y-4">
                         <div className="flex items-center justify-between">
                           <span className="text-gray-600 line-through font-inter">
-                            🍖 {deal.original_price}
+                            🍖 {deal.originalPrice}
                           </span>
                           <span className="text-2xl font-bold text-green-600 font-inter">
-                            🍖 {deal.discounted_price}
+                            🍖 {deal.discountedPrice}
                           </span>
                         </div>
 
                         <Button
                           onClick={() => handlePurchaseDailyDeal(deal, itemInfo)}
-                          disabled={isProcessing || (gameStats?.zenBalance || 0) < deal.discounted_price}
+                          disabled={isProcessing || (gameStats?.zenBalance || 0) < deal.discountedPrice}
                           className={`w-full ${
-                            (gameStats?.zenBalance || 0) >= deal.discounted_price
+                            (gameStats?.zenBalance || 0) >= deal.discountedPrice
                               ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
                               : 'bg-gray-600 cursor-not-allowed text-gray-300'
                           } px-4 py-3 rounded-lg font-inter font-bold`}
                         >
-                          {(gameStats?.zenBalance || 0) >= deal.discounted_price ? 'Buy Deal' : 'Insufficient Balance'}
+                          {(gameStats?.zenBalance || 0) >= deal.discountedPrice ? 'Buy Deal' : 'Insufficient Balance'}
                         </Button>
                       </div>
                     </div>
@@ -411,7 +413,7 @@ export const Inventory: React.FC = () => {
               <div className="text-center">
                 <div className="text-6xl mb-4">{selectedItem.metadata?.emoji || '📦'}</div>
                 <h2 className="text-2xl font-inter font-bold text-white mb-2">
-                  Use {selectedItem.item_name}?
+                  Use {selectedItem.itemName}?
                 </h2>
                 <p className="text-white/90 font-inter">
                   This item will be consumed and cannot be undone.

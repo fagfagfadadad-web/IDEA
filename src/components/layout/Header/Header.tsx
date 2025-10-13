@@ -55,20 +55,20 @@ export const Header = () => {
               <Link to="/pets" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 My Pets
               </Link>
-              <Link to="/market" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Market
+              <Link to="/inventory" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Inventory
+              </Link>
+              <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Marketplace
               </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Pet Store
+                Shop
               </Link>
               <Link to="/tasks" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Tasks
               </Link>
               <Link to="/game" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Games
-              </Link>
-              <Link to="/referrals" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
-                Friends
               </Link>
               <Link to="/leaderboard" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Leaderboard
@@ -265,12 +265,20 @@ export const Header = () => {
                   My Pets
                 </Link>
                 <Link
-                  to="/market"
+                  to="/inventory"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🎒</span>
+                  Inventory
+                </Link>
+                <Link
+                  to="/marketplace"
                   className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <span className="text-xl">🛒</span>
-                  Market
+                  Marketplace
                 </Link>
                 <Link
                   to="/shop"
@@ -278,7 +286,7 @@ export const Header = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <ShoppingCart size={18} />
-                  Pet Store
+                  Shop
                 </Link>
                 <Link
                   to="/tasks"
