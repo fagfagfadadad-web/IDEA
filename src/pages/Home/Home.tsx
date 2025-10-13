@@ -106,9 +106,9 @@ export const Home = () => {
 
   const features = [
     {
-      icon: <span className="text-3xl">🍖</span>,
-      title: "Feed Your Dogs",
-      description: "Give your dogs delicious food to keep them happy and healthy"
+      icon: <span className="text-3xl">🐕</span>,
+      title: "My Pets",
+      description: "View and manage your pet collection, see their stats and happiness levels"
     },
     {
       icon: <span className="text-3xl">🎾</span>,
