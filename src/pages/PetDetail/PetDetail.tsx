@@ -316,7 +316,7 @@ export const PetDetail = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-purple-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-orange-500 transition-all duration-300"
                       style={{ width: `${pet.training.agility}%` }}
                     />
                   </div>
@@ -341,7 +341,7 @@ export const PetDetail = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-purple-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-orange-500 transition-all duration-300"
                       style={{ width: `${pet.training.obedience}%` }}
                     />
                   </div>
@@ -366,7 +366,7 @@ export const PetDetail = () => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
-                      className="h-2 rounded-full bg-purple-500 transition-all duration-300"
+                      className="h-2 rounded-full bg-orange-500 transition-all duration-300"
                       style={{ width: `${pet.training.intelligence}%` }}
                     />
                   </div>
