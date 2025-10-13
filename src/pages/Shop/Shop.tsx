@@ -239,7 +239,7 @@ export const Shop = () => {
                   className={`px-6 py-3 rounded-xl font-inter font-bold transition-all duration-200 flex items-center gap-2 ${
                     selectedCategory === category.id
                       ? 'bg-gradient-to-r from-[#f97316] to-[#fb923c] text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                      : 'bg-purple-500 text-white hover:bg-purple-600'
                   }`}
                 >
                   <span className="text-xl">{category.emoji}</span>
@@ -283,7 +283,7 @@ export const Shop = () => {
                     </div>
 
                     {item.effect.duration && (
-                      <div className="text-sm text-gray-600 font-inter bg-gray-50 rounded-lg p-2">
+                      <div className="text-sm text-white font-inter bg-purple-500 rounded-lg p-2">
                         ⏰ Duration: {item.effect.duration >= 86400 ? `${item.effect.duration / 86400} days` : `${item.effect.duration / 3600} hours`}
                       </div>
                     )}
