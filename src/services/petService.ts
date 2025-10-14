@@ -494,7 +494,30 @@ export class PetService {
         ...doc.data()
       } as MarketListing));
 
-      listings.sort((a, b) => {
+      const listingsWithPets = await Promise.all(
+        listings.map(async (listing) => {
+          const petsQuery = query(
+            collection(db, 'pets'),
+            where('petId', '==', listing.petId),
+            firestoreLimit(1)
+          );
+          const petsSnapshot = await getDocs(petsQuery);
+
+          if (!petsSnapshot.empty) {
+            const petDoc = petsSnapshot.docs[0];
+            listing.pet = {
+              id: petDoc.id,
+              ...petDoc.data()
+            } as Pet;
+          }
+
+          return listing;
+        })
+      );
+
+      let result = listingsWithPets;
+
+      result.sort((a, b) => {
         const aTime = a.listedAt as any;
         const bTime = b.listedAt as any;
         return (bTime?.seconds || 0) - (aTime?.seconds || 0);
@@ -502,20 +525,20 @@ export class PetService {
 
       if (filters) {
         if (filters.breedType) {
-          listings = listings.filter(l => l.breedType === filters.breedType);
+          result = result.filter(l => l.breedType === filters.breedType);
         }
         if (filters.minLevel) {
-          listings = listings.filter(l => l.level >= filters.minLevel!);
+          result = result.filter(l => l.level >= filters.minLevel!);
         }
         if (filters.maxLevel) {
-          listings = listings.filter(l => l.level <= filters.maxLevel!);
+          result = result.filter(l => l.level <= filters.maxLevel!);
         }
         if (filters.evolutionStage) {
-          listings = listings.filter(l => l.evolutionStage === filters.evolutionStage);
+          result = result.filter(l => l.evolutionStage === filters.evolutionStage);
         }
       }
 
-      return listings;
+      return result;
     } catch (error) {
       console.error('❌ Error fetching market listings:', error);
       return [];

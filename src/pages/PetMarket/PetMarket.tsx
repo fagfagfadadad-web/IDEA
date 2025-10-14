@@ -292,7 +292,27 @@ export const PetMarket = () => {
                         </div>
                       )}
                       <div className="text-center">
-                        <div className="text-6xl mb-4">{breedInfo.emoji}</div>
+                        {(listing.pet?.aiImageUrl || listing.pet?.aiImageData) ? (
+                          <div className="relative mb-4 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-2">
+                            <img
+                              src={listing.pet.aiImageUrl || listing.pet.aiImageData}
+                              alt={breedInfo.name}
+                              className="w-full h-48 object-contain rounded-lg"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                            <div className="hidden text-6xl mb-4">{breedInfo.emoji}</div>
+                            {listing.pet?.hasCustomImage && (
+                              <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-inter font-bold">
+                                🎨 AI
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-6xl mb-4">{breedInfo.emoji}</div>
+                        )}
                         <h3 className="text-xl font-inter font-bold text-white mb-1">
                           {breedInfo.name}
                         </h3>
@@ -389,7 +409,27 @@ export const PetMarket = () => {
             <div className="space-y-4 mb-6">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="text-center mb-4">
-                  <div className="text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
+                  {(selectedListing.pet?.aiImageUrl || selectedListing.pet?.aiImageData) ? (
+                    <div className="relative mb-2 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-2">
+                      <img
+                        src={selectedListing.pet.aiImageUrl || selectedListing.pet.aiImageData}
+                        alt={BREED_INFO[selectedListing.breedType].name}
+                        className="w-full h-48 object-contain rounded-lg"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                      <div className="hidden text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
+                      {selectedListing.pet?.hasCustomImage && (
+                        <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-inter font-bold">
+                          🎨 AI
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
+                  )}
                   <div className="font-inter font-bold text-white">
                     {BREED_INFO[selectedListing.breedType].name}
                   </div>
