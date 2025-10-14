@@ -52,6 +52,7 @@ export interface Pet {
   abilities: PetAbility[];
   training: TrainingStats;
   stats: ActivityStats;
+  equippedItems?: string[];
 
   isShiny: boolean;
   shinyVariant?: string;

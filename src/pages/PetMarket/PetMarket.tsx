@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Star, Zap, ShoppingCart, TrendingUp } from 'lucide-react';
+import { Search, Filter, Star, Zap, ShoppingCart, TrendingUp, Sparkles } from 'lucide-react';
 import { Button } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { PetService } from '../../services/petService';
-import { MarketListing, BREED_INFO, BreedType, EvolutionStage } from '../../types/pet.types';
+import { MarketListing, BREED_INFO, BreedType, EvolutionStage, EVOLUTION_MULTIPLIERS } from '../../types/pet.types';
 
 export const PetMarket = () => {
   const navigate = useNavigate();
@@ -418,20 +418,109 @@ export const PetMarket = () => {
                   ) : (
                     <div className="text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
                   )}
-                  <div className="font-inter font-bold text-white">
+                  <div className="font-inter font-bold text-white text-lg">
                     {BREED_INFO[selectedListing.breedType].name}
                   </div>
-                  <div className="text-sm text-white/90 font-inter">
+                  <div className="text-sm text-white/90 font-inter mb-2">
                     Level {selectedListing.level} • {selectedListing.evolutionStage}
                   </div>
+                  {selectedListing.isShiny && (
+                    <span className="px-2 py-1 bg-yellow-400 text-yellow-900 text-xs rounded-full font-inter font-bold">
+                      ✨ Shiny
+                    </span>
+                  )}
                 </div>
+
+                <div className="space-y-3 text-xs font-inter border-t border-white/30 pt-3">
+                  <div>
+                    <div className="text-white/80 font-bold mb-2">Training Stats</div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-white/90">Agility:</span>
+                        <span className="text-white font-bold">{selectedListing.pet?.training?.agility || 0}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/90">Obedience:</span>
+                        <span className="text-white font-bold">{selectedListing.pet?.training?.obedience || 0}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/90">Intelligence:</span>
+                        <span className="text-white font-bold">{selectedListing.pet?.training?.intelligence || 0}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedListing.abilities.length > 0 ? (
+                    <div className="border-t border-white/30 pt-3">
+                      <div className="text-white/80 font-bold mb-2">Abilities</div>
+                      <div className="space-y-1">
+                        {selectedListing.abilities.map((ability, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-white/90">
+                            <Zap size={12} className="text-yellow-300" />
+                            <span>{ability}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-t border-white/30 pt-3">
+                      <div className="text-white/80 font-bold mb-2">Abilities</div>
+                      <div className="text-white/60 text-xs italic">
+                        No abilities unlocked yet. Reach level 10 to evolve!
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedListing.pet?.equippedItems && selectedListing.pet.equippedItems.length > 0 && (
+                    <div className="border-t border-white/30 pt-3">
+                      <div className="text-white/80 font-bold mb-2">Equipped Rare Items</div>
+                      <div className="space-y-1">
+                        {selectedListing.pet.equippedItems.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-white/90">
+                            <Sparkles size={12} className="text-purple-300" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="border-t border-white/30 pt-3">
+                    <div className="text-white/80 font-bold mb-2">Multipliers</div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-white/90">Food Bonus:</span>
+                        <span className="text-white font-bold">+{Math.floor((EVOLUTION_MULTIPLIERS[selectedListing.evolutionStage].food - 1) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/90">XP Bonus:</span>
+                        <span className="text-white font-bold">+{Math.floor((EVOLUTION_MULTIPLIERS[selectedListing.evolutionStage].xp - 1) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-white/90">Cooldown:</span>
+                        <span className="text-white font-bold">-{Math.floor((1 - EVOLUTION_MULTIPLIERS[selectedListing.evolutionStage].cooldown) * 100)}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/30 pt-3">
+                    <div className="text-white/80 font-bold mb-2">Market Value</div>
+                    <div className="text-white/90">
+                      🍖 {selectedListing.pet?.marketValue?.toLocaleString() || 200}
+                      <span className="text-white/60 text-xs ml-2">Estimated value</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="space-y-2 text-sm font-inter">
                   <div className="flex justify-between">
                     <span className="text-white/90">Price:</span>
                     <span className="font-bold text-white">🍖 {selectedListing.price.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/90">Marketplace fee:</span>
+                    <span className="text-white/90">Marketplace fee (5%):</span>
                     <span className="font-bold text-white">🍖 {Math.floor(selectedListing.price * 0.05).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between border-t border-white/30 pt-2">
