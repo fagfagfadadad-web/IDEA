@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Star, Zap, ShoppingCart, TrendingUp, Sparkles } from 'lucide-react';
+import { Search, Filter, Star, Zap, ShoppingCart, TrendingUp, TrendingDown, Sparkles, History, ArrowRight } from 'lucide-react';
 import { Button } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
 import { PetService } from '../../services/petService';
-import { MarketListing, BREED_INFO, BreedType, EvolutionStage, EVOLUTION_MULTIPLIERS } from '../../types/pet.types';
+import { MarketListing, BREED_INFO, BreedType, EvolutionStage, EVOLUTION_MULTIPLIERS, PetOwnershipHistory } from '../../types/pet.types';
 
 export const PetMarket = () => {
   const navigate = useNavigate();
@@ -25,6 +25,9 @@ export const PetMarket = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
   const [isUnlisting, setIsUnlisting] = useState(false);
+  const [ownershipHistory, setOwnershipHistory] = useState<PetOwnershipHistory[]>([]);
+  const [floorPrice, setFloorPrice] = useState<number>(0);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -33,6 +36,28 @@ export const PetMarket = () => {
   useEffect(() => {
     applyFilters();
   }, [listings, searchQuery, selectedBreed, selectedStage, priceSort]);
+
+  useEffect(() => {
+    if (selectedListing?.petId && selectedListing?.breedType) {
+      loadHistoryAndFloorPrice(selectedListing.petId, selectedListing.breedType);
+    }
+  }, [selectedListing]);
+
+  const loadHistoryAndFloorPrice = async (petId: string, breedType: BreedType) => {
+    setIsLoadingHistory(true);
+    try {
+      const [history, floor] = await Promise.all([
+        PetService.getPetOwnershipHistory(petId),
+        PetService.getBreedFloorPrice(breedType)
+      ]);
+      setOwnershipHistory(history);
+      setFloorPrice(floor);
+    } catch (err) {
+      console.error('Error loading history:', err);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
 
   const fetchListings = async () => {
     try {
@@ -512,6 +537,58 @@ export const PetMarket = () => {
                     </div>
                   </div>
                 </div>
+
+              {/* Sales History Section */}
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <History size={16} className="text-white" />
+                    <h3 className="text-white font-bold text-sm">Sales History</h3>
+                  </div>
+                  {floorPrice > 0 && (
+                    <div className="text-right">
+                      <div className="text-white/60 text-xs">Floor Price</div>
+                      <div className="text-white font-bold text-sm">🍖 {floorPrice.toLocaleString()}</div>
+                    </div>
+                  )}
+                </div>
+
+                {isLoadingHistory ? (
+                  <div className="text-center py-4 text-white/60 text-xs">Loading history...</div>
+                ) : ownershipHistory.length === 0 ? (
+                  <div className="text-center py-4 text-white/60 text-xs italic">
+                    No sales history yet. This will be the first!
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {ownershipHistory.filter(h => h.transferType === 'purchase').slice(0, 10).map((history, idx) => (
+                      <div key={history.id || idx} className="bg-white/10 rounded-lg p-2 text-xs">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2 text-white/90">
+                            <span className="font-bold">{history.fromUsername || 'Unknown'}</span>
+                            <ArrowRight size={12} className="text-white/60" />
+                            <span className="font-bold">{history.toUsername || 'Unknown'}</span>
+                          </div>
+                          {history.price && (
+                            <div className="flex items-center gap-1">
+                              <span className="text-white font-bold">🍖 {history.price.toLocaleString()}</span>
+                              {history.priceChangePercent !== undefined && history.priceChangePercent !== 0 && (
+                                <span className={`flex items-center gap-0.5 ${history.priceChangePercent > 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                  {history.priceChangePercent > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+                                  {Math.abs(history.priceChangePercent).toFixed(1)}%
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-white/60 text-xs">
+                          {history.transferredAt?.toDate?.().toLocaleDateString() || 'Recently'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm font-inter">

@@ -680,4 +680,55 @@ export class PetService {
       return false;
     }
   }
+
+  static async getPetOwnershipHistory(petId: string): Promise<PetOwnershipHistory[]> {
+    try {
+      const q = query(
+        collection(db, 'petOwnershipHistory'),
+        where('petId', '==', petId),
+        orderBy('transferredAt', 'desc')
+      );
+
+      const snapshot = await getDocs(q);
+      const history = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as PetOwnershipHistory[];
+
+      // Calculate price change percentages
+      for (let i = 0; i < history.length; i++) {
+        if (history[i].price && i < history.length - 1 && history[i + 1].price) {
+          const currentPrice = history[i].price!;
+          const previousPrice = history[i + 1].price!;
+          history[i].priceChangePercent = ((currentPrice - previousPrice) / previousPrice) * 100;
+        }
+      }
+
+      return history;
+    } catch (error) {
+      console.error('Error fetching ownership history:', error);
+      return [];
+    }
+  }
+
+  static async getBreedFloorPrice(breedType: BreedType): Promise<number> {
+    try {
+      const q = query(
+        collection(db, 'marketListings'),
+        where('breedType', '==', breedType),
+        where('status', '==', 'active'),
+        orderBy('price', 'asc'),
+        firestoreLimit(1)
+      );
+
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return 0;
+
+      const listing = snapshot.docs[0].data() as MarketListing;
+      return listing.price;
+    } catch (error) {
+      console.error('Error fetching floor price:', error);
+      return 0;
+    }
+  }
 }

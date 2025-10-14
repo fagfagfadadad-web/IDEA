@@ -103,9 +103,12 @@ export interface PetOwnershipHistory {
   id?: string;
   petId: string;
   fromUserId: string;
+  fromUsername?: string;
   toUserId: string;
+  toUsername?: string;
   transferType: 'adoption' | 'purchase' | 'trade' | 'gift';
   price?: number;
+  priceChangePercent?: number;
   marketplaceListingId?: string;
   transferredAt: Timestamp;
 }
