@@ -32,7 +32,7 @@ export const Marketplace: React.FC = () => {
     try {
       if (selectedTab === 'browse') {
         const allListings = await MarketplaceService.getActiveListings();
-        setListings(allListings.filter(l => l.userId !== user.id));
+        setListings(allListings);
       } else if (selectedTab === 'mylistings') {
         const userListings = await MarketplaceService.getUserListings(user.id);
         setMyListings(userListings);
@@ -209,45 +209,59 @@ export const Marketplace: React.FC = () => {
                   </p>
                 </div>
               ) : (
-                listings.map((listing) => (
-                  <div key={listing.id} className="cute-card overflow-hidden">
-                    <div className="p-6 bg-gradient-to-br from-green-400 to-emerald-500">
-                      <div className="text-center">
-                        <div className="text-6xl mb-4">{listing.metadata?.emoji || '📦'}</div>
-                        <h3 className="text-xl font-inter font-bold text-white mb-2">
-                          {listing.itemName}
-                        </h3>
-                        {listing.quantity > 1 && (
-                          <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
-                            <span className="text-white font-inter font-bold">x{listing.quantity}</span>
+                listings.map((listing) => {
+                  const isOwnListing = listing.userId === user?.id;
+                  return (
+                    <div key={listing.id} className="cute-card overflow-hidden relative">
+                      {isOwnListing && (
+                        <div className="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full font-inter font-bold text-xs z-10">
+                          Your Item
+                        </div>
+                      )}
+                      <div className="p-6 bg-gradient-to-br from-green-400 to-emerald-500">
+                        <div className="text-center">
+                          <div className="text-6xl mb-4">{listing.metadata?.emoji || '📦'}</div>
+                          <h3 className="text-xl font-inter font-bold text-white mb-2">
+                            {listing.itemName}
+                          </h3>
+                          {listing.quantity > 1 && (
+                            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 inline-block">
+                              <span className="text-white font-inter font-bold">x{listing.quantity}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="p-6 space-y-4">
+                        <div className="flex items-center justify-between text-lg font-inter">
+                          <span className="text-gray-600">Price:</span>
+                          <span className="font-bold text-green-600">
+                            🍖 {listing.price.toLocaleString()}
+                          </span>
+                        </div>
+
+                        {isOwnListing ? (
+                          <div className="w-full bg-gray-300 text-gray-600 px-4 py-3 rounded-lg font-inter font-bold text-center">
+                            Your Listing
                           </div>
+                        ) : (
+                          <Button
+                            onClick={() => handlePurchase(listing)}
+                            disabled={isProcessing || (gameStats?.zenBalance || 0) < listing.price}
+                            className={`w-full ${
+                              (gameStats?.zenBalance || 0) >= listing.price && !isProcessing
+                                ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
+                                : 'bg-gray-600 cursor-not-allowed text-gray-300'
+                            } px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
+                          >
+                            <ShoppingBag size={20} />
+                            {(gameStats?.zenBalance || 0) >= listing.price ? 'Buy Now' : 'Insufficient Balance'}
+                          </Button>
                         )}
                       </div>
                     </div>
-
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-center justify-between text-lg font-inter">
-                        <span className="text-gray-600">Price:</span>
-                        <span className="font-bold text-green-600">
-                          🍖 {listing.price.toLocaleString()}
-                        </span>
-                      </div>
-
-                      <Button
-                        onClick={() => handlePurchase(listing)}
-                        disabled={isProcessing || (gameStats?.zenBalance || 0) < listing.price}
-                        className={`w-full ${
-                          (gameStats?.zenBalance || 0) >= listing.price && !isProcessing
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
-                            : 'bg-gray-600 cursor-not-allowed text-gray-300'
-                        } px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
-                      >
-                        <ShoppingBag size={20} />
-                        {(gameStats?.zenBalance || 0) >= listing.price ? 'Buy Now' : 'Insufficient Balance'}
-                      </Button>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
