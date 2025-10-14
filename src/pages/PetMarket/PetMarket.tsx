@@ -419,8 +419,8 @@ export const PetMarket = () => {
       </div>
 
       {selectedListing && (
-        <div className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 p-4 pb-20 md:pb-4">
-          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-[75vh] md:max-h-[85vh]">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 pb-32 pt-8 md:pb-4 md:pt-4">
+          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-full md:max-h-[85vh]">
             <div className="p-4 pb-3 flex-shrink-0">
               <h2 className="text-xl font-inter font-bold text-white">
                 {selectedListing.sellerId === user?.id ? 'Pet Details' : 'Confirm Purchase'}
