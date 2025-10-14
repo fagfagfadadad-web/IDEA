@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, Zap, TrendingUp, Utensils, Dumbbell, Brain, Target, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Star, Zap, TrendingUp, Utensils, Dumbbell, Brain, Target, ShoppingBag, Sparkles } from 'lucide-react';
 import { Button } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
@@ -237,13 +237,39 @@ export const PetDetail = () => {
                 </div>
 
                 <div className="text-center">
-                  <div className="text-8xl mb-4">{breedInfo.emoji}</div>
+                  {pet.aiImageUrl ? (
+                    <div className="relative mb-4 mx-auto max-w-md">
+                      <img
+                        src={pet.aiImageUrl}
+                        alt={pet.name}
+                        className="w-full h-80 object-cover rounded-xl shadow-2xl"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                      <div className="hidden text-8xl mb-4">{breedInfo.emoji}</div>
+                      {pet.hasCustomImage && (
+                        <div className="absolute top-4 right-4 bg-yellow-400 text-yellow-900 px-3 py-2 rounded-full text-sm font-inter font-bold flex items-center gap-2">
+                          <Sparkles size={16} />
+                          AI Generated
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-8xl mb-4">{breedInfo.emoji}</div>
+                  )}
                   <h1 className="text-4xl font-inter font-bold text-white mb-2">
                     {pet.name}
                   </h1>
                   <p className="text-white/90 text-xl font-inter">
                     {breedInfo.name}
                   </p>
+                  {pet.aiImagePrompt && (
+                    <p className="text-white/70 text-sm font-inter mt-3 italic max-w-md mx-auto">
+                      "{pet.aiImagePrompt}"
+                    </p>
+                  )}
                 </div>
               </div>
 

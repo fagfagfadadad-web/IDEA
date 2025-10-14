@@ -60,6 +60,10 @@ export interface Pet {
   marketValue: number;
   isListed?: boolean;
 
+  aiImageUrl?: string;
+  aiImagePrompt?: string;
+  hasCustomImage?: boolean;
+
   adoptedAt: Timestamp;
   lastEvolutionAt?: Timestamp;
   createdAt: Timestamp;

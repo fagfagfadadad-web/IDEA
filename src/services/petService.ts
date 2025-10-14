@@ -31,7 +31,13 @@ import {
 } from '../types/pet.types';
 
 export class PetService {
-  static async adoptPet(userId: string, breedType: BreedType, petName: string): Promise<string> {
+  static async adoptPet(
+    userId: string,
+    breedType: BreedType,
+    petName: string,
+    aiImageUrl?: string,
+    aiImagePrompt?: string
+  ): Promise<string> {
     try {
       const isShiny = Math.random() < 0.01;
       const personalities = ['playful', 'calm', 'energetic', 'loyal'];
@@ -69,6 +75,14 @@ export class PetService {
 
       if (isShiny) {
         petData.shinyVariant = Math.random() > 0.5 ? 'golden' : 'silver';
+      }
+
+      if (aiImageUrl) {
+        petData.aiImageUrl = aiImageUrl;
+        petData.hasCustomImage = true;
+        if (aiImagePrompt) {
+          petData.aiImagePrompt = aiImagePrompt;
+        }
       }
 
       const docRef = await addDoc(collection(db, 'pets'), petData);

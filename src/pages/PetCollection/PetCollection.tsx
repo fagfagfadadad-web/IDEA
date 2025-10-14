@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Star, Zap, TrendingUp, ShoppingBag } from 'lucide-react';
+import { Plus, Star, Zap, TrendingUp, ShoppingBag, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { PetService } from '../../services/petService';
+import { AIImageService } from '../../services/aiImageService';
+import { ImageStorageService } from '../../services/imageStorageService';
+import { AIPromptHelper } from '../../utils/aiPromptHelper';
 import { Pet, BREED_INFO, BreedType } from '../../types/pet.types';
 
 export const PetCollection = () => {
@@ -18,6 +21,11 @@ export const PetCollection = () => {
   const [selectedBreed, setSelectedBreed] = useState<BreedType>('golden_retriever');
   const [petName, setPetName] = useState('');
   const [isAdopting, setIsAdopting] = useState(false);
+  const [useAIImage, setUseAIImage] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -40,6 +48,50 @@ export const PetCollection = () => {
     }
   };
 
+  useEffect(() => {
+    if (useAIImage && selectedBreed) {
+      const defaultPrompt = AIPromptHelper.getDefaultPromptForBreed(selectedBreed);
+      setAiPrompt(defaultPrompt);
+    }
+  }, [useAIImage, selectedBreed]);
+
+  const handleGenerateImage = async () => {
+    if (!aiPrompt.trim()) {
+      error('Please enter a description for your pet');
+      return;
+    }
+
+    const validation = AIPromptHelper.validatePrompt(aiPrompt);
+    if (!validation.valid) {
+      error(validation.message || 'Invalid prompt');
+      return;
+    }
+
+    try {
+      setIsGeneratingImage(true);
+      const breedInfo = BREED_INFO[selectedBreed];
+
+      const result = await AIImageService.generateDogImage({
+        breed: breedInfo.name,
+        description: aiPrompt,
+        style: 'photorealistic'
+      });
+
+      if (result.success && result.imageUrl) {
+        setGeneratedImage(result.imageUrl);
+        setShowImagePreview(true);
+        success('Image generated successfully!');
+      } else {
+        error(result.error || 'Failed to generate image');
+      }
+    } catch (err) {
+      console.error('Error generating image:', err);
+      error('Failed to generate image');
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
+
   const handleAdoptPet = async () => {
     if (!petName.trim()) {
       error('Please enter a name for your pet');
@@ -51,12 +103,48 @@ export const PetCollection = () => {
       return;
     }
 
+    if (useAIImage && !generatedImage) {
+      error('Please generate an image first or disable AI image generation');
+      return;
+    }
+
     try {
       setIsAdopting(true);
-      await PetService.adoptPet(user.id, selectedBreed, petName.trim());
+
+      let finalImageUrl: string | undefined;
+
+      if (useAIImage && generatedImage) {
+        const compressedImage = await ImageStorageService.compressImage(generatedImage);
+
+        const petId = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const uploadResult = await ImageStorageService.uploadPetImage(
+          compressedImage,
+          petId,
+          user.id
+        );
+
+        if (uploadResult.success && uploadResult.publicUrl) {
+          finalImageUrl = uploadResult.publicUrl;
+        } else {
+          console.warn('Failed to upload image, adopting without AI image');
+        }
+      }
+
+      await PetService.adoptPet(
+        user.id,
+        selectedBreed,
+        petName.trim(),
+        finalImageUrl,
+        useAIImage ? aiPrompt : undefined
+      );
+
       success(`Successfully adopted ${petName}!`);
       setShowAdoptModal(false);
       setPetName('');
+      setUseAIImage(false);
+      setAiPrompt('');
+      setGeneratedImage(null);
+      setShowImagePreview(false);
       fetchPets();
     } catch (err) {
       console.error('Error adopting pet:', err);
@@ -162,7 +250,28 @@ export const PetCollection = () => {
                         </div>
                       )}
                       <div className="text-center">
-                        <div className="text-6xl mb-4">{breedInfo.emoji}</div>
+                        {pet.aiImageUrl ? (
+                          <div className="relative mb-4">
+                            <img
+                              src={pet.aiImageUrl}
+                              alt={pet.name}
+                              className="w-full h-48 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                              }}
+                            />
+                            <div className="hidden text-6xl">{breedInfo.emoji}</div>
+                            {pet.hasCustomImage && (
+                              <div className="absolute top-2 left-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs font-inter font-bold flex items-center gap-1">
+                                <Sparkles size={12} />
+                                AI
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-6xl mb-4">{breedInfo.emoji}</div>
+                        )}
                         <h3 className="text-2xl font-inter font-bold text-white mb-1">
                           {pet.name}
                         </h3>
@@ -275,6 +384,89 @@ export const PetCollection = () => {
                 />
               </div>
 
+              <div className="border-t border-white/20 pt-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useAIImage}
+                    onChange={(e) => {
+                      setUseAIImage(e.target.checked);
+                      if (!e.target.checked) {
+                        setGeneratedImage(null);
+                        setShowImagePreview(false);
+                      }
+                    }}
+                    className="w-5 h-5 rounded border-2 border-orange-400 text-orange-500 focus:ring-2 focus:ring-orange-500"
+                  />
+                  <span className="text-white font-inter font-bold flex items-center gap-2">
+                    <Sparkles size={18} className="text-yellow-300" />
+                    Generate AI Image of My Dog
+                  </span>
+                </label>
+              </div>
+
+              {useAIImage && (
+                <div className="space-y-4 bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <div>
+                    <label className="block text-sm font-inter font-bold text-white mb-2">
+                      Describe Your Dog
+                    </label>
+                    <textarea
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      placeholder="Describe how you want your dog to look..."
+                      className="w-full px-4 py-2 border-2 border-orange-400 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-inter bg-white text-gray-900 placeholder:text-gray-500 min-h-[80px]"
+                      maxLength={500}
+                      disabled={isGeneratingImage}
+                    />
+                    <p className="text-xs text-white/70 mt-1 font-inter">
+                      {aiPrompt.length}/500 characters
+                    </p>
+                  </div>
+
+                  {!showImagePreview && (
+                    <Button
+                      onClick={handleGenerateImage}
+                      disabled={isGeneratingImage || !aiPrompt.trim()}
+                      className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                    >
+                      {isGeneratingImage ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon size={20} />
+                          Generate Preview
+                        </>
+                      )}
+                    </Button>
+                  )}
+
+                  {showImagePreview && generatedImage && (
+                    <div className="space-y-3">
+                      <div className="relative rounded-lg overflow-hidden border-2 border-orange-400">
+                        <img
+                          src={generatedImage}
+                          alt="Generated dog"
+                          className="w-full h-64 object-cover"
+                        />
+                      </div>
+                      <Button
+                        onClick={() => {
+                          setGeneratedImage(null);
+                          setShowImagePreview(false);
+                        }}
+                        className="w-full bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold border border-white/30"
+                      >
+                        Regenerate Image
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-inter font-bold text-white mb-3">
                   Select Breed
@@ -337,7 +529,7 @@ export const PetCollection = () => {
                 <Button
                   onClick={handleAdoptPet}
                   className="flex-1 bg-gradient-to-r from-[#f97316] to-[#fb923c] hover:from-[#ea580c] hover:to-[#f97316] text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm"
-                  disabled={isAdopting}
+                  disabled={isAdopting || (useAIImage && !generatedImage)}
                 >
                   {isAdopting ? 'Adopting...' : `Adopt for 🍖 ${BREED_INFO[selectedBreed].basePrice}`}
                 </Button>
