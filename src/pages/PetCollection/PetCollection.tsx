@@ -269,11 +269,11 @@ export const PetCollection = () => {
                       )}
                       <div className="text-center">
                         {pet.aiImageUrl ? (
-                          <div className="relative mb-4">
+                          <div className="relative mb-4 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-2">
                             <img
                               src={pet.aiImageUrl}
                               alt={pet.name}
-                              className="w-full h-48 object-cover rounded-lg"
+                              className="w-full h-48 object-contain rounded-lg"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                                 e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -464,11 +464,11 @@ export const PetCollection = () => {
 
                   {showImagePreview && generatedImage && (
                     <div className="space-y-3">
-                      <div className="relative rounded-lg overflow-hidden border-2 border-orange-400">
+                      <div className="relative rounded-lg overflow-hidden border-2 border-orange-400 bg-gradient-to-br from-white/5 to-white/10 p-3">
                         <img
                           src={generatedImage}
                           alt="Generated dog"
-                          className="w-full h-64 object-cover"
+                          className="w-full h-64 object-contain"
                         />
                       </div>
                       <Button

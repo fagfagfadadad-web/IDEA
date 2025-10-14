@@ -238,11 +238,11 @@ export const PetDetail = () => {
 
                 <div className="text-center">
                   {pet.aiImageUrl ? (
-                    <div className="relative mb-4 mx-auto max-w-md">
+                    <div className="relative mb-4 mx-auto max-w-md bg-gradient-to-br from-white/5 to-white/10 rounded-xl p-3">
                       <img
                         src={pet.aiImageUrl}
                         alt={pet.name}
-                        className="w-full h-80 object-cover rounded-xl shadow-2xl"
+                        className="w-full h-80 object-contain rounded-xl shadow-2xl"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
