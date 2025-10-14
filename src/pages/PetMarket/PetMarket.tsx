@@ -127,6 +127,7 @@ export const PetMarket = () => {
 
       if (result) {
         success('Pet unlisted successfully!');
+        setSelectedListing(null);
         fetchListings();
         refetch();
       } else {
@@ -278,7 +279,8 @@ export const PetMarket = () => {
                 return (
                   <div
                     key={listing.id}
-                    className="cute-card overflow-hidden hover:transform hover:scale-105 transition-all duration-300"
+                    onClick={() => setSelectedListing(listing)}
+                    className="cute-card overflow-hidden hover:transform hover:scale-105 transition-all duration-300 cursor-pointer"
                   >
                     <div className="bg-gradient-to-br from-purple-600 via-purple-500 to-purple-400 p-6 relative">
                       <div className="absolute top-4 right-4">
@@ -368,29 +370,15 @@ export const PetMarket = () => {
                         </div>
                       </div>
 
-                      {listing.sellerId === user?.id ? (
-                        <Button
-                          onClick={() => handleUnlist(listing)}
-                          disabled={isUnlisting}
-                          className="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <ShoppingCart size={20} />
-                          {isUnlisting ? 'Unlisting...' : 'Unlist Pet'}
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={() => handlePurchase(listing)}
-                          disabled={!canAfford}
-                          className={`w-full ${
-                            canAfford
-                              ? 'bg-purple-600 hover:bg-purple-700'
-                              : 'bg-gray-300 cursor-not-allowed'
-                          } text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2`}
-                        >
-                          <ShoppingCart size={20} />
-                          {canAfford ? 'Buy Now' : 'Insufficient Balance'}
-                        </Button>
-                      )}
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedListing(listing);
+                        }}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-inter font-bold flex items-center justify-center gap-2"
+                      >
+                        View Details
+                      </Button>
                     </div>
                   </div>
                 );
@@ -404,7 +392,7 @@ export const PetMarket = () => {
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-md w-full p-6 shadow-2xl my-4 md:my-0 mb-24 md:mb-0">
             <h2 className="text-2xl font-inter font-bold text-white mb-4">
-              Confirm Purchase
+              {selectedListing.sellerId === user?.id ? 'Pet Details' : 'Confirm Purchase'}
             </h2>
             <div className="space-y-4 mb-6">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
@@ -455,26 +443,41 @@ export const PetMarket = () => {
                 </div>
               </div>
 
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-sm text-white font-inter border border-white/30">
-                <strong>Note:</strong> This purchase is final. The pet will be transferred to your collection immediately.
-              </div>
+              {selectedListing.sellerId !== user?.id && (
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3 text-sm text-white font-inter border border-white/30">
+                  <strong>Note:</strong> This purchase is final. The pet will be transferred to your collection immediately.
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3">
               <Button
                 onClick={() => setSelectedListing(null)}
-                disabled={isPurchasing}
+                disabled={isPurchasing || isUnlisting}
                 className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30 text-sm"
               >
-                Cancel
+                {selectedListing.sellerId === user?.id ? 'Close' : 'Cancel'}
               </Button>
-              <Button
-                onClick={confirmPurchase}
-                disabled={isPurchasing}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm"
-              >
-                {isPurchasing ? 'Processing...' : 'Confirm Purchase'}
-              </Button>
+              {selectedListing.sellerId === user?.id ? (
+                <Button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await handleUnlist(selectedListing);
+                  }}
+                  disabled={isUnlisting}
+                  className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isUnlisting ? 'Unlisting...' : 'Unlist Pet'}
+                </Button>
+              ) : (
+                <Button
+                  onClick={confirmPurchase}
+                  disabled={isPurchasing || (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05))}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isPurchasing ? 'Processing...' : (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05)) ? 'Insufficient Balance' : 'Confirm Purchase'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
