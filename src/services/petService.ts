@@ -723,29 +723,67 @@ export class PetService {
       }
 
       // Fallback to Firebase if Supabase not available or no data
-      const q = query(
-        collection(db, 'petOwnershipHistory'),
-        where('petId', '==', petId),
-        orderBy('transferredAt', 'desc'),
-        firestoreLimit(10)
-      );
+      try {
+        const q = query(
+          collection(db, 'petOwnershipHistory'),
+          where('petId', '==', petId),
+          orderBy('transferredAt', 'desc'),
+          firestoreLimit(10)
+        );
 
-      const snapshot = await getDocs(q);
-      const history = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as PetOwnershipHistory[];
+        const snapshot = await getDocs(q);
+        const history = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as PetOwnershipHistory[];
 
-      // Calculate price change percentages
-      for (let i = 0; i < history.length; i++) {
-        if (history[i].price && i < history.length - 1 && history[i + 1].price) {
-          const currentPrice = history[i].price!;
-          const previousPrice = history[i + 1].price!;
-          history[i].priceChangePercent = ((currentPrice - previousPrice) / previousPrice) * 100;
+        // Calculate price change percentages
+        for (let i = 0; i < history.length; i++) {
+          if (history[i].price && i < history.length - 1 && history[i + 1].price) {
+            const currentPrice = history[i].price!;
+            const previousPrice = history[i + 1].price!;
+            history[i].priceChangePercent = ((currentPrice - previousPrice) / previousPrice) * 100;
+          }
         }
-      }
 
-      return history;
+        return history;
+      } catch (indexError: any) {
+        // If index is not ready, use simple query without orderBy
+        if (indexError?.code === 'failed-precondition' || indexError?.message?.includes('index')) {
+          console.log('Using fallback query for ownership history (index not ready)');
+          const simpleQ = query(
+            collection(db, 'petOwnershipHistory'),
+            where('petId', '==', petId),
+            firestoreLimit(10)
+          );
+
+          const snapshot = await getDocs(simpleQ);
+          const history = snapshot.docs
+            .map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            })) as PetOwnershipHistory[];
+
+          // Sort in memory by transferredAt
+          history.sort((a, b) => {
+            const aTime = a.transferredAt?.toMillis() || 0;
+            const bTime = b.transferredAt?.toMillis() || 0;
+            return bTime - aTime;
+          });
+
+          // Calculate price change percentages
+          for (let i = 0; i < history.length; i++) {
+            if (history[i].price && i < history.length - 1 && history[i + 1].price) {
+              const currentPrice = history[i].price!;
+              const previousPrice = history[i + 1].price!;
+              history[i].priceChangePercent = ((currentPrice - previousPrice) / previousPrice) * 100;
+            }
+          }
+
+          return history;
+        }
+        throw indexError;
+      }
     } catch (error) {
       console.error('Error fetching ownership history:', error);
       return [];
@@ -771,19 +809,40 @@ export class PetService {
       }
 
       // Fallback to Firebase
-      const q = query(
-        collection(db, 'marketListings'),
-        where('breedType', '==', breedType),
-        where('status', '==', 'active'),
-        orderBy('price', 'asc'),
-        firestoreLimit(1)
-      );
+      try {
+        const q = query(
+          collection(db, 'marketListings'),
+          where('breedType', '==', breedType),
+          where('status', '==', 'active'),
+          orderBy('price', 'asc'),
+          firestoreLimit(1)
+        );
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return 0;
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return 0;
 
-      const listing = snapshot.docs[0].data() as MarketListing;
-      return listing.price;
+        const listing = snapshot.docs[0].data() as MarketListing;
+        return listing.price;
+      } catch (indexError: any) {
+        // If index is not ready, use simple query and sort in memory
+        if (indexError?.code === 'failed-precondition' || indexError?.message?.includes('index')) {
+          console.log('Using fallback query for floor price (index not ready)');
+          const simpleQ = query(
+            collection(db, 'marketListings'),
+            where('breedType', '==', breedType),
+            where('status', '==', 'active')
+          );
+
+          const snapshot = await getDocs(simpleQ);
+          if (snapshot.empty) return 0;
+
+          // Get all listings and find minimum price
+          const listings = snapshot.docs.map(doc => doc.data() as MarketListing);
+          const minPrice = Math.min(...listings.map(l => l.price));
+          return minPrice;
+        }
+        throw indexError;
+      }
     } catch (error) {
       console.error('Error fetching floor price:', error);
       return 0;
