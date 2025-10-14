@@ -419,15 +419,15 @@ export const PetMarket = () => {
       </div>
 
       {selectedListing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 pb-24 md:pb-4">
-          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col" style={{maxHeight: '85vh'}}>
+        <div className="fixed inset-0 bg-black/50 flex items-end md:items-center justify-center z-50 p-4 pb-20 md:pb-4">
+          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full shadow-2xl flex flex-col max-h-[75vh] md:max-h-[85vh]">
             <div className="p-4 pb-3 flex-shrink-0">
               <h2 className="text-xl font-inter font-bold text-white">
                 {selectedListing.sellerId === user?.id ? 'Pet Details' : 'Confirm Purchase'}
               </h2>
             </div>
 
-            <div className="space-y-3 px-4 overflow-y-auto flex-1">
+            <div className="space-y-3 px-4 overflow-y-auto flex-1 min-h-0">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="text-center mb-4">
                   {(selectedListing.pet?.aiImageUrl || selectedListing.pet?.aiImageData) ? (
