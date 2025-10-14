@@ -16,6 +16,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { supabase } from '../lib/supabase';
 import {
   Pet,
   MarketListing,
@@ -683,17 +684,34 @@ export class PetService {
 
   static async getPetOwnershipHistory(petId: string): Promise<PetOwnershipHistory[]> {
     try {
-      const q = query(
-        collection(db, 'petOwnershipHistory'),
-        where('petId', '==', petId),
-        orderBy('transferredAt', 'desc')
-      );
+      const { data, error } = await supabase
+        .from('pet_ownership_history')
+        .select('*')
+        .eq('pet_id', petId)
+        .eq('transfer_type', 'purchase')
+        .order('transferred_at', { ascending: false })
+        .limit(10);
 
-      const snapshot = await getDocs(q);
-      const history = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as PetOwnershipHistory[];
+      if (error) {
+        console.error('Error fetching ownership history:', error);
+        return [];
+      }
+
+      if (!data || data.length === 0) return [];
+
+      // Map Supabase data to PetOwnershipHistory type
+      const history: PetOwnershipHistory[] = data.map(record => ({
+        id: record.id,
+        petId: record.pet_id,
+        fromUserId: record.from_user_id,
+        fromUsername: record.from_username,
+        toUserId: record.to_user_id,
+        toUsername: record.to_username,
+        transferType: record.transfer_type as 'adoption' | 'purchase' | 'trade' | 'gift',
+        price: record.price,
+        marketplaceListingId: record.marketplace_listing_id,
+        transferredAt: Timestamp.fromDate(new Date(record.transferred_at))
+      }));
 
       // Calculate price change percentages
       for (let i = 0; i < history.length; i++) {
@@ -713,6 +731,21 @@ export class PetService {
 
   static async getBreedFloorPrice(breedType: BreedType): Promise<number> {
     try {
+      // Try Supabase first (new pet market system)
+      const { data: supabaseData, error: supabaseError } = await supabase
+        .from('pet_market_listings')
+        .select('price')
+        .eq('breed_type', breedType)
+        .eq('status', 'active')
+        .order('price', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+      if (!supabaseError && supabaseData) {
+        return supabaseData.price;
+      }
+
+      // Fallback to Firebase (old system) - will be removed once migration is complete
       const q = query(
         collection(db, 'marketListings'),
         where('breedType', '==', breedType),
