@@ -93,10 +93,16 @@ export class PetService {
 
       const docRef = await addDoc(collection(db, 'pets'), petData);
 
+      // Get user's username
+      const userDoc = await getDoc(doc(db, 'users', userId));
+      const username = userDoc.exists() ? userDoc.data().username : 'Unknown';
+
       await addDoc(collection(db, 'petOwnershipHistory'), {
         petId: petData.petId,
         fromUserId: 'system',
+        fromUsername: 'System',
         toUserId: userId,
+        toUsername: username,
         transferType: 'adoption',
         transferredAt: serverTimestamp()
       });
@@ -596,6 +602,10 @@ export class PetService {
         return { success: false, error: 'Insufficient balance' };
       }
 
+      // Get buyer username
+      const buyerUserDoc = await getDoc(doc(db, 'users', buyerId));
+      const buyerUsername = buyerUserDoc.exists() ? buyerUserDoc.data().username : 'Unknown';
+
       const batch = writeBatch(db);
 
       batch.update(buyerStatsRef, {
@@ -624,7 +634,9 @@ export class PetService {
       batch.set(historyRef, {
         petId: listing.petId,
         fromUserId: listing.sellerId,
+        fromUsername: listing.sellerUsername,
         toUserId: buyerId,
+        toUsername: buyerUsername,
         transferType: 'purchase',
         price: listing.price,
         marketplaceListingId: listingId,
