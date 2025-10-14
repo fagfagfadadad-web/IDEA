@@ -18,5 +18,22 @@ service firebase.storage {
       // Allow delete
       allow delete: if true;
     }
+
+    // Pet AI image uploads
+    match /pet-images/{userId}/{fileName} {
+      // Allow read access to all pet images
+      allow read: if true;
+
+      // Allow create with validation (image type and size)
+      allow create: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow update with validation (image type and size)
+      allow update: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+
+      // Allow delete
+      allow delete: if true;
+    }
   }
 }

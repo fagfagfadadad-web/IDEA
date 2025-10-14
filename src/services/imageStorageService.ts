@@ -1,4 +1,5 @@
-import { supabase } from '../lib/supabase';
+import { storage } from '../lib/firebase';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 export interface UploadImageResult {
   success: boolean;
@@ -7,7 +8,7 @@ export interface UploadImageResult {
 }
 
 export class ImageStorageService {
-  private static readonly BUCKET_NAME = 'pet-images';
+  private static readonly STORAGE_PATH = 'pet-images';
 
   static async uploadPetImage(
     imageData: string | Blob,
@@ -24,35 +25,24 @@ export class ImageStorageService {
       }
 
       const fileExt = 'webp';
-      const fileName = `${userId}/${petId}_${Date.now()}.${fileExt}`;
+      const fileName = `${this.STORAGE_PATH}/${userId}/${petId}_${Date.now()}.${fileExt}`;
 
-      console.log('📤 Uploading image to Supabase Storage:', fileName);
+      console.log('📤 Uploading image to Firebase Storage:', fileName);
 
-      const { data, error } = await supabase.storage
-        .from(this.BUCKET_NAME)
-        .upload(fileName, blob, {
-          contentType: 'image/webp',
-          cacheControl: '3600',
-          upsert: false
-        });
+      const storageRef = ref(storage, fileName);
 
-      if (error) {
-        console.error('❌ Error uploading to Supabase:', error);
-        return {
-          success: false,
-          error: error.message
-        };
-      }
+      const uploadResult = await uploadBytes(storageRef, blob, {
+        contentType: 'image/webp',
+        cacheControl: 'public, max-age=3600'
+      });
 
-      const { data: urlData } = supabase.storage
-        .from(this.BUCKET_NAME)
-        .getPublicUrl(fileName);
+      const publicUrl = await getDownloadURL(uploadResult.ref);
 
-      console.log('✅ Image uploaded successfully:', urlData.publicUrl);
+      console.log('✅ Image uploaded successfully:', publicUrl);
 
       return {
         success: true,
-        publicUrl: urlData.publicUrl
+        publicUrl
       };
     } catch (error: any) {
       console.error('❌ Error in uploadPetImage:', error);
@@ -72,14 +62,8 @@ export class ImageStorageService {
         return false;
       }
 
-      const { error } = await supabase.storage
-        .from(this.BUCKET_NAME)
-        .remove([fileName]);
-
-      if (error) {
-        console.error('❌ Error deleting image:', error);
-        return false;
-      }
+      const storageRef = ref(storage, fileName);
+      await deleteObject(storageRef);
 
       console.log('🗑️ Image deleted successfully');
       return true;
@@ -106,50 +90,17 @@ export class ImageStorageService {
     try {
       const urlObj = new URL(url);
       const pathParts = urlObj.pathname.split('/');
-      const bucketIndex = pathParts.indexOf(this.BUCKET_NAME);
 
-      if (bucketIndex !== -1 && bucketIndex < pathParts.length - 1) {
-        return pathParts.slice(bucketIndex + 1).join('/');
+      const petImagesIndex = pathParts.findIndex(part => part === this.STORAGE_PATH);
+
+      if (petImagesIndex !== -1 && petImagesIndex < pathParts.length - 1) {
+        return pathParts.slice(petImagesIndex).join('/');
       }
 
       return null;
     } catch (error) {
       console.error('Error parsing URL:', error);
       return null;
-    }
-  }
-
-  static async ensureBucketExists(): Promise<boolean> {
-    try {
-      const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-
-      if (listError) {
-        console.error('❌ Error listing buckets:', listError);
-        return false;
-      }
-
-      const bucketExists = buckets?.some(bucket => bucket.name === this.BUCKET_NAME);
-
-      if (!bucketExists) {
-        console.log('📦 Creating pet-images bucket...');
-
-        const { error: createError } = await supabase.storage.createBucket(this.BUCKET_NAME, {
-          public: true,
-          fileSizeLimit: 5242880
-        });
-
-        if (createError) {
-          console.error('❌ Error creating bucket:', createError);
-          return false;
-        }
-
-        console.log('✅ Bucket created successfully');
-      }
-
-      return true;
-    } catch (error) {
-      console.error('❌ Error in ensureBucketExists:', error);
-      return false;
     }
   }
 
