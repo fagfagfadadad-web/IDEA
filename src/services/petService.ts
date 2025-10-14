@@ -78,7 +78,12 @@ export class PetService {
       }
 
       if (aiImageUrl) {
-        petData.aiImageUrl = aiImageUrl;
+        if (aiImageUrl.startsWith('data:image')) {
+          petData.aiImageData = aiImageUrl;
+          console.log('💾 Storing AI image as base64 data in Firestore');
+        } else {
+          petData.aiImageUrl = aiImageUrl;
+        }
         petData.hasCustomImage = true;
         if (aiImagePrompt) {
           petData.aiImagePrompt = aiImagePrompt;

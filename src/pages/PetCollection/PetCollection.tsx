@@ -120,31 +120,22 @@ export const PetCollection = () => {
       setIsAdopting(true);
 
       let finalImageUrl: string | undefined;
+      let finalImageData: string | undefined;
 
       if (useAIImage && generatedImage) {
-        console.log('🎨 Compressing and uploading AI image...');
-        const compressedImage = await ImageStorageService.compressImage(generatedImage);
+        console.log('🎨 Compressing AI image...');
+        const compressedImage = await ImageStorageService.compressImage(generatedImage, 0.7);
 
-        const petId = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        const uploadResult = await ImageStorageService.uploadPetImage(
-          compressedImage,
-          petId,
-          user.id
-        );
-
-        if (uploadResult.success && uploadResult.publicUrl) {
-          finalImageUrl = uploadResult.publicUrl;
-          console.log('✅ Image uploaded successfully:', finalImageUrl);
-        } else {
-          console.warn('⚠️ Failed to upload image, adopting without AI image:', uploadResult.error);
-        }
+        console.log('💾 Storing compressed image as base64 (Firebase Storage CORS workaround)');
+        finalImageData = compressedImage;
+        console.log('✅ Image compressed and ready:', finalImageData.substring(0, 50) + '...');
       }
 
       console.log('🐕 Adopting pet with data:', {
         userId: user.id,
         breed: selectedBreed,
         name: petName.trim(),
-        aiImageUrl: finalImageUrl,
+        aiImageData: finalImageData ? 'base64 data...' : undefined,
         aiPrompt: useAIImage ? aiPrompt : undefined
       });
 
@@ -152,7 +143,7 @@ export const PetCollection = () => {
         user.id,
         selectedBreed,
         petName.trim(),
-        finalImageUrl,
+        finalImageData,
         useAIImage ? aiPrompt : undefined
       );
 
@@ -268,10 +259,10 @@ export const PetCollection = () => {
                         </div>
                       )}
                       <div className="text-center">
-                        {pet.aiImageUrl ? (
+                        {(pet.aiImageUrl || pet.aiImageData) ? (
                           <div className="relative mb-4 bg-gradient-to-br from-white/5 to-white/10 rounded-lg p-2">
                             <img
-                              src={pet.aiImageUrl}
+                              src={pet.aiImageUrl || pet.aiImageData}
                               alt={pet.name}
                               className="w-full h-48 object-contain rounded-lg"
                               onError={(e) => {

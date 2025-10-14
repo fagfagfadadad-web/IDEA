@@ -61,6 +61,7 @@ export interface Pet {
   isListed?: boolean;
 
   aiImageUrl?: string;
+  aiImageData?: string;
   aiImagePrompt?: string;
   hasCustomImage?: boolean;
 

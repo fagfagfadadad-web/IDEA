@@ -237,10 +237,10 @@ export const PetDetail = () => {
                 </div>
 
                 <div className="text-center">
-                  {pet.aiImageUrl ? (
+                  {(pet.aiImageUrl || pet.aiImageData) ? (
                     <div className="relative mb-4 mx-auto max-w-md bg-gradient-to-br from-white/5 to-white/10 rounded-xl p-3">
                       <img
-                        src={pet.aiImageUrl}
+                        src={pet.aiImageUrl || pet.aiImageData}
                         alt={pet.name}
                         className="w-full h-80 object-contain rounded-xl shadow-2xl"
                         onError={(e) => {
