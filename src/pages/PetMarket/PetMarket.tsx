@@ -419,12 +419,15 @@ export const PetMarket = () => {
       </div>
 
       {selectedListing && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full p-6 shadow-2xl my-4 mb-24 md:mb-4 overflow-y-auto" style={{maxHeight: '90vh'}}>
-            <h2 className="text-2xl font-inter font-bold text-white mb-4">
-              {selectedListing.sellerId === user?.id ? 'Pet Details' : 'Confirm Purchase'}
-            </h2>
-            <div className="space-y-4 mb-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 rounded-2xl max-w-2xl w-full shadow-2xl my-4 flex flex-col" style={{maxHeight: 'calc(100vh - 120px)'}}>
+            <div className="p-6 pb-4 flex-shrink-0">
+              <h2 className="text-2xl font-inter font-bold text-white">
+                {selectedListing.sellerId === user?.id ? 'Pet Details' : 'Confirm Purchase'}
+              </h2>
+            </div>
+
+            <div className="space-y-4 px-6 overflow-y-auto flex-1">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
                 <div className="text-center mb-4">
                   {(selectedListing.pet?.aiImageUrl || selectedListing.pet?.aiImageData) ? (
@@ -624,34 +627,36 @@ export const PetMarket = () => {
               )}
             </div>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setSelectedListing(null)}
-                disabled={isPurchasing || isUnlisting}
-                className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30 text-sm"
-              >
-                {selectedListing.sellerId === user?.id ? 'Close' : 'Cancel'}
-              </Button>
-              {selectedListing.sellerId === user?.id ? (
+            <div className="p-6 pt-4 flex-shrink-0 border-t border-white/20">
+              <div className="flex gap-3">
                 <Button
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await handleUnlist(selectedListing);
-                  }}
-                  disabled={isUnlisting}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => setSelectedListing(null)}
+                  disabled={isPurchasing || isUnlisting}
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg font-inter font-bold backdrop-blur-sm border border-white/30 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUnlisting ? 'Unlisting...' : 'Unlist Pet'}
+                  {selectedListing.sellerId === user?.id ? 'Close' : 'Cancel'}
                 </Button>
-              ) : (
-                <Button
-                  onClick={confirmPurchase}
-                  disabled={isPurchasing || (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05))}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isPurchasing ? 'Processing...' : (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05)) ? 'Insufficient Balance' : 'Confirm Purchase'}
-                </Button>
-              )}
+                {selectedListing.sellerId === user?.id ? (
+                  <Button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      await handleUnlist(selectedListing);
+                    }}
+                    disabled={isUnlisting}
+                    className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUnlisting ? 'Unlisting...' : 'Unlist Pet'}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={confirmPurchase}
+                    disabled={isPurchasing || (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05))}
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-inter font-bold shadow-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isPurchasing ? 'Processing...' : (gameStats?.zenBalance || 0) < (selectedListing.price + Math.floor(selectedListing.price * 0.05)) ? 'Insufficient Balance' : 'Confirm Purchase'}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
