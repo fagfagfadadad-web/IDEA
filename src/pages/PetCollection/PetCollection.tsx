@@ -39,6 +39,14 @@ export const PetCollection = () => {
     try {
       setIsLoading(true);
       const userPets = await PetService.getUserPets(user.id);
+      console.log('📋 Fetched pets:', userPets);
+      userPets.forEach(pet => {
+        console.log(`🐕 ${pet.name}:`, {
+          hasAiImage: !!pet.aiImageUrl,
+          aiImageUrl: pet.aiImageUrl,
+          hasCustomImage: pet.hasCustomImage
+        });
+      });
       setPets(userPets);
     } catch (err) {
       console.error('Error fetching pets:', err);
@@ -114,6 +122,7 @@ export const PetCollection = () => {
       let finalImageUrl: string | undefined;
 
       if (useAIImage && generatedImage) {
+        console.log('🎨 Compressing and uploading AI image...');
         const compressedImage = await ImageStorageService.compressImage(generatedImage);
 
         const petId = `pet_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -125,10 +134,19 @@ export const PetCollection = () => {
 
         if (uploadResult.success && uploadResult.publicUrl) {
           finalImageUrl = uploadResult.publicUrl;
+          console.log('✅ Image uploaded successfully:', finalImageUrl);
         } else {
-          console.warn('Failed to upload image, adopting without AI image');
+          console.warn('⚠️ Failed to upload image, adopting without AI image:', uploadResult.error);
         }
       }
+
+      console.log('🐕 Adopting pet with data:', {
+        userId: user.id,
+        breed: selectedBreed,
+        name: petName.trim(),
+        aiImageUrl: finalImageUrl,
+        aiPrompt: useAIImage ? aiPrompt : undefined
+      });
 
       await PetService.adoptPet(
         user.id,
