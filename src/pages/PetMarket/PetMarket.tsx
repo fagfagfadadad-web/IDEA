@@ -87,7 +87,8 @@ export const PetMarket = () => {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(l =>
         BREED_INFO[l.breedType].name.toLowerCase().includes(query) ||
-        l.sellerUsername.toLowerCase().includes(query)
+        l.sellerUsername.toLowerCase().includes(query) ||
+        (l.pet?.name && l.pet.name.toLowerCase().includes(query))
       );
     }
 
@@ -340,10 +341,13 @@ export const PetMarket = () => {
                         ) : (
                           <div className="text-6xl mb-4">{breedInfo.emoji}</div>
                         )}
-                        <h3 className="text-xl font-inter font-bold text-white mb-1">
-                          {breedInfo.name}
+                        <h3 className="text-2xl font-inter font-bold text-white mb-1">
+                          {listing.pet?.name || breedInfo.name}
                         </h3>
-                        <p className="text-white/80 font-inter text-sm">
+                        <p className="text-white/90 font-inter text-sm mb-1">
+                          {breedInfo.name}
+                        </p>
+                        <p className="text-white/70 font-inter text-xs">
                           by @{listing.sellerUsername}
                         </p>
                       </div>
@@ -443,10 +447,13 @@ export const PetMarket = () => {
                   ) : (
                     <div className="text-5xl mb-2">{BREED_INFO[selectedListing.breedType].emoji}</div>
                   )}
-                  <div className="font-inter font-bold text-white text-lg">
+                  <div className="font-inter font-bold text-white text-2xl mb-1">
+                    {selectedListing.pet?.name || BREED_INFO[selectedListing.breedType].name}
+                  </div>
+                  <div className="text-sm text-white/90 font-inter mb-1">
                     {BREED_INFO[selectedListing.breedType].name}
                   </div>
-                  <div className="text-sm text-white/90 font-inter mb-2">
+                  <div className="text-xs text-white/80 font-inter mb-2">
                     Level {selectedListing.level} • {selectedListing.evolutionStage}
                   </div>
                   {selectedListing.isShiny && (
