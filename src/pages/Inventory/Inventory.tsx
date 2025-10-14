@@ -312,8 +312,8 @@ export const Inventory: React.FC = () => {
               {gameStats?.activeBoosts && gameStats.activeBoosts.length > 0 && (
                 <div className="cute-card p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Zap size={24} className="text-purple-500" />
-                    <h2 className="text-xl font-inter font-bold text-gray-800">Active Boosts</h2>
+                    <Zap size={24} className="text-white" />
+                    <h2 className="text-xl font-inter font-bold text-white">Active Boosts</h2>
                   </div>
                   <div className="space-y-3">
                     {gameStats.activeBoosts.filter(boost => {
@@ -326,14 +326,14 @@ export const Inventory: React.FC = () => {
                       const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
                       return (
-                        <div key={idx} className="bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg p-4 flex items-center justify-between">
+                        <div key={idx} className="bg-purple-500 rounded-lg p-4 flex items-center justify-between">
                           <div>
-                            <div className="font-inter font-bold text-gray-800 capitalize">{boost.type} Boost</div>
-                            <div className="text-sm text-gray-600 font-inter">{boost.multiplier}x multiplier</div>
+                            <div className="font-inter font-bold text-white capitalize">{boost.type} Boost</div>
+                            <div className="text-sm text-white/80 font-inter">{boost.multiplier}x multiplier</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-purple-600 font-inter font-bold">{hoursLeft}h {minutesLeft}m</div>
-                            <div className="text-xs text-gray-500 font-inter">remaining</div>
+                            <div className="text-white font-inter font-bold">{hoursLeft}h {minutesLeft}m</div>
+                            <div className="text-xs text-white/70 font-inter">remaining</div>
                           </div>
                         </div>
                       );
