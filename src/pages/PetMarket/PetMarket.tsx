@@ -118,6 +118,7 @@ export const PetMarket = () => {
 
   const confirmPurchase = async () => {
     if (!selectedListing || !user?.id || !user?.username) return;
+    if (isPurchasing) return; // Prevent double-click
 
     try {
       setIsPurchasing(true);

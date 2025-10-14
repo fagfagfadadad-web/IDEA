@@ -439,7 +439,7 @@ export class PetService {
     sellerId: string,
     sellerUsername: string,
     price: number
-  ): Promise<string> {
+  ): Promise<string | null> {
     try {
       const petDoc = await getDoc(doc(db, 'pets', petDocId));
       if (!petDoc.exists()) {
@@ -450,6 +450,31 @@ export class PetService {
 
       if (pet.userId !== sellerId) {
         throw new Error('You do not own this pet');
+      }
+
+      // Check if pet is already listed
+      if (pet.isListed) {
+        console.log('⚠️ Pet is already listed on the market');
+        return null;
+      }
+
+      // Double-check: Query for existing active listing
+      const existingListingQuery = query(
+        collection(db, 'marketListings'),
+        where('petId', '==', pet.petId),
+        where('status', '==', 'active'),
+        firestoreLimit(1)
+      );
+      const existingSnapshot = await getDocs(existingListingQuery);
+
+      if (!existingSnapshot.empty) {
+        console.log('⚠️ Active listing already exists for this pet');
+        // Update pet.isListed flag to be consistent
+        await updateDoc(doc(db, 'pets', petDocId), {
+          isListed: true,
+          updatedAt: serverTimestamp()
+        });
+        return null;
       }
 
       const listingData: Omit<MarketListing, 'id'> = {

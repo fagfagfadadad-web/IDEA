@@ -23,6 +23,7 @@ export const PetDetail = () => {
   const [showListModal, setShowListModal] = useState(false);
   const [listingPrice, setListingPrice] = useState('');
   const [isUnlisting, setIsUnlisting] = useState(false);
+  const [isListing, setIsListing] = useState(false);
 
   const getTrainingCost = (currentValue: number): number => {
     const baseCost = 20;
@@ -114,6 +115,7 @@ export const PetDetail = () => {
 
   const handleListOnMarket = async () => {
     if (!pet?.id || !user?.username || !user?.id) return;
+    if (isListing) return; // Prevent double-click
 
     const price = parseInt(listingPrice);
     if (isNaN(price) || price <= 0) {
@@ -122,13 +124,22 @@ export const PetDetail = () => {
     }
 
     try {
-      await PetService.listPetOnMarket(pet.id, user.id, user.username, price);
+      setIsListing(true);
+      const result = await PetService.listPetOnMarket(pet.id, user.id, user.username, price);
+
+      if (!result) {
+        error('Pet is already listed on the market');
+        setIsListing(false);
+        return;
+      }
+
       success('Pet listed on market successfully!');
       setShowListModal(false);
       navigate('/market');
     } catch (err) {
       console.error('Error listing pet:', err);
       error('Failed to list pet on market');
+      setIsListing(false);
     }
   };
 
@@ -525,15 +536,17 @@ export const PetDetail = () => {
             <div className="flex gap-3">
               <Button
                 onClick={() => setShowListModal(false)}
-                className="flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/40 px-4 py-2 rounded-lg font-inter font-bold text-sm"
+                disabled={isListing}
+                className="flex-1 bg-white/20 hover:bg-white/30 text-white border-2 border-white/40 px-4 py-2 rounded-lg font-inter font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleListOnMarket}
-                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-inter font-bold text-sm"
+                disabled={isListing}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-inter font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                List Pet
+                {isListing ? 'Listing...' : 'List Pet'}
               </Button>
             </div>
           </div>
