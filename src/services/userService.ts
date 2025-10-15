@@ -31,7 +31,6 @@ export interface User {
   linkedinUrl?: string;
   websiteUrl?: string;
   discordUsername?: string;
-  telegramUsername?: string;
   isProfileReady?: boolean;
   createdAt: any;
   updatedAt?: any;
@@ -66,7 +65,6 @@ export class UserService {
       linkedinUrl: '',
       websiteUrl: '',
       discordUsername: '',
-      telegramUsername: '',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
