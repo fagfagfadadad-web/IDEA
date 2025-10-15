@@ -1,4 +1,4 @@
-import { Twitter, Send } from 'lucide-react';
+import { Twitter } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -67,14 +67,6 @@ export const Footer = () => {
                 className='text-white/80 hover:text-white transition-colors'
               >
                 <Twitter size={20} />
-              </a>
-              <a
-                href='https://t.me/pupfi'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-white/80 hover:text-white transition-colors'
-              >
-                <Send size={20} />
               </a>
             </div>
             <p className='text-white/80 text-sm'>Built on MultiversX</p>
