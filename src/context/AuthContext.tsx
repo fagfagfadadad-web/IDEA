@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { 
-  signInWithCustomToken, 
-  signOut, 
+import {
+  signInWithCustomToken,
+  signOut,
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
@@ -9,6 +9,7 @@ import { useGetIsLoggedIn, useGetAccount } from 'lib';
 import { auth } from '../lib/firebase';
 import { UserService, User } from '../services/userService';
 import { GameService } from '../services/gameService';
+import { useBscWallet } from '../hooks/useBscWallet';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -35,13 +36,15 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = useGetIsLoggedIn();
   const { address } = useGetAccount();
+  const { address: bscAddress, isConnected: isBscConnected } = useBscWallet();
   const [user, setUser] = useState<User | null>(null);
   const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileReady, setIsProfileReady] = useState(false);
   const [authMessage, setAuthMessage] = useState('');
   const [lastAddress, setLastAddress] = useState<string | null>(null);
-  
+  const [lastBscAddress, setLastBscAddress] = useState<string | null>(null);
+
   const isAuthenticating = useRef(false);
 
   const handleFirebaseSignOut = async () => {
@@ -102,8 +105,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       }
 
-      // If no Firebase user and no MultiversX wallet, clear everything
-      if (!firebaseUser && (!isLoggedIn || !address)) {
+      // If no Firebase user and no wallet connection at all, clear everything
+      if (!firebaseUser && (!isLoggedIn || !address) && (!isBscConnected || !bscAddress)) {
         console.log('❌ AuthContext: No Firebase user and no wallet');
         setUser(null);
         setIsProfileReady(false);
@@ -114,17 +117,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       // If we only have MultiversX wallet (no Firebase), continue with wallet-based auth
       if (!firebaseUser && isLoggedIn && address) {
-        console.log('🔗 AuthContext: Wallet-only login detected');
-        // Continue to wallet-based profile creation below
+        console.log('🔗 AuthContext: MultiversX wallet-only login detected');
       }
 
-      // Check for address change (only if we have an address)
+      // If we only have BSC wallet (no Firebase), continue with BSC wallet-based auth
+      if (!firebaseUser && isBscConnected && bscAddress) {
+        console.log('🔗 AuthContext: BSC wallet-only login detected');
+      }
+
+      // Check for MultiversX address change (only if we have an address)
       if (address) {
         if (lastAddress && lastAddress !== address) {
-          console.log('🔄 AuthContext: Address changed, clearing session');
+          console.log('🔄 AuthContext: MultiversX address changed, clearing session');
           await handleFirebaseSignOut();
         }
         setLastAddress(address);
+      }
+
+      // Check for BSC address change (only if we have a BSC address)
+      if (bscAddress) {
+        if (lastBscAddress && lastBscAddress !== bscAddress) {
+          console.log('🔄 AuthContext: BSC address changed, clearing session');
+          await handleFirebaseSignOut();
+        }
+        setLastBscAddress(bscAddress);
       }
 
       // Create or get user profile
@@ -132,10 +148,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       let userProfile: User | null = null;
 
-      // If we have wallet address, look up by wallet
+      // If we have MultiversX wallet address, look up by wallet
       if (address) {
-        console.log('🔍 AuthContext: Looking for user with address:', address);
+        console.log('🔍 AuthContext: Looking for user with MultiversX address:', address);
         userProfile = await UserService.getUserByWalletAddress(address);
+      }
+
+      // If we have BSC wallet address and no user yet, look up by BSC wallet
+      if (!userProfile && bscAddress) {
+        console.log('🔍 AuthContext: Looking for user with BSC address:', bscAddress);
+        userProfile = await UserService.getUserByBscWalletAddress(bscAddress);
       }
 
       if (!userProfile) {
@@ -144,9 +166,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('🔗 AuthContext: Linking wallet to existing Firebase account:', firebaseUser.uid);
 
           // Update the existing Firebase user profile with wallet address
-          await UserService.updateUser(firebaseUser.uid, {
-            walletAddress: address
-          });
+          const updateData: Partial<User> = {};
+          if (address) {
+            updateData.walletAddress = address;
+          }
+          if (bscAddress) {
+            updateData.bscWalletAddress = bscAddress;
+          }
+
+          await UserService.updateUser(firebaseUser.uid, updateData);
 
           // Reload the user profile
           userProfile = await UserService.getUser(firebaseUser.uid);
@@ -163,8 +191,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             localStorage.removeItem('pendingReferralCode');
           }
 
-          // Generate unique username
-          const baseUsername = address.substring(0, 8);
+          // Generate unique username based on which wallet is connected
+          const walletToUse = address || bscAddress;
+          const baseUsername = walletToUse!.substring(0, 8);
           const uniqueUsername = await UserService.generateUniqueUsername(baseUsername);
 
           console.log('👤 AuthContext: Generated username:', uniqueUsername);
@@ -183,9 +212,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('🎨 AuthContext: Generated random avatar emoji:', randomAvatar);
 
           // Create user profile
-          userProfile = await UserService.createUser(address, {
+          userProfile = await UserService.createUser(walletToUse!, {
             username: uniqueUsername,
-            walletAddress: address,
+            walletAddress: address || '',
+            bscWalletAddress: bscAddress || '',
             avatarUrl: randomAvatar,
             emailNotificationsEnabled: false,
             isAdmin: false,
@@ -289,9 +319,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Sync auth when login state or address changes, or when Firebase user changes
   useEffect(() => {
-    console.log('🔄 AuthContext: Triggering auth sync...', { isLoggedIn, address: address?.substring(0, 10), firebaseUserId: firebaseUser?.uid });
+    console.log('🔄 AuthContext: Triggering auth sync...', {
+      isLoggedIn,
+      address: address?.substring(0, 10),
+      bscAddress: bscAddress?.substring(0, 10),
+      isBscConnected,
+      firebaseUserId: firebaseUser?.uid
+    });
     syncAuth();
-  }, [isLoggedIn, address, firebaseUser?.uid]);
+  }, [isLoggedIn, address, isBscConnected, bscAddress, firebaseUser?.uid]);
 
   const logout = async () => {
     try {
@@ -338,7 +374,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
   const value = {
-    isAuthenticated: (isLoggedIn || !!firebaseUser) && !!user && isProfileReady,
+    isAuthenticated: (isLoggedIn || isBscConnected || !!firebaseUser) && !!user && isProfileReady,
     user,
     firebaseUser,
     loading,

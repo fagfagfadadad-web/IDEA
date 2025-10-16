@@ -5,12 +5,14 @@ import { UnlockPanelManager, useGetLoginInfo, useGetIsLoggedIn } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
 import { FirebaseAuthService } from '../../services/firebaseAuthService';
 import { useAuth } from '../../context/AuthContext';
+import { useBscWallet } from '../../hooks/useBscWallet';
 
 export const Unlock = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useGetLoginInfo();
   const isUserLoggedIn = useGetIsLoggedIn();
   const { isAuthenticated } = useAuth();
+  const { connectWallet: connectBscWallet } = useBscWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingType, setLoadingType] = useState<string>('');
   const [error, setError] = useState<string>('');
@@ -78,6 +80,22 @@ export const Unlock = () => {
     } catch (error: any) {
       console.error('Error signing in as guest:', error);
       setError(error.message || 'Failed to start as guest');
+      setIsLoading(false);
+      setLoadingType('');
+    }
+  };
+
+  const handleBscWalletConnect = async () => {
+    setIsLoading(true);
+    setLoadingType('bsc');
+    setError('');
+
+    try {
+      await connectBscWallet();
+      navigate(RouteNamesEnum.home);
+    } catch (error: any) {
+      console.error('Error connecting BSC wallet:', error);
+      setError(error.message || 'Failed to connect BSC wallet');
       setIsLoading(false);
       setLoadingType('');
     }
@@ -170,6 +188,24 @@ export const Unlock = () => {
                 <>
                   <img src="/6892.png" alt="MultiversX" className="w-6 h-6" />
                   <span>Connect MultiversX Wallet</span>
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleBscWalletConnect}
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-6 py-4 rounded-2xl font-bold text-lg shadow-xl transform transition-all duration-200 hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+            >
+              {loadingType === 'bsc' ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  <span>Connecting...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-2xl">🦊</span>
+                  <span>Connect BSC Wallet (MetaMask)</span>
                 </>
               )}
             </button>

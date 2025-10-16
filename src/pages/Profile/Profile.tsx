@@ -402,7 +402,7 @@ export const Profile = () => {
                     </div>
 
                     <div>
-                      <p className="text-gray-600 font-inter mb-2">Wallet Address</p>
+                      <p className="text-gray-600 font-inter mb-2">MultiversX Wallet</p>
                       {user?.walletAddress ? (
                         <p className="text-primary-600 font-mono text-sm break-all">
                           <span title={user.walletAddress}>
@@ -423,6 +423,22 @@ export const Profile = () => {
                             {isLinkingWallet ? 'Connecting...' : 'Link Wallet'}
                           </Button>
                         </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="text-gray-600 font-inter mb-2">BSC Wallet</p>
+                      {user?.bscWalletAddress ? (
+                        <p className="text-yellow-600 font-mono text-sm break-all">
+                          <span title={user.bscWalletAddress} className="flex items-center gap-2">
+                            <span className="text-lg">🦊</span>
+                            {user.bscWalletAddress.substring(0, 10)}...{user.bscWalletAddress.substring(user.bscWalletAddress.length - 8)}
+                          </span>
+                        </p>
+                      ) : (
+                        <p className="text-gray-500 font-inter text-sm">
+                          No BSC wallet connected
+                        </p>
                       )}
                     </div>
                   </div>

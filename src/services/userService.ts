@@ -21,6 +21,7 @@ export interface User {
   bio?: string;
   email?: string;
   walletAddress?: string;
+  bscWalletAddress?: string;
   isAdmin?: boolean;
   isBanned?: boolean;
   isChatBanned?: boolean;
@@ -55,6 +56,7 @@ export class UserService {
       bio: userData.bio || '',
       email: userData.email || '',
       walletAddress: userData.walletAddress || '',
+      bscWalletAddress: userData.bscWalletAddress || '',
       isAdmin: false,
       isBanned: false,
       isChatBanned: false,
@@ -93,7 +95,22 @@ export class UserService {
       where('walletAddress', '==', walletAddress),
       limit(1)
     );
-    
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as User;
+    }
+    return null;
+  }
+
+  static async getUserByBscWalletAddress(bscWalletAddress: string): Promise<User | null> {
+    const q = query(
+      collection(db, 'users'),
+      where('bscWalletAddress', '==', bscWalletAddress),
+      limit(1)
+    );
+
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
