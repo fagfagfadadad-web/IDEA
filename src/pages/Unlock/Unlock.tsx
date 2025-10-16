@@ -205,7 +205,7 @@ export const Unlock = () => {
               ) : (
                 <>
                   <span className="text-2xl">🦊</span>
-                  <span>Connect BSC Wallet (MetaMask)</span>
+                  <span>Connect BSC Wallet</span>
                 </>
               )}
             </button>
