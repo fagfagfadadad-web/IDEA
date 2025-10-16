@@ -10,6 +10,7 @@ import { PetService } from '../../services/petService';
 import { Pet } from '../../types/pet.types';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { BscWalletService } from '../../services/bscWalletService';
 
 export const Profile = () => {
   const { user, refreshUser } = useAuth();
@@ -18,6 +19,7 @@ export const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLinkingWallet, setIsLinkingWallet] = useState(false);
+  const [isLinkingBscWallet, setIsLinkingBscWallet] = useState(false);
   const [listingPet, setListingPet] = useState<string | null>(null);
   const [listingPrice, setListingPrice] = useState<string>('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -121,6 +123,29 @@ export const Profile = () => {
       console.error('Error linking wallet:', err);
       error(err.message || 'Failed to link wallet');
       setIsLinkingWallet(false);
+    }
+  };
+
+  const handleLinkBscWallet = async () => {
+    if (!user?.id) {
+      error('User not found. Please try logging in again.');
+      return;
+    }
+
+    setIsLinkingBscWallet(true);
+    try {
+      const address = await BscWalletService.connectWallet();
+
+      if (address) {
+        await UserService.updateUser(user.id, { bscWalletAddress: address });
+        await refreshUser();
+        success('BSC Wallet linked successfully!');
+      }
+    } catch (err: any) {
+      console.error('Error linking BSC wallet:', err);
+      error(err.message || 'Failed to link BSC wallet');
+    } finally {
+      setIsLinkingBscWallet(false);
     }
   };
 
@@ -436,9 +461,19 @@ export const Profile = () => {
                           </span>
                         </p>
                       ) : (
-                        <p className="text-gray-500 font-inter text-sm">
-                          No BSC wallet connected
-                        </p>
+                        <div className="space-y-2">
+                          <p className="text-gray-500 font-inter text-sm mb-3">
+                            Link your BSC wallet (MetaMask) to access BSC features
+                          </p>
+                          <Button
+                            onClick={handleLinkBscWallet}
+                            disabled={isLinkingBscWallet}
+                            className="px-4 py-2 flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white rounded-lg font-bold shadow-lg transition-all duration-200"
+                          >
+                            <span className="text-lg">🦊</span>
+                            {isLinkingBscWallet ? 'Connecting...' : 'Link BSC Wallet'}
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </div>
