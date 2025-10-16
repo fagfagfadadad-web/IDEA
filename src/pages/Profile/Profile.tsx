@@ -290,11 +290,11 @@ export const Profile = () => {
                       />
 
                       {/* Modal */}
-                      <div className="fixed inset-4 sm:inset-8 md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:h-auto md:max-h-[85vh] rounded-2xl md:rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
+                      <div className="fixed inset-4 sm:inset-8 md:inset-16 lg:inset-20 xl:inset-24 rounded-2xl md:rounded-3xl shadow-2xl z-50 overflow-hidden flex flex-col" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
                         {/* Header */}
-                        <div className="flex items-center justify-between p-3 sm:p-4 md:p-5 border-b border-white/20 flex-shrink-0">
+                        <div className="flex items-center justify-between p-3 sm:p-4 md:p-5 lg:p-6 border-b border-white/20 flex-shrink-0">
                           <div className="flex-1 pr-2">
-                            <h3 className="text-white font-bold text-base sm:text-lg md:text-2xl font-inter">Choose Your Avatar</h3>
+                            <h3 className="text-white font-bold text-base sm:text-lg md:text-xl lg:text-2xl font-inter">Choose Your Avatar</h3>
                             <p className="text-white/90 text-xs sm:text-sm font-inter mt-1">Pick an emoji that represents you!</p>
                           </div>
                           <button
@@ -308,7 +308,7 @@ export const Profile = () => {
                         </div>
 
                         {/* Content - Scrollable */}
-                        <div className="p-3 sm:p-4 md:p-5 overflow-y-auto flex-1 min-h-0">
+                        <div className="p-3 sm:p-4 md:p-5 lg:p-6 overflow-y-auto flex-1 min-h-0">
                           <div className="grid grid-cols-6 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 gap-2 sm:gap-2.5 md:gap-3">
                             {availableEmojis.map((emoji, index) => (
                               <button
@@ -326,7 +326,7 @@ export const Profile = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="flex items-center gap-3 p-3 sm:p-4 md:p-5 border-t border-white/20 bg-black/10 flex-shrink-0">
+                        <div className="flex items-center gap-3 p-3 sm:p-4 md:p-5 lg:p-6 border-t border-white/20 bg-black/10 flex-shrink-0">
                           <button
                             onClick={() => setShowEmojiPicker(false)}
                             className="flex-1 py-2.5 sm:py-3 md:py-4 px-4 md:px-6 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-xl md:rounded-2xl font-semibold transition-all duration-200 font-inter text-sm md:text-base"
