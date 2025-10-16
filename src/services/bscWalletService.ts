@@ -40,6 +40,7 @@ export class BscWalletService {
   };
 
   private static listeners: Set<(state: BscWalletState) => void> = new Set();
+  private static manuallyDisconnected: boolean = false;
 
   static async checkMetaMaskInstalled(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
@@ -77,6 +78,8 @@ export class BscWalletService {
       this.notifyListeners();
       this.setupEventListeners();
 
+      this.manuallyDisconnected = false;
+
       console.log('BSC Wallet connected:', address, 'Chain:', chainId);
 
       return address;
@@ -92,6 +95,8 @@ export class BscWalletService {
   }
 
   static async disconnectWallet(): Promise<void> {
+    this.manuallyDisconnected = true;
+
     this.walletState = {
       address: null,
       chainId: null,
@@ -101,7 +106,7 @@ export class BscWalletService {
     };
 
     this.notifyListeners();
-    console.log('BSC Wallet disconnected');
+    console.log('BSC Wallet disconnected manually');
   }
 
   static async switchToBscNetwork(chainId: number = BSC_CHAIN_IDS.MAINNET): Promise<void> {
@@ -236,6 +241,11 @@ export class BscWalletService {
   }
 
   static async checkConnection(): Promise<void> {
+    if (this.manuallyDisconnected) {
+      console.log('BSC Wallet was manually disconnected, skipping auto-connect');
+      return;
+    }
+
     if (!await this.checkMetaMaskInstalled()) {
       return;
     }

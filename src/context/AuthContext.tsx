@@ -344,10 +344,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         await provider.logout();
       }
 
+      // Also disconnect BSC wallet if connected
+      if (isBscConnected) {
+        console.log('👋 AuthContext: Disconnecting BSC wallet...');
+        const { BscWalletService } = await import('../services/bscWalletService');
+        await BscWalletService.disconnectWallet();
+      }
+
       setUser(null);
       setFirebaseUser(null);
       setIsProfileReady(false);
       setLastAddress(null);
+      setLastBscAddress(null);
       setAuthMessage('Successfully logged out');
     } catch (error: any) {
       console.error('❌ AuthContext: Logout error:', error);
@@ -355,6 +363,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setFirebaseUser(null);
       setIsProfileReady(false);
       setLastAddress(null);
+      setLastBscAddress(null);
       setAuthMessage('Logged out (with some cleanup issues)');
     } finally {
       isAuthenticating.current = false;
