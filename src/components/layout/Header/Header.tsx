@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy, Twitter, Send } from 'lucide-react';
+import { Zap, User, Settings, LogOut, Menu as MenuIcon, X, Wallet, Rocket, Target, Users, ShoppingCart, Trophy, Twitter } from 'lucide-react';
 import { Button } from 'components';
 import { useGetIsLoggedIn, getAccountProvider } from 'lib';
 import { RouteNamesEnum } from 'localConstants';
@@ -374,14 +374,6 @@ export const Header = () => {
                           className="flex items-center justify-center w-12 h-12 rounded-full bg-[#f97316] text-white hover:bg-[#ea580c] transition-colors"
                         >
                           <Twitter size={20} />
-                        </a>
-                        <a
-                          href="https://t.me/pupfi"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center w-12 h-12 rounded-full bg-[#f97316] text-white hover:bg-[#ea580c] transition-colors"
-                        >
-                          <Send size={20} />
                         </a>
                       </div>
                     </div>
