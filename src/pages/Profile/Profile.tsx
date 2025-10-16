@@ -290,30 +290,29 @@ export const Profile = () => {
                       />
 
                       {/* Modal */}
-                      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100vw-2rem)] max-w-2xl max-h-[calc(100vh-2rem)] rounded-2xl md:rounded-3xl shadow-2xl z-50 flex flex-col" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
+                      <div className="fixed inset-4 sm:inset-8 rounded-2xl shadow-2xl z-50 flex flex-col" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' }}>
                         {/* Header */}
-                        <div className="flex items-center justify-between p-4 md:p-5 border-b border-white/20 flex-shrink-0">
+                        <div className="flex items-center justify-between p-4 border-b border-white/20 flex-shrink-0">
                           <div className="flex-1 pr-2">
-                            <h3 className="text-white font-bold text-lg md:text-2xl font-inter">Choose Your Avatar</h3>
+                            <h3 className="text-white font-bold text-lg sm:text-xl font-inter">Choose Your Avatar</h3>
                             <p className="text-white/90 text-sm font-inter mt-1">Pick an emoji that represents you!</p>
                           </div>
                           <button
                             onClick={() => setShowEmojiPicker(false)}
-                            className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all hover:scale-110"
+                            className="w-10 h-10 flex-shrink-0 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all hover:scale-110"
                           >
-                            <X size={20} className="text-white md:hidden" />
-                            <X size={24} className="text-white hidden md:block" />
+                            <X size={20} className="text-white" />
                           </button>
                         </div>
 
                         {/* Content - Scrollable */}
-                        <div className="p-4 md:p-5 overflow-y-auto flex-1 min-h-0">
-                          <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2 md:gap-3">
+                        <div className="p-4 overflow-y-auto flex-1 min-h-0">
+                          <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
                             {availableEmojis.map((emoji, index) => (
                               <button
                                 key={index}
                                 onClick={() => handleEmojiSelect(emoji)}
-                                className={`aspect-square rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 hover:scale-105 flex items-center justify-center text-2xl md:text-3xl transition-all duration-150 cursor-pointer ${
+                                className={`aspect-square rounded-lg bg-white/10 hover:bg-white/25 active:scale-95 hover:scale-105 flex items-center justify-center text-2xl transition-all duration-150 cursor-pointer ${
                                   formData.avatarUrl === emoji ? 'ring-2 ring-white scale-105 bg-white/30' : ''
                                 }`}
                                 title={emoji}
@@ -325,10 +324,10 @@ export const Profile = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="p-4 md:p-5 border-t border-white/20 bg-black/10 flex-shrink-0">
+                        <div className="p-4 border-t border-white/20 bg-black/10 flex-shrink-0">
                           <button
                             onClick={() => setShowEmojiPicker(false)}
-                            className="w-full py-3 md:py-4 px-6 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-xl md:rounded-2xl font-semibold transition-all duration-200 font-inter text-base"
+                            className="w-full py-3 px-6 bg-white/10 hover:bg-white/20 active:scale-95 text-white rounded-xl font-semibold transition-all duration-200 font-inter text-base"
                           >
                             Close
                           </button>
