@@ -319,8 +319,7 @@ export const Swap: React.FC = () => {
                   )}
                 </div>
               </div>
-
-              {/* ✅ Upravené zarovnanie TokenSelectoru */}
+              {/* ✅ FIXED ALIGNMENT */}
               <div className="flex items-center justify-between gap-2">
                 <input
                   type="number"
@@ -329,7 +328,7 @@ export const Swap: React.FC = () => {
                   placeholder="0.0"
                   className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none text-white placeholder-purple-300"
                 />
-                <div className="flex-shrink-0">
+                <div className="flex items-center justify-center min-w-fit">
                   <TokenSelector selectedToken={tokenIn} onSelectToken={setTokenIn} label="" />
                 </div>
               </div>
