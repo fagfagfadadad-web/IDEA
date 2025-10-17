@@ -64,6 +64,9 @@ export const Header = () => {
               <Link to="/marketplace" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Marketplace
               </Link>
+              <Link to="/swap" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
+                Swap
+              </Link>
               <Link to="/shop" className="text-gray-700 hover:text-primary-500 transition-colors font-semibold font-inter">
                 Shop
               </Link>
@@ -290,6 +293,14 @@ export const Header = () => {
                 >
                   <span className="text-xl">🛒</span>
                   Marketplace
+                </Link>
+                <Link
+                  to="/swap"
+                  className="flex items-center gap-3 py-3 px-3 text-base text-white hover:bg-primary-600 rounded-lg transition-all duration-200 font-medium"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="text-xl">🔄</span>
+                  Swap
                 </Link>
                 <Link
                   to="/shop"

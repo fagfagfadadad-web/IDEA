@@ -278,4 +278,28 @@ export class BscWalletService {
       console.error('Failed to check BSC wallet connection:', error);
     }
   }
+
+  static async getBnbBalance(address: string): Promise<string> {
+    if (!this.walletState.provider || !address) return '0';
+
+    try {
+      const balance = await this.walletState.provider.getBalance(address);
+      return ethers.formatEther(balance);
+    } catch (error) {
+      console.error('Failed to get BNB balance:', error);
+      return '0';
+    }
+  }
+
+  static isBscChain(chainId: number | null): boolean {
+    return chainId === BSC_CHAIN_IDS.MAINNET || chainId === BSC_CHAIN_IDS.TESTNET;
+  }
+
+  static getExplorerUrl(txHash: string, chainId?: number): string {
+    const chain = chainId || this.walletState.chainId;
+    if (chain === BSC_CHAIN_IDS.TESTNET) {
+      return `https://testnet.bscscan.com/tx/${txHash}`;
+    }
+    return `https://bscscan.com/tx/${txHash}`;
+  }
 }

@@ -14,5 +14,6 @@ export enum RouteNamesEnum {
   memoryMatch = '/game/memory-match',
   pupPuzzle = '/game/puzzle',
   pupRacing = '/game/racing',
-  marketplace = '/marketplace'
+  marketplace = '/marketplace',
+  swap = '/swap'
 }

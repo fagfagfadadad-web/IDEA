@@ -24,6 +24,7 @@ const PetDetail = lazy(() => import('pages').then(module => ({ default: module.P
 const PetMarket = lazy(() => import('pages').then(module => ({ default: module.PetMarket })));
 const Inventory = lazy(() => import('pages').then(module => ({ default: module.Inventory })));
 const Marketplace = lazy(() => import('pages').then(module => ({ default: module.Marketplace })));
+const Swap = lazy(() => import('pages').then(module => ({ default: module.Swap })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -149,5 +150,11 @@ export const routes: RouteWithTitleType[] = [
     title: 'Marketplace',
     component: Marketplace,
     authenticatedRoute: true
+  },
+  {
+    path: RouteNamesEnum.swap,
+    title: 'Swap',
+    component: Swap,
+    authenticatedRoute: false
   }
 ];
