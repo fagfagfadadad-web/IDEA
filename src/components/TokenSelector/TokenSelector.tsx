@@ -168,32 +168,32 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className={`flex items-center gap-2 px-3 py-2 rounded-2xl transition-all ${
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl transition-all ${
             disabled
               ? 'bg-white/20 cursor-not-allowed opacity-50'
               : 'bg-white/20 hover:bg-white/30 cursor-pointer'
           } ${label ? 'w-full justify-between' : ''}`}
         >
           {selectedToken ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {selectedToken.logoURI && (
                 <img
                   src={selectedToken.logoURI}
                   alt={selectedToken.symbol}
-                  className="w-6 h-6 rounded-full"
+                  className="w-5 h-5 rounded-full"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               )}
-              <div className="font-inter font-bold text-white text-base whitespace-nowrap">
+              <div className="font-inter font-bold text-white text-sm whitespace-nowrap">
                 {selectedToken.symbol}
               </div>
             </div>
           ) : (
-            <span className="text-white font-inter font-semibold">Select</span>
+            <span className="text-white font-inter font-semibold text-sm">Select</span>
           )}
-          {!disabled && <ChevronDown size={16} className="text-white" />}
+          {!disabled && <ChevronDown size={14} className="text-white" />}
         </button>
       </div>
 

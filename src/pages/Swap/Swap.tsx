@@ -319,21 +319,19 @@ export const Swap: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center justify-between">
+                <div className="flex gap-2 items-center">
                   <input
                     type="number"
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 bg-transparent text-3xl font-inter font-bold outline-none text-white placeholder-purple-300"
+                    className="flex-1 min-w-0 bg-transparent text-3xl font-inter font-bold outline-none text-white placeholder-purple-300"
                   />
-                  <div className="flex-shrink-0">
-                    <TokenSelector
-                      selectedToken={tokenIn}
-                      onSelectToken={setTokenIn}
-                      label=""
-                    />
-                  </div>
+                  <TokenSelector
+                    selectedToken={tokenIn}
+                    onSelectToken={setTokenIn}
+                    label=""
+                  />
                 </div>
               </div>
 
@@ -355,8 +353,8 @@ export const Swap: React.FC = () => {
                     Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1 min-w-0">
                     {isLoadingQuote ? (
                       <div className="flex items-center gap-2 text-purple-200">
                         <Loader size={20} className="animate-spin" />
@@ -368,13 +366,11 @@ export const Swap: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <div className="flex-shrink-0">
-                    <TokenSelector
-                      selectedToken={tokenOut}
-                      onSelectToken={setTokenOut}
-                      label=""
-                    />
-                  </div>
+                  <TokenSelector
+                    selectedToken={tokenOut}
+                    onSelectToken={setTokenOut}
+                    label=""
+                  />
                 </div>
               </div>
             </div>
