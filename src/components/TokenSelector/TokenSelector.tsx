@@ -84,8 +84,8 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500 z-50 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-md max-h-[85vh] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500 z-50 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
               <h3 className="text-xl font-inter font-bold text-white">Select Token</h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -95,10 +95,10 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
               </button>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-3 flex-shrink-0">
               <div className="relative">
                 <Search
-                  size={20}
+                  size={18}
                   className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
                 <input
@@ -106,31 +106,31 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search name or paste address"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white focus:border-purple-500 outline-none font-inter placeholder-gray-500"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border-2 border-gray-700 bg-gray-800 text-white focus:border-purple-500 outline-none font-inter placeholder-gray-500 text-sm"
                   autoFocus
                 />
               </div>
 
               <div>
-                <p className="text-sm font-inter font-semibold text-gray-400 mb-3">Popular tokens</p>
+                <p className="text-xs font-inter font-semibold text-gray-400 mb-2">Popular tokens</p>
                 <div className="flex gap-2 flex-wrap">
                   {QUICK_SELECT_TOKENS.map((token) => (
                     <button
                       key={token.address}
                       onClick={() => handleSelectToken(token)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500 transition-all"
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500 transition-all"
                     >
                       {token.logoURI && (
                         <img
                           src={token.logoURI}
                           alt={token.symbol}
-                          className="w-6 h-6 rounded-full"
+                          className="w-5 h-5 rounded-full"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
                       )}
-                      <span className="font-inter font-bold text-white text-sm">
+                      <span className="font-inter font-bold text-white text-xs">
                         {token.symbol}
                       </span>
                     </button>
@@ -139,9 +139,9 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
               </div>
             </div>
 
-            <div className="overflow-y-auto max-h-96 border-t border-gray-700">
+            <div className="overflow-y-auto flex-1 border-t border-gray-700">
               {filteredTokens.length === 0 ? (
-                <div className="p-8 text-center text-gray-400 font-inter">
+                <div className="p-8 text-center text-gray-400 font-inter text-sm">
                   No tokens found
                 </div>
               ) : (
@@ -160,17 +160,17 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                         <img
                           src={token.logoURI}
                           alt={token.symbol}
-                          className="w-10 h-10 rounded-full"
+                          className="w-9 h-9 rounded-full"
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
                       )}
                       <div className="text-left">
-                        <div className="font-inter font-bold text-white">
+                        <div className="font-inter font-bold text-white text-sm">
                           {token.symbol}
                         </div>
-                        <div className="text-sm font-inter text-gray-400">
+                        <div className="text-xs font-inter text-gray-400">
                           {token.name}
                         </div>
                       </div>
