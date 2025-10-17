@@ -65,31 +65,56 @@ This system implements special abilities for pets that provide passive income, p
 
 ## Level-Up Rewards
 
+### Random Reward System
+Level-up rewards are now **RANDOMIZED** from shop items! Each level has a chance to give different items based on rarity tiers.
+
+### Available Reward Items
+
+#### Common Items (Gray)
+- **XP Treat** (1-2x): Instantly grant 100 XP to one pet
+- **Food Pack Small** (25-50x): Bonus Food
+
+#### Rare Items (Blue)
+- **XP Snack Pack** (1x): Instantly grant 500 XP to one pet
+- **Training Manual** (1x): +10% to all training stats for one pet
+- **Food Pack Medium** (100x): Bonus Food
+
+#### Epic Items (Purple)
+- **XP Feast** (1x): Instantly grant 2000 XP to one pet
+- **Evolution Stone** (1x): Reduce XP needed for next level by 20%
+- **Training Boost (24h)** (1x): Training costs 50% less Food and grants 2x progress
+
+#### Legendary Items (Gold)
+- **XP Multiplier (24h)** (1x): All pets earn 2x XP for 24 hours
+- **Shiny Charm** (1x): Next pet adoption has 10% chance to be Shiny
+- **Food Multiplier Upgrade** (1x): Permanently increase food rewards by +10%
+
 ### Rewards by Level
-- **Level 5**: Basic Training Manual
-- **Level 10**: 3x Energy Booster + 50 Food Pack
-- **Level 15**: Advanced Training Manual
-- **Level 20**: Evolution Stone + 100 Food Pack
-- **Level 25**: Shiny Charm
-- **Level 30**: Master Training Manual + Ascension Crystal
-- **Level 40+**: Premium Food Pack (level × 5 Food)
+- **Level 5**: 1-2 Common items (random)
+- **Level 10**: 1 Common + 1 Rare item (random)
+- **Level 15**: 1 Rare item + possible Common bonus (random)
+- **Level 20**: 1 Rare + 1 Epic item (random)
+- **Level 25**: 1 Epic + possible Rare bonus (random)
+- **Level 30**: 1 Epic + 1 Legendary item (random)
+- **Level 40**: 1 Legendary + 1 Epic item (random)
+- **Level 50**: 2 Legendary + 1 Epic item (random)
+- **Every 5 levels**: 30% chance for bonus Common item
+- **Level 50+**: Epic item + scaling Food Pack every 10 levels
 
 ### How It Works
 1. **Train or feed your pet** on the Pet Detail page
-2. When your pet levels up, rewards are **automatically calculated**
+2. When your pet levels up, rewards are **randomly selected** from the pool
 3. Items are **instantly added to your inventory**
-4. A **beautiful modal appears** showing all your new items with rarity colors:
-   - Common (gray)
-   - Rare (blue)
-   - Epic (purple)
-   - Legendary (gold)
+4. A **beautiful modal appears** showing all your new items with rarity colors
 5. Click "Awesome! Collect Rewards" to close the modal
 6. Check your **inventory** to use the items!
 
-### Example
-- Level up from 4 → 5: You get a modal showing "Basic Training Manual (Common) x1"
-- Level up from 9 → 10: You get "Energy Booster (Common) x3" + "Food Pack (Common) x50"
-- All items are already in your inventory when the modal shows
+### Example Rewards
+- Level 5: Maybe get **XP Treat x2** or **Food Pack x50**
+- Level 10: Get **Food Pack x25** + **Training Manual**
+- Level 20: Get **XP Snack Pack** + **Evolution Stone**
+- Level 30: Get **Training Boost (24h)** + **Shiny Charm**
+- Every level-up is a **surprise**!
 
 ## Price Tiers
 

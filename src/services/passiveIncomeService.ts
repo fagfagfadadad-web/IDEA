@@ -88,83 +88,94 @@ export class PassiveIncomeService {
   static getLevelUpRewards(level: number): LevelUpReward[] {
     const rewards: LevelUpReward[] = [];
 
+    const getRandomItem = (pool: LevelUpReward[]): LevelUpReward => {
+      return pool[Math.floor(Math.random() * pool.length)];
+    };
+
+    const commonItems: LevelUpReward[] = [
+      { itemName: 'XP Treat', itemId: 'xp_treat', quantity: 1, rarity: 'common' },
+      { itemName: 'XP Treat', itemId: 'xp_treat', quantity: 2, rarity: 'common' },
+      { itemName: 'Food Pack', itemId: 'food_pack_small', quantity: 25, rarity: 'common' },
+      { itemName: 'Food Pack', itemId: 'food_pack_small', quantity: 50, rarity: 'common' },
+    ];
+
+    const rareItems: LevelUpReward[] = [
+      { itemName: 'XP Snack Pack', itemId: 'xp_snack_pack', quantity: 1, rarity: 'rare' },
+      { itemName: 'Training Manual', itemId: 'training_manual', quantity: 1, rarity: 'rare' },
+      { itemName: 'Food Pack', itemId: 'food_pack_medium', quantity: 100, rarity: 'rare' },
+    ];
+
+    const epicItems: LevelUpReward[] = [
+      { itemName: 'XP Feast', itemId: 'xp_feast', quantity: 1, rarity: 'epic' },
+      { itemName: 'Evolution Stone', itemId: 'evolution_stone', quantity: 1, rarity: 'epic' },
+      { itemName: 'Training Boost (24h)', itemId: 'training_boost_24h', quantity: 1, rarity: 'epic' },
+    ];
+
+    const legendaryItems: LevelUpReward[] = [
+      { itemName: 'XP Multiplier (24h)', itemId: 'xp_multiplier_24h', quantity: 1, rarity: 'legendary' },
+      { itemName: 'Shiny Charm', itemId: 'shiny_charm', quantity: 1, rarity: 'legendary' },
+      { itemName: 'Food Multiplier Upgrade', itemId: 'food_multiplier_upgrade', quantity: 1, rarity: 'legendary' },
+    ];
+
     if (level === 5) {
-      rewards.push({
-        itemName: 'Basic Training Manual',
-        itemId: 'training_manual_basic',
-        quantity: 1,
-        rarity: 'common'
-      });
+      rewards.push(getRandomItem(commonItems));
+      if (Math.random() > 0.5) {
+        rewards.push(getRandomItem(commonItems));
+      }
     }
 
     if (level === 10) {
-      rewards.push({
-        itemName: 'Energy Booster',
-        itemId: 'energy_booster',
-        quantity: 3,
-        rarity: 'common'
-      });
-      rewards.push({
-        itemName: 'Food Pack',
-        itemId: 'food_pack_medium',
-        quantity: 50,
-        rarity: 'common'
-      });
+      rewards.push(getRandomItem(commonItems));
+      rewards.push(getRandomItem(rareItems));
     }
 
     if (level === 15) {
-      rewards.push({
-        itemName: 'Advanced Training Manual',
-        itemId: 'training_manual_advanced',
-        quantity: 1,
-        rarity: 'rare'
-      });
+      rewards.push(getRandomItem(rareItems));
+      if (Math.random() > 0.6) {
+        rewards.push(getRandomItem(commonItems));
+      }
     }
 
     if (level === 20) {
-      rewards.push({
-        itemName: 'Evolution Stone',
-        itemId: 'evolution_stone',
-        quantity: 1,
-        rarity: 'epic'
-      });
-      rewards.push({
-        itemName: 'Large Food Pack',
-        itemId: 'food_pack_large',
-        quantity: 100,
-        rarity: 'rare'
-      });
+      rewards.push(getRandomItem(rareItems));
+      rewards.push(getRandomItem(epicItems));
     }
 
     if (level === 25) {
-      rewards.push({
-        itemName: 'Shiny Charm',
-        itemId: 'shiny_charm',
-        quantity: 1,
-        rarity: 'epic'
-      });
+      rewards.push(getRandomItem(epicItems));
+      if (Math.random() > 0.5) {
+        rewards.push(getRandomItem(rareItems));
+      }
     }
 
     if (level === 30) {
-      rewards.push({
-        itemName: 'Master Training Manual',
-        itemId: 'training_manual_master',
-        quantity: 1,
-        rarity: 'epic'
-      });
-      rewards.push({
-        itemName: 'Ascension Crystal',
-        itemId: 'ascension_crystal',
-        quantity: 1,
-        rarity: 'legendary'
-      });
+      rewards.push(getRandomItem(epicItems));
+      rewards.push(getRandomItem(legendaryItems));
     }
 
-    if (level % 10 === 0 && level > 30) {
+    if (level === 40) {
+      rewards.push(getRandomItem(legendaryItems));
+      rewards.push(getRandomItem(epicItems));
+    }
+
+    if (level === 50) {
+      rewards.push(getRandomItem(legendaryItems));
+      rewards.push(getRandomItem(legendaryItems));
+      rewards.push(getRandomItem(epicItems));
+    }
+
+    if (level % 5 === 0 && level > 10 && level < 50) {
+      if (Math.random() > 0.7) {
+        rewards.push(getRandomItem(commonItems));
+      }
+    }
+
+    if (level % 10 === 0 && level > 50) {
+      rewards.push(getRandomItem(epicItems));
       rewards.push({
-        itemName: 'Premium Food Pack',
-        itemId: 'food_pack_premium',
-        quantity: level * 5,
+        itemName: 'Food Pack',
+        itemId: 'food_pack_large',
+        quantity: level * 3,
         rarity: 'rare'
       });
     }
