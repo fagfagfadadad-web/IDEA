@@ -22,10 +22,6 @@ export const Swap: React.FC = () => {
   const [tokenOut, setTokenOut] = useState<Token | null>(POPULAR_TOKENS[0]);
   const [amountIn, setAmountIn] = useState('');
   const [amountOut, setAmountOut] = useState('');
-
-  useEffect(() => {
-    console.log('amountIn changed to:', amountIn);
-  }, [amountIn]);
   const [slippage, setSlippage] = useState(0.5);
   const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
@@ -57,17 +53,11 @@ export const Swap: React.FC = () => {
   }, [amountIn, tokenIn, tokenOut, isConnected]);
 
   const loadBalances = async () => {
-    if (!address || !tokenIn || !tokenOut) {
-      console.log('loadBalances skipped:', { address, tokenIn: tokenIn?.symbol, tokenOut: tokenOut?.symbol });
-      return;
-    }
+    if (!address || !tokenIn || !tokenOut) return;
 
     try {
       const walletState = BscWalletService.getWalletState();
-      if (!walletState.provider) {
-        console.log('No wallet provider');
-        return;
-      }
+      if (!walletState.provider) return;
 
       const balIn = await PancakeSwapService.getTokenBalance(
         tokenIn.address,
@@ -80,7 +70,6 @@ export const Swap: React.FC = () => {
         walletState.provider
       );
 
-      console.log('Balances loaded:', { balIn, balOut });
       setBalanceIn(balIn);
       setBalanceOut(balOut);
     } catch (err) {
@@ -223,20 +212,21 @@ export const Swap: React.FC = () => {
   };
 
   const handleMaxClick = () => {
-    console.log('MAX clicked, balanceIn:', balanceIn, 'tokenIn:', tokenIn);
     if (!balanceIn || parseFloat(balanceIn) === 0) {
       showError('No balance available');
       return;
     }
     if (tokenIn?.address === 'BNB') {
-      const maxAmount = Math.max(0, parseFloat(balanceIn) - 0.01);
-      console.log('Setting BNB max amount:', maxAmount);
+      const gasReserve = 0.001;
+      const maxAmount = Math.max(0, parseFloat(balanceIn) - gasReserve);
+      if (maxAmount === 0) {
+        showError(`Insufficient BNB. Need at least ${gasReserve} BNB for gas fees`);
+        return;
+      }
       setAmountIn(maxAmount.toString());
     } else {
-      console.log('Setting token max amount:', balanceIn);
       setAmountIn(balanceIn);
     }
-    console.log('setAmountIn called');
   };
 
   const isValidInput = amountIn && parseFloat(amountIn) > 0 && parseFloat(amountIn) <= parseFloat(balanceIn);
