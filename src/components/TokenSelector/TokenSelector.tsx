@@ -158,45 +158,42 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   return (
     <>
       <div className="relative">
-        <label className="block text-sm font-inter font-bold text-gray-700 mb-2">
-          {label}
-        </label>
+        {label && (
+          <label className="block text-sm font-inter font-bold text-gray-700 mb-2">
+            {label}
+          </label>
+        )}
 
         <button
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${
+          className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
             disabled
-              ? 'bg-gray-100 border-gray-300 cursor-not-allowed'
-              : 'bg-white border-purple-300 hover:border-purple-400 cursor-pointer'
-          }`}
+              ? 'bg-gray-700 border border-gray-600 cursor-not-allowed opacity-50'
+              : 'bg-gray-700 border border-gray-600 hover:border-gray-500 cursor-pointer'
+          } ${label ? 'w-full justify-between' : ''}`}
         >
           {selectedToken ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               {selectedToken.logoURI && (
                 <img
                   src={selectedToken.logoURI}
                   alt={selectedToken.symbol}
-                  className="w-8 h-8 rounded-full"
+                  className="w-6 h-6 rounded-full"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               )}
-              <div className="text-left">
-                <div className="font-inter font-bold text-gray-900">
-                  {selectedToken.symbol}
-                </div>
-                <div className="text-xs font-inter text-gray-600">
-                  {selectedToken.name}
-                </div>
-              </div>
+              <span className="font-inter font-bold text-white text-sm">
+                {selectedToken.symbol}
+              </span>
             </div>
           ) : (
-            <span className="text-gray-600 font-inter font-semibold">Select a token</span>
+            <span className="text-gray-400 font-inter font-semibold text-sm">Select</span>
           )}
-          {!disabled && <ChevronDown size={20} className="text-gray-600" />}
+          {!disabled && <ChevronDown size={16} className="text-gray-400" />}
         </button>
       </div>
 
