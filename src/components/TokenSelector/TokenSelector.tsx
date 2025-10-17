@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Search, ChevronDown } from 'lucide-react';
 import { Token, POPULAR_TOKENS, BNB_TOKEN, PUPFI_TOKEN } from '../../services/pancakeSwapService';
 
@@ -20,6 +21,17 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const allTokens = [BNB_TOKEN, ...POPULAR_TOKENS];
 
   const filteredTokens = allTokens.filter(
@@ -35,56 +47,13 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     setSearchQuery('');
   };
 
-  return (
-    <div className="relative">
-      <label className="block text-sm font-inter font-bold text-gray-700 mb-2">
-        {label}
-      </label>
-
-      <button
-        type="button"
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        disabled={disabled}
-        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${
-          disabled
-            ? 'bg-gray-100 border-gray-300 cursor-not-allowed'
-            : 'bg-white border-purple-300 hover:border-purple-400 cursor-pointer'
-        }`}
-      >
-        {selectedToken ? (
-          <div className="flex items-center gap-3">
-            {selectedToken.logoURI && (
-              <img
-                src={selectedToken.logoURI}
-                alt={selectedToken.symbol}
-                className="w-8 h-8 rounded-full"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
-            <div className="text-left">
-              <div className="font-inter font-bold text-gray-900">
-                {selectedToken.symbol}
-              </div>
-              <div className="text-xs font-inter text-gray-600">
-                {selectedToken.name}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <span className="text-gray-600 font-inter font-semibold">Select a token</span>
-        )}
-        {!disabled && <ChevronDown size={20} className="text-gray-600" />}
-      </button>
-
-      {isOpen && !disabled && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-md max-h-[85vh] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500 z-50 flex flex-col overflow-hidden">
+  const modalContent = isOpen && !disabled && (
+    <>
+      <div
+        className="fixed inset-0 bg-black/50 z-[9998] backdrop-blur-sm"
+        onClick={() => setIsOpen(false)}
+      />
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-md max-h-[85vh] bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500 z-[9999] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
               <h3 className="text-xl font-inter font-bold text-white">Select Token</h3>
               <button
@@ -184,7 +153,54 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             </div>
           </div>
         </>
-      )}
-    </div>
+  );
+
+  return (
+    <>
+      <div className="relative">
+        <label className="block text-sm font-inter font-bold text-gray-700 mb-2">
+          {label}
+        </label>
+
+        <button
+          type="button"
+          onClick={() => !disabled && setIsOpen(!isOpen)}
+          disabled={disabled}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${
+            disabled
+              ? 'bg-gray-100 border-gray-300 cursor-not-allowed'
+              : 'bg-white border-purple-300 hover:border-purple-400 cursor-pointer'
+          }`}
+        >
+          {selectedToken ? (
+            <div className="flex items-center gap-3">
+              {selectedToken.logoURI && (
+                <img
+                  src={selectedToken.logoURI}
+                  alt={selectedToken.symbol}
+                  className="w-8 h-8 rounded-full"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              )}
+              <div className="text-left">
+                <div className="font-inter font-bold text-gray-900">
+                  {selectedToken.symbol}
+                </div>
+                <div className="text-xs font-inter text-gray-600">
+                  {selectedToken.name}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <span className="text-gray-600 font-inter font-semibold">Select a token</span>
+          )}
+          {!disabled && <ChevronDown size={20} className="text-gray-600" />}
+        </button>
+      </div>
+
+      {typeof window !== 'undefined' && modalContent && createPortal(modalContent, document.body)}
+    </>
   );
 };
