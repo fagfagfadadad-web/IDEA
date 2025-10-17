@@ -35,6 +35,14 @@ const ERC20_ABI = [
 
 const WBNB_ADDRESS = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
 
+export const PUPFI_TOKEN: Token = {
+  address: '0xF727588a7912DdB94d9A38e76D291D6BA2894D1B',
+  symbol: 'PUPFI',
+  name: 'PupFi Token',
+  decimals: 18,
+  logoURI: '/pupfi-logo.png',
+};
+
 export const POPULAR_TOKENS: Token[] = [
   {
     address: WBNB_ADDRESS,
@@ -43,13 +51,7 @@ export const POPULAR_TOKENS: Token[] = [
     decimals: 18,
     logoURI: 'https://tokens.pancakeswap.finance/images/0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c.png',
   },
-  {
-    address: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82',
-    symbol: 'CAKE',
-    name: 'PancakeSwap Token',
-    decimals: 18,
-    logoURI: 'https://tokens.pancakeswap.finance/images/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png',
-  },
+  PUPFI_TOKEN,
   {
     address: '0x55d398326f99059fF775485246999027B3197955',
     symbol: 'USDT',
@@ -58,18 +60,11 @@ export const POPULAR_TOKENS: Token[] = [
     logoURI: 'https://tokens.pancakeswap.finance/images/0x55d398326f99059fF775485246999027B3197955.png',
   },
   {
-    address: '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
-    symbol: 'USDC',
-    name: 'USD Coin',
+    address: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82',
+    symbol: 'CAKE',
+    name: 'PancakeSwap Token',
     decimals: 18,
-    logoURI: 'https://tokens.pancakeswap.finance/images/0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d.png',
-  },
-  {
-    address: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
-    symbol: 'ETH',
-    name: 'Ethereum Token',
-    decimals: 18,
-    logoURI: 'https://tokens.pancakeswap.finance/images/0x2170Ed0880ac9A755fd29B2688956BD959F933F8.png',
+    logoURI: 'https://tokens.pancakeswap.finance/images/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82.png',
   },
   {
     address: '0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c',

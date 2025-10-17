@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, Search, ChevronDown } from 'lucide-react';
-import { Token, POPULAR_TOKENS, BNB_TOKEN } from '../../services/pancakeSwapService';
+import { Token, POPULAR_TOKENS, BNB_TOKEN, PUPFI_TOKEN } from '../../services/pancakeSwapService';
 
 interface TokenSelectorProps {
   selectedToken: Token | null;
@@ -8,6 +8,8 @@ interface TokenSelectorProps {
   label?: string;
   disabled?: boolean;
 }
+
+const QUICK_SELECT_TOKENS = [BNB_TOKEN, PUPFI_TOKEN, POPULAR_TOKENS[2], POPULAR_TOKENS[3]];
 
 export const TokenSelector: React.FC<TokenSelectorProps> = ({
   selectedToken,
@@ -23,7 +25,8 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   const filteredTokens = allTokens.filter(
     (token) =>
       token.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      token.name.toLowerCase().includes(searchQuery.toLowerCase())
+      token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      token.address.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectToken = (token: Token) => {
@@ -78,30 +81,67 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
       {isOpen && !disabled && (
         <>
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-2xl border-2 border-purple-400 z-50 max-h-96 overflow-hidden">
-            <div className="p-4 border-b border-purple-400">
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border-2 border-purple-500 z-50 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+              <h3 className="text-xl font-inter font-bold text-white">Select Token</h3>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
               <div className="relative">
                 <Search
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-purple-200"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                 />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search token name or symbol"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-purple-300 bg-white focus:border-yellow-300 outline-none font-inter placeholder-gray-500"
+                  placeholder="Search name or paste address"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-700 bg-gray-800 text-white focus:border-purple-500 outline-none font-inter placeholder-gray-500"
                   autoFocus
                 />
               </div>
+
+              <div>
+                <p className="text-sm font-inter font-semibold text-gray-400 mb-3">Popular tokens</p>
+                <div className="flex gap-2 flex-wrap">
+                  {QUICK_SELECT_TOKENS.map((token) => (
+                    <button
+                      key={token.address}
+                      onClick={() => handleSelectToken(token)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-purple-500 transition-all"
+                    >
+                      {token.logoURI && (
+                        <img
+                          src={token.logoURI}
+                          alt={token.symbol}
+                          className="w-6 h-6 rounded-full"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <span className="font-inter font-bold text-white text-sm">
+                        {token.symbol}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="overflow-y-auto max-h-80">
+            <div className="overflow-y-auto max-h-96 border-t border-gray-700">
               {filteredTokens.length === 0 ? (
-                <div className="p-8 text-center text-white font-inter font-semibold">
+                <div className="p-8 text-center text-gray-400 font-inter">
                   No tokens found
                 </div>
               ) : (
@@ -109,32 +149,34 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                   <button
                     key={token.address}
                     onClick={() => handleSelectToken(token)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-400 transition-colors border-b border-purple-400 last:border-b-0 ${
+                    className={`w-full flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-800 transition-colors border-b border-gray-800 last:border-b-0 ${
                       selectedToken?.address === token.address
-                        ? 'bg-purple-400'
+                        ? 'bg-gray-800'
                         : ''
                     }`}
                   >
-                    {token.logoURI && (
-                      <img
-                        src={token.logoURI}
-                        alt={token.symbol}
-                        className="w-10 h-10 rounded-full"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    )}
-                    <div className="flex-1 text-left">
-                      <div className="font-inter font-bold text-white">
-                        {token.symbol}
-                      </div>
-                      <div className="text-sm font-inter text-purple-100">
-                        {token.name}
+                    <div className="flex items-center gap-3">
+                      {token.logoURI && (
+                        <img
+                          src={token.logoURI}
+                          alt={token.symbol}
+                          className="w-10 h-10 rounded-full"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <div className="text-left">
+                        <div className="font-inter font-bold text-white">
+                          {token.symbol}
+                        </div>
+                        <div className="text-sm font-inter text-gray-400">
+                          {token.name}
+                        </div>
                       </div>
                     </div>
                     {selectedToken?.address === token.address && (
-                      <div className="w-2 h-2 bg-yellow-300 rounded-full" />
+                      <div className="w-2 h-2 bg-purple-500 rounded-full" />
                     )}
                   </button>
                 ))
