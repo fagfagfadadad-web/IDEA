@@ -53,11 +53,17 @@ export const Swap: React.FC = () => {
   }, [amountIn, tokenIn, tokenOut, isConnected]);
 
   const loadBalances = async () => {
-    if (!address || !tokenIn || !tokenOut) return;
+    if (!address || !tokenIn || !tokenOut) {
+      console.log('loadBalances skipped:', { address, tokenIn: tokenIn?.symbol, tokenOut: tokenOut?.symbol });
+      return;
+    }
 
     try {
       const walletState = BscWalletService.getWalletState();
-      if (!walletState.provider) return;
+      if (!walletState.provider) {
+        console.log('No wallet provider');
+        return;
+      }
 
       const balIn = await PancakeSwapService.getTokenBalance(
         tokenIn.address,
@@ -70,6 +76,7 @@ export const Swap: React.FC = () => {
         walletState.provider
       );
 
+      console.log('Balances loaded:', { balIn, balOut });
       setBalanceIn(balIn);
       setBalanceOut(balOut);
     } catch (err) {
@@ -212,6 +219,11 @@ export const Swap: React.FC = () => {
   };
 
   const handleMaxClick = () => {
+    console.log('MAX clicked, balanceIn:', balanceIn, 'tokenIn:', tokenIn);
+    if (!balanceIn || parseFloat(balanceIn) === 0) {
+      showError('No balance available');
+      return;
+    }
     if (tokenIn?.address === 'BNB') {
       const maxAmount = Math.max(0, parseFloat(balanceIn) - 0.01);
       setAmountIn(maxAmount.toString());
