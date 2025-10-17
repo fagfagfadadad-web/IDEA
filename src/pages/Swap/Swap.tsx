@@ -22,6 +22,10 @@ export const Swap: React.FC = () => {
   const [tokenOut, setTokenOut] = useState<Token | null>(POPULAR_TOKENS[0]);
   const [amountIn, setAmountIn] = useState('');
   const [amountOut, setAmountOut] = useState('');
+
+  useEffect(() => {
+    console.log('amountIn changed to:', amountIn);
+  }, [amountIn]);
   const [slippage, setSlippage] = useState(0.5);
   const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
@@ -226,10 +230,13 @@ export const Swap: React.FC = () => {
     }
     if (tokenIn?.address === 'BNB') {
       const maxAmount = Math.max(0, parseFloat(balanceIn) - 0.01);
+      console.log('Setting BNB max amount:', maxAmount);
       setAmountIn(maxAmount.toString());
     } else {
+      console.log('Setting token max amount:', balanceIn);
       setAmountIn(balanceIn);
     }
+    console.log('setAmountIn called');
   };
 
   const isValidInput = amountIn && parseFloat(amountIn) > 0 && parseFloat(amountIn) <= parseFloat(balanceIn);
