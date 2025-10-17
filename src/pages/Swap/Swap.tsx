@@ -275,33 +275,33 @@ export const Swap: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 pb-24 md:pb-8 px-4">
-      <div className="container mx-auto py-8 max-w-lg">
-        <div className="text-center mb-6 space-y-2">
-          <h1 className="text-3xl md:text-4xl font-inter font-bold text-white drop-shadow-lg">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 pb-24 md:pb-8 px-3 sm:px-4">
+      <div className="container mx-auto py-4 sm:py-8 max-w-lg">
+        <div className="text-center mb-4 sm:mb-6 space-y-1 sm:space-y-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-inter font-bold text-white drop-shadow-lg">
             Token Swap
           </h1>
-          <p className="text-white text-base font-inter font-semibold drop-shadow">
+          <p className="text-white text-sm sm:text-base font-inter font-semibold drop-shadow">
             Powered by PancakeSwap
           </p>
-          <div className="text-sm font-inter text-white font-semibold drop-shadow opacity-90">
+          <div className="text-xs sm:text-sm font-inter text-white font-semibold drop-shadow opacity-90">
             {BscWalletService.formatBscAddress(address || '')}
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-400 via-yellow-400 to-orange-500 rounded-3xl p-6 shadow-2xl">
-          <div className="space-y-3">
+        <div className="bg-gradient-to-br from-orange-400 via-yellow-400 to-orange-500 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
+          <div className="space-y-2 sm:space-y-3">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-inter font-bold text-white drop-shadow">Swap Tokens</h3>
-              <div className="flex items-center gap-2">
+              <h3 className="text-lg sm:text-xl font-inter font-bold text-white drop-shadow">Swap Tokens</h3>
+              <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   onClick={loadQuote}
                   disabled={!amountIn || isLoadingQuote}
-                  className="p-2 rounded-lg hover:bg-white/20 transition-colors disabled:opacity-50"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-white/20 transition-colors disabled:opacity-50"
                   title="Refresh Quote"
                 >
                   <RefreshCw
-                    size={20}
+                    size={18}
                     className={`text-white ${isLoadingQuote ? 'animate-spin' : ''}`}
                   />
                 </button>
@@ -309,31 +309,31 @@ export const Swap: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-4 space-y-3 border-2 border-purple-500">
+            <div className="space-y-1 sm:space-y-2">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 space-y-2 sm:space-y-3 border-2 border-purple-500">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-inter font-bold text-white">
+                  <label className="text-xs sm:text-sm font-inter font-bold text-white">
                     From
                   </label>
-                  <div className="text-sm font-inter text-white">
+                  <div className="text-xs sm:text-sm font-inter text-white">
                     Balance: {PancakeSwapService.formatTokenAmount(balanceIn)}
                     {parseFloat(balanceIn) > 0 && (
                       <button
                         onClick={handleMaxClick}
-                        className="ml-2 text-yellow-300 hover:text-yellow-200 font-bold transition-colors"
+                        className="ml-1 sm:ml-2 text-yellow-300 hover:text-yellow-200 font-bold transition-colors text-xs sm:text-sm"
                       >
                         MAX
                       </button>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-1 sm:gap-2 items-center">
                   <input
                     type="number"
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 min-w-0 bg-transparent text-3xl font-inter font-bold outline-none text-white placeholder-purple-300"
+                    className="flex-1 min-w-0 bg-transparent text-xl sm:text-2xl md:text-3xl font-inter font-bold outline-none text-white placeholder-purple-300"
                   />
                   <TokenSelector
                     selectedToken={tokenIn}
@@ -343,33 +343,33 @@ export const Swap: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-center -my-2 relative z-10">
+              <div className="flex justify-center -my-1 sm:-my-2 relative z-10">
                 <button
                   onClick={handleReverseTokens}
-                  className="bg-gradient-to-br from-purple-600 to-purple-700 p-2.5 rounded-xl border-4 border-purple-500 hover:border-purple-400 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                  className="bg-gradient-to-br from-purple-600 to-purple-700 p-2 sm:p-2.5 rounded-lg sm:rounded-xl border-3 sm:border-4 border-purple-500 hover:border-purple-400 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                 >
-                  <ArrowDown size={20} className="text-white" />
+                  <ArrowDown size={18} className="text-white" />
                 </button>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-4 space-y-3 border-2 border-purple-500">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl sm:rounded-2xl p-3 sm:p-4 space-y-2 sm:space-y-3 border-2 border-purple-500">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-inter font-bold text-white">
+                  <label className="text-xs sm:text-sm font-inter font-bold text-white">
                     To
                   </label>
-                  <div className="text-sm font-inter text-white">
+                  <div className="text-xs sm:text-sm font-inter text-white">
                     Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                   </div>
                 </div>
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-1 sm:gap-2 items-center">
                   <div className="flex-1 min-w-0">
                     {isLoadingQuote ? (
-                      <div className="flex items-center gap-2 text-purple-200">
-                        <Loader size={20} className="animate-spin" />
-                        <span className="text-lg font-inter">Loading...</span>
+                      <div className="flex items-center gap-1 sm:gap-2 text-purple-200">
+                        <Loader size={16} className="animate-spin" />
+                        <span className="text-sm sm:text-base font-inter">Loading...</span>
                       </div>
                     ) : (
-                      <div className="text-3xl font-inter font-bold text-white">
+                      <div className="text-xl sm:text-2xl md:text-3xl font-inter font-bold text-white break-all">
                         {amountOut ? PancakeSwapService.formatTokenAmount(amountOut) : '0.0'}
                       </div>
                     )}
@@ -387,11 +387,11 @@ export const Swap: React.FC = () => {
               <Button
                 onClick={handleApprove}
                 disabled={isApproving || !isValidInput}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-4 rounded-2xl font-inter font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-inter font-bold text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
               >
                 {isApproving ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader size={22} className="animate-spin" />
+                    <Loader size={18} className="animate-spin" />
                     Approving...
                   </span>
                 ) : (
@@ -403,11 +403,11 @@ export const Swap: React.FC = () => {
             <Button
               onClick={handleSwap}
               disabled={!isValidInput || isSwapping || needsApproval || isLoadingQuote}
-              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-4 rounded-2xl font-inter font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-inter font-bold text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all hover:shadow-xl"
             >
               {isSwapping ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader size={22} className="animate-spin" />
+                  <Loader size={18} className="animate-spin" />
                   Swapping...
                 </span>
               ) : !isValidInput ? (
@@ -420,21 +420,21 @@ export const Swap: React.FC = () => {
             </Button>
 
             {txHash && (
-              <div className="bg-green-100 border border-green-300 rounded-2xl p-4">
-                <div className="flex items-start gap-3">
-                  <CheckCircle size={22} className="text-green-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="font-inter font-bold text-green-900">
+              <div className="bg-green-100 border border-green-300 rounded-xl sm:rounded-2xl p-3 sm:p-4">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <CheckCircle size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 space-y-1 sm:space-y-2">
+                    <div className="font-inter font-bold text-green-900 text-sm sm:text-base">
                       Transaction Successful!
                     </div>
                     <a
                       href={BscWalletService.getExplorerUrl(txHash, chainId || undefined)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-inter transition-colors"
+                      className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-blue-600 hover:text-blue-700 font-inter transition-colors break-all"
                     >
                       View on BscScan
-                      <ExternalLink size={14} />
+                      <ExternalLink size={12} className="flex-shrink-0" />
                     </a>
                   </div>
                 </div>
@@ -443,11 +443,11 @@ export const Swap: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-6 text-center space-y-2">
-          <p className="text-white/80 text-sm font-inter font-semibold drop-shadow">
+        <div className="mt-4 sm:mt-6 text-center space-y-1 sm:space-y-2">
+          <p className="text-white/80 text-xs sm:text-sm font-inter font-semibold drop-shadow px-2">
             Trade tokens in an instant with the best rates on BNB Smart Chain
           </p>
-          <div className="flex items-center justify-center gap-2 text-xs text-white/60">
+          <div className="flex items-center justify-center gap-1 sm:gap-2 text-xs text-white/60 flex-wrap">
             <span>🔒 Secure</span>
             <span>•</span>
             <span>⚡ Fast</span>
