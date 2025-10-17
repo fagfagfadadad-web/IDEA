@@ -9,7 +9,19 @@ export class AIPromptHelper {
     poodle: 'with elegant curly coat, graceful stance, well-groomed appearance in a garden setting',
     mystical_wolf: 'with ethereal glowing eyes, silvery fur with magical sparkles, mystical forest background',
     celestial_hound: 'with starry cosmic fur pattern, glowing aura, divine presence, celestial background with nebulas',
-    akita_dragon: 'with fierce yet noble expression, reddish-orange fur with subtle scales, flame-like aura around body'
+    akita_dragon: 'with fierce yet noble expression, reddish-orange fur with subtle scales, flame-like aura around body',
+    shiba_inu: 'with fox-like features, orange and white coat, confident meme-worthy expression, Japanese garden setting',
+    border_collie: 'with intelligent gaze, black and white coat, alert herding pose in green meadow',
+    beagle: 'with floppy ears, tricolor coat, nose to ground tracking pose, curious expression',
+    dachshund: 'with long body and short legs, smooth coat, adorable hot-dog shape, playful garden setting',
+    pomeranian: 'with fluffy teddy bear coat, tiny size, viral-worthy cute expression, bouncing pose',
+    dalmatian: 'with distinctive black spots on white coat, athletic build, running with speed and grace',
+    bulldog: 'with wrinkled determined face, muscular stocky build, powerful stance showing strength',
+    samoyed: 'with fluffy white cloud-like coat, famous smiling expression, joyful and happy pose',
+    labrador: 'with friendly loyal eyes, golden or chocolate coat, holding bone, best friend pose',
+    chihuahua: 'with tiny size but fierce expression, big personality, mighty stance despite small stature',
+    rottweiler: 'with protective guardian stance, black and tan coat, strong muscular build, shield-like presence',
+    doberman: 'with sleek athletic build, alert pointed ears, lightning-fast pose, elegant and powerful'
   };
 
   private static readonly styleModifiers = {
@@ -112,6 +124,102 @@ export class AIPromptHelper {
           'with dragon scales visible on body',
           'surrounded by fire and smoke effects',
           'powerful stance with fierce expression'
+        );
+        break;
+      case 'shiba_inu':
+        suggestions.push(
+          'meme-worthy side-eye glance, much wow',
+          'in Japanese garden with cherry blossoms',
+          'rocket ship to the moon background',
+          'confident pose with crypto coins around'
+        );
+        break;
+      case 'border_collie':
+        suggestions.push(
+          'herding sheep in countryside',
+          'catching frisbee mid-air with focus',
+          'running agility course with intelligence',
+          'teaching other dogs tricks'
+        );
+        break;
+      case 'beagle':
+        suggestions.push(
+          'nose to ground tracking scent trail',
+          'howling with head tilted back',
+          'finding hidden treasure in forest',
+          'portrait with big floppy ears alert'
+        );
+        break;
+      case 'dachshund':
+        suggestions.push(
+          'digging tunnel underground for treasure',
+          'long body running with ears flying',
+          'wearing tiny sweater in autumn leaves',
+          'standing on hind legs looking adorable'
+        );
+        break;
+      case 'pomeranian':
+        suggestions.push(
+          'viral internet star with phone camera',
+          'fluffy teddy bear pose with followers',
+          'bouncing with big personality energy',
+          'groomed perfectly for social media photo'
+        );
+        break;
+      case 'dalmatian':
+        suggestions.push(
+          'running at full speed with spots blurring',
+          'firehouse hero pose with fire truck',
+          'critical strike action pose, dynamic',
+          'jumping through water with grace'
+        );
+        break;
+      case 'bulldog':
+        suggestions.push(
+          'multitasking two activities at once',
+          'determined unstoppable warrior stance',
+          'wearing work uniform doing two jobs',
+          'powerful pose showing raw strength'
+        );
+        break;
+      case 'samoyed':
+        suggestions.push(
+          'famous smiling expression spreading joy',
+          'fluffy white cloud surrounded by happy pets',
+          'playing in snow with pure happiness',
+          'aura of joy making everyone around happy'
+        );
+        break;
+      case 'labrador':
+        suggestions.push(
+          'sharing treats with other dog friends',
+          'loyal best friend pose with bone',
+          'leading pack of dogs with friendship',
+          'golden retriever moment being helpful'
+        );
+        break;
+      case 'chihuahua':
+        suggestions.push(
+          'tiny but fierce fighting giant boss',
+          'small dog with huge personality and attitude',
+          'mighty warrior pose despite small size',
+          'defeating massive enemy with courage'
+        );
+        break;
+      case 'rottweiler':
+        suggestions.push(
+          'guardian protecting treasure with shield',
+          'strong muscular protective stance',
+          'preventing thieves from stealing food',
+          'iron guard watching over everything'
+        );
+        break;
+      case 'doberman':
+        suggestions.push(
+          'lightning-fast speed blur effect',
+          'playing two games simultaneously',
+          'time warp effect showing no cooldown',
+          'sleek athletic pose breaking sound barrier'
         );
         break;
     }
