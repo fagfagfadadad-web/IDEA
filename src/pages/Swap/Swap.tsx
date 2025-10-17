@@ -223,9 +223,9 @@ export const Swap: React.FC = () => {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center pb-24 md:pb-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 flex items-center justify-center pb-24 md:pb-8 px-4">
         <div className="cute-card p-8 max-w-md w-full text-center space-y-6">
-          <Wallet size={64} className="mx-auto text-blue-600" />
+          <Wallet size={64} className="mx-auto text-orange-600" />
           <h2 className="text-2xl font-inter font-bold text-gray-900">
             Connect Your Wallet
           </h2>
@@ -234,7 +234,7 @@ export const Swap: React.FC = () => {
           </p>
           <Button
             onClick={connectWallet}
-            className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-6 py-4 rounded-xl font-inter font-bold"
+            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold"
           >
             Connect Wallet
           </Button>
@@ -245,9 +245,9 @@ export const Swap: React.FC = () => {
 
   if (!BscWalletService.isBscChain(chainId)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 flex items-center justify-center pb-24 md:pb-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 flex items-center justify-center pb-24 md:pb-8 px-4">
         <div className="cute-card p-8 max-w-md w-full text-center space-y-6">
-          <AlertCircle size={64} className="mx-auto text-yellow-600" />
+          <AlertCircle size={64} className="mx-auto text-red-600" />
           <h2 className="text-2xl font-inter font-bold text-gray-900">
             Wrong Network
           </h2>
@@ -256,7 +256,7 @@ export const Swap: React.FC = () => {
           </p>
           <Button
             onClick={() => switchNetwork(BSC_CHAIN_IDS.MAINNET)}
-            className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold"
+            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold"
           >
             Switch to BSC
           </Button>
@@ -266,16 +266,16 @@ export const Swap: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 pb-24 md:pb-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 pb-24 md:pb-8 px-4">
       <div className="container mx-auto py-8 max-w-2xl">
         <div className="text-center mb-8 space-y-2">
-          <h1 className="text-4xl md:text-5xl font-inter font-bold text-white">
+          <h1 className="text-4xl md:text-5xl font-inter font-bold text-white drop-shadow-lg">
             Token Swap
           </h1>
-          <p className="text-white/90 text-lg font-inter">
+          <p className="text-white text-lg font-inter font-semibold drop-shadow">
             Powered by PancakeSwap
           </p>
-          <div className="text-sm font-inter text-white/80">
+          <div className="text-sm font-inter text-white font-semibold drop-shadow">
             {BscWalletService.formatBscAddress(address || '')}
           </div>
         </div>
@@ -300,17 +300,17 @@ export const Swap: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+            <div className="bg-orange-50 rounded-xl p-4 space-y-3 border-2 border-orange-200">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-inter font-bold text-gray-700">
+                <label className="text-sm font-inter font-bold text-gray-800">
                   From
                 </label>
-                <div className="text-sm font-inter text-gray-600">
+                <div className="text-sm font-inter text-gray-700 font-semibold">
                   Balance: {PancakeSwapService.formatTokenAmount(balanceIn)}
                   {parseFloat(balanceIn) > 0 && (
                     <button
                       onClick={handleMaxClick}
-                      className="ml-2 text-blue-600 hover:text-blue-700 font-bold"
+                      className="ml-2 text-orange-600 hover:text-orange-700 font-bold"
                     >
                       MAX
                     </button>
@@ -323,7 +323,7 @@ export const Swap: React.FC = () => {
                   value={amountIn}
                   onChange={(e) => setAmountIn(e.target.value)}
                   placeholder="0.0"
-                  className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none"
+                  className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none text-gray-900"
                 />
                 <div className="w-40">
                   <TokenSelector
@@ -338,25 +338,25 @@ export const Swap: React.FC = () => {
             <div className="flex justify-center -my-2 relative z-10">
               <button
                 onClick={handleReverseTokens}
-                className="bg-white p-2 rounded-lg border-4 border-gray-50 hover:border-blue-200 transition-colors shadow-md"
+                className="bg-white p-2 rounded-lg border-4 border-orange-200 hover:border-orange-300 transition-colors shadow-md"
               >
-                <ArrowDown size={20} className="text-gray-600" />
+                <ArrowDown size={20} className="text-orange-600" />
               </button>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+            <div className="bg-orange-50 rounded-xl p-4 space-y-3 border-2 border-orange-200">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-inter font-bold text-gray-700">
+                <label className="text-sm font-inter font-bold text-gray-800">
                   To
                 </label>
-                <div className="text-sm font-inter text-gray-600">
+                <div className="text-sm font-inter text-gray-700 font-semibold">
                   Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                 </div>
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
                   {isLoadingQuote ? (
-                    <div className="flex items-center gap-2 text-gray-400">
+                    <div className="flex items-center gap-2 text-gray-600">
                       <Loader size={20} className="animate-spin" />
                       <span className="text-lg font-inter">Loading...</span>
                     </div>
@@ -378,21 +378,21 @@ export const Swap: React.FC = () => {
           </div>
 
           {quote && (
-            <div className="bg-blue-50 rounded-xl p-4 space-y-2 text-sm font-inter">
+            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-xl p-4 space-y-2 text-sm font-inter border-2 border-orange-200">
               <div className="flex justify-between">
-                <span className="text-gray-600">Rate:</span>
+                <span className="text-gray-700 font-semibold">Rate:</span>
                 <span className="font-bold text-gray-900">
                   1 {tokenIn?.symbol} = {(parseFloat(amountOut) / parseFloat(amountIn)).toFixed(6)} {tokenOut?.symbol}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Minimum Received:</span>
+                <span className="text-gray-700 font-semibold">Minimum Received:</span>
                 <span className="font-bold text-gray-900">
                   {PancakeSwapService.formatTokenAmount(quote.minimumReceived)} {tokenOut?.symbol}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Slippage Tolerance:</span>
+                <span className="text-gray-700 font-semibold">Slippage Tolerance:</span>
                 <span className="font-bold text-gray-900">{slippage}%</span>
               </div>
             </div>
@@ -402,7 +402,7 @@ export const Swap: React.FC = () => {
             <Button
               onClick={handleApprove}
               disabled={isApproving || !isValidInput}
-              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
             >
               {isApproving ? (
                 <span className="flex items-center justify-center gap-2">
@@ -418,7 +418,7 @@ export const Swap: React.FC = () => {
           <Button
             onClick={handleSwap}
             disabled={!isValidInput || isSwapping || needsApproval || isLoadingQuote}
-            className="w-full bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white px-6 py-4 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-4 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
           >
             {isSwapping ? (
               <span className="flex items-center justify-center gap-2">
@@ -457,7 +457,7 @@ export const Swap: React.FC = () => {
           )}
         </div>
 
-        <div className="mt-6 text-center text-white/80 text-sm font-inter">
+        <div className="mt-6 text-center text-white text-sm font-inter font-semibold drop-shadow">
           <p>Trade tokens in an instant with the best rates on BNB Smart Chain</p>
         </div>
       </div>

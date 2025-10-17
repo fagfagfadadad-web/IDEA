@@ -45,7 +45,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
         className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all ${
           disabled
             ? 'bg-gray-100 border-gray-300 cursor-not-allowed'
-            : 'bg-white border-purple-300 hover:border-purple-500 cursor-pointer'
+            : 'bg-white border-orange-300 hover:border-orange-500 cursor-pointer'
         }`}
       >
         {selectedToken ? (
@@ -81,7 +81,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border-2 border-purple-300 z-50 max-h-96 overflow-hidden">
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border-2 border-orange-300 z-50 max-h-96 overflow-hidden">
             <div className="p-4 border-b border-gray-200">
               <div className="relative">
                 <Search
@@ -93,7 +93,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search token name or symbol"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-purple-500 outline-none font-inter"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:border-orange-500 outline-none font-inter"
                   autoFocus
                 />
               </div>
@@ -109,9 +109,9 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                   <button
                     key={token.address}
                     onClick={() => handleSelectToken(token)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-purple-50 transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors ${
                       selectedToken?.address === token.address
-                        ? 'bg-purple-100'
+                        ? 'bg-orange-100'
                         : ''
                     }`}
                   >
@@ -134,7 +134,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                       </div>
                     </div>
                     {selectedToken?.address === token.address && (
-                      <div className="w-2 h-2 bg-purple-600 rounded-full" />
+                      <div className="w-2 h-2 bg-orange-600 rounded-full" />
                     )}
                   </button>
                 ))

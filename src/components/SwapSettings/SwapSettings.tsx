@@ -32,7 +32,7 @@ export const SwapSettings: React.FC<SwapSettingsProps> = ({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-lg hover:bg-purple-100 transition-colors"
+        className="p-2 rounded-lg hover:bg-orange-100 transition-colors"
         title="Swap Settings"
       >
         <Settings size={20} className="text-gray-600" />
@@ -75,7 +75,7 @@ export const SwapSettings: React.FC<SwapSettingsProps> = ({
                       onClick={() => handlePresetClick(preset)}
                       className={`flex-1 px-4 py-2 rounded-lg font-inter font-bold transition-all ${
                         slippage === preset
-                          ? 'bg-gradient-to-r from-purple-600 to-purple-500 text-white'
+                          ? 'bg-gradient-to-r from-orange-600 to-orange-500 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -93,7 +93,7 @@ export const SwapSettings: React.FC<SwapSettingsProps> = ({
                     min="0"
                     max="50"
                     step="0.1"
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-purple-500 outline-none font-inter"
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-orange-500 outline-none font-inter"
                   />
                   <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-inter">
                     %
@@ -125,7 +125,7 @@ export const SwapSettings: React.FC<SwapSettingsProps> = ({
             <div className="p-6 border-t border-gray-200">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-inter font-bold transition-all"
+                className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-3 rounded-xl font-inter font-bold transition-all"
               >
                 Done
               </button>
