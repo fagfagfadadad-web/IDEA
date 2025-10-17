@@ -300,17 +300,17 @@ export const Swap: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <div className="bg-orange-50 rounded-xl p-4 space-y-3 border-2 border-orange-200">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 space-y-3 border-2 border-purple-400">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-inter font-bold text-gray-800">
+                <label className="text-sm font-inter font-bold text-white">
                   From
                 </label>
-                <div className="text-sm font-inter text-gray-700 font-semibold">
+                <div className="text-sm font-inter text-white font-semibold">
                   Balance: {PancakeSwapService.formatTokenAmount(balanceIn)}
                   {parseFloat(balanceIn) > 0 && (
                     <button
                       onClick={handleMaxClick}
-                      className="ml-2 text-orange-600 hover:text-orange-700 font-bold"
+                      className="ml-2 text-yellow-300 hover:text-yellow-200 font-bold"
                     >
                       MAX
                     </button>
@@ -323,7 +323,7 @@ export const Swap: React.FC = () => {
                   value={amountIn}
                   onChange={(e) => setAmountIn(e.target.value)}
                   placeholder="0.0"
-                  className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none text-gray-900"
+                  className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none text-white placeholder-purple-200"
                 />
                 <div className="w-40">
                   <TokenSelector
@@ -338,30 +338,30 @@ export const Swap: React.FC = () => {
             <div className="flex justify-center -my-2 relative z-10">
               <button
                 onClick={handleReverseTokens}
-                className="bg-white p-2 rounded-lg border-4 border-orange-200 hover:border-orange-300 transition-colors shadow-md"
+                className="bg-purple-600 p-2 rounded-lg border-4 border-purple-400 hover:border-purple-300 transition-colors shadow-md"
               >
-                <ArrowDown size={20} className="text-orange-600" />
+                <ArrowDown size={20} className="text-white" />
               </button>
             </div>
 
-            <div className="bg-orange-50 rounded-xl p-4 space-y-3 border-2 border-orange-200">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 space-y-3 border-2 border-purple-400">
               <div className="flex items-center justify-between">
-                <label className="text-sm font-inter font-bold text-gray-800">
+                <label className="text-sm font-inter font-bold text-white">
                   To
                 </label>
-                <div className="text-sm font-inter text-gray-700 font-semibold">
+                <div className="text-sm font-inter text-white font-semibold">
                   Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                 </div>
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
                   {isLoadingQuote ? (
-                    <div className="flex items-center gap-2 text-gray-600">
+                    <div className="flex items-center gap-2 text-white">
                       <Loader size={20} className="animate-spin" />
                       <span className="text-lg font-inter">Loading...</span>
                     </div>
                   ) : (
-                    <div className="text-2xl font-inter font-bold text-gray-900">
+                    <div className="text-2xl font-inter font-bold text-white">
                       {amountOut ? PancakeSwapService.formatTokenAmount(amountOut) : '0.0'}
                     </div>
                   )}
@@ -378,22 +378,22 @@ export const Swap: React.FC = () => {
           </div>
 
           {quote && (
-            <div className="bg-gradient-to-r from-orange-100 to-yellow-100 rounded-xl p-4 space-y-2 text-sm font-inter border-2 border-orange-200">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 space-y-2 text-sm font-inter border-2 border-purple-400">
               <div className="flex justify-between">
-                <span className="text-gray-700 font-semibold">Rate:</span>
-                <span className="font-bold text-gray-900">
+                <span className="text-white font-semibold">Rate:</span>
+                <span className="font-bold text-white">
                   1 {tokenIn?.symbol} = {(parseFloat(amountOut) / parseFloat(amountIn)).toFixed(6)} {tokenOut?.symbol}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700 font-semibold">Minimum Received:</span>
-                <span className="font-bold text-gray-900">
+                <span className="text-white font-semibold">Minimum Received:</span>
+                <span className="font-bold text-white">
                   {PancakeSwapService.formatTokenAmount(quote.minimumReceived)} {tokenOut?.symbol}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-700 font-semibold">Slippage Tolerance:</span>
-                <span className="font-bold text-gray-900">{slippage}%</span>
+                <span className="text-white font-semibold">Slippage Tolerance:</span>
+                <span className="font-bold text-white">{slippage}%</span>
               </div>
             </div>
           )}
