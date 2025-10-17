@@ -224,7 +224,8 @@ export const Swap: React.FC = () => {
       showError('No balance available');
       return;
     }
-    setAmountIn(balanceIn);
+    const maxAmount = parseFloat(balanceIn).toFixed(8);
+    setAmountIn(maxAmount);
   };
 
   const isValidInput = amountIn && parseFloat(amountIn) > 0 && parseFloat(amountIn) <= parseFloat(balanceIn);
