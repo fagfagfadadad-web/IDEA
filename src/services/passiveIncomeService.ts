@@ -194,6 +194,8 @@ export class PassiveIncomeService {
     const currentInventory = userDoc.data().inventory || [];
     const updatedInventory = [...currentInventory];
 
+    const now = Date.now();
+
     for (const reward of rewards) {
       const existingItemIndex = updatedInventory.findIndex(
         (item: any) => item.itemId === reward.itemId
@@ -207,7 +209,7 @@ export class PassiveIncomeService {
           itemName: reward.itemName,
           quantity: reward.quantity,
           rarity: reward.rarity,
-          acquiredAt: serverTimestamp()
+          acquiredAt: now
         });
       }
     }
