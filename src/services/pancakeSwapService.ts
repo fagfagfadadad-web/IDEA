@@ -112,18 +112,23 @@ export class PancakeSwapService {
     provider: BrowserProvider
   ): Promise<SwapQuote | null> {
     try {
+      console.log('getSwapQuote called with:', { tokenIn: tokenIn.symbol, tokenOut: tokenOut.symbol, amountIn });
       const router = new Contract(PANCAKESWAP_ROUTER_ADDRESS, ROUTER_ABI, provider);
 
       const tokenInAddress = tokenIn.address === 'BNB' ? WBNB_ADDRESS : tokenIn.address;
       const tokenOutAddress = tokenOut.address === 'BNB' ? WBNB_ADDRESS : tokenOut.address;
 
       const path = [tokenInAddress, tokenOutAddress];
+      console.log('Swap path:', path);
 
       const amountInWei = ethers.parseUnits(amountIn, tokenIn.decimals);
+      console.log('Amount in Wei:', amountInWei.toString());
 
       const amounts = await router.getAmountsOut(amountInWei, path);
+      console.log('Amounts from router:', amounts.map((a: any) => a.toString()));
 
       const amountOut = ethers.formatUnits(amounts[1], tokenOut.decimals);
+      console.log('Amount out formatted:', amountOut);
 
       const priceImpact = 0;
 

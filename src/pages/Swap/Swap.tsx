@@ -103,12 +103,19 @@ export const Swap: React.FC = () => {
   };
 
   const loadQuote = async () => {
-    if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) <= 0) return;
+    if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) <= 0) {
+      console.log('loadQuote skipped:', { tokenIn: tokenIn?.symbol, tokenOut: tokenOut?.symbol, amountIn });
+      return;
+    }
 
+    console.log('Loading quote for:', { tokenIn: tokenIn.symbol, tokenOut: tokenOut.symbol, amountIn });
     setIsLoadingQuote(true);
     try {
       const walletState = BscWalletService.getWalletState();
-      if (!walletState.provider) return;
+      if (!walletState.provider) {
+        console.log('No provider available');
+        return;
+      }
 
       const quoteData = await PancakeSwapService.getSwapQuote(
         tokenIn,
@@ -117,6 +124,7 @@ export const Swap: React.FC = () => {
         walletState.provider
       );
 
+      console.log('Quote received:', quoteData);
       if (quoteData) {
         setQuote(quoteData);
         setAmountOut(quoteData.amountOut);
