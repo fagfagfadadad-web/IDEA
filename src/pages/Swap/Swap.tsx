@@ -319,19 +319,21 @@ export const Swap: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-3 items-center justify-between">
                   <input
                     type="number"
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 bg-transparent text-4xl font-inter font-bold outline-none text-white placeholder-purple-300"
+                    className="flex-1 bg-transparent text-3xl font-inter font-bold outline-none text-white placeholder-purple-300"
                   />
-                  <TokenSelector
-                    selectedToken={tokenIn}
-                    onSelectToken={setTokenIn}
-                    label=""
-                  />
+                  <div className="flex-shrink-0">
+                    <TokenSelector
+                      selectedToken={tokenIn}
+                      onSelectToken={setTokenIn}
+                      label=""
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -353,7 +355,7 @@ export const Swap: React.FC = () => {
                     Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center">
+                <div className="flex gap-3 items-center justify-between">
                   <div className="flex-1">
                     {isLoadingQuote ? (
                       <div className="flex items-center gap-2 text-purple-200">
@@ -361,97 +363,31 @@ export const Swap: React.FC = () => {
                         <span className="text-lg font-inter">Loading...</span>
                       </div>
                     ) : (
-                      <div className="text-4xl font-inter font-bold text-white">
+                      <div className="text-3xl font-inter font-bold text-white">
                         {amountOut ? PancakeSwapService.formatTokenAmount(amountOut) : '0.0'}
                       </div>
                     )}
                   </div>
-                  <TokenSelector
-                    selectedToken={tokenOut}
-                    onSelectToken={setTokenOut}
-                    label=""
-                  />
+                  <div className="flex-shrink-0">
+                    <TokenSelector
+                      selectedToken={tokenOut}
+                      onSelectToken={setTokenOut}
+                      label=""
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-
-            {tokenIn && tokenOut && quote?.priceImpact !== undefined && (
-              <div className="bg-gradient-to-r from-orange-900/30 to-yellow-900/30 rounded-xl p-3 flex items-center gap-2 border border-orange-700/50">
-                <AlertCircle size={16} className="text-orange-400 flex-shrink-0" />
-                <span className="text-xs font-inter text-orange-300 font-semibold">
-                  {quote.priceImpact > 5 ? 'High' : quote.priceImpact > 2 ? 'Medium' : 'Low'} Risk detected for input token: {tokenIn.symbol}
-                </span>
-              </div>
-            )}
-
-            {quote && (
-              <div className="bg-gray-800/50 rounded-xl p-3 space-y-2 text-xs font-inter border border-gray-700">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Rate:</span>
-                  <span className="font-bold text-white">
-                    1 {tokenIn?.symbol} ≈ {(parseFloat(amountOut) / parseFloat(amountIn)).toFixed(6)} {tokenOut?.symbol}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Minimum Received:</span>
-                  <span className="font-bold text-white">
-                    {PancakeSwapService.formatTokenAmount(quote.minimumReceived)} {tokenOut?.symbol}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Slippage Tolerance:</span>
-                  <span className="font-bold text-orange-400">{slippage}%</span>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-gray-800/30 rounded-xl p-3 flex items-center justify-between border border-gray-700">
-              <span className="text-xs font-inter text-gray-400">Slippage Tolerance</span>
-              <span className="text-sm font-inter font-bold text-orange-400 flex items-center gap-1">
-                Auto: {slippage}%
-                <span className="text-orange-500">✏️</span>
-              </span>
-            </div>
-
-            <div className="bg-gray-800/30 rounded-xl p-4 flex items-center justify-between border border-gray-700">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-lg">\ud83d\udd12</span>
-                </div>
-                <span className="text-sm font-inter font-bold text-white">Enable MEV Protect</span>
-              </div>
-              <button
-                onClick={() => setMevProtect(!mevProtect)}
-                className={`relative w-12 h-6 rounded-full transition-colors ${
-                  mevProtect ? 'bg-blue-600' : 'bg-gray-600'
-                }`}
-              >
-                <div
-                  className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                    mevProtect ? 'translate-x-6' : 'translate-x-0.5'
-                  }`}
-                />
-              </button>
-            </div>
-
-            {isLoadingQuote && (
-              <div className="bg-gray-800/30 rounded-xl p-4 text-center border border-gray-700">
-                <div className="flex items-center justify-center gap-2 text-gray-400">
-                  <Loader size={20} className="animate-spin" />
-                  <span className="text-sm font-inter">Searching For The Best Price...</span>
-                </div>
-              </div>
-            )}
 
             {needsApproval && tokenIn?.address !== 'BNB' && (
               <Button
                 onClick={handleApprove}
                 disabled={isApproving || !isValidInput}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-3.5 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-4 rounded-2xl font-inter font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all"
               >
                 {isApproving ? (
                   <span className="flex items-center justify-center gap-2">
-                    <Loader size={20} className="animate-spin" />
+                    <Loader size={22} className="animate-spin" />
                     Approving...
                   </span>
                 ) : (
@@ -463,11 +399,11 @@ export const Swap: React.FC = () => {
             <Button
               onClick={handleSwap}
               disabled={!isValidInput || isSwapping || needsApproval || isLoadingQuote}
-              className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-3.5 rounded-xl font-inter font-bold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-4 rounded-2xl font-inter font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition-all hover:shadow-xl"
             >
               {isSwapping ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader size={20} className="animate-spin" />
+                  <Loader size={22} className="animate-spin" />
                   Swapping...
                 </span>
               ) : !isValidInput ? (
@@ -480,18 +416,18 @@ export const Swap: React.FC = () => {
             </Button>
 
             {txHash && (
-              <div className="bg-green-900/30 border border-green-700 rounded-xl p-4">
+              <div className="bg-green-100 border border-green-300 rounded-2xl p-4">
                 <div className="flex items-start gap-3">
-                  <CheckCircle size={20} className="text-green-400 mt-0.5 flex-shrink-0" />
+                  <CheckCircle size={22} className="text-green-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="font-inter font-bold text-green-300">
+                    <div className="font-inter font-bold text-green-900">
                       Transaction Successful!
                     </div>
                     <a
                       href={BscWalletService.getExplorerUrl(txHash, chainId || undefined)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 font-inter transition-colors"
+                      className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-inter transition-colors"
                     >
                       View on BscScan
                       <ExternalLink size={14} />
