@@ -168,10 +168,10 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl transition-all ${
             disabled
-              ? 'bg-gray-700 border border-gray-600 cursor-not-allowed opacity-50'
-              : 'bg-gray-700 border border-gray-600 hover:border-gray-500 cursor-pointer'
+              ? 'bg-white/20 cursor-not-allowed opacity-50'
+              : 'bg-white/20 hover:bg-white/30 cursor-pointer'
           } ${label ? 'w-full justify-between' : ''}`}
         >
           {selectedToken ? (
@@ -180,20 +180,25 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                 <img
                   src={selectedToken.logoURI}
                   alt={selectedToken.symbol}
-                  className="w-6 h-6 rounded-full"
+                  className="w-7 h-7 rounded-full"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               )}
-              <span className="font-inter font-bold text-white text-sm">
-                {selectedToken.symbol}
-              </span>
+              <div className="text-left">
+                <div className="font-inter font-bold text-white text-base">
+                  {selectedToken.symbol}
+                </div>
+                <div className="text-xs font-inter text-purple-200">
+                  {selectedToken.name}
+                </div>
+              </div>
             </div>
           ) : (
-            <span className="text-gray-400 font-inter font-semibold text-sm">Select</span>
+            <span className="text-white font-inter font-semibold">Select</span>
           )}
-          {!disabled && <ChevronDown size={16} className="text-gray-400" />}
+          {!disabled && <ChevronDown size={18} className="text-white" />}
         </button>
       </div>
 

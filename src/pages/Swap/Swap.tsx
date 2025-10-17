@@ -281,65 +281,51 @@ export const Swap: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 rounded-3xl p-1 shadow-2xl">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl p-5 space-y-3">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-inter font-bold text-white">Swap Tokens</h3>
+        <div className="bg-gradient-to-br from-orange-400 via-yellow-400 to-orange-500 rounded-3xl p-6 shadow-2xl">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-xl font-inter font-bold text-white drop-shadow">Swap Tokens</h3>
               <div className="flex items-center gap-2">
                 <button
                   onClick={loadQuote}
                   disabled={!amountIn || isLoadingQuote}
-                  className="p-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="p-2 rounded-lg hover:bg-white/20 transition-colors disabled:opacity-50"
                   title="Refresh Quote"
                 >
                   <RefreshCw
-                    size={18}
-                    className={`text-gray-300 ${isLoadingQuote ? 'animate-spin' : ''}`}
+                    size={20}
+                    className={`text-white ${isLoadingQuote ? 'animate-spin' : ''}`}
                   />
                 </button>
                 <SwapSettings slippage={slippage} onSlippageChange={setSlippage} />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 space-y-3 border border-gray-600">
+            <div className="space-y-2">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-4 space-y-3 border-2 border-purple-500">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <label className="text-xs font-inter font-bold text-gray-300">
-                      From:
-                    </label>
-                    {tokenIn?.logoURI && (
-                      <img
-                        src={tokenIn.logoURI}
-                        alt={tokenIn.symbol}
-                        className="w-5 h-5 rounded-full"
-                      />
-                    )}
-                    <span className="text-sm font-inter font-bold text-white">{tokenIn?.symbol}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs font-inter text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <span className="text-gray-500">⚖</span>
-                      {PancakeSwapService.formatTokenAmount(balanceIn)}
-                    </span>
+                  <label className="text-sm font-inter font-bold text-white">
+                    From
+                  </label>
+                  <div className="text-sm font-inter text-white">
+                    Balance: {PancakeSwapService.formatTokenAmount(balanceIn)}
                     {parseFloat(balanceIn) > 0 && (
                       <button
                         onClick={handleMaxClick}
-                        className="text-orange-400 hover:text-orange-300 font-bold transition-colors"
+                        className="ml-2 text-yellow-300 hover:text-yellow-200 font-bold transition-colors"
                       >
                         MAX
                       </button>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center justify-between">
+                <div className="flex gap-3 items-center">
                   <input
                     type="number"
                     value={amountIn}
                     onChange={(e) => setAmountIn(e.target.value)}
                     placeholder="0.0"
-                    className="flex-1 bg-transparent text-3xl font-inter font-bold outline-none text-white placeholder-gray-600"
+                    className="flex-1 bg-transparent text-4xl font-inter font-bold outline-none text-white placeholder-purple-300"
                   />
                   <TokenSelector
                     selectedToken={tokenIn}
@@ -349,48 +335,34 @@ export const Swap: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-center -my-1 relative z-10">
+              <div className="flex justify-center -my-2 relative z-10">
                 <button
                   onClick={handleReverseTokens}
-                  className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-2.5 rounded-xl border-2 border-cyan-400 hover:border-cyan-300 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                  className="bg-gradient-to-br from-purple-600 to-purple-700 p-2.5 rounded-xl border-4 border-purple-500 hover:border-purple-400 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                 >
                   <ArrowDown size={20} className="text-white" />
                 </button>
               </div>
 
-              <div className="bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 space-y-3 border border-gray-600">
+              <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-4 space-y-3 border-2 border-purple-500">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <label className="text-xs font-inter font-bold text-gray-300">
-                      To:
-                    </label>
-                    {tokenOut?.logoURI && (
-                      <img
-                        src={tokenOut.logoURI}
-                        alt={tokenOut.symbol}
-                        className="w-5 h-5 rounded-full"
-                      />
-                    )}
-                    <span className="text-sm font-inter font-bold text-white">{tokenOut?.symbol}</span>
-                  </div>
-                  <div className="text-xs font-inter text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <span className="text-gray-500">⚖</span>
-                      {PancakeSwapService.formatTokenAmount(balanceOut)}
-                    </span>
+                  <label className="text-sm font-inter font-bold text-white">
+                    To
+                  </label>
+                  <div className="text-sm font-inter text-white">
+                    Balance: {PancakeSwapService.formatTokenAmount(balanceOut)}
                   </div>
                 </div>
-                <div className="flex gap-3 items-center justify-between">
+                <div className="flex gap-3 items-center">
                   <div className="flex-1">
                     {isLoadingQuote ? (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <Loader size={18} className="animate-spin" />
-                        <span className="text-base font-inter">Searching For The Best Price...</span>
+                      <div className="flex items-center gap-2 text-purple-200">
+                        <Loader size={20} className="animate-spin" />
+                        <span className="text-lg font-inter">Loading...</span>
                       </div>
                     ) : (
-                      <div className="text-3xl font-inter font-bold text-white">
-                        {amountOut ? PancakeSwapService.formatTokenAmount(amountOut) : '0.00'}
+                      <div className="text-4xl font-inter font-bold text-white">
+                        {amountOut ? PancakeSwapService.formatTokenAmount(amountOut) : '0.0'}
                       </div>
                     )}
                   </div>
