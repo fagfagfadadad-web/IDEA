@@ -118,7 +118,17 @@ export class PancakeSwapService {
       const tokenInAddress = tokenIn.address === 'BNB' ? WBNB_ADDRESS : tokenIn.address;
       const tokenOutAddress = tokenOut.address === 'BNB' ? WBNB_ADDRESS : tokenOut.address;
 
-      const path = [tokenInAddress, tokenOutAddress];
+      // Build path - use WBNB as intermediate for all swaps
+      let path: string[];
+      if (tokenInAddress === tokenOutAddress) {
+        throw new Error('Cannot swap identical tokens');
+      } else if (tokenInAddress === WBNB_ADDRESS || tokenOutAddress === WBNB_ADDRESS) {
+        // Direct swap if one token is WBNB
+        path = [tokenInAddress, tokenOutAddress];
+      } else {
+        // Multi-hop through WBNB for other token pairs
+        path = [tokenInAddress, WBNB_ADDRESS, tokenOutAddress];
+      }
       console.log('Swap path:', path);
 
       const amountInWei = ethers.parseUnits(amountIn, tokenIn.decimals);
@@ -127,7 +137,8 @@ export class PancakeSwapService {
       const amounts = await router.getAmountsOut(amountInWei, path);
       console.log('Amounts from router:', amounts.map((a: any) => a.toString()));
 
-      const amountOut = ethers.formatUnits(amounts[1], tokenOut.decimals);
+      // Get final amount (last element in amounts array)
+      const amountOut = ethers.formatUnits(amounts[amounts.length - 1], tokenOut.decimals);
       console.log('Amount out formatted:', amountOut);
 
       const priceImpact = 0;
@@ -205,11 +216,22 @@ export class PancakeSwapService {
       const tokenInAddress = tokenIn.address === 'BNB' ? WBNB_ADDRESS : tokenIn.address;
       const tokenOutAddress = tokenOut.address === 'BNB' ? WBNB_ADDRESS : tokenOut.address;
 
-      const path = [tokenInAddress, tokenOutAddress];
+      // Build path - use WBNB as intermediate for all swaps
+      let path: string[];
+      if (tokenInAddress === tokenOutAddress) {
+        throw new Error('Cannot swap identical tokens');
+      } else if (tokenInAddress === WBNB_ADDRESS || tokenOutAddress === WBNB_ADDRESS) {
+        // Direct swap if one token is WBNB
+        path = [tokenInAddress, tokenOutAddress];
+      } else {
+        // Multi-hop through WBNB for other token pairs
+        path = [tokenInAddress, WBNB_ADDRESS, tokenOutAddress];
+      }
+
       const amountInWei = ethers.parseUnits(amountIn, tokenIn.decimals);
 
       const amounts = await router.getAmountsOut(amountInWei, path);
-      const amountOutMin = (amounts[1] * BigInt(Math.floor((1 - slippageTolerance) * 10000))) / BigInt(10000);
+      const amountOutMin = (amounts[amounts.length - 1] * BigInt(Math.floor((1 - slippageTolerance) * 10000))) / BigInt(10000);
 
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
 
