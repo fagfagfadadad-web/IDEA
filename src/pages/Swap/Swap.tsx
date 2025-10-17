@@ -225,7 +225,7 @@ export const Swap: React.FC = () => {
       return;
     }
     if (tokenIn?.address === 'BNB') {
-      const gasReserve = 0.001;
+      const gasReserve = 0.0001;
       const maxAmount = Math.max(0, parseFloat(balanceIn) - gasReserve);
       if (maxAmount === 0) {
         showError(`Insufficient BNB. Need at least ${gasReserve} BNB for gas fees`);
