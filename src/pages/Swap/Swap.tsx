@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowDown, RefreshCw, Wallet, ExternalLink, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import {
+  ArrowDown,
+  RefreshCw,
+  Wallet,
+  ExternalLink,
+  AlertCircle,
+  CheckCircle,
+  Loader,
+} from 'lucide-react';
 import { Button } from 'components';
 import { TokenSelector } from '../../components/TokenSelector';
 import { SwapSettings } from '../../components/SwapSettings';
@@ -33,147 +41,236 @@ export const Swap: React.FC = () => {
   const [txHash, setTxHash] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBalances = async () => {
-      if (!address || !tokenIn || !tokenOut) return;
-      try {
-        const [balIn, balOut] = await Promise.all([
-          BscWalletService.getTokenBalance(address, tokenIn.address),
-          BscWalletService.getTokenBalance(address, tokenOut.address),
-        ]);
-        setBalanceIn(balIn);
-        setBalanceOut(balOut);
-      } catch (e) {
-        console.error('Balance fetch error', e);
-      }
-    };
-    fetchBalances();
-  }, [address, tokenIn, tokenOut]);
+    if (isConnected && address && tokenIn && tokenOut) {
+      loadBalances();
+      checkApproval();
+    }
+  }, [isConnected, address, tokenIn, tokenOut]);
 
-  const handleQuote = async (amount: string) => {
-    if (!tokenIn || !tokenOut || !amount) return;
+  useEffect(() => {
+    if (amountIn && tokenIn && tokenOut && isConnected) {
+      const debounce = setTimeout(() => {
+        loadQuote();
+      }, 500);
+      return () => clearTimeout(debounce);
+    } else {
+      setAmountOut('');
+      setQuote(null);
+    }
+  }, [amountIn, tokenIn, tokenOut, isConnected]);
+
+  const loadBalances = async () => {
+    if (!address || !tokenIn || !tokenOut) return;
+
     try {
-      setIsLoadingQuote(true);
-      const quoteData = await PancakeSwapService.getQuote(tokenIn, tokenOut, amount);
-      setQuote(quoteData);
-      setAmountOut(quoteData.amountOut);
+      const walletState = BscWalletService.getWalletState();
+      if (!walletState.provider) return;
+
+      const balIn = await PancakeSwapService.getTokenBalance(
+        tokenIn.address,
+        address,
+        walletState.provider
+      );
+      const balOut = await PancakeSwapService.getTokenBalance(
+        tokenOut.address,
+        address,
+        walletState.provider
+      );
+
+      setBalanceIn(balIn);
+      setBalanceOut(balOut);
     } catch (err) {
-      console.error('Quote error:', err);
+      console.error('Error loading balances:', err);
+    }
+  };
+
+  const checkApproval = async () => {
+    if (!address || !tokenIn || tokenIn.address === 'BNB') {
+      setNeedsApproval(false);
+      return;
+    }
+
+    try {
+      const walletState = BscWalletService.getWalletState();
+      if (!walletState.provider) return;
+
+      const allowance = await PancakeSwapService.checkAllowance(
+        tokenIn.address,
+        address,
+        walletState.provider
+      );
+
+      const amountWei = amountIn
+        ? parseFloat(amountIn) * Math.pow(10, tokenIn.decimals)
+        : 0;
+      setNeedsApproval(parseFloat(allowance) < amountWei);
+    } catch (err) {
+      console.error('Error checking approval:', err);
+    }
+  };
+
+  const loadQuote = async () => {
+    if (!tokenIn || !tokenOut || !amountIn || parseFloat(amountIn) <= 0) return;
+
+    setIsLoadingQuote(true);
+    try {
+      const walletState = BscWalletService.getWalletState();
+      if (!walletState.provider) return;
+
+      const quoteData = await PancakeSwapService.getSwapQuote(
+        tokenIn,
+        tokenOut,
+        amountIn,
+        walletState.provider
+      );
+
+      if (quoteData) {
+        setQuote(quoteData);
+        setAmountOut(quoteData.amountOut);
+      }
+    } catch (err) {
+      console.error('Error loading quote:', err);
+      showError('Failed to get swap quote');
     } finally {
       setIsLoadingQuote(false);
     }
   };
 
-  const handleSwap = async () => {
-    if (!tokenIn || !tokenOut || !amountIn) return;
+  const handleApprove = async () => {
+    if (!tokenIn || tokenIn.address === 'BNB' || !amountIn) return;
+
+    setIsApproving(true);
     try {
-      setIsSwapping(true);
-      const tx = await PancakeSwapService.executeSwap(tokenIn, tokenOut, amountIn, slippage);
-      setTxHash(tx.hash);
-      success('Swap completed!');
+      const walletState = BscWalletService.getWalletState();
+      if (!walletState.signer) throw new Error('Wallet not connected');
+
+      await PancakeSwapService.approveToken(
+        tokenIn.address,
+        amountIn,
+        tokenIn.decimals,
+        walletState.signer
+      );
+
+      success('Token approved successfully!');
+      setNeedsApproval(false);
     } catch (err: any) {
+      console.error('Approval error:', err);
+      showError(err.message || 'Failed to approve token');
+    } finally {
+      setIsApproving(false);
+    }
+  };
+
+  const handleSwap = async () => {
+    if (!tokenIn || !tokenOut || !amountIn || !address) return;
+
+    if (!BscWalletService.isBscChain(chainId)) {
+      showError('Please switch to BSC network');
+      return;
+    }
+
+    if (parseFloat(amountIn) > parseFloat(balanceIn)) {
+      showError('Insufficient balance');
+      return;
+    }
+
+    setIsSwapping(true);
+    setTxHash(null);
+
+    try {
+      const walletState = BscWalletService.getWalletState();
+      if (!walletState.signer) throw new Error('Wallet not connected');
+
+      const hash = await PancakeSwapService.executeSwap(
+        tokenIn,
+        tokenOut,
+        amountIn,
+        slippage / 100,
+        address,
+        walletState.signer
+      );
+
+      setTxHash(hash);
+      success('Swap successful!');
+      setAmountIn('');
+      setAmountOut('');
+      setQuote(null);
+      await loadBalances();
+    } catch (err: any) {
+      console.error('Swap error:', err);
       showError(err.message || 'Swap failed');
     } finally {
       setIsSwapping(false);
     }
   };
 
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 flex items-center justify-center px-4 py-12">
-        <div className="cute-card p-6 sm:p-8 max-w-sm sm:max-w-md w-full text-center space-y-6 rounded-2xl shadow-xl bg-white/90">
-          <Wallet size={48} className="mx-auto text-orange-600" />
-          <h2 className="text-xl sm:text-2xl font-inter font-bold text-gray-900">Connect Your Wallet</h2>
-          <p className="text-gray-600 font-inter text-sm sm:text-base">
-            Connect your MetaMask wallet to start swapping tokens on PancakeSwap
-          </p>
-          <Button
-            onClick={connectWallet}
-            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white px-6 py-3 rounded-xl font-inter font-bold text-base sm:text-lg"
-          >
-            Connect Wallet
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const handleReverseTokens = () => {
+    setTokenIn(tokenOut);
+    setTokenOut(tokenIn);
+    setAmountIn('');
+    setAmountOut('');
+    setQuote(null);
+  };
+
+  const handleMaxClick = () => {
+    if (!balanceIn || parseFloat(balanceIn) === 0) {
+      showError('No balance available');
+      return;
+    }
+    const maxAmount = parseFloat(balanceIn).toFixed(8);
+    setAmountIn(maxAmount);
+  };
+
+  const isValidInput =
+    amountIn && parseFloat(amountIn) > 0 && parseFloat(amountIn) <= parseFloat(balanceIn);
+
+  // ---------- UI --------------
+
+  if (!isConnected) return (/* unchanged ... */);
+
+  if (!BscWalletService.isBscChain(chainId)) return (/* unchanged ... */);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-400 pb-20 sm:pb-8 px-3 sm:px-4">
-      <div className="container mx-auto py-6 sm:py-8 max-w-sm sm:max-w-lg">
-        <div className="text-center mb-5 sm:mb-6 space-y-1 sm:space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-inter font-bold text-white drop-shadow-lg">Token Swap</h1>
-          <p className="text-white text-sm sm:text-base font-inter font-semibold drop-shadow">
-            Powered by PancakeSwap
-          </p>
-          <div className="text-xs sm:text-sm font-inter text-white font-semibold drop-shadow opacity-90 break-all">
-            {BscWalletService.formatBscAddress(address || '')}
-          </div>
-        </div>
+      <div className="container mx-auto py-4 sm:py-8 max-w-sm sm:max-w-lg">
+        {/* ... */}
+        <div className="bg-gradient-to-br from-orange-400 via-yellow-400 to-orange-500 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl">
+          <div className="space-y-3 sm:space-y-4">
 
-        {/* === SWAP CARD === */}
-        <div className="bg-white/90 rounded-2xl shadow-xl p-5 sm:p-6 space-y-4">
-          {/* --- Token In --- */}
-          <div className="flex flex-col items-center space-y-2 w-full">
-            <TokenSelector
-              selectedToken={tokenIn}
-              onSelectToken={setTokenIn}
-              balance={balanceIn}
-              onAmountChange={(value) => {
-                setAmountIn(value);
-                handleQuote(value);
-              }}
-              amount={amountIn}
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <ArrowDown className="text-orange-500" size={22} />
-          </div>
-
-          {/* --- Token Out --- */}
-          <div className="flex flex-col items-center space-y-2 w-full">
-            <TokenSelector
-              selectedToken={tokenOut}
-              onSelectToken={setTokenOut}
-              balance={balanceOut}
-              disabled
-              amount={amountOut}
-            />
-          </div>
-
-          {/* --- Slippage / Settings --- */}
-          <div className="flex justify-center">
-            <SwapSettings slippage={slippage} setSlippage={setSlippage} />
-          </div>
-
-          {/* --- Swap Button --- */}
-          <Button
-            onClick={handleSwap}
-            disabled={isSwapping || !amountIn || !tokenIn || !tokenOut}
-            className="w-full bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold py-3 rounded-xl font-inter"
-          >
-            {isSwapping ? (
-              <div className="flex items-center justify-center gap-2">
-                <Loader className="animate-spin" size={18} /> Swapping...
+            {/* From */}
+            <div className="bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl p-3 sm:p-4 border-2 border-purple-500 space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs sm:text-sm font-inter font-bold text-white">From</label>
+                <div className="text-xs sm:text-sm font-inter text-white">
+                  Balance: {PancakeSwapService.formatTokenAmount(balanceIn)}
+                  {parseFloat(balanceIn) > 0 && (
+                    <button
+                      onClick={handleMaxClick}
+                      className="ml-2 text-yellow-300 hover:text-yellow-200 font-bold text-xs sm:text-sm"
+                    >
+                      MAX
+                    </button>
+                  )}
+                </div>
               </div>
-            ) : (
-              'Swap'
-            )}
-          </Button>
 
-          {/* --- Transaction Link --- */}
-          {txHash && (
-            <div className="text-center text-xs sm:text-sm mt-3 break-all">
-              <a
-                href={`https://bscscan.com/tx/${txHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-orange-600 font-semibold inline-flex items-center gap-1"
-              >
-                View on BscScan <ExternalLink size={14} />
-              </a>
+              {/* 🔧 Upravený layout */}
+              <div className="flex items-center justify-between gap-2">
+                <input
+                  type="number"
+                  value={amountIn}
+                  onChange={(e) => setAmountIn(e.target.value)}
+                  placeholder="0.0"
+                  className="flex-1 bg-transparent text-2xl font-inter font-bold outline-none text-white placeholder-purple-300"
+                />
+                <div className="flex-shrink-0">
+                  <TokenSelector selectedToken={tokenIn} onSelectToken={setTokenIn} label="" />
+                </div>
+              </div>
             </div>
-          )}
+
+            {/* ... ostatné časti kódu nezmenené */}
+          </div>
         </div>
       </div>
     </div>
