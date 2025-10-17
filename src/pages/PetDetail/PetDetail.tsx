@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, Zap, TrendingUp, Utensils, Dumbbell, Brain, Target, ShoppingBag, Sparkles } from 'lucide-react';
-import { Button } from '../../components';
+import { Button, RewardModal } from '../../components';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
@@ -24,6 +24,9 @@ export const PetDetail = () => {
   const [listingPrice, setListingPrice] = useState('');
   const [isUnlisting, setIsUnlisting] = useState(false);
   const [isListing, setIsListing] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [levelUpRewards, setLevelUpRewards] = useState<any[]>([]);
+  const [rewardLevel, setRewardLevel] = useState<number | undefined>();
 
   const getTrainingCost = (currentValue: number): number => {
     const baseCost = 20;
@@ -101,6 +104,12 @@ export const PetDetail = () => {
         success(`Level up! ${pet.name} is now level ${result.newLevel}! -${trainingCost} Food`);
       } else {
         success(`Training completed! -${trainingCost} Food, +30 XP`);
+      }
+
+      if (result.rewards && result.rewards.length > 0) {
+        setLevelUpRewards(result.rewards);
+        setRewardLevel(result.newLevel);
+        setShowRewardModal(true);
       }
 
       await fetchPet();
@@ -552,6 +561,17 @@ export const PetDetail = () => {
           </div>
         </div>
       )}
+
+      <RewardModal
+        isOpen={showRewardModal}
+        onClose={() => {
+          setShowRewardModal(false);
+          setLevelUpRewards([]);
+          setRewardLevel(undefined);
+        }}
+        levelUpRewards={levelUpRewards}
+        newLevel={rewardLevel}
+      />
     </div>
   );
 };

@@ -177,7 +177,7 @@ export class PetService {
     petDocId: string,
     xpAmount: number,
     source: string
-  ): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage }> {
+  ): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage; rewards?: any[] }> {
     try {
       const petRef = doc(db, 'pets', petDocId);
       const petDoc = await getDoc(petRef);
@@ -193,6 +193,7 @@ export class PetService {
       let newCurrentXP = pet.currentXP + actualXP;
       let newTotalXP = pet.totalXP + actualXP;
       let newLevel = pet.level;
+      const oldLevel = pet.level;
       let leveled = false;
       let evolved = false;
       let newStage = pet.evolutionStage;
@@ -228,7 +229,24 @@ export class PetService {
 
       console.log(`✨ Pet gained ${actualXP} XP from ${source}. Level: ${newLevel}, Stage: ${newStage}`);
 
-      return { leveled, evolved, newLevel, newStage };
+      let allRewards: any[] = [];
+      if (leveled && newLevel !== oldLevel) {
+        const { PassiveIncomeService } = await import('./passiveIncomeService');
+
+        for (let level = oldLevel + 1; level <= newLevel; level++) {
+          const rewards = PassiveIncomeService.getLevelUpRewards(level);
+          if (rewards.length > 0) {
+            allRewards = [...allRewards, ...rewards];
+          }
+        }
+
+        if (allRewards.length > 0) {
+          await PassiveIncomeService.addLevelUpRewardsToInventory(pet.userId, allRewards);
+          console.log(`🎁 Added ${allRewards.length} level-up rewards to inventory`);
+        }
+      }
+
+      return { leveled, evolved, newLevel, newStage, rewards: allRewards };
     } catch (error) {
       console.error('❌ Error adding XP:', error);
       throw error;
@@ -286,7 +304,7 @@ export class PetService {
     userId: string,
     trainingType: TrainingType,
     trainingCost: number = 20
-  ): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage }> {
+  ): Promise<{ leveled: boolean; evolved: boolean; newLevel?: number; newStage?: EvolutionStage; rewards?: any[] }> {
     try {
       const petRef = doc(db, 'pets', petDocId);
       const statsRef = doc(db, 'gameStats', userId);

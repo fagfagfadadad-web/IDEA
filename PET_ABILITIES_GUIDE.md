@@ -75,10 +75,21 @@ This system implements special abilities for pets that provide passive income, p
 - **Level 40+**: Premium Food Pack (level × 5 Food)
 
 ### How It Works
-1. When your pet levels up, rewards are automatically calculated
-2. Items are added to your inventory
-3. You'll see a modal notification showing all new items
-4. Items can be used from your inventory
+1. **Train or feed your pet** on the Pet Detail page
+2. When your pet levels up, rewards are **automatically calculated**
+3. Items are **instantly added to your inventory**
+4. A **beautiful modal appears** showing all your new items with rarity colors:
+   - Common (gray)
+   - Rare (blue)
+   - Epic (purple)
+   - Legendary (gold)
+5. Click "Awesome! Collect Rewards" to close the modal
+6. Check your **inventory** to use the items!
+
+### Example
+- Level up from 4 → 5: You get a modal showing "Basic Training Manual (Common) x1"
+- Level up from 9 → 10: You get "Energy Booster (Common) x3" + "Food Pack (Common) x50"
+- All items are already in your inventory when the modal shows
 
 ## Price Tiers
 
