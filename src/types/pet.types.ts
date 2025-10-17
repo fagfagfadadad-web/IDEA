@@ -78,6 +78,9 @@ export interface Pet {
   aiImagePrompt?: string;
   hasCustomImage?: boolean;
 
+  lastPassiveIncomeCollectedAt?: Timestamp;
+  totalPassiveIncomeEarned?: number;
+
   adoptedAt: Timestamp;
   lastEvolutionAt?: Timestamp;
   createdAt: Timestamp;

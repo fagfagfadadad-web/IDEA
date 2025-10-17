@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Star, Zap, TrendingUp, ShoppingBag, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../../components';
+import { RewardModal } from '../../components/RewardModal';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { PetService } from '../../services/petService';
 import { AIImageService } from '../../services/aiImageService';
 import { ImageStorageService } from '../../services/imageStorageService';
 import { AIPromptHelper } from '../../utils/aiPromptHelper';
+import { usePassiveIncome } from '../../hooks/usePassiveIncome';
 import { Pet, BREED_INFO, BreedType } from '../../types/pet.types';
 
 export const PetCollection = () => {
@@ -26,6 +28,8 @@ export const PetCollection = () => {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [showImagePreview, setShowImagePreview] = useState(false);
+
+  const { passiveRewards, showRewardModal, closeModal } = usePassiveIncome(user?.id, pets);
 
   useEffect(() => {
     if (user?.id) {
@@ -547,6 +551,12 @@ export const PetCollection = () => {
           </div>
         </div>
       )}
+
+      <RewardModal
+        isOpen={showRewardModal}
+        onClose={closeModal}
+        passiveRewards={passiveRewards}
+      />
     </div>
   );
 };

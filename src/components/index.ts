@@ -12,3 +12,4 @@ export * from './AdminUsers';
 export * from './AdminTasks';
 export * from './AdminStats';
 export * from './AdminSettings';
+export * from './RewardModal';
