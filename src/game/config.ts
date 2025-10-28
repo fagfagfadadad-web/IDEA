@@ -1,6 +1,4 @@
 import Phaser from 'phaser';
-import { MainScene } from './scenes/MainScene';
-import { LoadingScene } from './scenes/LoadingScene';
 
 export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 720;
@@ -18,7 +16,7 @@ export const GAME_CONFIG: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [LoadingScene, MainScene],
+  scene: [],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

@@ -290,16 +290,23 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       }
 
       if (joystickPos.current.x !== 0 || joystickPos.current.y !== 0) {
-        console.log('🏃 Moving! Joystick:', joystickPos.current, 'Current pos:', playerPos.current);
         const speed = 5;
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
 
-        if (!checkCollision(newX, playerPos.current.y)) {
-          playerPos.current.x = Math.max(0, Math.min(newX, CANVAS_WIDTH - PLAYER_SIZE));
+        // Clamp to canvas boundaries
+        newX = Math.max(0, Math.min(newX, CANVAS_WIDTH - PLAYER_SIZE));
+        newY = Math.max(0, Math.min(newY, CANVAS_HEIGHT - PLAYER_SIZE));
+
+        // Check collision and update
+        const collisionX = checkCollision(newX, playerPos.current.y);
+        const collisionY = checkCollision(playerPos.current.x, newY);
+
+        if (!collisionX) {
+          playerPos.current.x = newX;
         }
-        if (!checkCollision(playerPos.current.x, newY)) {
-          playerPos.current.y = Math.max(0, Math.min(newY, CANVAS_HEIGHT - PLAYER_SIZE));
+        if (!collisionY) {
+          playerPos.current.y = newY;
         }
 
         const now = Date.now();
