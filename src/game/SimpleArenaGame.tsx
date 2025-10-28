@@ -282,8 +282,15 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     console.log('🎮 Game loop started');
     let lastFirebaseUpdate = 0;
 
+    let loopCount = 0;
     const gameLoop = setInterval(() => {
+      loopCount++;
+      if (loopCount % 60 === 0) {
+        console.log('🔄 Game loop tick. Joystick:', joystickPos.current, 'Player pos:', playerPos.current);
+      }
+
       if (joystickPos.current.x !== 0 || joystickPos.current.y !== 0) {
+        console.log('🏃 Moving! Joystick:', joystickPos.current, 'Current pos:', playerPos.current);
         const speed = 5;
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
