@@ -58,6 +58,59 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     img.onload = () => {
       playerImage.current = img;
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const speed = 0.8;
+      switch(e.key) {
+        case 'ArrowUp':
+        case 'w':
+          joystickPos.current.y = -speed;
+          break;
+        case 'ArrowDown':
+        case 's':
+          joystickPos.current.y = speed;
+          break;
+        case 'ArrowLeft':
+        case 'a':
+          joystickPos.current.x = -speed;
+          break;
+        case 'ArrowRight':
+        case 'd':
+          joystickPos.current.x = speed;
+          break;
+        case ' ':
+          isShooting.current = true;
+          break;
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      switch(e.key) {
+        case 'ArrowUp':
+        case 'w':
+        case 'ArrowDown':
+        case 's':
+          joystickPos.current.y = 0;
+          break;
+        case 'ArrowLeft':
+        case 'a':
+        case 'ArrowRight':
+        case 'd':
+          joystickPos.current.x = 0;
+          break;
+        case ' ':
+          isShooting.current = false;
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
 
   useEffect(() => {
@@ -264,9 +317,10 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     const maxDistance = centerX * 0.8;
 
     if (distance > 0) {
+      const normalizedDistance = Math.min(distance, maxDistance);
       joystickPos.current = {
-        x: Math.min(dx / maxDistance, 1),
-        y: Math.min(dy / maxDistance, 1),
+        x: (dx / distance) * (normalizedDistance / maxDistance),
+        y: (dy / distance) * (normalizedDistance / maxDistance),
       };
 
       weaponAngle.current = Math.atan2(dy, dx);
