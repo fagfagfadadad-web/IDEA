@@ -117,30 +117,54 @@ export const ArenaMatch: React.FC = () => {
 
               <div className="bg-gray-700 rounded-lg p-4">
                 <h3 className="text-white font-bold mb-3">Players</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {match.players.map((player, i) => (
-                    <div key={i} className="bg-gray-800 rounded p-3">
-                      <div className="flex items-center justify-between">
+                {match.mode === 'team' ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-blue-400 font-bold mb-2">🔵 Team A</h4>
+                      {match.players.filter(p => p.team === 'A').map((player, i) => (
+                        <div key={i} className="bg-blue-900 bg-opacity-30 rounded p-2 mb-2">
+                          <span className="text-white font-bold">{player.username}</span>
+                          <p className="text-gray-400 text-xs">{player.character.replace('_', ' ')}</p>
+                        </div>
+                      ))}
+                      {Array.from({ length: Math.ceil(match.maxPlayers / 2) - match.players.filter(p => p.team === 'A').length }).map((_, i) => (
+                        <div key={`a-empty-${i}`} className="bg-gray-800 rounded p-2 mb-2 border border-dashed border-gray-600">
+                          <p className="text-gray-500 text-xs">Waiting...</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <h4 className="text-red-400 font-bold mb-2">🔴 Team B</h4>
+                      {match.players.filter(p => p.team === 'B').map((player, i) => (
+                        <div key={i} className="bg-red-900 bg-opacity-30 rounded p-2 mb-2">
+                          <span className="text-white font-bold">{player.username}</span>
+                          <p className="text-gray-400 text-xs">{player.character.replace('_', ' ')}</p>
+                        </div>
+                      ))}
+                      {Array.from({ length: Math.floor(match.maxPlayers / 2) - match.players.filter(p => p.team === 'B').length }).map((_, i) => (
+                        <div key={`b-empty-${i}`} className="bg-gray-800 rounded p-2 mb-2 border border-dashed border-gray-600">
+                          <p className="text-gray-500 text-xs">Waiting...</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {match.players.map((player, i) => (
+                      <div key={i} className="bg-gray-800 rounded p-3">
                         <span className="text-white font-bold">{player.username}</span>
-                        {player.team && (
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            player.team === 'A' ? 'bg-blue-600' : 'bg-red-600'
-                          } text-white`}>
-                            Team {player.team}
-                          </span>
-                        )}
+                        <p className="text-gray-400 text-sm mt-1">
+                          {player.character.replace('_', ' ')}
+                        </p>
                       </div>
-                      <p className="text-gray-400 text-sm mt-1">
-                        {player.character.replace('_', ' ')}
-                      </p>
-                    </div>
-                  ))}
-                  {Array.from({ length: match.maxPlayers - match.players.length }).map((_, i) => (
-                    <div key={`empty-${i}`} className="bg-gray-800 rounded p-3 border-2 border-dashed border-gray-600">
-                      <p className="text-gray-500 text-center">Waiting...</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                    {Array.from({ length: match.maxPlayers - match.players.length }).map((_, i) => (
+                      <div key={`empty-${i}`} className="bg-gray-800 rounded p-3 border-2 border-dashed border-gray-600">
+                        <p className="text-gray-500 text-center">Waiting...</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

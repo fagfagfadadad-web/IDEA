@@ -17,6 +17,7 @@ export const ArenaLobby: React.FC = () => {
   const [selectedMode, setSelectedMode] = useState<GameMode>(GameMode.FREE_FOR_ALL);
   const [selectedMap, setSelectedMap] = useState<MapType>(MapType.CLASSIC_ARENA);
   const [selectedCharacter, setSelectedCharacter] = useState<CharacterClass>(CharacterClass.SCOUT);
+  const [maxPlayers, setMaxPlayers] = useState<number>(8);
   const [isCreatingMatch, setIsCreatingMatch] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +47,7 @@ export const ArenaLobby: React.FC = () => {
         user.id,
         selectedMode,
         selectedMap,
-        8
+        maxPlayers
       );
 
       await ArenaService.joinMatch(matchId, user.id, user.username || 'Player', selectedCharacter);
@@ -101,15 +102,39 @@ export const ArenaLobby: React.FC = () => {
               <label className="block text-gray-300 mb-2">Game Mode</label>
               <select
                 value={selectedMode}
-                onChange={(e) => setSelectedMode(e.target.value as GameMode)}
+                onChange={(e) => {
+                  const mode = e.target.value as GameMode;
+                  setSelectedMode(mode);
+                  if (mode === GameMode.TEAM_BATTLE) {
+                    setMaxPlayers(2);
+                  } else {
+                    setMaxPlayers(8);
+                  }
+                }}
                 className="w-full bg-gray-700 text-white rounded p-2"
               >
                 <option value={GameMode.FREE_FOR_ALL}>Free For All</option>
-                <option value={GameMode.TEAM_BATTLE}>Team Battle (2v2)</option>
+                <option value={GameMode.TEAM_BATTLE}>Team Battle (1v1)</option>
                 <option value={GameMode.BATTLE_ROYALE}>Battle Royale</option>
                 <option value={GameMode.SURVIVAL}>Survival Mode</option>
               </select>
             </div>
+
+            {selectedMode === GameMode.TEAM_BATTLE && (
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-2">Team Size</label>
+                <select
+                  value={maxPlayers}
+                  onChange={(e) => setMaxPlayers(Number(e.target.value))}
+                  className="w-full bg-gray-700 text-white rounded p-2"
+                >
+                  <option value={2}>1v1 (2 players)</option>
+                  <option value={4}>2v2 (4 players)</option>
+                  <option value={6}>3v3 (6 players)</option>
+                  <option value={8}>4v4 (8 players)</option>
+                </select>
+              </div>
+            )}
 
             <div className="mb-4">
               <label className="block text-gray-300 mb-2">Select Map</label>

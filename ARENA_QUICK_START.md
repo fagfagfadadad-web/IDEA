@@ -45,6 +45,7 @@ Once the index status shows **"Enabled"**:
 1. Go to Game Center → Click **"PupFi Arena"**
 2. Select:
    - **Game Mode** (Free For All, Team Battle, etc.)
+   - **Team Size** (for Team Battle: 1v1, 2v2, 3v3, or 4v4)
    - **Map** (Classic Arena, Space Station, etc.)
    - **Character** (Scout, Tank, Blaster, etc.)
 3. Click **"Create Match"**
