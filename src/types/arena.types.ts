@@ -117,6 +117,7 @@ export interface ArenaPlayer {
   currentWeapon: WeaponType;
   secondaryWeapon?: WeaponType;
   activePowerUps: PowerUpEffect[];
+  petImage?: string;
   isAlive: boolean;
   respawnTime?: number;
 }

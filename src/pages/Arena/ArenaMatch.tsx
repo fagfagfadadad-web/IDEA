@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArenaService } from '../../services/arenaService';
 import { useAuth } from '../../context/AuthContext';
 import { ArenaMatch as ArenaMatchType, MatchStatus } from '../../types/arena.types';
+import { SimpleArenaGame } from '../../game/SimpleArenaGame';
 
 export const ArenaMatch: React.FC = () => {
   const { matchId } = useParams<{ matchId: string }>();
@@ -263,32 +264,19 @@ export const ArenaMatch: React.FC = () => {
     );
   }
 
+  if (!match || !user) return null;
+
+  const matchPlayer = match.players.find(p => p.userId === user.id);
+  if (!matchPlayer) return null;
+
   return (
-    <div className="relative w-full h-screen bg-black">
-      <div
-        ref={gameContainerRef}
-        id="game-container"
-        className="w-full h-full"
-      />
-
-      <div className="absolute top-4 left-4 bg-black bg-opacity-50 rounded p-4">
-        <div className="text-white">
-          <p className="font-bold mb-1">Players: {match.players.length}</p>
-          {match.players.map((p, i) => (
-            <div key={i} className="text-sm">
-              {p.username}: {p.kills}/{p.deaths}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <button
-        onClick={handleLeaveMatch}
-        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded z-50"
-      >
-        Leave
-      </button>
-    </div>
+    <SimpleArenaGame
+      matchId={match.matchId}
+      playerId={user.id || ''}
+      username={matchPlayer.username}
+      petImage={matchPlayer.petImage}
+      onLeave={handleLeaveMatch}
+    />
   );
 };
 
