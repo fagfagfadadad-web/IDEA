@@ -25,11 +25,12 @@ export const ArenaLobby: React.FC = () => {
     loadActiveMatches();
     const interval = setInterval(loadActiveMatches, 5000);
     return () => clearInterval(interval);
-  }, [selectedMode]);
+  }, []);
 
   const loadActiveMatches = async () => {
     try {
-      const matches = await ArenaService.getActiveMatches(selectedMode);
+      // Load ALL active matches, not filtered by mode
+      const matches = await ArenaService.getActiveMatches();
       setActiveMatches(matches);
     } catch (error) {
       console.error('Error loading matches:', error);
@@ -188,7 +189,10 @@ export const ArenaLobby: React.FC = () => {
           </div>
 
           <div className="lg:col-span-2 bg-gray-800 rounded-lg p-6 shadow-xl">
-            <h2 className="text-2xl font-bold text-white mb-4">🔥 Active Matches</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-white">🔥 Active Matches</h2>
+              <span className="text-gray-400 text-sm">All game modes</span>
+            </div>
 
             {loading ? (
               <div className="text-center text-gray-400 py-12">
@@ -209,9 +213,21 @@ export const ArenaLobby: React.FC = () => {
                   >
                     <div className="flex justify-between items-center mb-2">
                       <div>
-                        <h3 className="text-white font-bold">
-                          {match.mode.replace('_', ' ').toUpperCase()}
-                        </h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-white font-bold">
+                            {match.mode.replace('_', ' ').toUpperCase()}
+                          </h3>
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${
+                            match.mode === 'team' ? 'bg-purple-600 text-white' :
+                            match.mode === 'ffa' ? 'bg-orange-600 text-white' :
+                            match.mode === 'battle_royale' ? 'bg-red-600 text-white' :
+                            'bg-green-600 text-white'
+                          }`}>
+                            {match.mode === 'team' ? `${match.maxPlayers / 2}v${match.maxPlayers / 2}` :
+                             match.mode === 'ffa' ? 'FFA' :
+                             match.mode === 'battle_royale' ? 'BR' : 'SURV'}
+                          </span>
+                        </div>
                         <p className="text-gray-400 text-sm">
                           Map: {match.map.replace('_', ' ')}
                         </p>

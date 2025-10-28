@@ -51,10 +51,11 @@ Once the index status shows **"Enabled"**:
 3. Click **"Create Match"**
 
 ### Join a Match
-1. See active matches in the lobby
-2. Click **"Join Match"** on any available game
-3. Wait for other players
-4. Host will start the match when ready
+1. See **all active matches** in the lobby (all game modes shown)
+2. Look for the mode badge (1v1, 2v2, FFA, BR, SURV)
+3. Click **"Join Match"** on any available game
+4. Wait for other players
+5. Host will start the match when ready
 
 ### Quick Play
 Click **"Quick Play"** to auto-join or create a match instantly!
