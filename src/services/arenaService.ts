@@ -95,13 +95,10 @@ export class ArenaService {
 
       const characterStats = CHARACTER_CONFIGS[character];
 
-      const newPlayer: ArenaPlayer = {
+      const playerBase = {
         userId,
         username,
         character,
-        team: match.mode === GameMode.TEAM_BATTLE
-          ? (match.players.length % 2 === 0 ? 'A' : 'B')
-          : undefined,
         hp: characterStats.hp,
         maxHp: characterStats.hp,
         shield: 0,
@@ -113,12 +110,19 @@ export class ArenaService {
           y: 0,
           velocityX: 0,
           velocityY: 0,
-          direction: 'right',
+          direction: 'right' as const,
         },
         currentWeapon: characterStats.startingWeapon,
         activePowerUps: [],
         isAlive: true,
       };
+
+      const newPlayer: ArenaPlayer = match.mode === GameMode.TEAM_BATTLE
+        ? {
+            ...playerBase,
+            team: (match.players.length % 2 === 0 ? 'A' : 'B') as 'A' | 'B'
+          }
+        : playerBase as ArenaPlayer;
 
       await updateDoc(matchRef, {
         players: [...match.players, newPlayer],
