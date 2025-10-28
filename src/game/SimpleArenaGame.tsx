@@ -163,15 +163,29 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   }, [matchId, playerId, username, petImage]);
 
   useEffect(() => {
+    console.log('🖼️ Canvas useEffect triggered. Canvas:', !!canvasRef.current);
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      console.log('❌ Canvas ref is null!');
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.log('❌ Canvas context is null!');
+      return;
+    }
 
+    console.log('✅ Canvas ready, starting draw loop');
+    let frameCount = 0;
     const draw = () => {
       ctx.fillStyle = '#1a1a2e';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      frameCount++;
+      if (frameCount % 60 === 0) {
+        console.log('🎨 Rendering frame. Players:', Object.keys(players).length, players);
+      }
 
       ctx.strokeStyle = '#4a5568';
       ctx.lineWidth = 3;
