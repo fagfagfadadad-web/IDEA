@@ -11,8 +11,10 @@ export const ArenaMatch: React.FC = () => {
   const [match, setMatch] = useState<ArenaMatchType | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isHost, setIsHost] = useState(false);
+  const [gameInitialized, setGameInitialized] = useState(false);
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const gameInstanceRef = useRef<any>(null);
 
   useEffect(() => {
     if (!matchId) return;
@@ -25,10 +27,6 @@ export const ArenaMatch: React.FC = () => {
         startCountdown();
       }
 
-      if (matchData.status === MatchStatus.IN_PROGRESS && countdown === 0) {
-        initializeGame();
-      }
-
       if (matchData.status === MatchStatus.FINISHED) {
         handleMatchEnd();
       }
@@ -38,8 +36,19 @@ export const ArenaMatch: React.FC = () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current();
       }
+      if (gameInstanceRef.current) {
+        gameInstanceRef.current.destroy(true);
+      }
     };
   }, [matchId, user]);
+
+  useEffect(() => {
+    if (match?.status === MatchStatus.IN_PROGRESS && !gameInitialized) {
+      console.log('🎮 Triggering game initialization...');
+      initializeGame();
+      setGameInitialized(true);
+    }
+  }, [match?.status, gameInitialized]);
 
   const startCountdown = () => {
     setCountdown(3);
@@ -78,7 +87,19 @@ export const ArenaMatch: React.FC = () => {
   const initializeGame = () => {
     console.log('🎮 Initializing Phaser game...');
 
-    if (!gameContainerRef.current || !match || !user) return;
+    if (!gameContainerRef.current || !match || !user) {
+      console.log('❌ Missing requirements:', {
+        container: !!gameContainerRef.current,
+        match: !!match,
+        user: !!user
+      });
+      return;
+    }
+
+    if (gameInstanceRef.current) {
+      console.log('⚠️ Game already initialized');
+      return;
+    }
 
     const Phaser = require('phaser');
     const { GAME_CONFIG } = require('../../game/config');
@@ -88,12 +109,17 @@ export const ArenaMatch: React.FC = () => {
       parent: gameContainerRef.current,
     };
 
+    console.log('✅ Creating Phaser game with config:', config);
     const game = new Phaser.Game(config);
+    gameInstanceRef.current = game;
 
     const matchPlayer = match.players.find(p => p.userId === user.id);
-    if (!matchPlayer) return;
+    if (!matchPlayer) {
+      console.log('❌ Player not found in match');
+      return;
+    }
 
-    game.scene.start('MainScene', {
+    const sceneData = {
       matchId: match.matchId,
       map: match.map,
       mode: match.mode,
@@ -104,7 +130,13 @@ export const ArenaMatch: React.FC = () => {
         character: matchPlayer.character,
         team: matchPlayer.team,
       },
-    });
+    };
+
+    console.log('✅ Starting MainScene with data:', sceneData);
+
+    setTimeout(() => {
+      game.scene.start('MainScene', sceneData);
+    }, 100);
   };
 
   const handleMatchEnd = () => {
@@ -252,16 +284,10 @@ export const ArenaMatch: React.FC = () => {
 
       <button
         onClick={handleLeaveMatch}
-        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+        className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded z-50"
       >
         Leave
       </button>
-
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 rounded px-6 py-2">
-        <p className="text-white text-xl font-bold">
-          Coming Soon: Full Phaser.js Game
-        </p>
-      </div>
     </div>
   );
 };
