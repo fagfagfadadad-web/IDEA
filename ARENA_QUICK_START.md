@@ -77,6 +77,9 @@ Click **"Quick Play"** to auto-join or create a match instantly!
 **"Match already started"**
 → Can't join matches in progress. Create a new one.
 
+**"Function updateDoc() called with invalid data. Unsupported field value: undefined"**
+→ Delete old matches from Firestore. See `ARENA_FIX_EXISTING_MATCHES.md` for solution.
+
 **Still seeing index error after 5+ minutes**
 → Clear browser cache and refresh, or create index manually (see ARENA_SETUP.md)
 

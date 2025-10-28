@@ -39,6 +39,48 @@ const COLLECTIONS = {
   EVENTS: 'arena_game_events',
 };
 
+function removeUndefined<T>(obj: T): T {
+  const cleaned = {} as any;
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      cleaned[key] = obj[key];
+    }
+  }
+  return cleaned as T;
+}
+
+function cleanPlayerData(player: ArenaPlayer): any {
+  const cleaned: any = {
+    userId: player.userId,
+    username: player.username,
+    character: player.character,
+    hp: player.hp,
+    maxHp: player.maxHp,
+    shield: player.shield,
+    kills: player.kills,
+    deaths: player.deaths,
+    score: player.score,
+    position: player.position,
+    currentWeapon: player.currentWeapon,
+    activePowerUps: player.activePowerUps,
+    isAlive: player.isAlive,
+  };
+
+  if (player.team) {
+    cleaned.team = player.team;
+  }
+
+  if (player.secondaryWeapon) {
+    cleaned.secondaryWeapon = player.secondaryWeapon;
+  }
+
+  if (player.respawnTime) {
+    cleaned.respawnTime = player.respawnTime;
+  }
+
+  return cleaned;
+}
+
 export class ArenaService {
   static async createMatch(
     hostId: string,
@@ -124,8 +166,10 @@ export class ArenaService {
           }
         : playerBase as ArenaPlayer;
 
+      const cleanedPlayers = [...match.players.map(cleanPlayerData), cleanPlayerData(newPlayer)];
+
       await updateDoc(matchRef, {
-        players: [...match.players, newPlayer],
+        players: cleanedPlayers,
         updatedAt: Date.now(),
       });
 
@@ -152,7 +196,7 @@ export class ArenaService {
       });
     } else {
       await updateDoc(matchRef, {
-        players: updatedPlayers,
+        players: updatedPlayers.map(cleanPlayerData),
         hostId: match.hostId === userId ? updatedPlayers[0].userId : match.hostId,
         updatedAt: Date.now(),
       });
@@ -184,7 +228,7 @@ export class ArenaService {
     );
 
     await updateDoc(matchRef, {
-      players: updatedPlayers,
+      players: updatedPlayers.map(cleanPlayerData),
       updatedAt: Date.now(),
     });
   }
@@ -211,7 +255,7 @@ export class ArenaService {
     });
 
     await updateDoc(matchRef, {
-      players: updatedPlayers,
+      players: updatedPlayers.map(cleanPlayerData),
       updatedAt: Date.now(),
     });
 
