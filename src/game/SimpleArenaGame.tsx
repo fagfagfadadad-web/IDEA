@@ -244,9 +244,10 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
   useEffect(() => {
     console.log('🎮 Game loop started');
+    let lastFirebaseUpdate = 0;
+
     const gameLoop = setInterval(() => {
       if (joystickPos.current.x !== 0 || joystickPos.current.y !== 0) {
-        console.log('🕹️ Moving:', joystickPos.current);
         const speed = 5;
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
@@ -258,12 +259,16 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           playerPos.current.y = Math.max(0, Math.min(newY, CANVAS_HEIGHT - PLAYER_SIZE));
         }
 
-        const gameStateRef = doc(db, 'arena_game_state', matchId);
-        updateDoc(gameStateRef, {
-          [`players.${playerId}.x`]: playerPos.current.x,
-          [`players.${playerId}.y`]: playerPos.current.y,
-          [`players.${playerId}.angle`]: weaponAngle.current,
-        }).catch(console.error);
+        const now = Date.now();
+        if (now - lastFirebaseUpdate > 50) {
+          lastFirebaseUpdate = now;
+          const gameStateRef = doc(db, 'arena_game_state', matchId);
+          updateDoc(gameStateRef, {
+            [`players.${playerId}.x`]: playerPos.current.x,
+            [`players.${playerId}.y`]: playerPos.current.y,
+            [`players.${playerId}.angle`]: weaponAngle.current,
+          }).catch(err => console.error('❌ Update failed:', err));
+        }
       }
 
       if (isShooting.current && Date.now() - lastShot.current > 300) {
