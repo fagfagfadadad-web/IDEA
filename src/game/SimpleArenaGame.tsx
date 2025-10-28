@@ -46,10 +46,19 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const weaponAngle = useRef(0);
   const isShooting = useRef(false);
   const lastShot = useRef(0);
+  const playerImage = useRef<HTMLImageElement | null>(null);
 
   const CANVAS_WIDTH = 800;
   const CANVAS_HEIGHT = 600;
   const PLAYER_SIZE = 40;
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = '/-pupfi new .png';
+    img.onload = () => {
+      playerImage.current = img;
+    };
+  }, []);
 
   useEffect(() => {
     const gameStateRef = doc(db, 'arena_game_state', matchId);
@@ -81,7 +90,8 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           }
         }
         if (data.bullets) {
-          setBullets(Object.values(data.bullets));
+          const validBullets = Object.values(data.bullets).filter((b: any) => b !== null && b.x !== undefined) as Bullet[];
+          setBullets(validBullets);
         } else {
           setBullets([]);
         }
@@ -112,6 +122,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       });
 
       bullets.forEach((bullet) => {
+        if (!bullet || bullet.x === undefined || bullet.y === undefined) return;
         ctx.fillStyle = '#ffeb3b';
         ctx.beginPath();
         ctx.arc(bullet.x, bullet.y, 6, 0, Math.PI * 2);
@@ -124,10 +135,14 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.save();
         ctx.translate(player.x + PLAYER_SIZE / 2, player.y + PLAYER_SIZE / 2);
 
-        ctx.fillStyle = id === playerId ? '#00ff00' : '#ff4081';
-        ctx.beginPath();
-        ctx.arc(0, 0, PLAYER_SIZE / 2, 0, Math.PI * 2);
-        ctx.fill();
+        if (playerImage.current) {
+          ctx.drawImage(playerImage.current, -PLAYER_SIZE / 2, -PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE);
+        } else {
+          ctx.fillStyle = id === playerId ? '#00ff00' : '#ff4081';
+          ctx.beginPath();
+          ctx.arc(0, 0, PLAYER_SIZE / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.fillStyle = id === playerId ? '#00ff00' : '#ff0000';
         ctx.fillRect(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2 - 10, PLAYER_SIZE * (player.health / 3), 5);
