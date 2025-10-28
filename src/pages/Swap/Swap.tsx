@@ -127,10 +127,16 @@ export const Swap: React.FC = () => {
       if (quoteData) {
         setQuote(quoteData);
         setAmountOut(quoteData.amountOut);
+      } else {
+        setQuote(null);
+        setAmountOut('');
+        showError('No liquidity available for this trading pair');
       }
     } catch (err) {
       console.error('Error loading quote:', err);
-      showError('Failed to get swap quote');
+      setQuote(null);
+      setAmountOut('');
+      showError('Unable to get price quote. Please try again.');
     } finally {
       setIsLoadingQuote(false);
     }

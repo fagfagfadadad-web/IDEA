@@ -113,20 +113,23 @@ export class PancakeSwapService {
   ): Promise<SwapQuote | null> {
     try {
       console.log('getSwapQuote called with:', { tokenIn: tokenIn.symbol, tokenOut: tokenOut.symbol, amountIn });
+
+      if (!amountIn || parseFloat(amountIn) <= 0) {
+        console.log('Invalid amount, returning null');
+        return null;
+      }
+
       const router = new Contract(PANCAKESWAP_ROUTER_ADDRESS, ROUTER_ABI, provider);
 
       const tokenInAddress = tokenIn.address === 'BNB' ? WBNB_ADDRESS : tokenIn.address;
       const tokenOutAddress = tokenOut.address === 'BNB' ? WBNB_ADDRESS : tokenOut.address;
 
-      // Build path - use WBNB as intermediate for all swaps
       let path: string[];
       if (tokenInAddress === tokenOutAddress) {
         throw new Error('Cannot swap identical tokens');
       } else if (tokenInAddress === WBNB_ADDRESS || tokenOutAddress === WBNB_ADDRESS) {
-        // Direct swap if one token is WBNB
         path = [tokenInAddress, tokenOutAddress];
       } else {
-        // Multi-hop through WBNB for other token pairs
         path = [tokenInAddress, WBNB_ADDRESS, tokenOutAddress];
       }
       console.log('Swap path:', path);
@@ -137,12 +140,10 @@ export class PancakeSwapService {
       const amounts = await router.getAmountsOut(amountInWei, path);
       console.log('Amounts from router:', amounts.map((a: any) => a.toString()));
 
-      // Get final amount (last element in amounts array)
       const amountOut = ethers.formatUnits(amounts[amounts.length - 1], tokenOut.decimals);
       console.log('Amount out formatted:', amountOut);
 
       const priceImpact = 0;
-
       const slippageTolerance = 0.005;
       const minimumReceived = (parseFloat(amountOut) * (1 - slippageTolerance)).toFixed(6);
 
@@ -153,8 +154,13 @@ export class PancakeSwapService {
         priceImpact,
         minimumReceived,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error getting swap quote:', error);
+
+      if (error?.code === 'CALL_EXCEPTION') {
+        console.warn('Liquidity pool may not exist for this pair or insufficient liquidity');
+      }
+
       return null;
     }
   }
@@ -211,20 +217,21 @@ export class PancakeSwapService {
     signer: any
   ): Promise<string> {
     try {
+      if (!amountIn || parseFloat(amountIn) <= 0) {
+        throw new Error('Invalid swap amount');
+      }
+
       const router = new Contract(PANCAKESWAP_ROUTER_ADDRESS, ROUTER_ABI, signer);
 
       const tokenInAddress = tokenIn.address === 'BNB' ? WBNB_ADDRESS : tokenIn.address;
       const tokenOutAddress = tokenOut.address === 'BNB' ? WBNB_ADDRESS : tokenOut.address;
 
-      // Build path - use WBNB as intermediate for all swaps
       let path: string[];
       if (tokenInAddress === tokenOutAddress) {
         throw new Error('Cannot swap identical tokens');
       } else if (tokenInAddress === WBNB_ADDRESS || tokenOutAddress === WBNB_ADDRESS) {
-        // Direct swap if one token is WBNB
         path = [tokenInAddress, tokenOutAddress];
       } else {
-        // Multi-hop through WBNB for other token pairs
         path = [tokenInAddress, WBNB_ADDRESS, tokenOutAddress];
       }
 
@@ -267,7 +274,16 @@ export class PancakeSwapService {
       return receipt.hash;
     } catch (error: any) {
       console.error('Error executing swap:', error);
-      throw new Error(error.message || 'Swap failed');
+
+      if (error?.code === 'CALL_EXCEPTION') {
+        throw new Error('Swap failed: Insufficient liquidity or invalid trading pair');
+      }
+
+      if (error?.code === 'ACTION_REJECTED') {
+        throw new Error('Transaction rejected by user');
+      }
+
+      throw new Error(error?.reason || error?.message || 'Swap failed');
     }
   }
 
