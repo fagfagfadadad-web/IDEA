@@ -243,8 +243,10 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   };
 
   useEffect(() => {
+    console.log('🎮 Game loop started');
     const gameLoop = setInterval(() => {
       if (joystickPos.current.x !== 0 || joystickPos.current.y !== 0) {
+        console.log('🕹️ Moving:', joystickPos.current);
         const speed = 5;
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
@@ -261,7 +263,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           [`players.${playerId}.x`]: playerPos.current.x,
           [`players.${playerId}.y`]: playerPos.current.y,
           [`players.${playerId}.angle`]: weaponAngle.current,
-        });
+        }).catch(console.error);
       }
 
       if (isShooting.current && Date.now() - lastShot.current > 300) {
@@ -324,6 +326,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       };
 
       weaponAngle.current = Math.atan2(dy, dx);
+      console.log('🎯 Joystick:', joystickPos.current);
     }
   };
 
@@ -332,8 +335,8 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   };
 
   return (
-    <div className="relative w-full h-screen bg-black flex flex-col items-center justify-center">
-      <div className="absolute top-4 left-4 text-white text-xl z-10">
+    <div className="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden touch-none">
+      <div className="absolute top-2 left-2 text-white text-sm sm:text-xl z-10 bg-black bg-opacity-50 px-3 py-1 rounded">
         Score: {score} | HP: {health}/3
       </div>
 
@@ -341,12 +344,13 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ref={canvasRef}
         width={CANVAS_WIDTH}
         height={CANVAS_HEIGHT}
-        className="border-2 border-gray-600 bg-gray-900"
+        className="max-w-full max-h-[70vh] sm:max-h-full border-2 border-gray-600 bg-gray-900"
+        style={{ imageRendering: 'pixelated' }}
       />
 
-      <div className="absolute bottom-8 w-full flex justify-between px-8">
+      <div className="absolute bottom-4 sm:bottom-8 w-full flex justify-between px-4 sm:px-8 pointer-events-none">
         <div
-          className="w-32 h-32 rounded-full bg-blue-500 bg-opacity-30 flex items-center justify-center"
+          className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-500 bg-opacity-30 flex items-center justify-center pointer-events-auto active:bg-opacity-50 transition-all"
           onTouchStart={handleJoystickMove}
           onTouchMove={handleJoystickMove}
           onTouchEnd={handleJoystickEnd}
@@ -354,11 +358,11 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           onMouseMove={(e) => e.buttons === 1 && handleJoystickMove(e)}
           onMouseUp={handleJoystickEnd}
         >
-          <div className="w-16 h-16 rounded-full bg-blue-600"></div>
+          <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-blue-600 shadow-lg"></div>
         </div>
 
         <button
-          className="w-24 h-24 rounded-full bg-red-500 text-white text-2xl"
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-red-500 text-white text-2xl sm:text-3xl pointer-events-auto active:bg-red-600 active:scale-95 transition-all shadow-lg"
           onTouchStart={() => (isShooting.current = true)}
           onTouchEnd={() => (isShooting.current = false)}
           onMouseDown={() => (isShooting.current = true)}
@@ -370,7 +374,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
       <button
         onClick={onLeave}
-        className="absolute top-4 right-4 bg-red-600 text-white px-4 py-2 rounded z-10"
+        className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded z-10 text-sm sm:text-base active:bg-red-700 transition-colors"
       >
         Leave
       </button>

@@ -270,13 +270,15 @@ export const ArenaMatch: React.FC = () => {
   if (!matchPlayer) return null;
 
   return (
-    <SimpleArenaGame
-      matchId={match.matchId}
-      playerId={user.id || ''}
-      username={matchPlayer.username}
-      petImage={matchPlayer.petImage}
-      onLeave={handleLeaveMatch}
-    />
+    <div className="fixed inset-0 w-screen h-screen">
+      <SimpleArenaGame
+        matchId={match.matchId}
+        playerId={user.id || ''}
+        username={matchPlayer.username}
+        petImage={matchPlayer.petImage}
+        onLeave={handleLeaveMatch}
+      />
+    </div>
   );
 };
 
