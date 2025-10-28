@@ -285,11 +285,12 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     let loopCount = 0;
     const gameLoop = setInterval(() => {
       loopCount++;
+      const hasMovement = joystickPos.current.x !== 0 || joystickPos.current.y !== 0;
       if (loopCount % 60 === 0) {
-        console.log('🔄 Game loop tick. Joystick:', joystickPos.current, 'Player pos:', playerPos.current);
+        console.log('🔄 Game loop tick. Joystick:', joystickPos.current, 'Player pos:', playerPos.current, 'hasMovement:', hasMovement);
       }
 
-      if (joystickPos.current.x !== 0 || joystickPos.current.y !== 0) {
+      if (hasMovement) {
         const speed = 5;
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
@@ -302,11 +303,18 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         const collisionX = checkCollision(newX, playerPos.current.y);
         const collisionY = checkCollision(playerPos.current.x, newY);
 
+        let moved = false;
         if (!collisionX) {
           playerPos.current.x = newX;
+          moved = true;
         }
         if (!collisionY) {
           playerPos.current.y = newY;
+          moved = true;
+        }
+
+        if (loopCount % 60 === 0) {
+          console.log('🏃 Movement:', { newX, newY, collisionX, collisionY, moved, finalPos: playerPos.current });
         }
 
         const now = Date.now();

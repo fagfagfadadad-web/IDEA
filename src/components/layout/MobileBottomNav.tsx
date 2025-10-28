@@ -12,6 +12,9 @@ export const MobileBottomNav = () => {
 
   if (!isAuthenticated) return null;
 
+  // Hide in arena matches
+  if (location.pathname.startsWith('/arena/match/')) return null;
+
   const navItems = [
     {
       path: RouteNamesEnum.home,
