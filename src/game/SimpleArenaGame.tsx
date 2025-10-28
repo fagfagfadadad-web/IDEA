@@ -114,6 +114,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   }, []);
 
   useEffect(() => {
+    console.log('🔧 Setting up Firebase for match:', matchId);
     const gameStateRef = doc(db, 'arena_game_state', matchId);
 
     setDoc(gameStateRef, {
@@ -130,12 +131,17 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       },
       bullets: {},
       lastUpdate: Date.now(),
-    }, { merge: true }).catch(console.error);
+    }, { merge: true })
+      .then(() => console.log('✅ Initial game state created'))
+      .catch(err => console.error('❌ Failed to create game state:', err));
 
+    console.log('👂 Setting up Firebase listener...');
     const unsubGameState = onSnapshot(gameStateRef, (snapshot) => {
+      console.log('🔔 Firebase snapshot received!', snapshot.exists());
       const data = snapshot.data();
       if (data) {
         if (data.players) {
+          console.log('👥 Players update:', Object.keys(data.players).length, data.players);
           setPlayers(data.players);
           if (data.players[playerId]) {
             setHealth(data.players[playerId].health);
