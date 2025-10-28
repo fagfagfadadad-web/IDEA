@@ -77,6 +77,34 @@ export const ArenaMatch: React.FC = () => {
 
   const initializeGame = () => {
     console.log('🎮 Initializing Phaser game...');
+
+    if (!gameContainerRef.current || !match || !user) return;
+
+    const Phaser = require('phaser');
+    const { GAME_CONFIG } = require('../../game/config');
+
+    const config = {
+      ...GAME_CONFIG,
+      parent: gameContainerRef.current,
+    };
+
+    const game = new Phaser.Game(config);
+
+    const matchPlayer = match.players.find(p => p.userId === user.id);
+    if (!matchPlayer) return;
+
+    game.scene.start('MainScene', {
+      matchId: match.matchId,
+      map: match.map,
+      mode: match.mode,
+      playerId: user.id,
+      playerData: {
+        id: user.id,
+        username: matchPlayer.username,
+        character: matchPlayer.character,
+        team: matchPlayer.team,
+      },
+    });
   };
 
   const handleMatchEnd = () => {
@@ -207,7 +235,7 @@ export const ArenaMatch: React.FC = () => {
     <div className="relative w-full h-screen bg-black">
       <div
         ref={gameContainerRef}
-        id="phaser-game"
+        id="game-container"
         className="w-full h-full"
       />
 
