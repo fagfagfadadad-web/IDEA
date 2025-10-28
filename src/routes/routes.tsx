@@ -25,6 +25,8 @@ const PetMarket = lazy(() => import('pages').then(module => ({ default: module.P
 const Inventory = lazy(() => import('pages').then(module => ({ default: module.Inventory })));
 const Marketplace = lazy(() => import('pages').then(module => ({ default: module.Marketplace })));
 const Swap = lazy(() => import('pages').then(module => ({ default: module.Swap })));
+const ArenaLobby = lazy(() => import('../pages/Arena').then(module => ({ default: module.ArenaLobby })));
+const ArenaMatch = lazy(() => import('../pages/Arena/ArenaMatch').then(module => ({ default: module.default })));
 
 interface RouteWithTitleType extends RouteType {
   title: string;
@@ -156,5 +158,17 @@ export const routes: RouteWithTitleType[] = [
     title: 'Swap',
     component: Swap,
     authenticatedRoute: false
+  },
+  {
+    path: '/arena',
+    title: 'Arena Lobby',
+    component: ArenaLobby,
+    authenticatedRoute: true
+  },
+  {
+    path: '/arena/match/:matchId',
+    title: 'Arena Match',
+    component: ArenaMatch,
+    authenticatedRoute: true
   }
 ];

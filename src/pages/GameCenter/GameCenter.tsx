@@ -19,6 +19,14 @@ interface GameCard {
 
 const games: GameCard[] = [
   {
+    id: 'arena',
+    title: 'PupFi Arena',
+    description: 'Multiplayer 2D battle arena! Fight other players in real-time!',
+    emoji: '⚔️',
+    route: '/arena',
+    isAvailable: true,
+  },
+  {
     id: 'pupfi-catcher',
     title: 'PupFi Catcher',
     description: 'Help your pup catch falling treats and avoid bombs!',
