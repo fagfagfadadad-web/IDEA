@@ -38,6 +38,8 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [players, setPlayers] = useState<Record<string, Player>>({});
   const [bullets, setBullets] = useState<Bullet[]>([]);
+  const playersRef = useRef<Record<string, Player>>({});
+  const bulletsRef = useRef<Bullet[]>([]);
   const [score, setScore] = useState(0);
   const [health, setHealth] = useState(3);
 
@@ -142,6 +144,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       if (data) {
         if (data.players) {
           console.log('👥 Players update:', Object.keys(data.players).length, data.players);
+          playersRef.current = data.players;
           setPlayers(data.players);
           if (data.players[playerId]) {
             setHealth(data.players[playerId].health);
@@ -150,8 +153,10 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         }
         if (data.bullets) {
           const validBullets = Object.values(data.bullets).filter((b: any) => b !== null && b.x !== undefined) as Bullet[];
+          bulletsRef.current = validBullets;
           setBullets(validBullets);
         } else {
+          bulletsRef.current = [];
           setBullets([]);
         }
       }
@@ -178,13 +183,18 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
     console.log('✅ Canvas ready, starting draw loop');
     let frameCount = 0;
+    let animationId: number;
+
     const draw = () => {
+      const currentPlayers = playersRef.current;
+      const currentBullets = bulletsRef.current;
+
       ctx.fillStyle = '#1a1a2e';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
       frameCount++;
       if (frameCount % 60 === 0) {
-        console.log('🎨 Rendering frame. Players:', Object.keys(players).length, players);
+        console.log('🎨 Rendering frame. Players:', Object.keys(currentPlayers).length, currentPlayers);
       }
 
       ctx.strokeStyle = '#4a5568';
@@ -194,7 +204,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
       });
 
-      bullets.forEach((bullet) => {
+      currentBullets.forEach((bullet) => {
         if (!bullet || bullet.x === undefined || bullet.y === undefined) return;
         ctx.fillStyle = '#ffeb3b';
         ctx.beginPath();
@@ -202,7 +212,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.fill();
       });
 
-      Object.entries(players).forEach(([id, player]) => {
+      Object.entries(currentPlayers).forEach(([id, player]) => {
         if (player.health <= 0) return;
 
         ctx.save();
@@ -234,11 +244,17 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.fillText(player.username, player.x, player.y - 15);
       });
 
-      requestAnimationFrame(draw);
+      animationId = requestAnimationFrame(draw);
     };
 
     draw();
-  }, [players, bullets, playerId]);
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [playerId]);
 
   const obstacles = [
     { x: 100, y: 50, width: 200, height: 20 },
