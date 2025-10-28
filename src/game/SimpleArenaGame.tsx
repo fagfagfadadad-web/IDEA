@@ -63,7 +63,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           health: 3,
           score: 0,
           username,
-          petImage,
+          petImage: petImage || '/pupfi-logo.png',
         }
       },
       bullets: {},
