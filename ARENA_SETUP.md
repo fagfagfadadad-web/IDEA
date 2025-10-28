@@ -43,6 +43,15 @@ Fields:
   - __name__ (Ascending)
 ```
 
+#### Index 3: Arena Matches (Status with Mode)
+```
+Collection: arena_matches
+Fields:
+  - status (Ascending)
+  - mode (Ascending)
+  - createdAt (Descending)
+```
+
 ### Option 3: Firebase CLI
 
 If you have Firebase CLI installed:

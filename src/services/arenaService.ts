@@ -419,19 +419,44 @@ export class ArenaService {
   }
 
   static async getActiveMatches(mode?: GameMode): Promise<ArenaMatch[]> {
-    let q = query(
-      collection(db, COLLECTIONS.MATCHES),
-      where('status', 'in', [MatchStatus.WAITING, MatchStatus.STARTING]),
-      orderBy('createdAt', 'desc'),
-      limit(20)
-    );
+    try {
+      let constraints: any[] = [
+        where('status', 'in', [MatchStatus.WAITING, MatchStatus.STARTING])
+      ];
 
-    if (mode) {
-      q = query(q, where('mode', '==', mode));
+      if (mode) {
+        constraints.push(where('mode', '==', mode));
+      }
+
+      constraints.push(orderBy('createdAt', 'desc'));
+      constraints.push(limit(20));
+
+      const q = query(collection(db, COLLECTIONS.MATCHES), ...constraints);
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => doc.data() as ArenaMatch);
+    } catch (error) {
+      console.error('Error loading matches:', error);
+
+      // Fallback: load all waiting/starting matches without ordering
+      try {
+        const q = query(
+          collection(db, COLLECTIONS.MATCHES),
+          where('status', 'in', [MatchStatus.WAITING, MatchStatus.STARTING]),
+          limit(20)
+        );
+        const snapshot = await getDocs(q);
+        const matches = snapshot.docs.map(doc => doc.data() as ArenaMatch);
+
+        // Filter by mode if specified
+        if (mode) {
+          return matches.filter(m => m.mode === mode);
+        }
+        return matches;
+      } catch (fallbackError) {
+        console.error('Fallback query also failed:', fallbackError);
+        return [];
+      }
     }
-
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data() as ArenaMatch);
   }
 
   static async getMatchHistory(userId: string, limitCount: number = 10): Promise<MatchResult[]> {
