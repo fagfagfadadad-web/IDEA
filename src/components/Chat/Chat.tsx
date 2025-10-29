@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageCircle, X, Send, Gift, Smile, Image as ImageIcon, Search } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useGame } from '../../context/GameContext';
 import { useToast } from '../../context/ToastContext';
@@ -31,10 +32,12 @@ interface GiphyGif {
 }
 
 export const Chat = () => {
+  const location = useLocation();
   const { user, refreshUser } = useAuth();
   const { gameStats, refetch } = useGame();
   const { success, error } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const isInArena = location.pathname.startsWith('/arena/match');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [showSendFood, setShowSendFood] = useState(false);
@@ -295,7 +298,7 @@ export const Chat = () => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-[88px] md:bottom-6 right-4 md:left-6 md:right-auto z-[1000000] bg-[#f97316] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+        className={`fixed ${isInArena ? 'bottom-4' : 'bottom-[88px]'} md:bottom-6 right-4 md:left-6 md:right-auto z-[1000000] bg-[#f97316] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95`}
       >
         <MessageCircle size={24} />
       </button>

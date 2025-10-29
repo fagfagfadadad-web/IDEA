@@ -21,6 +21,29 @@ interface Bullet {
   createdAt: number;
 }
 
+interface PowerUp {
+  id: string;
+  type: 'shield' | 'speed' | 'health' | 'rapid_fire' | 'triple_shot';
+  x: number;
+  y: number;
+  createdAt: number;
+}
+
+interface PlayerState {
+  x: number;
+  y: number;
+  angle: number;
+  health: number;
+  score: number;
+  username: string;
+  petImage: string;
+  hasShield?: boolean;
+  speedBoost?: number;
+  rapidFire?: boolean;
+  tripleShot?: boolean;
+  powerUpExpiry?: number;
+}
+
 interface GameProps {
   matchId: string;
   playerId: string;
@@ -37,12 +60,15 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   onLeave,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [players, setPlayers] = useState<Record<string, Player>>({});
+  const [players, setPlayers] = useState<Record<string, PlayerState>>({});
   const [bullets, setBullets] = useState<Record<string, Bullet>>({});
-  const playersRef = useRef<Record<string, Player>>({});
+  const [powerUps, setPowerUps] = useState<Record<string, PowerUp>>({});
+  const playersRef = useRef<Record<string, PlayerState>>({});
   const bulletsRef = useRef<Record<string, Bullet>>({});
+  const powerUpsRef = useRef<Record<string, PowerUp>>({});
   const [score, setScore] = useState(0);
   const [health, setHealth] = useState(3);
+  const lastPowerUpSpawn = useRef(0);
 
   const playerPos = useRef({ x: 400, y: 450 });
   const joystickPos = useRef({ x: 0, y: 0 });
@@ -166,6 +192,13 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           bulletsRef.current = {};
           setBullets({});
         }
+        if (data.powerUps) {
+          powerUpsRef.current = data.powerUps;
+          setPowerUps(data.powerUps);
+        } else {
+          powerUpsRef.current = {};
+          setPowerUps({});
+        }
       }
     });
 
@@ -185,6 +218,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     const draw = () => {
       const currentPlayers = playersRef.current;
       const currentBullets = bulletsRef.current;
+      const currentPowerUps = powerUpsRef.current;
 
       ctx.fillStyle = '#1a1a2e';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -194,6 +228,26 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       obstacles.forEach((obs) => {
         ctx.fillStyle = '#4a5568';
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+      });
+
+      Object.values(currentPowerUps).forEach((powerUp) => {
+        if (!powerUp) return;
+        const icons: Record<PowerUp['type'], string> = {
+          shield: '🛡️',
+          speed: '⚡',
+          health: '❤️',
+          rapid_fire: '🔥',
+          triple_shot: '⚔️'
+        };
+        ctx.fillStyle = '#fff';
+        ctx.font = '24px Arial';
+        ctx.fillText(icons[powerUp.type], powerUp.x, powerUp.y + 8);
+
+        ctx.strokeStyle = '#4ade80';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(powerUp.x + 12, powerUp.y, 20, 0, Math.PI * 2);
+        ctx.stroke();
       });
 
       Object.values(currentBullets).forEach((bullet) => {
@@ -219,6 +273,14 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           ctx.fill();
         }
 
+        if (player.hasShield) {
+          ctx.strokeStyle = '#60a5fa';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(0, 0, PLAYER_SIZE / 2 + 8, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
         ctx.fillStyle = id === playerId ? '#00ff00' : '#ff0000';
         ctx.fillRect(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2 - 10, PLAYER_SIZE * (player.health / 3), 5);
 
@@ -230,6 +292,19 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.stroke();
 
         ctx.restore();
+
+        let powerUpY = player.y - 30;
+        if (player.speedBoost && player.speedBoost > 1) {
+          ctx.fillText('⚡', player.x + PLAYER_SIZE + 5, powerUpY);
+          powerUpY -= 15;
+        }
+        if (player.rapidFire) {
+          ctx.fillText('🔥', player.x + PLAYER_SIZE + 5, powerUpY);
+          powerUpY -= 15;
+        }
+        if (player.tripleShot) {
+          ctx.fillText('⚔️', player.x + PLAYER_SIZE + 5, powerUpY);
+        }
 
         ctx.fillStyle = '#fff';
         ctx.font = '12px Arial';
@@ -323,13 +398,18 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
             if (distance < PLAYER_SIZE / 2 + 6) {
               // Hit detected!
               updates[`bullets.${bulletId}`] = deleteField();
-              updates[`players.${targetId}.health`] = Math.max(0, target.health - 1);
 
-              // Award point if killed
-              if (target.health - 1 <= 0) {
-                const shooter = playersRef.current[bullet.owner];
-                if (shooter) {
-                  updates[`players.${bullet.owner}.score`] = (shooter.score || 0) + 1;
+              if (target.hasShield) {
+                updates[`players.${targetId}.hasShield`] = false;
+                updates[`players.${targetId}.powerUpExpiry`] = 0;
+              } else {
+                updates[`players.${targetId}.health`] = Math.max(0, target.health - 1);
+
+                if (target.health - 1 <= 0) {
+                  const shooter = playersRef.current[bullet.owner];
+                  if (shooter) {
+                    updates[`players.${bullet.owner}.score`] = (shooter.score || 0) + 1;
+                  }
                 }
               }
             }
@@ -350,7 +430,9 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       const hasMovement = joystickPos.current.x !== 0 || joystickPos.current.y !== 0;
 
       if (hasMovement) {
-        const speed = 5;
+        const currentPlayer = playersRef.current[playerId];
+        const baseSpeed = 5;
+        const speed = baseSpeed * (currentPlayer?.speedBoost || 1);
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
 
@@ -379,7 +461,17 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         }
       }
 
-      if (isShooting.current && Date.now() - lastShot.current > 300) {
+      checkPowerUpCollision();
+
+      if (now - lastPowerUpSpawn.current > 15000) {
+        spawnPowerUp();
+        lastPowerUpSpawn.current = now;
+      }
+
+      const currentPlayer = playersRef.current[playerId];
+      const fireRate = currentPlayer?.rapidFire ? 150 : 300;
+
+      if (isShooting.current && Date.now() - lastShot.current > fireRate) {
         shoot();
         lastShot.current = Date.now();
       }
@@ -389,26 +481,88 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   }, [matchId, playerId]);
 
   const shoot = () => {
-    const bulletId = `${playerId}_${Date.now()}`;
     const angle = weaponAngle.current;
     const centerX = playerPos.current.x + PLAYER_SIZE / 2;
     const centerY = playerPos.current.y + PLAYER_SIZE / 2;
+    const currentPlayer = playersRef.current[playerId];
+    const gameStateRef = doc(db, 'arena_game_state', matchId);
+
+    const angles = currentPlayer?.tripleShot
+      ? [angle - 0.2, angle, angle + 0.2]
+      : [angle];
+
+    const updates: any = {};
+
+    angles.forEach((shootAngle, i) => {
+      const bulletId = `${playerId}_${Date.now()}_${i}`;
+      const bulletData = {
+        x: centerX + Math.cos(shootAngle) * 30,
+        y: centerY + Math.sin(shootAngle) * 30,
+        speedX: Math.cos(shootAngle) * 10,
+        speedY: Math.sin(shootAngle) * 10,
+        owner: playerId,
+        createdAt: Date.now(),
+      };
+      updates[`bullets.${bulletId}`] = bulletData;
+    });
+
+    updateDoc(gameStateRef, updates).catch(err => console.error('❌ Shoot failed:', err));
+  };
+
+  const spawnPowerUp = () => {
+    const powerUpTypes: PowerUp['type'][] = ['shield', 'speed', 'health', 'rapid_fire', 'triple_shot'];
+    const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+    const powerUpId = `powerup_${Date.now()}`;
 
     const gameStateRef = doc(db, 'arena_game_state', matchId);
-    const bulletData = {
-      x: centerX + Math.cos(angle) * 30,
-      y: centerY + Math.sin(angle) * 30,
-      speedX: Math.cos(angle) * 10,
-      speedY: Math.sin(angle) * 10,
-      owner: playerId,
-      createdAt: Date.now(),
-    };
-
     updateDoc(gameStateRef, {
-      [`bullets.${bulletId}`]: bulletData
-    }).catch(err => console.error('❌ Shoot failed:', err));
+      [`powerUps.${powerUpId}`]: {
+        id: powerUpId,
+        type: randomType,
+        x: Math.random() * (CANVAS_WIDTH - 30),
+        y: Math.random() * (CANVAS_HEIGHT - 30),
+        createdAt: Date.now(),
+      }
+    }).catch(err => console.error('❌ Spawn powerup failed:', err));
+  };
 
-    // Auto-remove after 2 seconds
+  const checkPowerUpCollision = () => {
+    Object.entries(powerUpsRef.current).forEach(([id, powerUp]) => {
+      const dx = playerPos.current.x - powerUp.x;
+      const dy = playerPos.current.y - powerUp.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 30) {
+        const gameStateRef = doc(db, 'arena_game_state', matchId);
+        const updates: any = {};
+
+        updates[`powerUps.${id}`] = deleteField();
+
+        switch (powerUp.type) {
+          case 'health':
+            updates[`players.${playerId}.health`] = Math.min((playersRef.current[playerId]?.health || 3) + 1, 5);
+            break;
+          case 'shield':
+            updates[`players.${playerId}.hasShield`] = true;
+            updates[`players.${playerId}.powerUpExpiry`] = Date.now() + 10000;
+            break;
+          case 'speed':
+            updates[`players.${playerId}.speedBoost`] = 1.5;
+            updates[`players.${playerId}.powerUpExpiry`] = Date.now() + 8000;
+            break;
+          case 'rapid_fire':
+            updates[`players.${playerId}.rapidFire`] = true;
+            updates[`players.${playerId}.powerUpExpiry`] = Date.now() + 10000;
+            break;
+          case 'triple_shot':
+            updates[`players.${playerId}.tripleShot`] = true;
+            updates[`players.${playerId}.powerUpExpiry`] = Date.now() + 12000;
+            break;
+        }
+
+        updateDoc(gameStateRef, updates).catch(err => console.error('❌ PowerUp pickup failed:', err));
+      }
+    });
   };
 
   const handleJoystickMove = (e: React.TouchEvent | React.MouseEvent) => {
