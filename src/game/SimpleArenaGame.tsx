@@ -68,10 +68,19 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       let x = 0;
       let y = 0;
 
-      if (keysPressed.current.has('w') || keysPressed.current.has('ArrowUp')) y -= speed;
-      if (keysPressed.current.has('s') || keysPressed.current.has('ArrowDown')) y += speed;
-      if (keysPressed.current.has('a') || keysPressed.current.has('ArrowLeft')) x -= speed;
-      if (keysPressed.current.has('d') || keysPressed.current.has('ArrowRight')) x += speed;
+      const hasVertical = keysPressed.current.has('w') || keysPressed.current.has('s') ||
+                         keysPressed.current.has('ArrowUp') || keysPressed.current.has('ArrowDown');
+      const hasHorizontal = keysPressed.current.has('a') || keysPressed.current.has('d') ||
+                           keysPressed.current.has('ArrowLeft') || keysPressed.current.has('ArrowRight');
+
+      // Only one direction at a time - vertical takes priority
+      if (hasVertical) {
+        if (keysPressed.current.has('w') || keysPressed.current.has('ArrowUp')) y -= speed;
+        if (keysPressed.current.has('s') || keysPressed.current.has('ArrowDown')) y += speed;
+      } else if (hasHorizontal) {
+        if (keysPressed.current.has('a') || keysPressed.current.has('ArrowLeft')) x -= speed;
+        if (keysPressed.current.has('d') || keysPressed.current.has('ArrowRight')) x += speed;
+      }
 
       joystickPos.current.x = x;
       joystickPos.current.y = y;
