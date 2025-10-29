@@ -50,6 +50,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const isShooting = useRef(false);
   const lastShot = useRef(0);
   const playerImage = useRef<HTMLImageElement | null>(null);
+  const keysPressed = useRef<Set<string>>(new Set());
 
   const CANVAS_WIDTH = 800;
   const CANVAS_HEIGHT = 600;
@@ -62,48 +63,44 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       playerImage.current = img;
     };
 
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const updateJoystick = () => {
       const speed = 0.8;
-      switch(e.key) {
-        case 'ArrowUp':
-        case 'w':
-          joystickPos.current.y = -speed;
-          break;
-        case 'ArrowDown':
-        case 's':
-          joystickPos.current.y = speed;
-          break;
-        case 'ArrowLeft':
-        case 'a':
-          joystickPos.current.x = -speed;
-          break;
-        case 'ArrowRight':
-        case 'd':
-          joystickPos.current.x = speed;
-          break;
-        case ' ':
+      let x = 0;
+      let y = 0;
+
+      if (keysPressed.current.has('w') || keysPressed.current.has('ArrowUp')) y -= speed;
+      if (keysPressed.current.has('s') || keysPressed.current.has('ArrowDown')) y += speed;
+      if (keysPressed.current.has('a') || keysPressed.current.has('ArrowLeft')) x -= speed;
+      if (keysPressed.current.has('d') || keysPressed.current.has('ArrowRight')) x += speed;
+
+      joystickPos.current.x = x;
+      joystickPos.current.y = y;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+
+      const key = e.key.toLowerCase();
+      const validKeys = ['w', 's', 'a', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '];
+
+      if (validKeys.includes(key)) {
+        if (key === ' ') {
           isShooting.current = true;
-          break;
+        } else {
+          keysPressed.current.add(e.key);
+          updateJoystick();
+        }
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      switch(e.key) {
-        case 'ArrowUp':
-        case 'w':
-        case 'ArrowDown':
-        case 's':
-          joystickPos.current.y = 0;
-          break;
-        case 'ArrowLeft':
-        case 'a':
-        case 'ArrowRight':
-        case 'd':
-          joystickPos.current.x = 0;
-          break;
-        case ' ':
-          isShooting.current = false;
-          break;
+      const key = e.key.toLowerCase();
+
+      if (key === ' ') {
+        isShooting.current = false;
+      } else {
+        keysPressed.current.delete(e.key);
+        updateJoystick();
       }
     };
 
