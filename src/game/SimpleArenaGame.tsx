@@ -18,6 +18,7 @@ interface Bullet {
   speedX: number;
   speedY: number;
   owner: string;
+  createdAt: number;
 }
 
 interface GameProps {
@@ -37,9 +38,9 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [players, setPlayers] = useState<Record<string, Player>>({});
-  const [bullets, setBullets] = useState<Bullet[]>([]);
+  const [bullets, setBullets] = useState<Record<string, Bullet>>({});
   const playersRef = useRef<Record<string, Player>>({});
-  const bulletsRef = useRef<Bullet[]>([]);
+  const bulletsRef = useRef<Record<string, Bullet>>({});
   const [score, setScore] = useState(0);
   const [health, setHealth] = useState(3);
 
@@ -147,12 +148,17 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           }
         }
         if (data.bullets) {
-          const validBullets = Object.values(data.bullets).filter((b: any) => b !== null && b.x !== undefined) as Bullet[];
+          const validBullets: Record<string, Bullet> = {};
+          Object.entries(data.bullets).forEach(([id, bullet]: [string, any]) => {
+            if (bullet && bullet.x !== undefined) {
+              validBullets[id] = bullet;
+            }
+          });
           bulletsRef.current = validBullets;
           setBullets(validBullets);
         } else {
-          bulletsRef.current = [];
-          setBullets([]);
+          bulletsRef.current = {};
+          setBullets({});
         }
       }
     });
@@ -184,7 +190,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
       });
 
-      currentBullets.forEach((bullet) => {
+      Object.values(currentBullets).forEach((bullet) => {
         if (!bullet || bullet.x === undefined || bullet.y === undefined) return;
         ctx.fillStyle = '#ffeb3b';
         ctx.beginPath();
@@ -260,10 +266,80 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
   useEffect(() => {
     let lastFirebaseUpdate = 0;
+    let lastBulletUpdate = 0;
 
     const gameLoop = setInterval(() => {
-      // This will be handled server-side in the future
-      // For now bullets are stateless
+      const gameStateRef = doc(db, 'arena_game_state', matchId);
+      const now = Date.now();
+
+      // Update bullets physics
+      if (now - lastBulletUpdate > 50) {
+        lastBulletUpdate = now;
+        const updates: any = {};
+
+        Object.entries(bulletsRef.current).forEach(([bulletId, bullet]) => {
+          if (!bullet || !bullet.owner) return;
+
+          // Calculate new position
+          const newX = bullet.x + bullet.speedX;
+          const newY = bullet.y + bullet.speedY;
+          const age = now - (bullet.createdAt || 0);
+
+          // Remove if out of bounds or too old
+          if (newX < 0 || newX > CANVAS_WIDTH || newY < 0 || newY > CANVAS_HEIGHT || age > 3000) {
+            updates[`bullets.${bulletId}`] = deleteField();
+            return;
+          }
+
+          // Check collision with obstacles
+          let hitObstacle = false;
+          for (const obs of obstacles) {
+            if (newX > obs.x && newX < obs.x + obs.width &&
+                newY > obs.y && newY < obs.y + obs.height) {
+              hitObstacle = true;
+              break;
+            }
+          }
+
+          if (hitObstacle) {
+            updates[`bullets.${bulletId}`] = deleteField();
+            return;
+          }
+
+          // Check collision with players
+          Object.entries(playersRef.current).forEach(([targetId, target]: [string, any]) => {
+            if (targetId === bullet.owner || !target || target.health <= 0) return;
+
+            const dx = newX - (target.x + PLAYER_SIZE / 2);
+            const dy = newY - (target.y + PLAYER_SIZE / 2);
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < PLAYER_SIZE / 2 + 6) {
+              // Hit detected!
+              updates[`bullets.${bulletId}`] = deleteField();
+              updates[`players.${targetId}.health`] = Math.max(0, target.health - 1);
+
+              // Award point if killed
+              if (target.health - 1 <= 0) {
+                const shooter = playersRef.current[bullet.owner];
+                if (shooter) {
+                  updates[`players.${bullet.owner}.score`] = (shooter.score || 0) + 1;
+                }
+              }
+            }
+          });
+
+          // Update position if not removed
+          if (!updates[`bullets.${bulletId}`]) {
+            updates[`bullets.${bulletId}.x`] = newX;
+            updates[`bullets.${bulletId}.y`] = newY;
+          }
+        });
+
+        if (Object.keys(updates).length > 0) {
+          updateDoc(gameStateRef, updates).catch(() => {});
+        }
+      }
 
       const hasMovement = joystickPos.current.x !== 0 || joystickPos.current.y !== 0;
 
@@ -287,10 +363,8 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           playerPos.current.y = newY;
         }
 
-        const now = Date.now();
         if (now - lastFirebaseUpdate > 50) {
           lastFirebaseUpdate = now;
-          const gameStateRef = doc(db, 'arena_game_state', matchId);
           updateDoc(gameStateRef, {
             [`players.${playerId}.x`]: playerPos.current.x,
             [`players.${playerId}.y`]: playerPos.current.y,
@@ -329,11 +403,6 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     }).catch(err => console.error('❌ Shoot failed:', err));
 
     // Auto-remove after 2 seconds
-    setTimeout(() => {
-      updateDoc(gameStateRef, {
-        [`bullets.${bulletId}`]: deleteField()
-      }).catch(() => {});
-    }, 2000);
   };
 
   const handleJoystickMove = (e: React.TouchEvent | React.MouseEvent) => {
