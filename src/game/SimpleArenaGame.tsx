@@ -43,7 +43,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const [score, setScore] = useState(0);
   const [health, setHealth] = useState(3);
 
-  const playerPos = useRef({ x: 400, y: 300 });
+  const playerPos = useRef({ x: 400, y: 450 });
   const joystickPos = useRef({ x: 0, y: 0 });
   const weaponAngle = useRef(0);
   const isShooting = useRef(false);
@@ -116,14 +116,13 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   }, []);
 
   useEffect(() => {
-    console.log('🔧 Setting up Firebase for match:', matchId);
     const gameStateRef = doc(db, 'arena_game_state', matchId);
 
     setDoc(gameStateRef, {
       players: {
         [playerId]: {
-          x: playerPos.current.x,
-          y: playerPos.current.y,
+          x: 400,
+          y: 450,
           angle: 0,
           health: 3,
           score: 0,
@@ -134,16 +133,12 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       bullets: {},
       lastUpdate: Date.now(),
     }, { merge: true })
-      .then(() => console.log('✅ Initial game state created'))
       .catch(err => console.error('❌ Failed to create game state:', err));
 
-    console.log('👂 Setting up Firebase listener...');
     const unsubGameState = onSnapshot(gameStateRef, (snapshot) => {
-      console.log('🔔 Firebase snapshot received!', snapshot.exists());
       const data = snapshot.data();
       if (data) {
         if (data.players) {
-          console.log('👥 Players update:', Object.keys(data.players).length, data.players);
           playersRef.current = data.players;
           setPlayers(data.players);
           if (data.players[playerId]) {
@@ -168,21 +163,11 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   }, [matchId, playerId, username, petImage]);
 
   useEffect(() => {
-    console.log('🖼️ Canvas useEffect triggered. Canvas:', !!canvasRef.current);
     const canvas = canvasRef.current;
-    if (!canvas) {
-      console.log('❌ Canvas ref is null!');
-      return;
-    }
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.log('❌ Canvas context is null!');
-      return;
-    }
-
-    console.log('✅ Canvas ready, starting draw loop');
-    let frameCount = 0;
+    if (!ctx) return;
     let animationId: number;
 
     const draw = () => {
@@ -191,11 +176,6 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
       ctx.fillStyle = '#1a1a2e';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      frameCount++;
-      if (frameCount % 60 === 0) {
-        console.log('🎨 Rendering frame. Players:', Object.keys(currentPlayers).length, currentPlayers);
-      }
 
       ctx.strokeStyle = '#4a5568';
       ctx.lineWidth = 3;
@@ -279,16 +259,10 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   };
 
   useEffect(() => {
-    console.log('🎮 Game loop started');
     let lastFirebaseUpdate = 0;
 
-    let loopCount = 0;
     const gameLoop = setInterval(() => {
-      loopCount++;
       const hasMovement = joystickPos.current.x !== 0 || joystickPos.current.y !== 0;
-      if (loopCount % 60 === 0) {
-        console.log('🔄 Game loop tick. Joystick:', joystickPos.current, 'Player pos:', playerPos.current, 'hasMovement:', hasMovement);
-      }
 
       if (hasMovement) {
         const speed = 5;
@@ -303,18 +277,11 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         const collisionX = checkCollision(newX, playerPos.current.y);
         const collisionY = checkCollision(playerPos.current.x, newY);
 
-        let moved = false;
         if (!collisionX) {
           playerPos.current.x = newX;
-          moved = true;
         }
         if (!collisionY) {
           playerPos.current.y = newY;
-          moved = true;
-        }
-
-        if (loopCount % 60 === 0) {
-          console.log('🏃 Movement:', { newX, newY, collisionX, collisionY, moved, finalPos: playerPos.current });
         }
 
         const now = Date.now();
@@ -389,7 +356,6 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       };
 
       weaponAngle.current = Math.atan2(dy, dx);
-      console.log('🎯 Joystick:', joystickPos.current);
     }
   };
 
@@ -411,7 +377,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         style={{ imageRendering: 'pixelated' }}
       />
 
-      <div className="absolute bottom-4 sm:bottom-8 w-full flex justify-between px-4 sm:px-8 pointer-events-none">
+      <div className="absolute bottom-20 sm:bottom-8 w-full flex justify-between px-4 sm:px-8 pointer-events-none z-50">
         <div
           className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-blue-500 bg-opacity-30 flex items-center justify-center pointer-events-auto active:bg-opacity-50 transition-all"
           onTouchStart={handleJoystickMove}
