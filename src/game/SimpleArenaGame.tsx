@@ -67,7 +67,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const bulletsRef = useRef<Record<string, Bullet>>({});
   const powerUpsRef = useRef<Record<string, PowerUp>>({});
   const [score, setScore] = useState(0);
-  const [health, setHealth] = useState(3);
+  const [health, setHealth] = useState(5);
   const lastPowerUpSpawn = useRef(0);
 
   const playerPos = useRef({ x: 400, y: 450 });
@@ -180,7 +180,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           x: 400,
           y: 450,
           angle: 0,
-          health: 3,
+          health: 5,
           score: 0,
           username,
           petImage: petImage || '/pupfi-logo.png',
@@ -200,6 +200,12 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           if (data.players[playerId]) {
             setHealth(data.players[playerId].health);
             setScore(data.players[playerId].score);
+
+            if (Math.abs(data.players[playerId].x - playerPos.current.x) > 100 ||
+                Math.abs(data.players[playerId].y - playerPos.current.y) > 100) {
+              playerPos.current.x = data.players[playerId].x;
+              playerPos.current.y = data.players[playerId].y;
+            }
           }
         }
         if (data.bullets) {
@@ -305,7 +311,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         }
 
         ctx.fillStyle = id === playerId ? '#00ff00' : '#ff0000';
-        ctx.fillRect(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2 - 10, PLAYER_SIZE * (player.health / 3), 5);
+        ctx.fillRect(-PLAYER_SIZE / 2, -PLAYER_SIZE / 2 - 10, PLAYER_SIZE * (player.health / 5), 5);
 
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
@@ -426,13 +432,25 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
                 updates[`players.${targetId}.hasShield`] = false;
                 updates[`players.${targetId}.powerUpExpiry`] = 0;
               } else {
-                updates[`players.${targetId}.health`] = Math.max(0, target.health - 1);
+                const newHealth = Math.max(0, target.health - 1);
+                updates[`players.${targetId}.health`] = newHealth;
 
-                if (target.health - 1 <= 0) {
+                if (newHealth <= 0) {
                   const shooter = playersRef.current[bullet.owner];
                   if (shooter) {
                     updates[`players.${bullet.owner}.score`] = (shooter.score || 0) + 1;
                   }
+
+                  const spawnX = 50 + Math.random() * (CANVAS_WIDTH - 100);
+                  const spawnY = 50 + Math.random() * (CANVAS_HEIGHT - 100);
+                  updates[`players.${targetId}.x`] = spawnX;
+                  updates[`players.${targetId}.y`] = spawnY;
+                  updates[`players.${targetId}.health`] = 5;
+                  updates[`players.${targetId}.hasShield`] = false;
+                  updates[`players.${targetId}.speedBoost`] = 1;
+                  updates[`players.${targetId}.rapidFire`] = false;
+                  updates[`players.${targetId}.tripleShot`] = false;
+                  updates[`players.${targetId}.powerUpExpiry`] = 0;
                 }
               }
             }
@@ -635,7 +653,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   return (
     <div className="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden touch-none">
       <div className="absolute top-2 left-2 text-white text-sm sm:text-xl z-10 bg-black bg-opacity-50 px-3 py-1 rounded">
-        Score: {score} | HP: {health}/3
+        Score: {score} | HP: {health}/5
       </div>
 
       {activePowerUps.length > 0 && (
