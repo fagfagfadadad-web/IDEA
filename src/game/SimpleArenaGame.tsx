@@ -454,7 +454,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
       if (hasMovement) {
         const currentPlayer = playersRef.current[playerId];
-        const baseSpeed = 5;
+        const baseSpeed = 2.5;
         const speed = baseSpeed * (currentPlayer?.speedBoost || 1);
         let newX = playerPos.current.x + speed * joystickPos.current.x;
         let newY = playerPos.current.y + speed * joystickPos.current.y;
