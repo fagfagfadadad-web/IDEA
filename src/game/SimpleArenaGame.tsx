@@ -23,7 +23,7 @@ interface Bullet {
 
 interface PowerUp {
   id: string;
-  type: 'shield' | 'speed' | 'health' | 'rapid_fire' | 'triple_shot';
+  type: 'shield' | 'speed' | 'health' | 'rapid_fire' | 'triple_shot' | 'freeze';
   x: number;
   y: number;
   createdAt: number;
@@ -42,6 +42,8 @@ interface PlayerState {
   rapidFire?: boolean;
   tripleShot?: boolean;
   powerUpExpiry?: number;
+  isFrozen?: boolean;
+  freezeExpiry?: number;
 }
 
 interface GameProps {
@@ -266,7 +268,8 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           speed: '⚡',
           health: '❤️',
           rapid_fire: '🔥',
-          triple_shot: '⚔️'
+          triple_shot: '⚔️',
+          freeze: '❄️'
         };
         ctx.fillStyle = '#fff';
         ctx.font = '24px Arial';
@@ -279,11 +282,11 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         ctx.stroke();
       });
 
-      Object.values(currentBullets).forEach((bullet) => {
+      Object.entries(currentBullets).forEach(([bulletId, bullet]) => {
         if (!bullet || bullet.x === undefined || bullet.y === undefined) return;
         ctx.fillStyle = '#ffeb3b';
         ctx.beginPath();
-        ctx.arc(bullet.x, bullet.y, 6, 0, Math.PI * 2);
+        ctx.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2);
         ctx.fill();
       });
 
@@ -308,6 +311,14 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           ctx.beginPath();
           ctx.arc(0, 0, PLAYER_SIZE / 2 + 8, 0, Math.PI * 2);
           ctx.stroke();
+        }
+
+        if (player.isFrozen && player.freezeExpiry && Date.now() < player.freezeExpiry) {
+          ctx.fillStyle = 'rgba(100, 200, 255, 0.3)';
+          ctx.beginPath();
+          ctx.arc(0, 0, PLAYER_SIZE / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillText('❄️', -8, 8);
         }
 
         ctx.fillStyle = id === playerId ? '#00ff00' : '#ff0000';
@@ -472,6 +483,11 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
 
       if (hasMovement) {
         const currentPlayer = playersRef.current[playerId];
+
+        if (currentPlayer?.isFrozen && currentPlayer.freezeExpiry && Date.now() < currentPlayer.freezeExpiry) {
+          return;
+        }
+
         const baseSpeed = 2.5;
         const speed = baseSpeed * (currentPlayer?.speedBoost || 1);
         let newX = playerPos.current.x + speed * joystickPos.current.x;
@@ -510,6 +526,14 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       }
 
       const currentPlayer = playersRef.current[playerId];
+
+      if (currentPlayer?.freezeExpiry && Date.now() > currentPlayer.freezeExpiry && currentPlayer.isFrozen) {
+        updateDoc(gameStateRef, {
+          [`players.${playerId}.isFrozen`]: false,
+          [`players.${playerId}.freezeExpiry`]: 0,
+        }).catch(() => {});
+      }
+
       const fireRate = currentPlayer?.rapidFire ? 150 : 300;
 
       if (isShooting.current && Date.now() - lastShot.current > fireRate) {
@@ -551,7 +575,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   };
 
   const spawnPowerUp = () => {
-    const powerUpTypes: PowerUp['type'][] = ['shield', 'speed', 'health', 'rapid_fire', 'triple_shot'];
+    const powerUpTypes: PowerUp['type'][] = ['shield', 'speed', 'health', 'rapid_fire', 'triple_shot', 'freeze'];
     const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
     const powerUpId = `powerup_${Date.now()}`;
 
@@ -598,6 +622,14 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
           case 'triple_shot':
             updates[`players.${playerId}.tripleShot`] = true;
             updates[`players.${playerId}.powerUpExpiry`] = Date.now() + 12000;
+            break;
+          case 'freeze':
+            Object.keys(playersRef.current).forEach((pId) => {
+              if (pId !== playerId) {
+                updates[`players.${pId}.isFrozen`] = true;
+                updates[`players.${pId}.freezeExpiry`] = Date.now() + 2000;
+              }
+            });
             break;
         }
 
