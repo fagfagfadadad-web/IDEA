@@ -77,6 +77,7 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
   const lastShot = useRef(0);
   const playerImage = useRef<HTMLImageElement | null>(null);
   const keysPressed = useRef<Set<string>>(new Set());
+  const lastDirectionKey = useRef<string | null>(null);
 
   const CANVAS_WIDTH = 800;
   const CANVAS_HEIGHT = 600;
@@ -89,53 +90,75 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
       playerImage.current = img;
     };
 
-    const updateJoystick = () => {
-      const speed = 0.8;
-      let x = 0;
-      let y = 0;
-
-      const hasVertical = keysPressed.current.has('w') || keysPressed.current.has('s') ||
-                         keysPressed.current.has('ArrowUp') || keysPressed.current.has('ArrowDown');
-      const hasHorizontal = keysPressed.current.has('a') || keysPressed.current.has('d') ||
-                           keysPressed.current.has('ArrowLeft') || keysPressed.current.has('ArrowRight');
-
-      // Only one direction at a time - vertical takes priority
-      if (hasVertical) {
-        if (keysPressed.current.has('w') || keysPressed.current.has('ArrowUp')) y -= speed;
-        if (keysPressed.current.has('s') || keysPressed.current.has('ArrowDown')) y += speed;
-      } else if (hasHorizontal) {
-        if (keysPressed.current.has('a') || keysPressed.current.has('ArrowLeft')) x -= speed;
-        if (keysPressed.current.has('d') || keysPressed.current.has('ArrowRight')) x += speed;
-      }
-
-      joystickPos.current.x = x;
-      joystickPos.current.y = y;
-    };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
 
-      const key = e.key.toLowerCase();
+      const key = e.key;
+      const keyLower = key.toLowerCase();
       const validKeys = ['w', 's', 'a', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '];
 
-      if (validKeys.includes(key)) {
-        if (key === ' ') {
+      if (validKeys.includes(keyLower)) {
+        if (keyLower === ' ') {
           isShooting.current = true;
         } else {
-          keysPressed.current.add(e.key);
-          updateJoystick();
+          keysPressed.current.add(key);
+          lastDirectionKey.current = key;
+
+          const speed = 0.8;
+          const k = keyLower;
+          if (k === 'w' || k === 'arrowup') {
+            joystickPos.current.x = 0;
+            joystickPos.current.y = -speed;
+          } else if (k === 's' || k === 'arrowdown') {
+            joystickPos.current.x = 0;
+            joystickPos.current.y = speed;
+          } else if (k === 'a' || k === 'arrowleft') {
+            joystickPos.current.x = -speed;
+            joystickPos.current.y = 0;
+          } else if (k === 'd' || k === 'arrowright') {
+            joystickPos.current.x = speed;
+            joystickPos.current.y = 0;
+          }
         }
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
+      const key = e.key;
+      const keyLower = key.toLowerCase();
 
-      if (key === ' ') {
+      if (keyLower === ' ') {
         isShooting.current = false;
       } else {
-        keysPressed.current.delete(e.key);
-        updateJoystick();
+        keysPressed.current.delete(key);
+
+        if (lastDirectionKey.current === key) {
+          if (keysPressed.current.size === 0) {
+            joystickPos.current.x = 0;
+            joystickPos.current.y = 0;
+            lastDirectionKey.current = null;
+          } else {
+            const remaining = Array.from(keysPressed.current);
+            const lastKey = remaining[remaining.length - 1];
+            lastDirectionKey.current = lastKey;
+
+            const speed = 0.8;
+            const k = lastKey.toLowerCase();
+            if (k === 'w' || k === 'arrowup') {
+              joystickPos.current.x = 0;
+              joystickPos.current.y = -speed;
+            } else if (k === 's' || k === 'arrowdown') {
+              joystickPos.current.x = 0;
+              joystickPos.current.y = speed;
+            } else if (k === 'a' || k === 'arrowleft') {
+              joystickPos.current.x = -speed;
+              joystickPos.current.y = 0;
+            } else if (k === 'd' || k === 'arrowright') {
+              joystickPos.current.x = speed;
+              joystickPos.current.y = 0;
+            }
+          }
+        }
       }
     };
 
@@ -599,11 +622,31 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     joystickPos.current = { x: 0, y: 0 };
   };
 
+  const currentPlayer = players[playerId];
+  const activePowerUps: string[] = [];
+
+  if (currentPlayer) {
+    if (currentPlayer.hasShield) activePowerUps.push('🛡️ Shield');
+    if (currentPlayer.speedBoost && currentPlayer.speedBoost > 1) activePowerUps.push('⚡ Speed Boost');
+    if (currentPlayer.rapidFire) activePowerUps.push('🔥 Rapid Fire');
+    if (currentPlayer.tripleShot) activePowerUps.push('⚔️ Triple Shot');
+  }
+
   return (
     <div className="relative w-full h-full bg-black flex flex-col items-center justify-center overflow-hidden touch-none">
       <div className="absolute top-2 left-2 text-white text-sm sm:text-xl z-10 bg-black bg-opacity-50 px-3 py-1 rounded">
         Score: {score} | HP: {health}/3
       </div>
+
+      {activePowerUps.length > 0 && (
+        <div className="absolute top-14 left-2 z-10 space-y-1">
+          {activePowerUps.map((powerUp, index) => (
+            <div key={index} className="bg-purple-600 bg-opacity-90 text-white text-xs sm:text-sm px-2 py-1 rounded shadow-lg">
+              {powerUp}
+            </div>
+          ))}
+        </div>
+      )}
 
       <canvas
         ref={canvasRef}
