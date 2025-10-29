@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { db } from '../lib/firebase';
-import { doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, updateDoc, deleteField } from 'firebase/firestore';
 
 interface Player {
   x: number;
@@ -262,6 +262,9 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     let lastFirebaseUpdate = 0;
 
     const gameLoop = setInterval(() => {
+      // This will be handled server-side in the future
+      // For now bullets are stateless
+
       const hasMovement = joystickPos.current.x !== 0 || joystickPos.current.y !== 0;
 
       if (hasMovement) {
@@ -312,20 +315,24 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
     const centerY = playerPos.current.y + PLAYER_SIZE / 2;
 
     const gameStateRef = doc(db, 'arena_game_state', matchId);
-    updateDoc(gameStateRef, {
-      [`bullets.${bulletId}`]: {
-        x: centerX + Math.cos(angle) * 30,
-        y: centerY + Math.sin(angle) * 30,
-        speedX: Math.cos(angle) * 10,
-        speedY: Math.sin(angle) * 10,
-        owner: playerId,
-      }
-    });
+    const bulletData = {
+      x: centerX + Math.cos(angle) * 30,
+      y: centerY + Math.sin(angle) * 30,
+      speedX: Math.cos(angle) * 10,
+      speedY: Math.sin(angle) * 10,
+      owner: playerId,
+      createdAt: Date.now(),
+    };
 
+    updateDoc(gameStateRef, {
+      [`bullets.${bulletId}`]: bulletData
+    }).catch(err => console.error('❌ Shoot failed:', err));
+
+    // Auto-remove after 2 seconds
     setTimeout(() => {
       updateDoc(gameStateRef, {
-        [`bullets.${bulletId}`]: null,
-      });
+        [`bullets.${bulletId}`]: deleteField()
+      }).catch(() => {});
     }, 2000);
   };
 
