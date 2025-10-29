@@ -491,15 +491,19 @@ export const SimpleArenaGame: React.FC<GameProps> = ({
         const baseSpeed = 2.5;
         const speed = baseSpeed * (currentPlayer?.speedBoost || 1);
 
-        const magnitude = Math.sqrt(
-          joystickPos.current.x * joystickPos.current.x +
-          joystickPos.current.y * joystickPos.current.y
-        );
-        const normalizedX = magnitude > 0 ? joystickPos.current.x / magnitude : 0;
-        const normalizedY = magnitude > 0 ? joystickPos.current.y / magnitude : 0;
+        let moveX = joystickPos.current.x;
+        let moveY = joystickPos.current.y;
 
-        let newX = playerPos.current.x + speed * normalizedX;
-        let newY = playerPos.current.y + speed * normalizedY;
+        if (Math.abs(moveX) > 0 && Math.abs(moveY) > 0) {
+          if (Math.abs(moveX) > Math.abs(moveY)) {
+            moveY = 0;
+          } else {
+            moveX = 0;
+          }
+        }
+
+        let newX = playerPos.current.x + speed * moveX;
+        let newY = playerPos.current.y + speed * moveY;
 
         // Clamp to canvas boundaries
         newX = Math.max(0, Math.min(newX, CANVAS_WIDTH - PLAYER_SIZE));
